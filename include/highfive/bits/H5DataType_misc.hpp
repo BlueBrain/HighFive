@@ -1,6 +1,8 @@
 #ifndef H5DATATYPE_MISC_HPP
 #define H5DATATYPE_MISC_HPP
 
+#include <string>
+
 #include "../H5DataType.hpp"
 #include "../H5Exception.hpp"
 
@@ -82,7 +84,16 @@ inline AtomicType<bool>::AtomicType(){
     _hid = H5Tcopy(H5T_NATIVE_HBOOL);
 }
 
-
+// std string
+template <>
+inline AtomicType<std::string>::AtomicType(){
+    _hid = H5Tcopy(H5T_C_S1);   
+    if( H5Tset_size(_hid,H5T_VARIABLE) <0){
+        HDF5ErrMapper::ToException<DataTypeException>("Unable to define datatype size to variable");
+    }
+    // define encoding to UTF-8 by default
+    H5Tset_cset(_hid, H5T_CSET_UTF8);
+}
 
 }
 

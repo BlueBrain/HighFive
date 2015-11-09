@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <typeinfo>
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5DataSpace.hpp>
@@ -20,6 +21,28 @@
 #include <boost/test/included/unit_test.hpp>
 
 using namespace HighFive;
+
+
+template<typename T>
+T content_generate(){
+    return static_cast<T>(std::rand()*1000);
+}
+
+template<>
+char content_generate<char>(){
+    return char((std::rand()%26)+0x61);
+}
+
+template<>
+std::string content_generate<std::string>(){
+    const size_t size_string = std::rand()%1000;
+    std::string random_string;
+    random_string.resize(size_string);
+    std::generate(random_string.begin(), random_string.end(), content_generate<char>);
+    return random_string;
+}
+
+
 
 BOOST_AUTO_TEST_CASE( HighFiveBasic )
 {
@@ -181,6 +204,7 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
 }
 
 
+
 BOOST_AUTO_TEST_CASE( ReadWriteDataSetInteger )
 {
 
@@ -228,4 +252,54 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetInteger )
         }
     }
 }
+
+
+
+template <typename T>
+void ReadWriteVectorTest(){
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
+
+    std::srand(std::time(0));
+    const size_t x_size = 800;
+    const std::string DATASET_NAME("dset");
+    typename std::vector<T> vec;
+
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    vec.resize(x_size);
+    std::generate(vec.begin(), vec.end(), content_generate<T>);
+
+    // Create a dataset with double precision floating points
+    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+
+
+    dataset.write(vec);
+
+    typename std::vector<T> result;
+
+    dataset.read(result);
+
+    BOOST_CHECK_EQUAL(vec.size(), x_size);
+    BOOST_CHECK_EQUAL(result.size(), x_size);
+
+    for(int i =0; i < x_size; ++i){
+        //std::cout << result[i] << " " << vec[i] << "  ";
+        BOOST_CHECK_EQUAL(result[i], vec[i]);
+    }
+}
+
+typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, std::string> dataset_test_types;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWriteDataSetVectorInt, T, dataset_test_types)
+{
+    ReadWriteVectorTest<T>();
+}
+
+
+
 

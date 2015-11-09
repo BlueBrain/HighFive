@@ -10,23 +10,42 @@
 
 namespace HighFive{
 
-DataSpace::DataSpace(const std::vector<size_t> & dims){
+
+inline DataSpace::DataSpace(const std::vector<size_t> & dims){
     std::vector<hsize_t> real_dims(dims.size());
     std::copy(dims.begin(), dims.end(), real_dims.begin());
 
     if( (_hid = H5Screate_simple(dims.size(), &(real_dims.at(0)), NULL) ) < 0){
-        throw DataSpaceException("Impossible to create DataSpace");
+        throw DataSpaceException("Impossible to create dataspace");
     }
 }
 
-DataSpace::DataSpace() {};
-
-size_t DataSpace::getDims() const{
-    const int dims = H5Sget_simple_extent_ndims(_hid);
-    if(dims < 0){
-        HDF5ErrMapper::ToException<DataSetException>("Unable to get DataSpace dimensions");
+inline DataSpace::DataSpace(const size_t dim1){
+    const hsize_t dims = hsize_t(dim1);
+    if( (_hid = H5Screate_simple(1, &dims, NULL) ) < 0){
+        throw DataSpaceException("Impossible to create dataspace");
     }
-    return size_t(dims);
+}
+
+inline DataSpace::DataSpace() {}
+
+inline size_t DataSpace::getNumberDimensions() const{
+    const int ndim = H5Sget_simple_extent_ndims(_hid);
+    if(ndim < 0){
+        HDF5ErrMapper::ToException<DataSetException>("Unable to get dataspace number of dimensions");
+    }
+    return size_t(ndim);
+}
+
+std::vector<size_t> DataSpace::getDimensions() const{
+    std::vector<hsize_t> dims(getNumberDimensions());
+    if( H5Sget_simple_extent_dims(_hid, &(dims[0]), NULL) <0){
+        HDF5ErrMapper::ToException<DataSetException>("Unable to get dataspace dimensions");
+    }
+
+    std::vector<size_t> res(dims.size());
+    std::copy(dims.begin(), dims.end(), res.begin());
+    return res;
 }
 
 }

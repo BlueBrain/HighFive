@@ -82,6 +82,15 @@ public:
 };
 
 ///
+/// \brief Exception specific to HighFive DataType interface
+///
+class DataTypeException : public Exception{
+public:
+    DataTypeException(const std::string & err_msg) : Exception(err_msg){}
+
+};
+
+///
 /// \brief Exception specific to HighFive File interface
 ///
 class FileException : public Exception{

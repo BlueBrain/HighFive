@@ -31,7 +31,7 @@ public:
     ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
     template <typename T>
-    void read(T array);
+    void read(T & array);
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
@@ -39,7 +39,7 @@ public:
     ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
     template <typename T>
-    void write(T buffer);
+    void write(T & buffer);
 
 protected:
     DataSet();

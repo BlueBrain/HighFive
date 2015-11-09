@@ -35,7 +35,7 @@ public:
     virtual ~File(){}
 
     ///
-    /// \brief createDataSet Create a new DataSet in the current file
+    /// \brief createDataSet Create a new dataset in the current file of datatype type and of size space
     /// \param dataset_name identifier of the dataset
     /// \param space Associated DataSpace, see \ref DataSpace for more informations
     /// \param type Type of Data
@@ -43,12 +43,22 @@ public:
     DataSet createDataSet(const std::string & dataset_name, const DataSpace & space, const DataType & type);
 
     ///
-    /// \brief createDataSet Create a new DataSet in the current file with a basic datatype T ( e.g T = int, double )
+    /// \brief createDataSet create a new dataset in the current file with a size specified by space
     /// \param dataset_name identifier of the dataset
     /// \param space Associated DataSpace, see \ref DataSpace for more informations
     /// \return DataSet Object
+    ///
+    ///
+    ///
     template <typename Type>
     DataSet createDataSet(const std::string & dataset_name, const DataSpace & space);
+
+    ///
+    /// \brief createDataSet create a new dataset of the size of the associated Vector
+    /// \param dataset_name identifier of the dataset
+    /// \return DataSet Object
+    template <typename Vector>
+    DataSet createDataSet(const std::string & dataset_name, const Vector & vector);
 
 private:
     std::string _filename;

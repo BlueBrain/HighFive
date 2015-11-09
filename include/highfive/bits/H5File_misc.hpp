@@ -52,6 +52,12 @@ DataSet File::createDataSet(const std::string & dataset_name, const DataSpace & 
     return createDataSet(dataset_name, space, AtomicType<Type>());
 }
 
+template <typename Vector>
+DataSet File::createDataSet(const std::string & dataset_name, const Vector & vector){
+    return createDataSet(dataset_name, DataSpace(vector.size()), AtomicType<typename details::type_of_array<Vector>::type>());
+}
+
+
 
 }
 
