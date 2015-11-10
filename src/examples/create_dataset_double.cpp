@@ -10,25 +10,28 @@
 const std::string FILE_NAME("h5tutr_dset.h5");
 const std::string DATASET_NAME("dset");
 
+// Create a dataset name "dset" of double 4x6
+// h5tutr_dset.h5
+//
 int main (void)
 {
     using namespace HighFive;
-    // Try block to detect exceptions raised by any of the calls inside it
     try
     {
         // Create a new file using the default property lists.
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the data space for the dataset.
-        std::vector<size_t> dims;
-        dims.push_back(4);
-        dims.push_back(6);
+        std::vector<size_t> dims(2);
+        dims[0]= 4;
+        dims[1]= 6;
 
         DataSpace dataspace(dims);
 
         DataSet dataset = file.createDataSet<double>(DATASET_NAME,  dataspace);
 
     }catch(Exception & err){
+        // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }
 

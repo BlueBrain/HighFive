@@ -60,6 +60,14 @@ public:
     template <typename Vector>
     DataSet createDataSet(const std::string & dataset_name, const Vector & vector);
 
+
+    ///
+    /// \brief get an existing dataset in the current file
+    /// \param dataset_name
+    /// \return return the named dataset, or throw exception if not found
+    ///
+    DataSet getDataSet(const std::string & dataset_name);
+
 private:
     std::string _filename;
 };

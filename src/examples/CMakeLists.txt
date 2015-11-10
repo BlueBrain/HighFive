@@ -1,11 +1,26 @@
 
 
-set(H5_DATASET_SRC "createdataset.cpp")
+
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
 
 FILE(GLOB headers_highfive "${CMAKE_SOURCE_DIR}/include/highfive/*.hpp")
 FILE(GLOB headers_highfive_bits "${CMAKE_SOURCE_DIR}/include/highfive/bits/*.hpp")
 
-add_executable(h5-create-dataset ${H5_DATASET_SRC} ${headers_highfive} ${headers_highfive_bits})
-target_link_libraries(h5-create-dataset ${HDF5_LIBRARIES})
+
+function(compile_example exemple_source)
+
+get_filename_component(example_filename ${exemple_source} NAME)
+string(REPLACE ".cpp" "_bin" example_name ${example_filename})
+add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})
+target_link_libraries(${example_name} ${HDF5_LIBRARIES})
+
+endfunction()
+
+
+file(GLOB list_example "*.cpp")
+
+foreach(example_src ${list_example})
+compile_example(${example_src})
+
+endforeach()
