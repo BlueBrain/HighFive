@@ -25,11 +25,11 @@ void write_dataset(){
 
     DataSet dataset = file.createDataSet< std::vector<int> >(DATASET_NAME,  data);
 
-    // lets write our vector of int
+    // lets write our vector of int to the HDF5 dataset
     dataset.write(data);
 }
 
-// read a dataset 1D to a 1D vector of int
+// read our data back
 void read_dataset(){
     // Create a new file using the default property lists.
     File file(FILE_NAME, File::ReadOnly);

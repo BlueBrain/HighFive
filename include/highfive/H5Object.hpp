@@ -6,6 +6,8 @@
 
 namespace HighFive{
 
+template <typename Derivate> class NodeTraits;
+
 class Object{
 public:
 
@@ -34,6 +36,9 @@ protected:
     virtual void destroy();
 
     hid_t _hid;
+private:
+    template <typename Derivate>
+    friend class NodeTraits;
 };
 
 

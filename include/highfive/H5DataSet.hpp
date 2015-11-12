@@ -7,9 +7,11 @@
 
 
 
+
 namespace HighFive{
 
-class File;
+
+template <typename Derivate> class NodeTraits;
 class DataType;
 class DataSpace;
 
@@ -41,10 +43,10 @@ public:
     template <typename T>
     void write(T & buffer);
 
-protected:
+private:
     DataSet();
+    template <typename Derivate> friend class NodeTraits;
 
-    friend class File;
 };
 
 }

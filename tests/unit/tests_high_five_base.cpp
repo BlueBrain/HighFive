@@ -16,6 +16,7 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5DataSet.hpp>
+#include <highfive/H5Group.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTest
 #include <boost/test/included/unit_test.hpp>
@@ -87,6 +88,56 @@ BOOST_AUTO_TEST_CASE( HighFiveException )
      }, FileException);
 
 
+}
+
+
+BOOST_AUTO_TEST_CASE( HighFiveGroupAndDataSet )
+{
+
+    const std::string FILE_NAME("h5_group_test.h5");
+    const std::string DATASET_NAME("dset");
+    const std::string GROUP_NAME1("/group1");
+    const std::string GROUP_NAME2("group2");
+    const std::string GROUP_NESTED_NAME("group_nested");
+
+
+    {
+        // Create a new file using the default property lists.
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+        // absolute group
+        file.createGroup(GROUP_NAME1);
+        // nested group absolute
+        file.createGroup(GROUP_NAME1 + "/" + GROUP_NESTED_NAME);
+        // relative group
+        Group g1 =  file.createGroup(GROUP_NAME2);
+        // relative group
+        Group nested = g1.createGroup(GROUP_NESTED_NAME);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims;
+        dims.push_back(4);
+        dims.push_back(6);
+
+        DataSpace dataspace(dims);
+
+        DataSet dataset_absolute = file.createDataSet(GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" + DATASET_NAME, dataspace, AtomicType<double>());
+
+        DataSet dataset_relative = nested.createDataSet(DATASET_NAME, dataspace, AtomicType<double>());
+    }
+    // read it back
+    {
+        File file(FILE_NAME, File::ReadOnly);
+        Group g1 = file.getGroup(GROUP_NAME1);
+        Group g2 = file.getGroup(GROUP_NAME2);
+        Group nested_group2 = g2.getGroup(GROUP_NESTED_NAME);
+
+        DataSet dataset_absolute = file.getDataSet(GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" + DATASET_NAME);
+        BOOST_CHECK_EQUAL(4, dataset_absolute.getSpace().getDimensions()[0]);
+
+        DataSet dataset_relative = nested_group2.getDataSet(DATASET_NAME);
+        BOOST_CHECK_EQUAL(4, dataset_relative.getSpace().getDimensions()[0]);
+    }
 }
 
 

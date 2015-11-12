@@ -120,6 +120,15 @@ public:
 
 };
 
+///
+/// \brief Exception specific to HighFive Group interface
+///
+class GroupException : public Exception{
+public:
+    GroupException(const std::string & err_msg) : Exception(err_msg){}
+
+};
+
 
 }
 

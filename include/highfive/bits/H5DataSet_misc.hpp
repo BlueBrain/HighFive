@@ -3,6 +3,7 @@
 
 #include "../H5DataSet.hpp"
 
+#include <string>
 #include <sstream>
 
 #include <H5Dpublic.h>
@@ -96,7 +97,6 @@ struct data_converter<std::vector<std::string> >{
         vec.resize(_c_vec.size());
         for(size_t i = 0; i < vec.size(); ++i){
             vec[i] = std::string(_c_vec[i]);
-            //std::cout << " " << c_vec[i];
         }
 
         if(_c_vec.empty() == false && _c_vec[0] != NULL){

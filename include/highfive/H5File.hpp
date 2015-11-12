@@ -4,15 +4,14 @@
 #include <string>
 
 #include "H5Object.hpp"
+#include "bits/H5Node_traits.hpp"
 
 
 namespace HighFive{
 
-class DataSet;
-class DataSpace;
-class DataType;
 
-class File : public Object {
+
+class File : public Object, public NodeTraits<File> {
 public:
 
     /// Open flag: Read only access
@@ -34,39 +33,7 @@ public:
 
     virtual ~File(){}
 
-    ///
-    /// \brief createDataSet Create a new dataset in the current file of datatype type and of size space
-    /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more informations
-    /// \param type Type of Data
-    /// \return DataSet Object
-    DataSet createDataSet(const std::string & dataset_name, const DataSpace & space, const DataType & type);
 
-    ///
-    /// \brief createDataSet create a new dataset in the current file with a size specified by space
-    /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more informations
-    /// \return DataSet Object
-    ///
-    ///
-    ///
-    template <typename Type>
-    DataSet createDataSet(const std::string & dataset_name, const DataSpace & space);
-
-    ///
-    /// \brief createDataSet create a new dataset of the size of the associated Vector
-    /// \param dataset_name identifier of the dataset
-    /// \return DataSet Object
-    template <typename Vector>
-    DataSet createDataSet(const std::string & dataset_name, const Vector & vector);
-
-
-    ///
-    /// \brief get an existing dataset in the current file
-    /// \param dataset_name
-    /// \return return the named dataset, or throw exception if not found
-    ///
-    DataSet getDataSet(const std::string & dataset_name);
 
 private:
     std::string _filename;

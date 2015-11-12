@@ -1,0 +1,26 @@
+#ifndef HIGHFIVE_H5GROUP_HPP
+#define HIGHFIVE_H5GROUP_HPP
+
+
+#include "H5Object.hpp"
+#include "bits/H5Node_traits.hpp"
+
+namespace HighFive {
+
+class File;
+
+class Group : public Object, public NodeTraits<Group>
+{
+public:
+    Group();
+
+
+    friend class File;
+
+};
+
+} 
+
+#include "bits/H5Group_misc.hpp"
+
+#endif // HIGHFIVE_H5GROUP_HPP
