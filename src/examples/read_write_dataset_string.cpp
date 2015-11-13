@@ -41,7 +41,7 @@ int main (void)
         // lets write our vector of int
         dataset.read(result_string_list);
 
-        for(int i=0; i < result_string_list.size(); ++i){
+        for(size_t i=0; i < result_string_list.size(); ++i){
             std::cout << ":" << i << " " << result_string_list[i] << "\n";
         }
 

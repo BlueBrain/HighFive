@@ -24,6 +24,16 @@
 using namespace HighFive;
 
 
+template<typename T, typename Func>
+void foreach2D(T* table, size_t x, size_t y, Func & func){
+    for(size_t i = 0; i < x; i++){
+        for(size_t j = 0; j < y; j++){
+            table[i][j] = func();
+        }
+    }
+}
+
+
 template<typename T>
 T content_generate(){
     return static_cast<T>(std::rand()*1000);
@@ -234,11 +244,7 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
 
     double array[x_size][y_size];
 
-    for(int i =0; i < x_size; ++i){
-        for(int j =0; j < y_size; ++j){
-            array[i][j] = rand();
-        }
-    }
+    foreach2D(array, x_size, y_size, content_generate<double>);
 
     dataset.write(array);
 
@@ -247,8 +253,8 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
 
     dataset.read(result);
 
-    for(int i =0; i < x_size; ++i){
-        for(int j =0; j < y_size; ++j){
+    for(size_t i =0; i < x_size; ++i){
+        for(size_t j =0; j < y_size; ++j){
             BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
         }
     }
@@ -284,8 +290,8 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetInteger )
 
     int array[x_size][y_size];
 
-    for(int i =0; i < x_size; ++i){
-        for(int j =0; j < y_size; ++j){
+    for(size_t i =0; i < x_size; ++i){
+        for(size_t j =0; j < y_size; ++j){
             array[i][j] = int(rand()*1000);
         }
     }
@@ -297,8 +303,8 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetInteger )
 
     dataset.read(result);
 
-    for(int i =0; i < x_size; ++i){
-        for(int j =0; j < y_size; ++j){
+    for(size_t i =0; i < x_size; ++i){
+        for(size_t j =0; j < y_size; ++j){
             BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
         }
     }
@@ -338,7 +344,7 @@ void ReadWriteVectorTest(){
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
 
-    for(int i =0; i < x_size; ++i){
+    for(size_t i =0; i < x_size; ++i){
         //std::cout << result[i] << " " << vec[i] << "  ";
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }

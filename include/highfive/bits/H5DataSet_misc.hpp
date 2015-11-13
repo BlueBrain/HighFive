@@ -48,25 +48,36 @@ struct type_of_array<T [N]> { typedef typename type_of_array<T>::type type; };
 // apply conversion operations to the incoming data
 template<typename Array>
 struct data_converter{
-    inline data_converter(Array & datamem, DataSpace & space){ (void) datamem; (void) space; /* do nothing */ }
+    inline data_converter(Array & datamem, DataSpace & space){
+        (void) datamem; (void) space; // do nothing
+    }
 
     inline Array & transform_read (Array & datamem) { return datamem; }
 
     inline Array & transform_write (Array & datamem) { return datamem; }
 
-    inline void process_result(Array & datamem){ /*do nothing*/ }
+    inline void process_result(Array & datamem){
+        (void) datamem; // do nothing
+    }
 };
 
 // apply conversion for vectors 1D
 template<typename T>
 struct data_converter<std::vector<T> >{
-    inline data_converter(std::vector<T> & vec, DataSpace & space) : _space(space){}
+    inline data_converter(std::vector<T> & vec, DataSpace & space) : _space(space){
+        (void) vec;
+    }
 
-    inline T*  transform_read(std::vector<T> & vec) { vec.resize(_space.getDimensions()[0]);  return &(vec[0]); }
+    inline T*  transform_read(std::vector<T> & vec) {
+        vec.resize(_space.getDimensions()[0]);
+        return &(vec[0]);
+    }
 
     inline T*  transform_write(std::vector<T> & vec) { return &(vec[0]); }
 
-    inline void process_result(std::vector<T> & mem){ /*do nothing*/ }
+    inline void process_result(std::vector<T> & vec){
+         (void) vec;
+    }
 
     DataSpace & _space;
 };
@@ -74,11 +85,14 @@ struct data_converter<std::vector<T> >{
 // apply conversion for vectors of string (derefence)
 template<>
 struct data_converter<std::vector<std::string> >{
-    inline data_converter(std::vector<std::string> & vec, DataSpace & space) : _space(space) {}
+    inline data_converter(std::vector<std::string> & vec, DataSpace & space) : _space(space) {
+        (void) vec;
+    }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
     inline char**  transform_read(std::vector<std::string> & vec) {
+        (void) vec;
         _c_vec.resize(_space.getDimensions()[0], NULL);
         return (&_c_vec[0]);
     }
@@ -94,6 +108,7 @@ struct data_converter<std::vector<std::string> >{
     }
 
     inline void process_result(std::vector<std::string> & vec){
+        (void) vec;
         vec.resize(_c_vec.size());
         for(size_t i = 0; i < vec.size(); ++i){
             vec[i] = std::string(_c_vec[i]);

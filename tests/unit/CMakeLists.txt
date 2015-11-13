@@ -6,6 +6,9 @@ find_package(Boost 1.41 REQUIRED COMPONENTS system unit_test_framework)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
 
+# silent boost warnings
+add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
+
 file(GLOB tests_high_five_src "*.cpp")
 
 add_executable(tests_high_five_bin ${tests_high_five_src})

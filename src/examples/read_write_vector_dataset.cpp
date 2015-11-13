@@ -19,7 +19,7 @@ void write_dataset(){
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     std::vector<int> data(size_dataset);
-    for(int i =0; i < data.size(); ++i){
+    for(size_t i =0; i < data.size(); ++i){
         data[i] = i;
     }
 
@@ -41,7 +41,7 @@ void read_dataset(){
     // lets write our vector of int
     dataset.read(read_data);
 
-    for(int i=0; i < read_data.size(); ++i){
+    for(size_t i=0; i < read_data.size(); ++i){
         std::cout << read_data[i] << " ";
     }
 }
