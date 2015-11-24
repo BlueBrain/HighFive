@@ -20,8 +20,16 @@ public:
 
     size_t getStorageSize() const;
 
+    ///
+    /// \brief getDataType
+    /// \return return the datatype associated with this dataset
+    ///
     DataType getDataType() const;
 
+    ///
+    /// \brief getSpace
+    /// \return return the dataspace associated with this dataset
+    ///
     DataSpace getSpace() const;
 
 

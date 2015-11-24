@@ -23,9 +23,11 @@
 
 using namespace HighFive;
 
+typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, long long, unsigned long long> numerical_test_types;
+typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, std::string> dataset_test_types;
 
 template<typename T, typename Func>
-void foreach2D(T* table, size_t x, size_t y, Func & func){
+void generate2D(T* table, size_t x, size_t y, Func & func){
     for(size_t i = 0; i < x; i++){
         for(size_t j = 0; j < y; j++){
             table[i][j] = func();
@@ -33,25 +35,62 @@ void foreach2D(T* table, size_t x, size_t y, Func & func){
     }
 }
 
+template<typename T, typename Func>
+void generate2D(std::vector<std::vector<T> > & vec, size_t x, size_t y, Func & func){
+    vec.resize(x);
+    for(size_t i = 0; i < x; i++){
+        vec[i].resize(y);
+        for(size_t j = 0; j < y; j++){
+            vec[i][j] = func();
+        }
+    }
+}
+
 
 template<typename T>
-T content_generate(){
-    return static_cast<T>(std::rand()*1000);
-}
+struct ContentGenerate{
+    ContentGenerate(T init_val = T(0), T inc_val = T(1) + T(1)/T(10) ) : _init(init_val), _inc(inc_val){}
+
+    T operator()(){
+        T ret =_init;
+        _init += _inc;
+        return ret;
+    }
+
+    T _init, _inc;
+};
+
 
 template<>
-char content_generate<char>(){
-    return char((std::rand()%26)+0x61);
-}
+struct ContentGenerate<char>{
+    ContentGenerate() : _init('a'){}
+
+    char operator()(){
+        char ret =_init;
+        if(++_init >= 0x61+26)
+            _init = 0x61;
+        return ret;
+    }
+
+    char _init;
+};
+
 
 template<>
-std::string content_generate<std::string>(){
-    const size_t size_string = std::rand()%1000;
-    std::string random_string;
-    random_string.resize(size_string);
-    std::generate(random_string.begin(), random_string.end(), content_generate<char>);
-    return random_string;
-}
+struct ContentGenerate<std::string>{
+    ContentGenerate(){}
+
+    std::string operator()(){
+        ContentGenerate<char> gen;
+        std::string random_string;
+        const size_t size_string = std::rand()%1000;
+        random_string.resize(size_string);
+        std::generate(random_string.begin(), random_string.end(), gen);
+        return random_string;
+    }
+
+};
+
 
 
 
@@ -216,18 +255,21 @@ BOOST_AUTO_TEST_CASE( DataTypeEqualTakeBack )
 
 
 
-BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
+
+template<typename T>
+void readWrite2DArrayTest()
 {
 
-    const std::string FILE_NAME("h5_rw_double_test.h5");
+    std::ostringstream filename;
+    filename << "h5_rw_2d_array_" << typeid(T).name() << "_test.h5";
+
     const std::string DATASET_NAME("dset");
-    std::srand(std::time(0));
 
     const size_t x_size = 100;
-    const size_t y_size = 600;
+    const size_t y_size = 10;
 
     // Create a new file using the default property lists.
-    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
     std::vector<size_t> dims;
@@ -237,19 +279,19 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
     DataSpace dataspace(dims);
 
     // Create a dataset with double precision floating points
-    DataSet dataset = file.createDataSet<double>(DATASET_NAME, dataspace);
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
 
 
 
 
-    double array[x_size][y_size];
+    T array[x_size][y_size];
 
-    foreach2D(array, x_size, y_size, content_generate<double>);
+    ContentGenerate<T> generator;
+    generate2D(array, x_size, y_size, generator);
 
     dataset.write(array);
 
-
-    double result[x_size][y_size];
+    T result[x_size][y_size];
 
     dataset.read(result);
 
@@ -262,58 +304,13 @@ BOOST_AUTO_TEST_CASE( ReadWriteDataSetDouble )
 
 
 
-BOOST_AUTO_TEST_CASE( ReadWriteDataSetInteger )
-{
+BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWrite2DArray, T, numerical_test_types){
 
-    const std::string FILE_NAME("h5_rw_int_test.h5");
-    const std::string DATASET_NAME("dset");
-    std::srand(std::time(0));
-
-    const size_t x_size = 100;
-    const size_t y_size = 600;
-
-    // Create a new file using the default property lists.
-    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-    // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(x_size);
-    dims.push_back(y_size);
-
-    DataSpace dataspace(dims);
-
-    // Create a dataset with double precision floating points
-    DataSet dataset = file.createDataSet<int>(DATASET_NAME, dataspace);
-
-
-
-
-    int array[x_size][y_size];
-
-    for(size_t i =0; i < x_size; ++i){
-        for(size_t j =0; j < y_size; ++j){
-            array[i][j] = int(rand()*1000);
-        }
-    }
-
-    dataset.write(array);
-
-
-    int result[x_size][y_size];
-
-    dataset.read(result);
-
-    for(size_t i =0; i < x_size; ++i){
-        for(size_t j =0; j < y_size; ++j){
-            BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
-        }
-    }
+    readWrite2DArrayTest<T>();
 }
-
-
 
 template <typename T>
-void ReadWriteVectorTest(){
+void readWriteVectorTest(){
     using namespace HighFive;
 
     std::ostringstream filename;
@@ -329,7 +326,9 @@ void ReadWriteVectorTest(){
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     vec.resize(x_size);
-    std::generate(vec.begin(), vec.end(), content_generate<T>);
+    ContentGenerate<T> generator;
+
+    std::generate(vec.begin(), vec.end(), generator);
 
     // Create a dataset with double precision floating points
     DataSet dataset = file.createDataSet(DATASET_NAME, vec);
@@ -350,13 +349,59 @@ void ReadWriteVectorTest(){
     }
 }
 
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, std::string> dataset_test_types;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWriteDataSetVectorInt, T, dataset_test_types)
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWriteDataSetVector, T, dataset_test_types)
 {
-    ReadWriteVectorTest<T>();
+    readWriteVectorTest<T>();
 }
 
 
 
+template <typename T>
+void readWriteVector2DTest(){
+    using namespace HighFive;
 
+    std::ostringstream filename;
+    filename << "h5_rw_vec_2d_" << typeid(T).name() << "_test.h5";
+
+    const size_t x_size = 100;
+    const size_t y_size = 100;
+    const std::string DATASET_NAME("dset");
+    typename std::vector<std::vector<T> > vec;
+
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    vec.resize(x_size);
+    ContentGenerate<T> generator;
+
+    generate2D(vec, x_size, y_size, generator);
+
+    // Create a dataset with double precision floating points
+    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+
+
+    dataset.write(vec);
+
+    typename std::vector<std::vector<T> > result;
+
+    dataset.read(result);
+
+    BOOST_CHECK_EQUAL(vec.size(), x_size);
+    BOOST_CHECK_EQUAL(result.size(), x_size);
+
+    for(size_t i =0; i < x_size; ++i){
+        //std::cout << result[i] << " " << vec[i] << "  ";
+        BOOST_CHECK_EQUAL(result[i], vec[i]);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE( ReadWriteDataSetVector2D )
+{
+
+  // readWriteVector2DTest<int>();
+
+}
