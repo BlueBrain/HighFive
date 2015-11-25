@@ -392,9 +392,13 @@ void readWriteVector2DTest(){
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
 
+    BOOST_CHECK_EQUAL(vec[0].size(), y_size);
+    BOOST_CHECK_EQUAL(result[0].size(), y_size);
+
     for(size_t i =0; i < x_size; ++i){
-        //std::cout << result[i] << " " << vec[i] << "  ";
-        BOOST_CHECK_EQUAL(result[i], vec[i]);
+        for(size_t j =0; i < y_size; ++i){
+            BOOST_CHECK_EQUAL(result[i][j], vec[i][j]);
+        }
     }
 }
 

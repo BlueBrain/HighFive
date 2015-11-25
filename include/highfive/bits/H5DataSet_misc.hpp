@@ -21,18 +21,40 @@ namespace details{
 
 // determine at compile time number of dimensions of in memory datasets
 template<typename T>
-struct array_size { static const size_t value = 0; };
+struct array_dims { static const size_t value = 0; };
 
 template<typename T>
-struct array_size<std::vector<T> > { static const size_t value = 1 + array_size<T>::value; };
+struct array_dims<std::vector<T> > { static const size_t value = 1 + array_dims<T>::value; };
 
 template<typename T>
-struct array_size<T*> { static const size_t value = 1 + array_size<T>::value; };
+struct array_dims<T*> { static const size_t value = 1 + array_dims<T>::value; };
 
 template<typename T, std::size_t N>
-struct array_size<T [N]> { static const size_t value = 1 + array_size<T>::value;  };
+struct array_dims<T [N]> { static const size_t value = 1 + array_dims<T>::value;  };
 
-// determine at compile time atomic type of the dataset
+// determine recursively the size of each dimension of a N dimension vector
+template<typename T>
+void get_dim_vector_rec(const T & vec, std::vector<size_t> & dims){
+    (void) dims;
+    (void) vec;
+}
+
+template<typename T>
+void get_dim_vector_rec(const std::vector<T> & vec, std::vector<size_t> & dims){
+    dims.push_back(vec.size());
+    get_dim_vector_rec(vec[0], dims);
+}
+
+template<typename T>
+std::vector<size_t> get_dim_vector(const T & vec){
+    std::vector<size_t> dims;
+    get_dim_vector_rec(vec, dims);
+    return dims;
+}
+
+
+
+// determine at compile time recursively the basic type of the data
 template<typename T>
 struct type_of_array { typedef T type; };
 
@@ -45,8 +67,40 @@ struct type_of_array<T*> { typedef typename type_of_array<T>::type type; };
 template<typename T, std::size_t N>
 struct type_of_array<T [N]> { typedef typename type_of_array<T>::type type; };
 
+
+// same type compile time check
+template<typename T, typename U>
+struct is_same{
+    static const bool value = false;
+};
+
+template<typename T>
+struct is_same<T, T>{
+    static const bool value = true;
+};
+
+// hdf5 C pointer type of a C++ collection
+template<typename T>
+struct array_ptr{
+    typedef T type;
+};
+
+template<typename T>
+struct array_ptr<std::vector<T> >{
+    typedef typename array_ptr<T>::type* type;
+};
+
+// enable if implem for not c++11 compiler
+template <bool Cond, typename T = void>
+struct enable_if {};
+
+template <typename T>
+struct enable_if<true, T> { typedef T type; };
+
+
+
 // apply conversion operations to the incoming data
-template<typename Array>
+template<typename Array, class Enable = void>
 struct data_converter{
     inline data_converter(Array & datamem, DataSpace & space){
         (void) datamem; (void) space; // do nothing
@@ -62,18 +116,18 @@ struct data_converter{
 };
 
 // apply conversion for vectors 1D
-template<typename T>
-struct data_converter<std::vector<T> >{
-    inline data_converter(std::vector<T> & vec, DataSpace & space) : _space(space){
+template<typename T >
+struct data_converter<std::vector<T>, typename enable_if< (is_same<T, typename type_of_array<T>::type>::value) >::type > {
+    inline data_converter(std::vector< T > & vec, DataSpace & space) : _space(space){
         (void) vec;
     }
 
-    inline T*  transform_read(std::vector<T> & vec) {
-        vec.resize(_space.getDimensions()[0]);
-        return &(vec[0]);
+    inline typename array_ptr<std::vector<T> >::type  transform_read(std::vector<T> & vec) {
+            vec.resize(_space.getDimensions()[0]);
+            return &(vec[0]);
     }
 
-    inline T*  transform_write(std::vector<T> & vec) { return &(vec[0]); }
+    inline typename array_ptr<std::vector<T> >::type  transform_write(std::vector<T> & vec) { return &(vec[0]); }
 
     inline void process_result(std::vector<T> & vec){
          (void) vec;
@@ -84,7 +138,7 @@ struct data_converter<std::vector<T> >{
 
 // apply conversion for vectors of string (derefence)
 template<>
-struct data_converter<std::vector<std::string> >{
+struct data_converter<std::vector<std::string>, void>{
     inline data_converter(std::vector<std::string> & vec, DataSpace & space) : _space(space) {
         (void) vec;
     }
@@ -154,7 +208,7 @@ inline DataSpace DataSet::getSpace() const{
 
 template <typename T>
 inline void DataSet::read(T & array){
-    const size_t dim_array = details::array_size<T>::value;
+    const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = getSpace();
     const size_t dim_dataset = space.getNumberDimensions();
     if(dim_array != dim_dataset){
@@ -181,7 +235,7 @@ inline void DataSet::read(T & array){
 
 template <typename T>
 inline void DataSet::write(T & buffer){
-    const size_t dim_buffer = details::array_size<T>::value;
+    const size_t dim_buffer = details::array_dims<T>::value;
     DataSpace space = getSpace();
     const size_t dim_dataset = space.getNumberDimensions();
     if(dim_buffer != dim_dataset){
