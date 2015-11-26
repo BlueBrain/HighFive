@@ -4,6 +4,10 @@
 // internal utilities functions
 #include <vector>
 
+#ifdef H5_USE_BOOST
+#include <boost/multi_array.hpp>
+#endif
+
 namespace HighFive{
 
 namespace details{
@@ -22,6 +26,11 @@ struct array_dims<T*> { static const size_t value = 1 + array_dims<T>::value; };
 template<typename T, std::size_t N>
 struct array_dims<T [N]> { static const size_t value = 1 + array_dims<T>::value;  };
 
+#ifdef H5_USE_BOOST
+template<typename T, std::size_t Dims>
+struct array_dims<boost::multi_array<T, Dims> >{ static const size_t value = Dims; };
+#endif
+
 // determine recursively the size of each dimension of a N dimension vector
 template<typename T>
 void get_dim_vector_rec(const T & vec, std::vector<size_t> & dims){
@@ -36,7 +45,7 @@ void get_dim_vector_rec(const std::vector<T> & vec, std::vector<size_t> & dims){
 }
 
 template<typename T>
-std::vector<size_t> get_dim_vector(const T & vec){
+std::vector<size_t> get_dim_vector(const std::vector<T> & vec){
     std::vector<size_t> dims;
     get_dim_vector_rec(vec, dims);
     return dims;
@@ -50,6 +59,11 @@ struct type_of_array { typedef T type; };
 
 template<typename T>
 struct type_of_array<std::vector<T> > { typedef typename type_of_array<T>::type type; };
+
+#ifdef H5_USE_BOOST
+template<typename T, std::size_t Dims>
+struct type_of_array<boost::multi_array<T, Dims> >{ typedef typename type_of_array<T>::type type; };
+#endif
 
 template<typename T>
 struct type_of_array<T*> { typedef typename type_of_array<T>::type type; };

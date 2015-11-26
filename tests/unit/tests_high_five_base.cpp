@@ -21,6 +21,10 @@
 #define BOOST_TEST_MAIN HighFiveTest
 #include <boost/test/included/unit_test.hpp>
 
+#ifdef H5_USE_BOOST
+#include <boost/multi_array.hpp>
+#endif
+
 using namespace HighFive;
 
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, long long, unsigned long long> numerical_test_types;
@@ -409,3 +413,55 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( readWriteVector2D, T, numerical_test_types){
     readWriteVector2DTest<T>();
 }
 
+
+#ifdef H5_USE_BOOST
+
+
+template<typename T>
+void MultiArray3DTest()
+{
+
+
+    typedef typename boost::multi_array<T, 3> MultiArray;
+
+    std::ostringstream filename;
+    filename << "h5_rw_multiarray_"  << "_test.h5";
+
+    const size_t size_x =10, size_y =10, size_z =10;
+    const std::string DATASET_NAME("dset");
+    MultiArray array(boost::extents[size_x][size_y][size_z]);
+
+    ContentGenerate<T> generator;
+    std::generate(array.data(), array.data() + array.num_elements(), generator);
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(array));
+
+    dataset.write(array);
+
+    // read it back
+    MultiArray result;
+
+    dataset.read(result);
+
+
+    for(size_t i =0; i < size_x; ++i){
+        for(size_t j=0; j < size_y; ++j){
+            for(size_t k=0; k < size_z; ++k){
+                //std::cout << array[i][j][k] << " ";
+                BOOST_CHECK_EQUAL(array[i][j][k], result[i][j][k]);
+            }
+        }
+    }
+
+}
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( MultiArray3D, T, numerical_test_types){
+
+    MultiArray3DTest<T>();
+}
+
+#endif

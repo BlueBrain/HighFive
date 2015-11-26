@@ -54,10 +54,21 @@ std::vector<size_t> DataSpace::getDimensions() const{
     return res;
 }
 
-template<typename Container>
-DataSpace DataSpace::From(const Container & container){
-    return DataSpace(details::get_dim_vector<Container>(container));
+template<typename Value>
+DataSpace DataSpace::From(const std::vector<Value> & container){
+    return DataSpace(details::get_dim_vector<Value>(container));
 }
+
+#ifdef H5_USE_BOOST
+template<typename Value, std::size_t Dims>
+DataSpace DataSpace::From(const boost::multi_array<Value, Dims> & container){
+    std::vector<size_t> dims(Dims);
+    for(std::size_t i = 0; i < Dims; ++i){
+        dims[i] = container.shape()[i];
+    }
+    return DataSpace(dims);
+}
+#endif
 
 }
 

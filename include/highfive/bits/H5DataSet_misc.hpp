@@ -9,6 +9,10 @@
 #include <functional>
 #include <numeric>
 
+#ifdef H5_USE_BOOST
+#include <boost/multi_array.hpp>
+#endif
+
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
@@ -129,6 +133,38 @@ struct data_converter<std::vector<T>, typename enable_if< (is_same<T, typename t
     DataSpace* _space;
     size_t _dim;
 };
+
+#ifdef H5_USE_BOOST
+// apply conversion to boost multi array
+template<typename T, std::size_t Dims>
+struct data_converter< boost::multi_array<T, Dims>, void >{
+
+    typedef typename boost::multi_array<T, Dims> MultiArray;
+
+    inline data_converter(MultiArray & array, DataSpace & space, size_t dim = 0) : _dims(space.getDimensions()){
+        assert(_dims.size() == Dims);
+        (void) dim;
+        (void) array;
+    }
+
+    inline typename type_of_array<T>::type*  transform_read(MultiArray & array) {
+            if(std::equal(_dims.begin(), _dims.end(), array.shape()) == false){
+                boost::array<typename MultiArray::index, Dims> ext;
+                std::copy(_dims.begin(), _dims.end(), ext.begin());
+                array.resize(ext);
+            }
+            return array.data();
+    }
+
+    inline typename type_of_array<T>::type*  transform_write(MultiArray & array) { return array.data(); }
+
+    inline void process_result(MultiArray & array){
+         (void) array;
+    }
+
+    std::vector<size_t> _dims;
+};
+#endif
 
 
 // apply conversion for vectors nested vectors

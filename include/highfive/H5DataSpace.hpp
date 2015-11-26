@@ -2,6 +2,9 @@
 #define H5DATASPACE_HPP
 
 #include <vector>
+#ifdef H5_USE_BOOST
+#include <boost/multi_array.hpp>
+#endif
 
 #include "H5Object.hpp"
 
@@ -41,8 +44,14 @@ public:
     /// Supported Containers are:
     ///  - vector of fundamental types
     ///  - vector of std::string
-    template<typename Container>
-    static DataSpace From(const Container & vec);
+    ///  - boost::multi_array
+    template<typename Value>
+    static DataSpace From(const std::vector<Value> & vec);
+
+#ifdef H5_USE_BOOST
+    template<typename Value, std::size_t Dims>
+    static DataSpace From(const boost::multi_array<Value, Dims> & container);
+#endif
 
 protected:
 
