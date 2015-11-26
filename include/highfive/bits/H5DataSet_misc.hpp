@@ -137,7 +137,7 @@ struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::valu
     inline data_converter(std::vector< T > & vec, DataSpace & space, size_t dim = 0) : _space(&space), _dim(dim),
         _vec_align()
     {
-
+        (void) vec;
     }
 
     inline typename type_of_array<T>::type* transform_read(std::vector<T> & vec) {
