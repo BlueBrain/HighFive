@@ -1,0 +1,43 @@
+The HighFive library - HDF5 C++
+
+**
+BRIEF: HighFive is a simple header-based library wrapper to the libhdf5 (HDF5 format library) for C++.
+
+Aims
+- Being C++-ish as much as possible 
+- Keep it simple stupid
+- Use only what you need: no other dependency than libhdf5 needed 
+- Support C++11
+- Compatible with C++98
+- Support for boost::multi_array and armadillo accessible on demand
+
+
+See examples directory for more infos
+
+** Compile
+No compilation needed for usage, just add highfive/include/ to your include path
+
+- test compilation
+mkdir build; pushd build
+cmake ../
+make
+make test
+
+
+** Feature support
+
+- Create/read/write file,  dataset, group, dataspce.
+- Automatic memory management / ref counting
+- Automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
+- Automatic convertion of std::string to/from variable length string dataset
+
+
+** Authors
+Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
+
+
+** License
+LGPLv3
+
+
+
