@@ -33,13 +33,6 @@ public:
     template <typename Type>
     DataSet createDataSet(const std::string & dataset_name, const DataSpace & space);
 
-    ///
-    /// \brief createDataSet create a new dataset of the size of the associated Vector
-    /// \param dataset_name identifier of the dataset
-    /// \return DataSet Object
-    template <typename Vector>
-    DataSet createDataSet(const std::string & dataset_name, const Vector & vector);
-
 
     ///
     /// \brief get an existing dataset in the current file

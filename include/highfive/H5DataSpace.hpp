@@ -33,9 +33,16 @@ public:
     ///
     size_t getNumberDimensions() const;
 
-    ///
-    ///
+    /// \brief getDimensions
+    /// \return return a vector of N-element, each element is the size of the associated dataset dimension
     std::vector<size_t> getDimensions() const ;
+
+    /// Create a dataspace matching the container dimensions and size
+    /// Supported Containers are:
+    ///  - vector of fundamental types
+    ///  - vector of std::string
+    template<typename Container>
+    static DataSpace From(const Container & vec);
 
 protected:
 

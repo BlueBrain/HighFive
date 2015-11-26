@@ -331,7 +331,7 @@ void readWriteVectorTest(){
     std::generate(vec.begin(), vec.end(), generator);
 
     // Create a dataset with double precision floating points
-    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
 
     dataset.write(vec);
@@ -380,7 +380,7 @@ void readWriteVector2DTest(){
     generate2D(vec, x_size, y_size, generator);
 
     // Create a dataset with double precision floating points
-    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
 
     dataset.write(vec);

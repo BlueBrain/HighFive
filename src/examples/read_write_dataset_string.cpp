@@ -30,15 +30,16 @@ int main (void)
         string_list.push_back("Enjoy !");
 
 
-        DataSet dataset = file.createDataSet< std::vector<std::string> >(DATASET_NAME,  string_list);
+        // create a dataset ready to contains strings of the size of the vector string_list
+        DataSet dataset = file.createDataSet<std::string>(DATASET_NAME,  DataSpace::From(string_list));
 
-        // lets write our vector of int
+        // lets write our vector of  string
         dataset.write(string_list);
 
 
 
+        // now we read it back
         std::vector<std::string> result_string_list;
-        // lets write our vector of int
         dataset.read(result_string_list);
 
         for(size_t i=0; i < result_string_list.size(); ++i){

@@ -1,12 +1,18 @@
 #ifndef H5DATASPACE_MISC_HPP
 #define H5DATASPACE_MISC_HPP
 
-#include "../H5DataSpace.hpp"
-#include "../H5Exception.hpp"
 
 #include <vector>
 
 #include <H5Spublic.h>
+
+#include "../H5DataSpace.hpp"
+#include "../H5Exception.hpp"
+
+#include "H5Utils.hpp"
+
+
+
 
 namespace HighFive{
 
@@ -46,6 +52,11 @@ std::vector<size_t> DataSpace::getDimensions() const{
     std::vector<size_t> res(dims.size());
     std::copy(dims.begin(), dims.end(), res.begin());
     return res;
+}
+
+template<typename Container>
+DataSpace DataSpace::From(const Container & container){
+    return DataSpace(details::get_dim_vector<Container>(container));
 }
 
 }

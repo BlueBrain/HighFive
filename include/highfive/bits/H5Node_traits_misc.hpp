@@ -37,11 +37,6 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string & dataset_n
     return createDataSet(dataset_name, space, AtomicType<Type>());
 }
 
-template <typename Derivate>
-template <typename Vector>
-inline DataSet NodeTraits<Derivate>::createDataSet(const std::string & dataset_name, const Vector & vector){
-    return createDataSet(dataset_name, DataSpace(details::get_dim_vector<Vector>(vector)), AtomicType<typename details::type_of_array<Vector>::type>());
-}
 
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::getDataSet(const std::string & dataset_name){

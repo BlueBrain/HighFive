@@ -16,6 +16,8 @@ const size_t size_dataset = 20;
 
 // create a dataset 1D from a vector of string
 void write_dataset(){
+
+    // we create a new hdf5 file
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     std::vector<int> data(size_dataset);
@@ -23,7 +25,8 @@ void write_dataset(){
         data[i] = i;
     }
 
-    DataSet dataset = file.createDataSet< std::vector<int> >(DATASET_NAME,  data);
+    // lets create a dataset of native interger with the size of the vector 'data'
+    DataSet dataset = file.createDataSet<int>(DATASET_NAME,  DataSpace::From(data));
 
     // lets write our vector of int to the HDF5 dataset
     dataset.write(data);
@@ -31,14 +34,15 @@ void write_dataset(){
 
 // read our data back
 void read_dataset(){
-    // Create a new file using the default property lists.
+    // we open the existing hdf5 file we created before
     File file(FILE_NAME, File::ReadOnly);
 
     std::vector<int> read_data;
 
+    // we get the dataset
     DataSet dataset = file.getDataSet(DATASET_NAME);
 
-    // lets write our vector of int
+    // we convert the hdf5 dataset to a single dimension vector
     dataset.read(read_data);
 
     for(size_t i=0; i < read_data.size(); ++i){
