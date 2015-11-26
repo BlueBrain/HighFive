@@ -5,6 +5,9 @@
 
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <functional>
+#include <numeric>
 
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
@@ -79,16 +82,81 @@ struct is_same<T, T>{
     static const bool value = true;
 };
 
-// hdf5 C pointer type of a C++ collection
-template<typename T>
-struct array_ptr{
-    typedef T type;
+// check if the type is a container ( only vector supported for now )
+template<typename >
+struct is_container{
+    static const bool value = false;
 };
 
 template<typename T>
-struct array_ptr<std::vector<T> >{
-    typedef typename array_ptr<T>::type* type;
+struct is_container<std::vector<T> >{
+    static const bool value = true;
 };
+
+inline void check_dimensions_vector(size_t size_vec, size_t size_dataset, size_t dimension){
+    if( size_vec != size_dataset){
+        std::ostringstream ss;
+        ss << "Mismatch between vector size ("<< size_vec << ") and dataset size (" << size_dataset;
+        ss << ") on dimension " << dimension;
+        throw DataSetException(ss.str());
+    }
+}
+
+// copy multi dimensional vector in C++ in one C-style multi dimensional buffer
+template<typename T>
+inline void vectors_to_single_buffer(const std::vector<T> & vec_single_dim,
+                              const std::vector<size_t> & dims,
+                              size_t current_dim,
+                              std::vector<T> & buffer){
+
+    check_dimensions_vector(vec_single_dim.size(), dims[current_dim], current_dim);
+    buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
+}
+
+template<typename T>
+inline void vectors_to_single_buffer(const std::vector<T> & vec_multi_dim,
+                              const std::vector<size_t> & dims,
+                              size_t current_dim,
+                              std::vector< typename type_of_array<T>::type > & buffer){
+
+    check_dimensions_vector(vec_multi_dim.size(), dims[current_dim], current_dim);
+    for(typename std::vector<T>::const_iterator it = vec_multi_dim.begin(); it < vec_multi_dim.end(); ++it){
+        vectors_to_single_buffer(*it, dims, current_dim+1, buffer);
+    }
+}
+
+
+// copy single buffer to multi dimensional vector, following dimensions specified
+template<typename T>
+inline typename std::vector<T>::iterator single_buffer_to_vectors(
+                              typename std::vector<T>::iterator begin_buffer,
+                              typename std::vector<T>::iterator end_buffer,
+                              const std::vector<size_t> & dims,
+                              size_t current_dim,
+                              std::vector<T> & vec_single_dim){
+    const size_t n_elems = dims[current_dim];
+    typename std::vector<T>::iterator end_copy_iter = std::min(begin_buffer+ n_elems, end_buffer);
+    vec_single_dim.assign(begin_buffer, end_copy_iter);
+    return end_copy_iter;
+}
+
+template<typename T, typename U>
+inline typename std::vector<T>::iterator single_buffer_to_vectors(
+                             typename std::vector<T>::iterator  begin_buffer,
+                             typename std::vector<T>::iterator  end_buffer,
+                             const std::vector<size_t> & dims,
+                             size_t current_dim,
+                             std::vector<U> & vec_multi_dim){
+
+    const size_t n_elems = dims[current_dim];
+    vec_multi_dim.resize(n_elems);
+
+    for(typename std::vector<U>::iterator it = vec_multi_dim.begin(); it < vec_multi_dim.end(); ++it){
+        begin_buffer = single_buffer_to_vectors(begin_buffer, end_buffer, dims, current_dim+1, *it);
+    }
+    return begin_buffer;
+}
+
 
 // enable if implem for not c++11 compiler
 template <bool Cond, typename T = void>
@@ -118,22 +186,62 @@ struct data_converter{
 // apply conversion for vectors 1D
 template<typename T >
 struct data_converter<std::vector<T>, typename enable_if< (is_same<T, typename type_of_array<T>::type>::value) >::type > {
-    inline data_converter(std::vector< T > & vec, DataSpace & space) : _space(space){
+    inline data_converter(std::vector< T > & vec, DataSpace & space, size_t dim = 0) : _space(&space), _dim(dim){
+        assert(_space->getDimensions().size() > dim);
         (void) vec;
     }
 
-    inline typename array_ptr<std::vector<T> >::type  transform_read(std::vector<T> & vec) {
-            vec.resize(_space.getDimensions()[0]);
+    inline typename type_of_array<T>::type*  transform_read(std::vector<T> & vec) {
+            vec.resize(_space->getDimensions()[_dim]);
             return &(vec[0]);
     }
 
-    inline typename array_ptr<std::vector<T> >::type  transform_write(std::vector<T> & vec) { return &(vec[0]); }
+    inline typename type_of_array<T>::type*  transform_write(std::vector<T> & vec) { return &(vec[0]); }
 
     inline void process_result(std::vector<T> & vec){
          (void) vec;
     }
 
-    DataSpace & _space;
+    DataSpace* _space;
+    size_t _dim;
+};
+
+
+// apply conversion for vectors nested vectors
+template<typename T >
+struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::value) >::type > {
+    inline data_converter(std::vector< T > & vec, DataSpace & space, size_t dim = 0) : _space(&space), _dim(dim),
+        _vec_align()
+    {
+
+    }
+
+    inline typename type_of_array<T>::type* transform_read(std::vector<T> & vec) {
+        _vec_align.resize(get_total_size());
+        return &(_vec_align[0]);
+    }
+
+    inline typename type_of_array<T>::type*  transform_write(std::vector<T> & vec) {
+        _vec_align.reserve(get_total_size());
+        vectors_to_single_buffer<T>(vec, _space->getDimensions(), 0, _vec_align);
+        return &(_vec_align[0]);
+
+    }
+
+    inline void process_result(std::vector<T> & vec){
+         single_buffer_to_vectors<typename type_of_array<T>::type, T>(_vec_align.begin(), _vec_align.end(), _space->getDimensions(),
+                                  0, vec);
+    }
+
+    inline size_t get_total_size(){
+        const std::vector<size_t> dims = _space->getDimensions();
+        return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<size_t>());
+    }
+
+
+    DataSpace* _space;
+    size_t _dim;
+    std::vector< typename type_of_array<T>::type > _vec_align;
 };
 
 // apply conversion for vectors of string (derefence)

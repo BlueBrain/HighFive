@@ -365,8 +365,8 @@ void readWriteVector2DTest(){
     std::ostringstream filename;
     filename << "h5_rw_vec_2d_" << typeid(T).name() << "_test.h5";
 
-    const size_t x_size = 100;
-    const size_t y_size = 100;
+    const size_t x_size = 10;
+    const size_t y_size = 10;
     const std::string DATASET_NAME("dset");
     typename std::vector<std::vector<T> > vec;
 
@@ -403,9 +403,9 @@ void readWriteVector2DTest(){
 }
 
 
-BOOST_AUTO_TEST_CASE( ReadWriteDataSetVector2D )
-{
 
-  // readWriteVector2DTest<int>();
+BOOST_AUTO_TEST_CASE_TEMPLATE( readWriteVector2D, T, numerical_test_types){
 
+    readWriteVector2DTest<T>();
 }
+
