@@ -7,11 +7,10 @@
 #include <highfive/H5DataSet.hpp>
 
 
-const std::string FILE_NAME("h5tutr_dset.h5");
+const std::string FILE_NAME("create_dataset_example.h5");
 const std::string DATASET_NAME("dset");
 
 // Create a dataset name "dset" of double 4x6
-// h5tutr_dset.h5
 //
 int main (void)
 {

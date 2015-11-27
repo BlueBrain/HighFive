@@ -9,7 +9,7 @@
 
 using namespace HighFive;
 
-const std::string FILE_NAME("dataset_string.h5");
+const std::string FILE_NAME("create_dataset_string_example.h5");
 const std::string DATASET_NAME("story");
 
 // create a dataset from a vector of string
