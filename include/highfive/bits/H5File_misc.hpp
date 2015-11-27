@@ -23,11 +23,11 @@ inline File::File(const std::string &filename, int openFlags) : _filename(filena
 
     if(openFlags & H5F_ACC_CREAT){
         if( (_hid = H5Fcreate(_filename.c_str(), openFlags & (H5F_ACC_TRUNC), H5P_DEFAULT, H5P_DEFAULT)) < 0){
-            HDF5ErrMapper::ToException<FileException>(std::string("Impossible to create file " + _filename));
+            HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + _filename));
         }
     }else{
         if( (_hid = H5Fopen(_filename.c_str(), openFlags, H5P_DEFAULT)) < 0){
-            HDF5ErrMapper::ToException<FileException>(std::string("Impossible to open file " + _filename));
+            HDF5ErrMapper::ToException<FileException>(std::string("Unable to open file " + _filename));
         }
     }
 }
