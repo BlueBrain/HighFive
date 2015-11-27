@@ -257,6 +257,42 @@ BOOST_AUTO_TEST_CASE( DataTypeEqualTakeBack )
 
 }
 
+BOOST_AUTO_TEST_CASE( DataSpaceTest )
+{
+
+    using namespace HighFive;
+
+    const std::string FILE_NAME("h5tutr_space.h5");
+    const std::string DATASET_NAME("dset");
+
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    // Create the data space for the dataset.
+    std::vector<size_t> dims;
+    dims.push_back(10);
+    dims.push_back(1);
+
+    DataSpace dataspace(dims);
+
+    // Create a dataset with double precision floating points
+    DataSet dataset = file.createDataSet<size_t>(DATASET_NAME, dataspace);
+
+    DataSpace space = dataset.getSpace();
+    DataSpace space2 = dataset.getSpace();
+
+    // verify space id are different
+    BOOST_CHECK_NE(space.getId(), space2.getId());
+
+    //verify space id are consistent
+    BOOST_CHECK_EQUAL(space.getDimensions().size(), 2);
+    BOOST_CHECK_EQUAL(space.getDimensions()[0], 10);
+    BOOST_CHECK_EQUAL(space.getDimensions()[1], 1);
+
+}
+
+
 
 
 
