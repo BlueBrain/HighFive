@@ -21,6 +21,7 @@
 
 namespace HighFive{
 
+
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string & dataset_name, const DataSpace & space, const DataType & dtype){
     DataSet set;
