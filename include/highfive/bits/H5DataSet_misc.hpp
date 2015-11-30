@@ -52,6 +52,10 @@ inline DataSpace DataSet::getSpace() const{
 
 
 
+inline DataSpace DataSet::getMemSpace() const{
+    return getSpace();
+}
+
 }
 
 #endif // H5DATASET_MISC_HPP

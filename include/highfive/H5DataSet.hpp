@@ -35,9 +35,16 @@ public:
     DataSpace getSpace() const;
 
 
+    ///
+    /// \brief getMemSpace
+    /// \return same than getSpace for DataSet, compatibility with Selection class
+    ///
+    DataSpace getMemSpace() const;
+
 private:
     DataSet();
-    template <typename Derivate> friend class NodeTraits;
+    template <typename Derivate>
+    friend class ::HighFive::NodeTraits;
 
 };
 

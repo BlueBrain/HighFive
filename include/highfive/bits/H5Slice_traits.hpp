@@ -7,10 +7,18 @@ class DataSet;
 class Group;
 class DataSpace;
 class DataType;
+class Selection;
 
 template<typename Derivate>
 class SliceTraits{
 public:
+
+
+    ///
+    /// select a region in the current Slice/Dataset of 'count' points at 'offset'
+    /// vector offset and count have to be from the same dimension
+    ///
+    Selection select(const std::vector<size_t> & offset, const std::vector<size_t> & count);
 
     ///
     /// Read the entire dataset into a buffer

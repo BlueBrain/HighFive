@@ -30,6 +30,10 @@ public:
     ///
     explicit DataSpace(size_t dim1);
 
+    /// Create a new DataSpace
+    ///  with a different id avaiable for modifications
+    DataSpace clone();
+
     ///
     /// \brief getNumberDimensions
     /// \return the number of dimensions in the current dataspace
@@ -39,6 +43,7 @@ public:
     /// \brief getDimensions
     /// \return return a vector of N-element, each element is the size of the associated dataset dimension
     std::vector<size_t> getDimensions() const ;
+
 
     /// Create a dataspace matching the container dimensions and size
     /// Supported Containers are:
@@ -52,6 +57,8 @@ public:
     template<typename Value, std::size_t Dims>
     static DataSpace From(const boost::multi_array<Value, Dims> & container);
 #endif
+
+
 
 protected:
 

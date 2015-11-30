@@ -18,6 +18,7 @@
 
 #include "../H5DataType.hpp"
 #include "../H5DataSpace.hpp"
+#include "../H5Selection.hpp"
 
 #include "H5Utils.hpp"
 
@@ -90,7 +91,33 @@ inline typename std::vector<T>::iterator single_buffer_to_vectors(
     return begin_buffer;
 }
 
+// map the correct reference to the dataset depending of the layout
+// dataset -> itself
+// subselection -> parent dataset
+template<typename Derived>
+inline DataSet & get_dataset(Derived* ptr){
+    return ptr->getDataset();
+}
 
+template<>
+inline DataSet & get_dataset(DataSet* ptr){
+    return *ptr;
+}
+
+// map the correct memspace identifier depending of the layout
+// dataset -> entire memspace
+// selection -> resolve space id
+template<typename Derived>
+inline hid_t get_memspace_id(Derived* ptr){
+    return ptr->getMemSpace().getId();
+}
+
+
+template<>
+inline hid_t get_memspace_id(DataSet* ptr){
+    (void) ptr;
+    return H5S_ALL;
+}
 
 
 // apply conversion operations to the incoming data
@@ -165,10 +192,11 @@ struct data_converter< boost::multi_array<T, Dims>, void >{
 #endif
 
 
+
 // apply conversion for vectors nested vectors
 template<typename T >
 struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::value) >::type > {
-    inline data_converter(std::vector< T > & vec, DataSpace & space, size_t dim = 0) : _space(&space), _dim(dim),
+    inline data_converter(std::vector< T > & vec, DataSpace & space, size_t dim = 0) : _dims(space.getDimensions()), _dim(dim),
         _vec_align()
     {
         (void) vec;
@@ -181,23 +209,22 @@ struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::valu
 
     inline typename type_of_array<T>::type*  transform_write(std::vector<T> & vec) {
         _vec_align.reserve(get_total_size());
-        vectors_to_single_buffer<T>(vec, _space->getDimensions(), 0, _vec_align);
+        vectors_to_single_buffer<T>(vec, _dims, 0, _vec_align);
         return &(_vec_align[0]);
 
     }
 
     inline void process_result(std::vector<T> & vec){
-         single_buffer_to_vectors<typename type_of_array<T>::type, T>(_vec_align.begin(), _vec_align.end(), _space->getDimensions(),
+         single_buffer_to_vectors<typename type_of_array<T>::type, T>(_vec_align.begin(), _vec_align.end(), _dims,
                                   0, vec);
     }
 
     inline size_t get_total_size(){
-        const std::vector<size_t> dims = _space->getDimensions();
-        return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<size_t>());
+        return std::accumulate(_dims.begin(), _dims.end(), 1, std::multiplies<size_t>());
     }
 
 
-    DataSpace* _space;
+    std::vector<size_t> _dims;
     size_t _dim;
     std::vector< typename type_of_array<T>::type > _vec_align;
 };
@@ -250,13 +277,32 @@ struct data_converter<std::vector<std::string>, void>{
 
 
 
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(const std::vector<size_t> & offset, const std::vector<size_t> & count){
+    // hsize_t type convertion
+    // TODO : normalize hsize_t type in HighFive namespace
+    std::vector<hsize_t> offset_local(offset.size()), count_local(count.size());
+    std::copy(offset.begin(), offset.end(), offset_local.begin());
+    std::copy(count.begin(), count.end(), count_local.begin());
+
+    DataSpace space = static_cast<Derivate*>(this)->getSpace().clone();
+    if( H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET,  &(offset_local[0]), NULL, &(count_local[0]), NULL) < 0){
+         HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
+    }
+
+    return Selection(DataSpace(count), space, details::get_dataset<Derivate>(static_cast<Derivate*>(this)));
+}
+
+
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T & array){
     const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = static_cast<Derivate*>(this)->getSpace();
-    const size_t dim_dataset = space.getNumberDimensions();
+    DataSpace mem_space = static_cast<Derivate*>(this)->getMemSpace();
+
+    const size_t dim_dataset = mem_space.getNumberDimensions();
     if(dim_array != dim_dataset){
         std::ostringstream ss;
         ss << "Impossible to read DataSet of dimensions " << dim_dataset << " into arrays of dimensions " << dim_array;
@@ -267,9 +313,13 @@ inline void SliceTraits<Derivate>::read(T & array){
     const AtomicType<typename details::type_of_array<T>::type > array_datatype;
 
     // Apply pre read convertions
-    details::data_converter<T> converter(array, space);
+    details::data_converter<T> converter(array, mem_space);
 
-    if( H5Dread(static_cast<Derivate*>(this)->getId(), array_datatype.getId(), H5S_ALL, H5S_ALL, H5P_DEFAULT,
+    if( H5Dread(details::get_dataset(static_cast<Derivate*>(this)).getId(),
+                array_datatype.getId(),
+                details::get_memspace_id((static_cast<Derivate*>(this))),
+                space.getId(),
+                H5P_DEFAULT,
                 static_cast<void*>(converter.transform_read(array))) < 0){
          HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read: ");
     }
@@ -284,7 +334,9 @@ template <typename T>
 inline void SliceTraits<Derivate>::write(T & buffer){
     const size_t dim_buffer = details::array_dims<T>::value;
     DataSpace space = static_cast<Derivate*>(this)->getSpace();
-    const size_t dim_dataset = space.getNumberDimensions();
+    DataSpace mem_space = static_cast<Derivate*>(this)->getMemSpace();
+
+    const size_t dim_dataset = mem_space.getNumberDimensions();
     if(dim_buffer != dim_dataset){
         std::ostringstream ss;
         ss << "Impossible to write buffer of dimensions " << dim_buffer << " into dataset of dimensions " << dim_dataset;
@@ -294,9 +346,14 @@ inline void SliceTraits<Derivate>::write(T & buffer){
     const AtomicType<typename details::type_of_array<T>::type > array_datatype;
 
     // Apply pre write convertions
-    details::data_converter<T> converter(buffer, space);
+    details::data_converter<T> converter(buffer, mem_space);
 
-    if( H5Dwrite(static_cast<Derivate*>(this)->getId(), array_datatype.getId(), H5S_ALL, H5S_ALL, H5P_DEFAULT, static_cast<const void*>(converter.transform_write(buffer))) < 0){
+    if( H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
+            array_datatype.getId(),
+            details::get_memspace_id((static_cast<Derivate*>(this))),
+            space.getId(),
+            H5P_DEFAULT,
+            static_cast<const void*>(converter.transform_write(buffer))) < 0){
          HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
 }

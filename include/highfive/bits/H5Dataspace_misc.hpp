@@ -29,11 +29,20 @@ inline DataSpace::DataSpace(const std::vector<size_t> & dims){
 inline DataSpace::DataSpace(const size_t dim1){
     const hsize_t dims = hsize_t(dim1);
     if( (_hid = H5Screate_simple(1, &dims, NULL) ) < 0){
-        throw DataSpaceException("Impossible to create dataspace");
+        throw DataSpaceException("Unable to create dataspace");
     }
 }
 
 inline DataSpace::DataSpace() {}
+
+
+inline DataSpace DataSpace::clone(){
+    DataSpace res;
+    if ( (res._hid = H5Scopy(_hid)) < 0){
+         throw DataSpaceException("Unable to copy dataspace");
+    }
+    return res;
+}
 
 inline size_t DataSpace::getNumberDimensions() const{
     const int ndim = H5Sget_simple_extent_ndims(_hid);

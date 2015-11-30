@@ -71,8 +71,8 @@ struct ContentGenerate<char>{
 
     char operator()(){
         char ret =_init;
-        if(++_init >= 0x61+26)
-            _init = 0x61;
+        if(++_init >= ('a'+26))
+            _init = 'a';
         return ret;
     }
 
@@ -461,7 +461,7 @@ void MultiArray3DTest()
     typedef typename boost::multi_array<T, 3> MultiArray;
 
     std::ostringstream filename;
-    filename << "h5_rw_multiarray_"  << "_test.h5";
+    filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
 
     const size_t size_x =10, size_y =10, size_z =10;
     const std::string DATASET_NAME("dset");
@@ -501,3 +501,62 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( MultiArray3D, T, numerical_test_types){
 }
 
 #endif
+
+
+template<typename T>
+void selectionArraySimpleTest()
+{
+
+
+    typedef typename std::vector<T> Vector;
+
+    std::ostringstream filename;
+    filename << "h5_rw_select_test_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x =10;
+    const size_t offset_x = 2, count_x= 5;
+
+    const std::string DATASET_NAME("dset");
+
+    Vector values(size_x);
+
+    ContentGenerate<T> generator;
+    std::generate(values.begin(), values.end(), generator);
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(values));
+
+    dataset.write(values);
+
+    // read it back
+    Vector result;
+    std::vector<size_t> offset;
+    offset.push_back(offset_x);
+    std::vector<size_t> size;
+    size.push_back(count_x);
+
+    Selection slice = dataset.select(offset, size);
+
+    BOOST_CHECK_EQUAL(slice.getSpace().getDimensions()[0], size_x);
+    BOOST_CHECK_EQUAL(slice.getMemSpace().getDimensions()[0], count_x);
+
+    slice.read(result);
+
+
+
+    BOOST_CHECK_EQUAL(result.size(), 5);
+
+    for(size_t i =0; i < count_x; ++i){
+                std::cout << result[i] << " ";
+                BOOST_CHECK_EQUAL(values[i+offset_x], result[i]);
+    }
+
+}
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types){
+
+    selectionArraySimpleTest<T>();
+}
