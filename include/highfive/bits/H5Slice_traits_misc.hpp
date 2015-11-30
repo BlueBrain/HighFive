@@ -203,6 +203,7 @@ struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::valu
     }
 
     inline typename type_of_array<T>::type* transform_read(std::vector<T> & vec) {
+        (void) vec;
         _vec_align.resize(get_total_size());
         return &(_vec_align[0]);
     }
