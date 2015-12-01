@@ -549,7 +549,7 @@ void selectionArraySimpleTest()
     BOOST_CHECK_EQUAL(result.size(), 5);
 
     for(size_t i =0; i < count_x; ++i){
-                std::cout << result[i] << " ";
+                //std::cout << result[i] << " ";
                 BOOST_CHECK_EQUAL(values[i+offset_x], result[i]);
     }
 

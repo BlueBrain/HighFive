@@ -10,6 +10,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 
 include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
+include(CheckCXX11Portability)
 
 option(UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)

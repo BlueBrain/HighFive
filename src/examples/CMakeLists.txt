@@ -13,12 +13,16 @@ function(compile_example exemple_source)
 get_filename_component(example_filename ${exemple_source} NAME)
 string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
+set(require_cpp11 FALSE)
 if(${example_filename} MATCHES ".*cpp11.*")
-add_definitions(-std=c++0x)
+    set(require_cpp11 TRUE)
+    add_definitions(-std=c++11)
 endif()
 
-add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})
-target_link_libraries(${example_name} ${HDF5_LIBRARIES})
+if(NOT require_cpp11 OR (require_cpp11 AND ${COMPILER_SUPPORTS_CXX11}))
+    add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})
+    target_link_libraries(${example_name} ${HDF5_LIBRARIES})
+endif()
 
 endfunction()
 
