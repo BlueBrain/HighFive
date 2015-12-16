@@ -20,6 +20,7 @@
 #define H5SELECTION_MISC_HPP
 
 #include "../H5Selection.hpp"
+#include "H5Slice_traits_misc.hpp"
 
 namespace HighFive{
 

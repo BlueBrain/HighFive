@@ -19,7 +19,7 @@
 #ifndef H5DATASET_MISC_HPP
 #define H5DATASET_MISC_HPP
 
-#include "../H5DataSet.hpp"
+
 
 #include <string>
 #include <sstream>
@@ -34,11 +34,12 @@
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
+#include "../H5DataSet.hpp"
 #include "../H5DataType.hpp"
 #include "../H5DataSpace.hpp"
 
 #include "H5Utils.hpp"
-
+#include "H5Slice_traits_misc.hpp"
 
 
 

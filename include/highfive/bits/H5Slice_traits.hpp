@@ -61,6 +61,5 @@ private:
 
 }
 
-#include "H5Slice_traits_misc.hpp"
 
 #endif // H5SLICE_TRAITS_HPP
