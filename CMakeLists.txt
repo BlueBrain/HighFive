@@ -21,7 +21,9 @@ if(USE_BOOST)
 add_definitions( -DH5_USE_BOOST )
 endif()
 
-add_subdirectory(src/examples)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive
+		DESTINATION ${INCLUDE_INSTALL_DIR})
 
+add_subdirectory(src/examples)
 
 add_subdirectory(tests/unit)

@@ -1,4 +1,4 @@
-if (UNIX)
+IF (UNIX)
   IF (NOT APPLICATION_NAME)
     MESSAGE(STATUS "${PROJECT_NAME} is used as APPLICATION_NAME")
     SET(APPLICATION_NAME ${PROJECT_NAME})
@@ -7,15 +7,15 @@ if (UNIX)
 # detect lib suffix
 
 
-IF(EXISTS "/usr/lib64")
-	SET(LIB_SUFFIX "64"
+GET_PROPERTY(LIB64_SUFFIX GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
+
+IF(LIB64_SUFFIX)
+    SET(LIB_SUFFIX "64"
 	CACHE STRING "Suffix of the lib")
-	SET (PKG_ARCH "x86_64")
-ELSE(EXISTS "/usr/lib64" )
-SET(LIB_SUFFIX ""
-CACHE STRING "Suffix of the lib")
-SET (PKG_ARCH "i386")
-ENDIF(EXISTS "/usr/lib64" )
+ELSE()
+    SET(LIB_SUFFIX ""
+        CACHE STRING "Suffix of the lib")
+ENDIF()
 
 
 #  correct cmake netpath issue with cmake 2.8
@@ -121,7 +121,7 @@ ENDIF(EXISTS "/usr/lib64" )
     "${SHARE_INSTALL_PREFIX}/info"
     CACHE PATH "The ${APPLICATION_NAME} info install dir (default prefix/info)"
   )
-endif (UNIX)
+ENDIF (UNIX)
 
 if (WIN32)
   # Same same
