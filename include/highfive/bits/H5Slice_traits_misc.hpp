@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <functional>
 #include <numeric>
+#include <cassert>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>

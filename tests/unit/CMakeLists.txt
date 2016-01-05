@@ -1,7 +1,5 @@
 
-if(UNIT_TESTS)
-
-find_package(Boost 1.41 REQUIRED COMPONENTS system unit_test_framework)
+if(UNIT_TESTS AND USE_BOOST)
 
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
@@ -17,4 +15,4 @@ target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
 add_test(NAME tests_high_five COMMAND tests_high_five_bin)
 
 
-endif(UNIT_TESTS)
+endif()

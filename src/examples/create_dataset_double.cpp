@@ -38,14 +38,19 @@ int main (void)
         // Create a new file using the default property lists.
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Create the data space for the dataset.
+        // Define the size of our dataset: 2x6
         std::vector<size_t> dims(2);
-        dims[0]= 4;
+        dims[0]= 2;
         dims[1]= 6;
 
-        DataSpace dataspace(dims);
+        // Create the dataset
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME,  DataSpace(dims));
 
-        DataSet dataset = file.createDataSet<double>(DATASET_NAME,  dataspace);
+
+        double data[2][6] = { { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6}, { 11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
+
+        // write it
+        dataset.write(data);
 
     }catch(Exception & err){
         // catch and print any HDF5 error

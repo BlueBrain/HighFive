@@ -21,9 +21,26 @@
 
 // internal utilities functions
 #include <vector>
+#include <cstddef>  // __GLIBCXX__
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+#endif
+
+// shared ptr portability
+// if boost is used, simply use boost
+#if (defined H5_USE_BOOST)
+#include <boost/shared_ptr.hpp>
+// if C++11 compliant compiler, use std::shared_ptr
+#elif ___cplusplus >= 201103L
+#  include <memory>
+// GNU C++ or Intel C++ using libstd++.
+// without C++11: use tr1
+#elif defined (__GNUC__) && __GNUC__ >= 4 && (defined (__GLIBCXX__))
+#  include <tr1/memory>
+// last hope to find it in standard <memory> ( VC++, libc++ )
+#else
+#include <memory>
 #endif
 
 namespace HighFive{
@@ -120,7 +137,23 @@ template <typename T>
 struct enable_if<true, T> { typedef T type; };
 
 
-}
+// shared ptr portability
+namespace Mem{
+
+
+#if (defined H5_USE_BOOST)
+    using namespace boost;
+#elif ___cplusplus >= 201103L
+    using namespace std;
+#elif defined (__GNUC__) && __GNUC__ >= 4 && (defined (__GLIBCXX__))
+    using namespace std::tr1;
+#else
+    using namespace std;
+#endif
+
+} // end Mem
+
+} // end details
 
 
 }

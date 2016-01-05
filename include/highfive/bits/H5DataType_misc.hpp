@@ -38,6 +38,10 @@ bool DataType::operator ==(const DataType & other) const{
     return (H5Tequal(_hid, other._hid) > 0);
 }
 
+bool DataType::operator !=(const DataType & other) const{
+    return !(*this == other);
+}
+
 // char mapping
 template <>
 inline AtomicType<char>::AtomicType(){

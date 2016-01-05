@@ -19,8 +19,6 @@
 #ifndef H5DATATYPE_HPP
 #define H5DATATYPE_HPP
 
-#include <boost/operators.hpp>
-
 #include "H5Object.hpp"
 
 
@@ -32,11 +30,13 @@ struct TypeMapper;
 ///
 /// \brief HDF5 Data Type
 ///
-class DataType : public Object, public boost::equality_comparable<DataType> {
+class DataType : public Object{
 public:
     DataType();
 
     bool operator==(const DataType & other) const;
+
+    bool operator!=(const DataType & other) const;
 
 protected:
 

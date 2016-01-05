@@ -18,7 +18,7 @@ option(USE_BOOST "enable Boost Support" TRUE)
 find_package(HDF5 REQUIRED)
 
 if(USE_BOOST)
-add_definitions( -DH5_USE_BOOST )
+    find_package(Boost 1.41 REQUIRED COMPONENTS system unit_test_framework)
 endif()
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive

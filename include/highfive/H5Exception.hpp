@@ -21,7 +21,8 @@
 
 #include <stdexcept>
 #include <string>
-#include <boost/shared_ptr.hpp>
+
+#include "bits/H5Utils.hpp"
 
 namespace HighFive{
 
@@ -82,7 +83,7 @@ public:
 
 protected:
     std::string _errmsg;
-    boost::shared_ptr<Exception> _next;
+    details::Mem::shared_ptr<Exception> _next;
     hid_t _err_major, _err_minor;
 
 

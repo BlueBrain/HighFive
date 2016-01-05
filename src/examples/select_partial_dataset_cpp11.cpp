@@ -43,13 +43,14 @@ int main (void)
         std::vector<std::vector<double> > values = { {1.0, 2.0, 4.0, 8.0, 16.0},
                                                     {32.0, 64.0, 128.0, 256.0, 512.0} };
 
-        // lets create a dataset of this size and write them
+        // lets create a dataset of this size
         DataSet dataset = file.createDataSet<double>(DATASET_NAME,  DataSpace::From(values));
+        // and write them
         dataset.write(values);
 
-        // now we read back 2x2 values after an offset of 0x1
+        // now we read back 2x2 values after an offset of 0x2
         std::vector<std::vector<double> > result;
-        dataset.select({0, 1}, {2, 2}).read(result);
+        dataset.select({0, 2}, {2, 2}).read(result);
 
         // we print out 4 values
         for(auto i : result){
