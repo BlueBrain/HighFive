@@ -70,7 +70,7 @@ inline size_t DataSpace::getNumberDimensions() const{
     return size_t(ndim);
 }
 
-std::vector<size_t> DataSpace::getDimensions() const{
+inline std::vector<size_t> DataSpace::getDimensions() const{
     std::vector<hsize_t> dims(getNumberDimensions());
     if( H5Sget_simple_extent_dims(_hid, &(dims[0]), NULL) <0){
         HDF5ErrMapper::ToException<DataSetException>("Unable to get dataspace dimensions");
@@ -82,13 +82,13 @@ std::vector<size_t> DataSpace::getDimensions() const{
 }
 
 template<typename Value>
-DataSpace DataSpace::From(const std::vector<Value> & container){
+inline DataSpace DataSpace::From(const std::vector<Value> & container){
     return DataSpace(details::get_dim_vector<Value>(container));
 }
 
 #ifdef H5_USE_BOOST
 template<typename Value, std::size_t Dims>
-DataSpace DataSpace::From(const boost::multi_array<Value, Dims> & container){
+inline DataSpace DataSpace::From(const boost::multi_array<Value, Dims> & container){
     std::vector<size_t> dims(Dims);
     for(std::size_t i = 0; i < Dims; ++i){
         dims[i] = container.shape()[i];

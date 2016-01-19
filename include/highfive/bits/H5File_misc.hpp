@@ -29,15 +29,32 @@
 
 namespace HighFive {
 
-const int File::ReadOnly = H5F_ACC_RDONLY;
 
-const int File::ReadWrite = H5F_ACC_RDWR;
+namespace{
 
-const int File::Create = H5F_ACC_CREAT;
+// libhdf5 uses a preprocessor trick on their oflags
+// we can not declare them constant without a mapper
+inline int convert_open_flag(int openFlags){
+    int res_open = 0;
+    if(openFlags & File::ReadOnly)
+        res_open |= H5F_ACC_RDONLY;
+    if(openFlags & File::ReadWrite)
+        res_open |= H5F_ACC_RDWR;
+    if(openFlags & File::Create)
+        res_open |= H5F_ACC_CREAT;
+    if(openFlags & File::Truncate)
+        res_open |= H5F_ACC_TRUNC;
+    if(openFlags & File::Excl)
+        res_open |= H5F_ACC_EXCL;
+    return res_open;
+}
 
-const int File::Truncate = H5F_ACC_TRUNC;
+}
+
 
 inline File::File(const std::string &filename, int openFlags) : _filename(filename){
+
+    openFlags = convert_open_flag(openFlags);
 
     if(openFlags & H5F_ACC_CREAT){
         if( (_hid = H5Fcreate(_filename.c_str(), openFlags & (H5F_ACC_TRUNC), H5P_DEFAULT, H5P_DEFAULT)) < 0){

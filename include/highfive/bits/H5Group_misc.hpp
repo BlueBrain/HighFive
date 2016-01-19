@@ -23,7 +23,7 @@
 
 namespace HighFive {
 
-Group::Group()
+inline Group::Group()
 {
 }
 

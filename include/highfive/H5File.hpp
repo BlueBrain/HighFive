@@ -33,13 +33,19 @@ class File : public Object, public NodeTraits<File> {
 public:
 
     /// Open flag: Read only access
-    static const int ReadOnly;
+    static const int ReadOnly=0x00;
     /// Open flag: Read Write access
-    static const int ReadWrite;
-    /// Open flag: Create non existing file
-    static const int Create;
+    static const int ReadWrite=0x01;
     /// Open flag: Truncate a file if already existing
-    static const int Truncate;
+    static const int Truncate=0x02;
+    /// Open flag: Open will fail if file already exist
+    static const int Excl=0x04;
+    /// Open flag: Open in debug mode
+    static const int Debug=0x08;
+    /// Open flag: Create non existing file
+    static const int Create=0x10;
+
+
 
     ///
     /// \brief File
