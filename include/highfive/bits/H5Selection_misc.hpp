@@ -25,7 +25,7 @@
 namespace HighFive{
 
 
-Selection::Selection(const DataSpace & memspace, const DataSpace & file_space, DataSet & set) :
+inline Selection::Selection(const DataSpace & memspace, const DataSpace & file_space, DataSet & set) :
     _mem_space(memspace),
     _file_space(file_space),
     _set(set){
@@ -33,15 +33,15 @@ Selection::Selection(const DataSpace & memspace, const DataSpace & file_space, D
 }
 
 
-DataSpace Selection::getSpace() const{
+inline DataSpace Selection::getSpace() const{
     return _file_space;
 }
 
-DataSpace Selection::getMemSpace() const{
+inline DataSpace Selection::getMemSpace() const{
     return _mem_space;
 }
 
-DataSet & Selection::getDataset(){
+inline DataSet & Selection::getDataset(){
     return _set;
 }
 

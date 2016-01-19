@@ -30,15 +30,15 @@
 namespace HighFive{
 
 
-DataType::DataType(){
+inline DataType::DataType(){
 }
 
 
-bool DataType::operator ==(const DataType & other) const{
+inline bool DataType::operator ==(const DataType & other) const{
     return (H5Tequal(_hid, other._hid) > 0);
 }
 
-bool DataType::operator !=(const DataType & other) const{
+inline bool DataType::operator !=(const DataType & other) const{
     return !(*this == other);
 }
 
