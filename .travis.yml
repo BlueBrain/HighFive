@@ -1,0 +1,13 @@
+language: cpp
+
+before_install:
+ - sudo mkdir -p /nix
+ - sudo chown $USER /nix
+
+install:
+ - curl https://nixos.org/nix/install | sh
+
+script:
+ - source /home/$USER/.nix-profile/etc/profile.d/nix.sh
+ - nix-build -I "BBPpkgs=https://github.com/BlueBrain/bbp-nixpkgs/archive/master.tar.gz" --arg testExec true  default.nix
+
