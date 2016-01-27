@@ -1,7 +1,7 @@
 The HighFive library - HDF5 C++
 
 ** Brief
-Header-only  wrapper to  libhdf5 ( HDF5 library ) for C++
+Header-only wrapper to libhdf5 ( HDF5 library ) for C++
 
 ** Dependencies
 - libHDF5
@@ -9,15 +9,35 @@ Header-only  wrapper to  libhdf5 ( HDF5 library ) for C++
 
 
 ** Design
-- Being C++-ish as much as possible 
-- Keep it simple stupid
+- Simple for simple things, advanced for advance things
 - Use only what you need: no other dependency than libhdf5 needed 
 - Support C++11
 - Compatible with C++98
 - Support for boost::multi_array and armadillo accessible on demand
 
 
-See examples directory for more infos
+** Usage
+
+**
+    using namespace HighFive;
+    // we create a new hdf5 file
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    std::vector<int> data(50, 1);
+
+    // lets create a dataset of native interger with the size of the vector 'data'
+    DataSet dataset = file.createDataSet<int>(DATASET_NAME,  DataSpace::From(data));
+
+    // lets write our vector of int to the HDF5 dataset
+    dataset.write(data);
+ 
+    // read back
+    std::vector<int> result
+    dataset.read(result);
+    
+** 
+
+See examples/  sub-directory for more infos
 
 ** Compile
 No compilation needed for usage, just add highfive/include/ to your include path
@@ -30,7 +50,7 @@ make test
 
 
 ** Feature support
-- Create/read/write file,  dataset, group, dataspce.
+- Create/read/write file,  dataset, group, datasapce.
 - Automatic memory management / ref counting
 - Automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
 - Automatic convertion of std::string to/from variable length string dataset
@@ -41,7 +61,7 @@ Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
 
 
 ** License
-LGPLv2.1
+LGPLv2.1+
 
 
 
