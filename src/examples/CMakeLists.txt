@@ -25,8 +25,10 @@ function(compile_example exemple_source)
         endif()
     endif()
 
-    if(require_cpp11 AND (NOT ${COMPILER_SUPPORTS_CXX11}))
+    if(require_cpp11)
+        if(NOT COMPILER_SUPPORTS_CXX11)
         return()
+	endif()
     endif()
 
     add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})

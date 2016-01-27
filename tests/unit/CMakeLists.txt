@@ -2,8 +2,6 @@
 if(UNIT_TESTS AND USE_BOOST)
 
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
-
 # silent boost warnings
 add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
 

@@ -19,10 +19,13 @@ find_package(HDF5 REQUIRED)
 
 if(USE_BOOST)
     find_package(Boost 1.41 REQUIRED COMPONENTS system unit_test_framework)
+    add_definitions(-DH5_USE_BOOST )
 endif()
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive
 		DESTINATION ${INCLUDE_INSTALL_DIR})
+
+include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 
 add_subdirectory(src/examples)
 
