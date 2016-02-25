@@ -58,9 +58,9 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string & dataset_n
 
 
 template <typename Derivate>
-inline DataSet NodeTraits<Derivate>::getDataSet(const std::string & dataset_name){
+inline DataSet NodeTraits<Derivate>::getDataSet(const std::string & dataset_name) const{
     DataSet set;
-    if( (set._hid = H5Dopen2(static_cast<Derivate*>(this)->getId(), dataset_name.c_str(), H5P_DEFAULT)) < 0){
+    if( (set._hid = H5Dopen2(static_cast<const Derivate*>(this)->getId(), dataset_name.c_str(), H5P_DEFAULT)) < 0){
         HDF5ErrMapper::ToException<DataSetException>(std::string("Unable to open the dataset \"")+ dataset_name + "\":");
     }
     return set;
