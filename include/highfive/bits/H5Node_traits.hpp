@@ -57,7 +57,7 @@ public:
     /// \param dataset_name
     /// \return return the named dataset, or throw exception if not found
     ///
-    DataSet getDataSet(const std::string & dataset_name);
+    DataSet getDataSet(const std::string & dataset_name) const;
 
     ///
     /// \brief create a new group with the name group_name
