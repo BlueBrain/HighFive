@@ -54,7 +54,7 @@ inline DataSpace::DataSpace(const size_t dim1){
 inline DataSpace::DataSpace() {}
 
 
-inline DataSpace DataSpace::clone(){
+inline DataSpace DataSpace::clone() const{
     DataSpace res;
     if ( (res._hid = H5Scopy(_hid)) < 0){
          throw DataSpaceException("Unable to copy dataspace");

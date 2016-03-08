@@ -71,7 +71,7 @@ public:
     /// \param group_name
     /// \return the group object
     ///
-    Group getGroup(const std::string & group_name);
+    Group getGroup(const std::string & group_name) const;
 
 private:
     typedef Derivate derivate_type;

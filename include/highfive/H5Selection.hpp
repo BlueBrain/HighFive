@@ -55,9 +55,10 @@ public:
     /// \return parent dataset of this selection
     ///
     DataSet & getDataset();
+    const DataSet & getDataset() const;
 
 private:
-    Selection(const DataSpace & memspace, const DataSpace & file_space, DataSet & set);
+    Selection(const DataSpace & memspace, const DataSpace & file_space, const DataSet & set);
 
     DataSpace _mem_space, _file_space;
     DataSet _set;
