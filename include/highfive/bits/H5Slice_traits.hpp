@@ -36,7 +36,7 @@ public:
     /// select a region in the current Slice/Dataset of 'count' points at 'offset'
     /// vector offset and count have to be from the same dimension
     ///
-    Selection select(const std::vector<size_t> & offset, const std::vector<size_t> & count);
+    Selection select(const std::vector<size_t> & offset, const std::vector<size_t> & count) const;
 
     ///
     /// Read the entire dataset into a buffer
@@ -44,7 +44,7 @@ public:
     ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
     template <typename T>
-    void read(T & array);
+    void read(T & array) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset

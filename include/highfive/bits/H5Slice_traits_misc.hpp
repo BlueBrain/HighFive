@@ -113,27 +113,26 @@ inline typename std::vector<T>::iterator single_buffer_to_vectors(
 // map the correct reference to the dataset depending of the layout
 // dataset -> itself
 // subselection -> parent dataset
-template<typename Derived>
-inline DataSet & get_dataset(Derived* ptr){
+inline const DataSet & get_dataset(const Selection* ptr){
     return ptr->getDataset();
 }
 
-template<>
-inline DataSet & get_dataset(DataSet* ptr){
+
+
+inline const DataSet & get_dataset(const DataSet* ptr){
     return *ptr;
 }
+
 
 // map the correct memspace identifier depending of the layout
 // dataset -> entire memspace
 // selection -> resolve space id
-template<typename Derived>
-inline hid_t get_memspace_id(Derived* ptr){
+inline hid_t get_memspace_id(const Selection* ptr){
     return ptr->getMemSpace().getId();
 }
 
 
-template<>
-inline hid_t get_memspace_id(DataSet* ptr){
+inline hid_t get_memspace_id(const DataSet* ptr){
     (void) ptr;
     return H5S_ALL;
 }
@@ -298,29 +297,29 @@ struct data_converter<std::vector<std::string>, void>{
 
 
 template <typename Derivate>
-inline Selection SliceTraits<Derivate>::select(const std::vector<size_t> & offset, const std::vector<size_t> & count){
+inline Selection SliceTraits<Derivate>::select(const std::vector<size_t> & offset, const std::vector<size_t> & count) const{
     // hsize_t type convertion
     // TODO : normalize hsize_t type in HighFive namespace
     std::vector<hsize_t> offset_local(offset.size()), count_local(count.size());
     std::copy(offset.begin(), offset.end(), offset_local.begin());
     std::copy(count.begin(), count.end(), count_local.begin());
 
-    DataSpace space = static_cast<Derivate*>(this)->getSpace().clone();
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
     if( H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET,  &(offset_local[0]), NULL, &(count_local[0]), NULL) < 0){
          HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
     }
 
-    return Selection(DataSpace(count), space, details::get_dataset<Derivate>(static_cast<Derivate*>(this)));
+    return Selection(DataSpace(count), space, details::get_dataset(static_cast<const Derivate*>(this)));
 }
 
 
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T & array){
+inline void SliceTraits<Derivate>::read(T & array) const{
     const size_t dim_array = details::array_dims<T>::value;
-    DataSpace space = static_cast<Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<Derivate*>(this)->getMemSpace();
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
+    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
     const size_t dim_dataset = mem_space.getNumberDimensions();
     if(dim_array != dim_dataset){
@@ -335,9 +334,9 @@ inline void SliceTraits<Derivate>::read(T & array){
     // Apply pre read convertions
     details::data_converter<T> converter(array, mem_space);
 
-    if( H5Dread(details::get_dataset(static_cast<Derivate*>(this)).getId(),
+    if( H5Dread(details::get_dataset(static_cast<const Derivate*>(this)).getId(),
                 array_datatype.getId(),
-                details::get_memspace_id((static_cast<Derivate*>(this))),
+                details::get_memspace_id((static_cast<const Derivate*>(this))),
                 space.getId(),
                 H5P_DEFAULT,
                 static_cast<void*>(converter.transform_read(array))) < 0){
@@ -353,8 +352,8 @@ template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(T & buffer){
     const size_t dim_buffer = details::array_dims<T>::value;
-    DataSpace space = static_cast<Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<Derivate*>(this)->getMemSpace();
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
+    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
     const size_t dim_dataset = mem_space.getNumberDimensions();
     if(dim_buffer != dim_dataset){
