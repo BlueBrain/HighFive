@@ -205,6 +205,78 @@ BOOST_AUTO_TEST_CASE( HighFiveGroupAndDataSet )
 }
 
 
+BOOST_AUTO_TEST_CASE( HighFiveSimpleListing )
+{
+
+    const std::string FILE_NAME("h5_list_test.h5");
+
+    const std::string GROUP_NAME_CORE("group_name");
+
+    const std::string GROUP_NESTED_NAME("/group_nested");
+
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    {
+        // absolute group
+        for(int i =0; i < 2;++i){
+            std::ostringstream ss;
+            ss << "/" << GROUP_NAME_CORE << "_" << i;
+            file.createGroup(ss.str());
+        }
+
+        size_t n_elem = file.getNumberObjects();
+        BOOST_CHECK_EQUAL(2, n_elem);
+
+        std::vector<std::string> elems = file.listObjectNames();
+        BOOST_CHECK_EQUAL(2, elems.size());
+        std::vector<std::string> reference_elems;
+        for(int i =0; i < 2;++i){
+            std::ostringstream ss;
+            ss << GROUP_NAME_CORE << "_" << i;
+            reference_elems.push_back(ss.str());
+        }
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(elems.begin(), elems.end(),
+                                      reference_elems.begin(), reference_elems.end());
+    }
+
+
+    {
+        file.createGroup(GROUP_NESTED_NAME);
+        Group g_nest = file.getGroup(GROUP_NESTED_NAME);
+
+        for(int i =0; i < 50; ++i){
+            std::ostringstream ss;
+            ss  << GROUP_NAME_CORE << "_" << i;
+            g_nest.createGroup(ss.str());
+        }
+
+        size_t n_elem = g_nest.getNumberObjects();
+        BOOST_CHECK_EQUAL(50, n_elem);
+
+        std::vector<std::string> elems = g_nest.listObjectNames();
+        BOOST_CHECK_EQUAL(50, elems.size());
+        std::vector<std::string> reference_elems;
+
+        for(int i =0; i < 50; ++i){
+            std::ostringstream ss;
+            ss << GROUP_NAME_CORE << "_" << i;
+            reference_elems.push_back(ss.str());
+        }
+        // there is no guarantee on the order of the hdf5 index, let's sort it to put them in order
+        std::sort(elems.begin(), elems.end());
+        std::sort(reference_elems.begin(), reference_elems.end());
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(elems.begin(), elems.end(),
+                                      reference_elems.begin(), reference_elems.end());
+    }
+
+
+}
+
+
 
 BOOST_AUTO_TEST_CASE( DataTypeEqualSimple )
 {

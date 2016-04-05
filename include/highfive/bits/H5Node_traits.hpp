@@ -73,6 +73,16 @@ public:
     ///
     Group getGroup(const std::string & group_name) const;
 
+    ///
+    /// \brief return the number of leaf objects of the node / group
+    /// \return number of leaf objects
+    size_t getNumberObjects() const;
+
+    ///
+    /// \brief list all leaf objects name of the node / group
+    /// \return number of leaf objects
+    std::vector<std::string> listObjectNames() const;
+
 private:
     typedef Derivate derivate_type;
 
