@@ -86,6 +86,50 @@ inline Group NodeTraits<Derivate>::getGroup(const std::string & group_name) cons
     return group;
 }
 
+
+template <typename Derivate>
+inline size_t NodeTraits<Derivate>::getNumberObjects() const{
+    hsize_t res;
+    if ( H5Gget_num_objs(static_cast<const Derivate*>(this)->getId(), &res) < 0){
+        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to count objects in existing group or file"));
+    }
+    return res;
+}
+
+
+template <typename Derivate>
+inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const{
+    size_t max_read_size = 4096;
+    size_t i=0, num_objs = getNumberObjects();
+    std::vector<std::string> names;
+    names.reserve(num_objs);
+
+
+    do{
+        char buffer[max_read_size] = { 0 };
+        hid_t gid = static_cast<const Derivate*>(this)->getId();
+        size_t sread;
+
+        if((sread = H5Gget_objname_by_idx(gid, static_cast<hsize_t>(i),
+            buffer, max_read_size )) < 0){
+            HDF5ErrMapper::ToException<GroupException>(std::string("Unable to list objects in existing group or file"));
+        }
+
+        if(sread >= max_read_size - 2){
+            // buffer too short, truncated result
+            // we enlarge the buffer
+            max_read_size = std::max<ssize_t>(max_read_size*2,
+                                     H5Gget_objname_by_idx(gid,
+                                                           static_cast<hsize_t>(i),
+                                                            NULL, 0 ));
+            continue;
+        }
+        names.push_back(buffer);
+        ++i;
+    }while(i < num_objs);
+    return names;
+}
+
 }
 
 #endif // H5NODE_TRAITS_MISC_HPP
