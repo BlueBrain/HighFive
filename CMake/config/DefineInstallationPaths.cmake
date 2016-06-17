@@ -1,149 +1,208 @@
-IF (UNIX)
-  IF (NOT APPLICATION_NAME)
-    MESSAGE(STATUS "${PROJECT_NAME} is used as APPLICATION_NAME")
-    SET(APPLICATION_NAME ${PROJECT_NAME})
-  ENDIF (NOT APPLICATION_NAME)
+###
+## Give GNU/Linux directory naming to cmake http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
+## 
+## Define installation PATHs
+## Re-use naming convention of package managers (RPM, dpkg) 
 
-# detect lib suffix
-
-
-GET_PROPERTY(LIB64_SUFFIX GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-
-IF(LIB64_SUFFIX)
-    SET(LIB_SUFFIX "64"
-	CACHE STRING "Suffix of the lib")
+## setup default app name
+IF(NOT DEFINED "${PROJECT_NAME}_APPLICATION_NAME")
+  SET(APPLICATION_NAME "${PROJECT_NAME}")
 ELSE()
-    SET(LIB_SUFFIX ""
-        CACHE STRING "Suffix of the lib")
+  SET(APPLICATION_NAME "${PROJECT_NAME}_APPLICATION_NAME")
 ENDIF()
 
 
-#  correct cmake netpath issue with cmake 2.8
-  IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
-	SET(INTERNAL_BASE_PREFIX "")
-  ELSE("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
- 	SET(INTERNAL_BASE_PREFIX "${CMAKE_INSTALL_PREFIX}")
-  ENDIF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/") 
+### If no project specific prefix is define
+##  use standard prefix
+IF(NOT DEFINED ${APPLICATION_NAME}_INSTALL_PREFIX)
 
-  SET(EXEC_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    CACHE PATH  "Base directory for executables and libraries"
-  )
-  
+	IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
+		## override simple "/", buggy with  cmake <= 2.8
+		SET(INTERNAL_BASE_PREFIX "")
+	ELSE()
+		SET(INTERNAL_BASE_PREFIX "${CMAKE_INSTALL_PREFIX}")
+	ENDIF()
 
-  
-  SET(SHARE_INSTALL_PREFIX
-    "${INTERNAL_BASE_PREFIX}/share"
-    CACHE PATH "Base directory for files which go to share/"
-  )
-  SET(DATA_INSTALL_PREFIX
-    "${INTERNAL_BASE_PREFIX}/${APPLICATION_NAME}"
-    CACHE PATH "The parent directory where applications can install their data")
+ELSE()
+	# support apps specific prefix installation
+	# for sub-project style usage
+	SET(INTERNAL_BASE_PREFIX "${${APPLICATION_NAME}_INSTALL_PREFIX}")
+ENDIF()
 
-  # The following are directories where stuff will be installed to
-  SET(BIN_INSTALL_DIR
-    "${INTERNAL_BASE_PREFIX}/bin"
-    CACHE PATH "The ${APPLICATION_NAME} binary install dir (default prefix/bin)"
-  )
-  SET(SBIN_INSTALL_DIR
-    "${INTERNAL_BASE_PREFIX}/sbin"
-    CACHE PATH "The ${APPLICATION_NAME} sbin install dir (default prefix/sbin)"
-  )
-  SET(LIB_INSTALL_DIR
-    "${INTERNAL_BASE_PREFIX}/lib${LIB_SUFFIX}"
-    CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is prefix/lib)"
-  )
-  SET(LIBEXEC_INSTALL_DIR
-    "${INTERNAL_BASE_PREFIX}/libexec"
-    CACHE PATH "The subdirectory relative to the install prefix where libraries will be installed (default is prefix/libexec)"
-  )
 
-  SET(PKGCONFIG_FILES_DIR
-    "${LIB_INSTALL_DIR}/pkgconfig/"
-    CACHE PATH "subdirectory relative to the install prefix where pkgconfig files (.pc) will be installed"
-  )
+# detect lib suffix
+GET_PROPERTY(LIB64_SUFFIX GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 
-  SET(PLUGIN_INSTALL_DIR
-    "${LIB_INSTALL_DIR}/${APPLICATION_NAME}"
-    CACHE PATH "The subdirectory relative to the install prefix where plugins will be installed (default is prefix/lib/${APPLICATION_NAME})"
-  )
-  SET(INCLUDE_INSTALL_DIR
-    "${INTERNAL_BASE_PREFIX}/include"
-    CACHE PATH "The subdirectory to the header prefix (default prefix/include)"
-  )
+## library suffix : default ""
+## Use specify lib{32,64}
+IF(NOT DEFINED LIB_SUFFIX)
+	IF(LIB64_SUFFIX)
+	   SET(LIB_SUFFIX "64")
+	ELSE()
+	   SET(LIB_SUFFIX "")
+	ENDIF()
+ENDIF()
 
-  SET(DATA_INSTALL_DIR
-    "${DATA_INSTALL_PREFIX}"
-    CACHE PATH "The parent directory where applications can install their data (default prefix/share/${APPLICATION_NAME})"
-  )
- 
-  SET(DOC_INSTALL_DIR
-    "${SHARE_INSTALL_PREFIX}/doc/${APPLICATION_NAME}"
-    CACHE PATH "The parent directory where applications can install their documentation (default prefix/share/doc/${APPLICATION_NAME})"
-  )
-  
-  SET(HTML_INSTALL_DIR
-    "${DATA_INSTALL_PREFIX}/doc/HTML"
-    CACHE PATH "The HTML install dir for documentation (default data/doc/html)"
-  )
-  SET(ICON_INSTALL_DIR
-    "${DATA_INSTALL_PREFIX}/icons"
-    CACHE PATH "The icon install dir (default data/icons/)"
-  )
-  SET(SOUND_INSTALL_DIR
-    "${DATA_INSTALL_PREFIX}/sounds"
-    CACHE PATH "The install dir for sound files (default data/sounds)"
-  )
 
-  SET(LOCALE_INSTALL_DIR
-    "${SHARE_INSTALL_PREFIX}/locale"
-    CACHE PATH "The install dir for translations (default prefix/share/locale)"
-  )
+##
+# execprefix (default: "$CMAKE_INSTALL_PREFIX" )
+IF(NOT DEFINED EXEC_INSTALL_PREFIX)
+	SET(EXEC_INSTALL_PREFIX
+		"${CMAKE_INSTALL_PREFIX}")
+ENDIF()
 
-  SET(XDG_APPS_DIR
-    "${SHARE_INSTALL_PREFIX}/applications/"
-    CACHE PATH "The XDG apps dir"
-  )
-  SET(XDG_DIRECTORY_DIR
-    "${SHARE_INSTALL_PREFIX}/desktop-directories"
-    CACHE PATH "The XDG directory"
-  )
+##
+# share install dir prefix
+# (RPM macro compat)
+IF(NOT DEFINED SHARE_INSTALL_PREFIX)
+	SET(SHARE_INSTALL_PREFIX
+		"${INTERNAL_BASE_PREFIX}/share")
+ENDIF()
 
-  SET(SYSCONF_INSTALL_DIR
-    "${EXEC_INSTALL_PREFIX}/etc"
-    CACHE PATH "The ${APPLICATION_NAME} sysconfig install dir (default prefix/etc)"
-  )
-  SET(MAN_INSTALL_DIR
-    "${SHARE_INSTALL_PREFIX}/man"
-    CACHE PATH "The ${APPLICATION_NAME} man install dir (default prefix/man)"
-  )
-  SET(INFO_INSTALL_DIR
-    "${SHARE_INSTALL_PREFIX}/info"
-    CACHE PATH "The ${APPLICATION_NAME} info install dir (default prefix/info)"
-  )
-ENDIF (UNIX)
 
-if (WIN32)
-  # Same same
-  SET(EXEC_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    CACHE PATH  "Base directory for executables and libraries"
-  )  
-  set(BIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
-  set(SBIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
-  set(LIB_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
-  set(INCLUDE_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/include" CACHE PATH "-")
-  SET(SYSCONF_INSTALL_DIR
-    "${CMAKE_INSTALL_PREFIX}/etc"
-    CACHE PATH "The ${APPLICATION_NAME} sysconfig install dir (default prefix/etc)"
-  )  
-  SET(PKGCONFIG_FILES_DIR "${EXEC_INSTALL_PREFIX}/lib/pkgconfig/"
-    CACHE PATH "subdirectory relative to the install prefix where pkgconfig files (.pc) will be installed"
-  )  
-  set(PLUGIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin/plugins" CACHE PATH "-")
-  set(HTML_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/doc/HTML" CACHE PATH "-")
-  set(ICON_INSTALL_DIR "." CACHE PATH "-")
-  set(SOUND_INSTALL_DIR "." CACHE PATH "-")
-  set(LOCALE_INSTALL_DIR "lang" CACHE PATH "-")
-endif (WIN32)
+##
+# sysconfdir (default: /etc )
+# 
+IF(NOT DEFINED SYSCONF_INSTALL_DIR)
+	SET(SYSCONF_INSTALL_DIR
+		"${CMAKE_INSTALL_PREFIX}/etc")
+ENDIF()
+
+##
+# apps specific datadir
+# 
+IF(NOT DEFINED DATA_INSTALL_PREFIX)
+	SET(DATA_INSTALL_PREFIX
+		"${INTERNAL_BASE_PREFIX}/${APPLICATION_NAME}")
+ENDIF()
+
+
+##
+# bindir
+IF(NOT DEFINED BIN_INSTALL_DIR)
+	SET(BIN_INSTALL_DIR
+		"${INTERNAL_BASE_PREFIX}/bin")
+ENDIF()
+
+##
+# sbindir
+IF(NOT DEFINED SBIN_INSTALL_DIR)
+	SET(SBIN_INSTALL_DIR
+		"${INTERNAL_BASE_PREFIX}/sbin")
+ENDIF()
+
+## 
+# libdir
+IF(NOT DEFINED LIB_INSTALL_DIR)
+	SET(LIB_INSTALL_DIR
+		"${INTERNAL_BASE_PREFIX}/lib${LIB_SUFFIX}")
+ENDIF()
+
+##
+# libexecdir
+IF(NOT DEFINED LIBEXEC_INSTALL_DIR)
+	SET(LIBEXEC_INSTALL_DIR
+		"${INTERNAL_BASE_PREFIX}/libexec")
+ENDIF()
+
+##
+# pkgconfig dir
+IF(NOT DEFINED PKGCONFIG_FILES_DIR)
+	SET(PKGCONFIG_FILES_DIR
+		"${LIB_INSTALL_DIR}/pkgconfig/")
+ENDIF()
+
+##
+# plugin app dir
+IF(NOT DEFINED PLUGIN_INSTALL_DIR)
+	SET(PLUGIN_INSTALL_DIR
+		"${LIB_INSTALL_DIR}/${APPLICATION_NAME}")
+ENDIF()
+
+##
+# includedir
+IF(NOT DEFINED INCLUDE_INSTALL_DIR)
+	SET(INCLUDE_INSTALL_DIR
+		"${INTERNAL_BASE_PREFIX}/include")
+ENDIF()
+
+##
+# data install dir
+IF(NOT DEFINED DATA_INSTALL_DIR)
+	SET(DATA_INSTALL_DIR
+		"${DATA_INSTALL_PREFIX}")
+ENDIF()
+
+##
+# CMake.config install dir
+IF(NOT DEFINED CMAKE_TARGET_CONFIG_INSTALL_DIR)
+	SET(CMAKE_TARGET_CONFIG_INSTALL_DIR
+		"${DATA_INSTALL_PREFIX}/${APPLICATION_NAME}/CMake")
+ENDIF()
+
+
+##
+# doc install dir
+IF(NOT DEFINED DOC_INSTALL_DIR)
+	SET(DOC_INSTALL_DIR
+	"${SHARE_INSTALL_PREFIX}/doc/${APPLICATION_NAME}")
+ENDIF()
+
+##
+# mandir
+IF(NOT DEFINED MAN_INSTALL_DIR)
+	SET(MAN_INSTALL_DIR
+		"${SHARE_INSTALL_PREFIX}/man")
+ENDIF()
+
+##
+# infodir
+IF(NOT DEFINED INFO_INSTALL_DIR)
+	SET(INFO_INSTALL_DIR
+		"${SHARE_INSTALL_PREFIX}/info")
+ENDIF()
+
+
+
+IF(NOT DEFINED HTML_INSTALL_DIR)
+	SET(HTML_INSTALL_DIR
+		"${DOC_INSTALL_DIR}/html")
+ENDIF()
+
+
+
+IF(NOT DEFINED ICON_INSTALL_DIR)
+	SET(ICON_INSTALL_DIR
+		"${DATA_INSTALL_PREFIX}/icons")
+ENDIF()
+
+
+
+IF(NOT DEFINED SOUND_INSTALL_DIR)
+	SET(SOUND_INSTALL_DIR
+		"${DATA_INSTALL_PREFIX}/sounds")
+ENDIF()
+
+
+
+IF(NOT DEFINED LOCALE_INSTALL_DIR)
+	SET(LOCALE_INSTALL_DIR
+		"${SHARE_INSTALL_PREFIX}/locale")
+ENDIF()
+
+
+
+IF(NOT DEFINED XDG_APPS_DIR)
+	SET(XDG_APPS_DIR
+	"${SHARE_INSTALL_PREFIX}/applications")
+ENDIF()
+
+
+IF(NOT DEFINED XDG_DIRECTORY_DIR)
+	SET(XDG_DIRECTORY_DIR
+	"${SHARE_INSTALL_PREFIX}/desktop-directories")
+ENDIF()
+
+
+
 
