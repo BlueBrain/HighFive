@@ -17,6 +17,10 @@ with import <BBPpkgs> { };
       name = "highfive-0.1";
       src = ./.;
       buildInputs = [stdenv pkgconfig boost cmake hdf5 doxygen zlib];
+
+      doCheck = true;
+
+      checkPhase = "ctest -V";
     };
 
 }
