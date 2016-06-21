@@ -44,7 +44,7 @@ int main (void)
 
         for(size_t i = 0; i < size_x; ++i){
             for(size_t j = 0; j < size_y; ++j){
-                my_array[i][j]= j + i * size_y;
+                my_array[i][j]= double(j + i * size_y);
             }
         }
 

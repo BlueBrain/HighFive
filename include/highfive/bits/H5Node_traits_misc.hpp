@@ -106,12 +106,12 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const{
 
 
     do{
-        char buffer[max_read_size] = { 0 };
+        std::vector<char> buffer(max_read_size, 0);
         hid_t gid = static_cast<const Derivate*>(this)->getId();
         size_t sread;
 
         if((sread = H5Gget_objname_by_idx(gid, static_cast<hsize_t>(i),
-            buffer, max_read_size )) < 0){
+            buffer.data(), max_read_size )) < 0){
             HDF5ErrMapper::ToException<GroupException>(std::string("Unable to list objects in existing group or file"));
         }
 
@@ -124,7 +124,7 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const{
                                                             NULL, 0 ));
             continue;
         }
-        names.push_back(buffer);
+        names.push_back(buffer.data());
         ++i;
     }while(i < num_objs);
     return names;

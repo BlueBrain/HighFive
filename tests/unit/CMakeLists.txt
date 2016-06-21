@@ -2,8 +2,10 @@
 if(UNIT_TESTS AND USE_BOOST)
 
 
-# silent boost warnings
-add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
+if(NOT MSVC)
+    # silent boost warnings
+    add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
+endif()
 
 file(GLOB tests_high_five_src "*.cpp")
 
