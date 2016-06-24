@@ -439,7 +439,7 @@ void readWriteVectorTest(){
     std::ostringstream filename;
     filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
 
-    std::srand(std::time(0));
+    std::srand((unsigned int) std::time(0));
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;

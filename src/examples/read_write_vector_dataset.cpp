@@ -40,7 +40,7 @@ void write_dataset(){
 
     std::vector<int> data(size_dataset);
     for(size_t i =0; i < data.size(); ++i){
-        data[i] = i;
+        data[i] = int(i);
     }
 
     // lets create a dataset of native interger with the size of the vector 'data'
