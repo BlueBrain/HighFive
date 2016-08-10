@@ -84,7 +84,7 @@ set(TEST_MPI_EXEC_BIN "${TEST_MPI_EXEC_BIN_DEFAULT}" CACHE STRING "path of the M
 ###
 ## Test execution prefix. Override this variable for any execution prefix required in clustered environment
 ## 
-## To specify manually a command with argument, e.g -DTEST_EXEC_PREFIX="/usr/bin/srun;-n;-4" for a srun execution
+## To specify manually a command with argument, e.g -DTEST_EXEC_PREFIX="/var/empty/bin/srun;-n;-4" for a srun execution
 ## with 4 nodes
 ##
 ## default: srun if found
@@ -96,7 +96,7 @@ set(TEST_EXEC_PREFIX "${TEST_EXEC_PREFIX_DEFAULT}" CACHE STRING "prefix command 
 ###
 ## Test execution prefix specific for MPI programs.
 ## 
-## To specify manually a command with argument, use the cmake list syntax. e.g -DTEST_EXEC_PREFIX="/usr/bin/mpiexec;-n;-4" for an MPI execution
+## To specify manually a command with argument, use the cmake list syntax. e.g -DTEST_EXEC_PREFIX="/var/empty/bin/mpiexec;-n;-4" for an MPI execution
 ## with 4 nodes
 ##
 ## default: srun or mpiexec if found

@@ -22,6 +22,7 @@
 #include "H5Node_traits.hpp"
 
 #include <string>
+#include <vector>
 
 #include "../H5Exception.hpp"
 #include "../H5DataSet.hpp"
@@ -38,6 +39,39 @@
 #include <H5Gpublic.h>
 
 namespace HighFive{
+
+
+namespace {
+
+struct HighFiveIterateData{
+    HighFiveIterateData(std::vector<std::string> & my_names) : names(my_names), err(NULL) {}
+
+    std::vector<std::string> & names;
+    std::exception* err;
+
+    inline void throwIfError(){
+        if(err){
+            throw *err;
+        }
+    }
+};
+
+inline herr_t internal_high_five_iterate( hid_t g_id, const char *name, const H5L_info_t *info, void *op_data){
+    (void) g_id;
+    (void) info;
+
+    HighFiveIterateData* data = static_cast<HighFiveIterateData*>(op_data);
+    try{
+        data->names.push_back(name);
+        return 0;
+    }catch(...){
+        data->err = new ObjectException("Exception during H5Iterate, abort listing");
+    }
+    return -1;
+}
+
+
+}
 
 
 template <typename Derivate>
@@ -97,36 +131,22 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const{
 }
 
 
+
 template <typename Derivate>
 inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const{
-    size_t max_read_size = 4096;
-    size_t i=0, num_objs = getNumberObjects();
+
     std::vector<std::string> names;
+    HighFiveIterateData iterateData(names);
+
+
+    size_t num_objs = getNumberObjects();
     names.reserve(num_objs);
 
+    if( H5Literate(static_cast<const Derivate*>(this)->getId(), H5_INDEX_NAME,
+                   H5_ITER_INC, NULL, &internal_high_five_iterate, static_cast<void*>(&iterateData)) < 0){
+         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to list objects in group"));
+    }
 
-    do{
-        std::vector<char> buffer(max_read_size, 0);
-        hid_t gid = static_cast<const Derivate*>(this)->getId();
-        size_t sread;
-
-        if((sread = H5Gget_objname_by_idx(gid, static_cast<hsize_t>(i),
-            buffer.data(), max_read_size )) < 0){
-            HDF5ErrMapper::ToException<GroupException>(std::string("Unable to list objects in existing group or file"));
-        }
-
-        if(sread >= max_read_size - 2){
-            // buffer too short, truncated result
-            // we enlarge the buffer
-            max_read_size = std::max<ssize_t>(max_read_size*2,
-                                     H5Gget_objname_by_idx(gid,
-                                                           static_cast<hsize_t>(i),
-                                                            NULL, 0 ));
-            continue;
-        }
-        names.push_back(buffer.data());
-        ++i;
-    }while(i < num_objs);
     return names;
 }
 
