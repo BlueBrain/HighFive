@@ -25,6 +25,7 @@
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #endif
 
 // shared ptr portability
@@ -64,6 +65,9 @@ struct array_dims<T [N]> { static const size_t value = 1 + array_dims<T>::value;
 #ifdef H5_USE_BOOST
 template<typename T, std::size_t Dims>
 struct array_dims<boost::multi_array<T, Dims> >{ static const size_t value = Dims; };
+
+template<typename T>
+struct array_dims<boost::numeric::ublas::matrix<T> >{ static const size_t value = 2; };
 #endif
 
 // determine recursively the size of each dimension of a N dimension vector
@@ -98,6 +102,9 @@ struct type_of_array<std::vector<T> > { typedef typename type_of_array<T>::type 
 #ifdef H5_USE_BOOST
 template<typename T, std::size_t Dims>
 struct type_of_array<boost::multi_array<T, Dims> >{ typedef typename type_of_array<T>::type type; };
+
+template<typename T>
+struct type_of_array<boost::numeric::ublas::matrix<T> >{ typedef typename type_of_array<T>::type type; };
 #endif
 
 template<typename T>
