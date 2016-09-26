@@ -22,6 +22,7 @@
 #include <vector>
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #endif
 
 #include "H5Object.hpp"
@@ -74,6 +75,9 @@ public:
 #ifdef H5_USE_BOOST
     template<typename Value, std::size_t Dims>
     static DataSpace From(const boost::multi_array<Value, Dims> & container);
+
+    template<typename Value>
+    static DataSpace From(const boost::numeric::ublas::matrix<Value> & mat);
 #endif
 
 

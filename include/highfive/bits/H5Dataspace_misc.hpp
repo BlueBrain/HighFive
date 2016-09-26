@@ -96,6 +96,15 @@ inline DataSpace DataSpace::From(const boost::multi_array<Value, Dims> & contain
     }
     return DataSpace(dims);
 }
+
+template<typename Value>
+inline DataSpace DataSpace::From(const boost::numeric::ublas::matrix<Value> & mat){
+    std::vector<size_t> dims(2);
+    dims[0] = mat.size1();
+    dims[1] = mat.size2();
+    return DataSpace(dims);
+}
+
 #endif
 
 }

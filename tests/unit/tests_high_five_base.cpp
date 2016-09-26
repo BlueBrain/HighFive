@@ -38,6 +38,7 @@
 
 using namespace HighFive;
 
+typedef boost::mpl::list<float, double > floating_numerics_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, long long, unsigned long long> numerical_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char, float, double, std::string> dataset_test_types;
 
@@ -582,6 +583,55 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( MultiArray3D, T, numerical_test_types){
 
     MultiArray3DTest<T>();
 }
+
+
+
+template<typename T>
+void ublas_matrix_Test()
+{
+
+
+    typedef typename boost::numeric::ublas::matrix<T> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    std::generate(mat.begin1(), mat.end1(), generator);
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+
+    dataset.write(mat);
+
+    // read it back
+    Matrix result;
+
+    dataset.read(result);
+
+
+    for(size_t i =0; i < size_x; ++i){
+        for(size_t j=0; j < size_y; ++j){
+                //std::cout << array[i][j][k] << " ";
+                BOOST_CHECK_EQUAL(mat(i,j), result(i,j));
+        }
+    }
+
+}
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( ublas_matrix, T, numerical_test_types){
+
+    ublas_matrix_Test<T>();
+}
+
 
 #endif
 

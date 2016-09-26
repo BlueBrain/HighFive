@@ -30,6 +30,7 @@
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #endif
 
 #include <H5Dpublic.h>
@@ -202,6 +203,39 @@ struct data_converter< boost::multi_array<T, Dims>, void >{
     inline typename type_of_array<T>::type*  transform_write(MultiArray & array) { return array.data(); }
 
     inline void process_result(MultiArray & array){
+         (void) array;
+    }
+
+    std::vector<size_t> _dims;
+};
+
+
+// apply conversion to boost matrix ublas
+template<typename T>
+struct data_converter< boost::numeric::ublas::matrix<T> , void >{
+
+    typedef typename boost::numeric::ublas::matrix<T> Matrix;
+
+    inline data_converter(Matrix & array, DataSpace & space, size_t dim = 0) : _dims(space.getDimensions()){
+        assert(_dims.size() == 2);
+        (void) dim;
+        (void) array;
+    }
+
+    inline typename type_of_array<T>::type*  transform_read(Matrix & array) {
+            boost::array<std::size_t, 2> sizes = {{ array.size1(), array.size2() }};
+
+            if(std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false){
+                array.resize(_dims[0], _dims[1], false);
+                array(0,0 ) = 0; // force initialization
+            }
+
+            return &(array(0,0));
+    }
+
+    inline typename type_of_array<T>::type*  transform_write(Matrix & array) { return &(array(0,0)); }
+
+    inline void process_result(Matrix & array){
          (void) array;
     }
 
