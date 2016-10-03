@@ -12,10 +12,15 @@ include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
 include(CheckCXX11Portability)
 
+include(BlueGenePortability)
+
 option(UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
 
 find_package(HDF5 REQUIRED)
+
+set(Boost_NO_BOOST_CMAKE TRUE)
+
 
 if(USE_BOOST)
     find_package(Boost 1.41 REQUIRED COMPONENTS system unit_test_framework)

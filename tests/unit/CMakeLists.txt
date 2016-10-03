@@ -7,6 +7,11 @@ if(NOT MSVC)
     add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
 endif()
 
+if(NOT Boost_USE_STATIC_LIBS)
+	add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
+endif()
+
+
 file(GLOB tests_high_five_src "*.cpp")
 
 add_executable(tests_high_five_bin ${tests_high_five_src})

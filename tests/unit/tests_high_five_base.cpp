@@ -602,7 +602,11 @@ void ublas_matrix_Test()
     Matrix mat(size_x, size_y);
 
     ContentGenerate<T> generator;
-    std::generate(mat.begin1(), mat.end1(), generator);
+	for(std::size_t i =0; i < mat.size1(); ++i){
+		for(std::size_t j =0; j < mat.size2(); ++j){
+			mat(i,j) = generator();
+		}
+	}
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
