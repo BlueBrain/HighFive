@@ -23,7 +23,8 @@
 
 
 namespace HighFive{
-
+  
+class Attribute;
 class DataSet;
 class Group;
 class DataSpace;
@@ -32,6 +33,41 @@ class DataType;
 template <typename Derivate>
 class NodeTraits{
 public:
+    ///
+    /// \brief create a new attribute with the name attribute_name
+    /// \param attribute_name
+    /// \return the attribute object
+    ///
+    Attribute createAttribute(const std::string & attribute_name, const DataSpace & space, const DataType & type);
+    
+    ///
+    /// \brief createDataSet create a new dataset in the current file with a size specified by space
+    /// \param dataset_name identifier of the dataset
+    /// \param space Associated DataSpace, see \ref DataSpace for more informations
+    /// \return DataSet Object
+    ///
+    ///
+    ///
+    template <typename Type>
+    Attribute createAttribute(const std::string & attribute_name, const DataSpace & space);
+
+    ///
+    /// \brief open an existing attribute with the name attribute_name
+    /// \param attribute_name
+    /// \return the attribute object
+    ///
+    Attribute getAttribute(const std::string & attribute_name) const;
+
+    ///
+    /// \brief return the number of attributes of the node / group
+    /// \return number of attributes
+    size_t getNumberAttributes() const;
+
+    ///
+    /// \brief list all attribute name of the node / group
+    /// \return number of attributes
+    std::vector<std::string> listAttributeNames() const;
+
     ///
     /// \brief createDataSet Create a new dataset in the current file of datatype type and of size space
     /// \param dataset_name identifier of the dataset

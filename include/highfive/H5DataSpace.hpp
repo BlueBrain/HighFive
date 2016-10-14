@@ -86,6 +86,7 @@ protected:
 
     explicit DataSpace();
 
+    friend class Attribute;
     friend class File;
     friend class DataSet;
 };
