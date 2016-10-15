@@ -26,10 +26,10 @@
 #include <numeric>
 #include <cassert>
 
-//#ifdef H5_USE_BOOST
+#ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-//#endif
+#endif
 
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
@@ -147,7 +147,7 @@ struct data_converter<std::vector<T>, typename enable_if< (is_same<T, typename t
     size_t _dim;
 };
 
-//#ifdef H5_USE_BOOST
+#ifdef H5_USE_BOOST
 // apply conversion to boost multi array
 template<typename T, std::size_t Dims>
 struct data_converter< boost::multi_array<T, Dims>, void >{
@@ -210,7 +210,7 @@ struct data_converter< boost::numeric::ublas::matrix<T> , void >{
 
     std::vector<size_t> _dims;
 };
-//#endif
+#endif
 
 
 
