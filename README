@@ -13,7 +13,7 @@ Header-only wrapper to libhdf5 ( HDF5 library ) for C++
 - Use only what you need: no other dependency than libhdf5 needed 
 - Support C++11
 - Compatible with C++98
-- Support for boost::multi_array and armadillo accessible on demand
+- Support for boost::multi_array and boost::ublas::matrix accessible on demand
 
 
 ** Usage
@@ -56,7 +56,7 @@ make test
 - Automatic convertion of std::string to/from variable length string dataset
 
 
-** Authors
+** Contributors
 Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
 
 
