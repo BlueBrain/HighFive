@@ -40,6 +40,7 @@ public:
 
 protected:
 
+    friend class Attribute;
     friend class File;
     friend class DataSet;
 };

@@ -130,6 +130,16 @@ public:
 
 
 
+
+///
+/// \brief Exception specific to HighFive Attribute interface
+///
+class AttributeException : public Exception {
+public:
+  AttributeException(const std::string & err_msg) : Exception(err_msg) {}
+
+};
+
 ///
 /// \brief Exception specific to HighFive DataSet interface
 ///
