@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 
 enable_testing()
 
+set(HIGHFIVE_VERSION_MAJOR 0)
+set(HIGHFIVE_VERSION_MINOR 2)
+
+
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
       ${PROJECT_SOURCE_DIR}/CMake/portability
       ${PROJECT_SOURCE_DIR}/CMake/packages
