@@ -31,6 +31,7 @@
 
 #define BOOST_TEST_MAIN HighFiveTest
 #include <boost/test/included/unit_test.hpp>
+#include <boost/mpl/list.hpp>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
