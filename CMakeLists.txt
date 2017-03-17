@@ -21,6 +21,7 @@ include(BlueGenePortability)
 
 option(UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
+option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 
 find_package(HDF5 REQUIRED)
 
@@ -37,6 +38,8 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
 
-add_subdirectory(src/examples)
+if(HIGHFIVE_EXAMPLES)
+    add_subdirectory(src/examples)
+endif()
 
 add_subdirectory(tests/unit)
