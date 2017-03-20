@@ -73,7 +73,8 @@ Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project
 
 
 ## License
-LGPLv2.1+
+Boost Software License 1.0 
+
 
 
 
