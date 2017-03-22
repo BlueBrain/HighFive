@@ -22,6 +22,11 @@ include(BlueGenePortability)
 option(UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
+option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
+
+if(HIGHFIVE_PARALLEL_HDF5)
+set(HDF5_PREFER_PARALLEL TRUE)
+endif()
 
 find_package(HDF5 REQUIRED)
 

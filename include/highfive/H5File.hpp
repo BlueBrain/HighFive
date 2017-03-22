@@ -12,13 +12,16 @@
 #include <string>
 
 #include "H5Object.hpp"
+#include "H5FileDriver.hpp"
+
 #include "bits/H5Node_traits.hpp"
 
 
 namespace HighFive{
 
-
-
+///
+/// \brief File class
+///
 class File : public Object, public NodeTraits<File> {
 public:
 
@@ -43,15 +46,21 @@ public:
     /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
     ///
     /// Open or create a new HDF5 file
-    explicit File(const std::string & filename, int openFlags = ReadOnly);
+    explicit File(const std::string & filename, int openFlags = ReadOnly, const FileDriver & driver = default_file_driver());
 
-    virtual ~File(){}
+    virtual ~File();
+
+
+    void flush();
 
 
 
 private:
     std::string _filename;
 };
+
+
+
 
 }
 

@@ -13,7 +13,6 @@
 #include "../H5File.hpp"
 #include "../H5Exception.hpp"
 
-#include <H5Ppublic.h>
 #include <H5Fpublic.h>
 
 
@@ -39,23 +38,35 @@ inline int convert_open_flag(int openFlags){
     return res_open;
 }
 
+
 }
 
-
-inline File::File(const std::string &filename, int openFlags) : _filename(filename){
+inline File::File(const std::string &filename, int openFlags, const FileDriver & driver) : _filename(filename){
 
     openFlags = convert_open_flag(openFlags);
 
     if(openFlags & H5F_ACC_CREAT){
-        if( (_hid = H5Fcreate(_filename.c_str(), openFlags & (H5F_ACC_TRUNC), H5P_DEFAULT, H5P_DEFAULT)) < 0){
+        if( (_hid = H5Fcreate(_filename.c_str(), openFlags & (H5F_ACC_TRUNC), H5P_DEFAULT, driver.getId())) < 0){
             HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + _filename));
         }
     }else{
-        if( (_hid = H5Fopen(_filename.c_str(), openFlags, H5P_DEFAULT)) < 0){
+        if( (_hid = H5Fopen(_filename.c_str(), openFlags, driver.getId())) < 0){
             HDF5ErrMapper::ToException<FileException>(std::string("Unable to open file " + _filename));
         }
     }
 }
+
+inline File::~File(){
+
+}
+
+
+inline void File::flush(){
+    if( H5Fflush(_hid, H5F_SCOPE_GLOBAL) <0){
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to flush file " + _filename));
+    }
+}
+
 
 
 }
