@@ -56,6 +56,7 @@ void read_dataset(){
     for(size_t i=0; i < read_data.size(); ++i){
         std::cout << read_data[i] << " ";
     }
+    std::cout << "\n";
 }
 
 int main (void)

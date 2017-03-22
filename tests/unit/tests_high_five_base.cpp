@@ -658,6 +658,8 @@ void selectionArraySimpleTest()
 
     dataset.write(values);
 
+    file.flush();
+
     // read it back
     Vector result;
     std::vector<size_t> offset;

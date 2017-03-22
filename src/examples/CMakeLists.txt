@@ -27,6 +27,12 @@ function(compile_example exemple_source)
         endif()
     endif()
 
+    if(${example_filename} MATCHES ".*parallel_hdf5.*")
+        if(NOT HIGHFIVE_PARALLEL_HDF5)
+            return()
+        endif()
+    endif()
+
     if(require_cpp11)
         if(NOT COMPILER_SUPPORTS_CXX11)
         return()
