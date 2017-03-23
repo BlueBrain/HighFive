@@ -85,9 +85,9 @@ make test
 
 ## Contributors
 Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project   
-Ali Can Demiralp <demiralpali@gmail.com> 
-Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
-Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project 
+Ali Can Demiralp <demiralpali@gmail.com>   
+Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project   
+Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project   
 
 
 ## License
