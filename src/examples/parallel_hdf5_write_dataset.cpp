@@ -63,8 +63,10 @@ int main (int argc, char** argv)
     }catch(Exception & err){
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
+    MPI_Finalize();
     return 0;  // successfully terminated
 }
 

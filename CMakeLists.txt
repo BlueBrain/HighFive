@@ -38,10 +38,14 @@ if(USE_BOOST)
     add_definitions(-DH5_USE_BOOST )
 endif()
 
+if(HIGHFIVE_PARALLEL_HDF5)
+    find_package(MPI)
+endif()
+
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive
 		DESTINATION ${INCLUDE_INSTALL_DIR})
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${MPI_C_INCLUDE_PATH})
 
 if(HIGHFIVE_EXAMPLES)
     add_subdirectory(src/examples)

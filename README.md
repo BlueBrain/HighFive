@@ -63,13 +63,15 @@ make test
     - Automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
     - Automatic convertion of std::string to/from variable length string dataset
     - selection() / slice support
+	- Parallel Read/Write operations from several nodes with Parallel HDF5
     - support HDF5 attributes
 
 
 ## Contributors
 Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project   
-Ali Can Demiralp <demiralpali@gmail.com>   
-Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project  
+Ali Can Demiralp <demiralpali@gmail.com> 
+Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
+Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project 
 
 
 ## License
