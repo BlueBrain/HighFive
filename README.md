@@ -22,6 +22,8 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 ## Usage
 
+### Write a std::vector<int> to 1D HDF5 dataset and read it back
+
 ```c++
     using namespace HighFive;
     // we create a new hdf5 file
@@ -41,7 +43,21 @@ HighFive does not require an additional library and supports both HDF5 thread sa
     
 ```
 
-See examples/  sub-directory for more infos
+### Write a 2 dimensional C double float array to a 2D HDF5 dataset
+
+See [create_dataset_double.cpp](src/examples/create_dataset_double.cpp)
+
+### Write and read a matrix of double float (boost::ublas) to a 2D HDF5 dataset
+
+See [boost_ublas_double.cpp](src/examples/boost_ublas_double.cpp)
+
+### Write and read a subset of a 2D double dataset 
+
+See [select_partial_dataset_cpp11.cpp](src/examples/select_partial_dataset_cpp11.cpp)
+
+### And others
+
+See [src/examples/](src/examples/)  sub-directory for more infos
 
 ## Compile with HighFive
 
@@ -58,12 +74,12 @@ make test
 
 
 ## Feature support
-    - Create/read/write file,  dataset, group, dataspace.
-    - Automatic memory management / ref counting
-    - Automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
-    - Automatic convertion of std::string to/from variable length string dataset
+    - create/read/write file,  dataset, group, dataspace.
+    - automatic memory management / ref counting
+    - automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
+    - automatic convertion of std::string to/from variable length string dataset
     - selection() / slice support
-	- Parallel Read/Write operations from several nodes with Parallel HDF5
+    - parallel Read/Write operations from several nodes with Parallel HDF5
     - support HDF5 attributes
 
 
