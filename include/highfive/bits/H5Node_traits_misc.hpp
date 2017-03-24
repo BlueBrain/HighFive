@@ -71,7 +71,7 @@ template <typename Derivate>
 inline Attribute NodeTraits<Derivate>::createAttribute(const std::string & attribute_name, const DataSpace & space, const DataType & dtype) {
   Attribute attribute;
   if ((attribute._hid = H5Acreate2(static_cast<Derivate*>(this)->getId(), attribute_name.c_str(), dtype._hid, space._hid,
-    H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
+    H5P_DEFAULT, H5P_DEFAULT)) < 0) {
     HDF5ErrMapper::ToException<AttributeException>(std::string("Unable to create the attribute \"") + attribute_name + "\":");
   }
   return attribute;
@@ -80,7 +80,7 @@ inline Attribute NodeTraits<Derivate>::createAttribute(const std::string & attri
 template <typename Derivate>
 template <typename Type>
 inline Attribute NodeTraits<Derivate>::createAttribute(const std::string & attribute_name, const DataSpace & space) {
-  return createDataSet(attribute_name, space, AtomicType<Type>());
+  return createAttribute(attribute_name, space, AtomicType<Type>());
 }
 
 
