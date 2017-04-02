@@ -12,6 +12,8 @@
 // internal utilities functions
 #include <vector>
 #include <cstddef>  // __GLIBCXX__
+#include <string>
+#include <exception>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
@@ -132,6 +134,7 @@ struct enable_if {};
 
 template <typename T>
 struct enable_if<true, T> { typedef T type; };
+
 
 
 // shared ptr portability

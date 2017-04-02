@@ -12,12 +12,13 @@
 
 #include "H5Object.hpp"
 #include "bits/H5Node_traits.hpp"
+#include "bits/H5Annotate_traits.hpp"
 
 namespace HighFive {
 
 class File;
 
-class Group : public Object, public NodeTraits<Group>
+class Group : public Object, public NodeTraits<Group>, public AnnotateTraits<Group>
 {
 public:
     Group();

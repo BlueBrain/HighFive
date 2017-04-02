@@ -13,6 +13,7 @@
 
 #include "H5Object.hpp"
 #include "bits/H5Slice_traits.hpp"
+#include "bits/H5Annotate_traits.hpp"
 
 
 
@@ -25,7 +26,7 @@ template <typename Derivate> class SliceTraits;
 class DataType;
 class DataSpace;
 
-class DataSet : public SliceTraits<DataSet>, public Object{
+class DataSet : public Object,  public SliceTraits<DataSet>, public AnnotateTraits<DataSet>{
 public:
 
     size_t getStorageSize() const;

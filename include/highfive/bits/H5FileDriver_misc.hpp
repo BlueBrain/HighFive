@@ -29,7 +29,7 @@ class DefaultFileDriver : public FileDriver {
 public:
     inline DefaultFileDriver() : FileDriver(H5P_DEFAULT) {}
 
-    virtual void destroy() {}
+    inline virtual void destroy() {}
 private:
 };
 
@@ -42,18 +42,18 @@ FileDriver default_file_driver(){
 
 
 // file access property
-inline FileDriver::FileDriver(){
+FileDriver::FileDriver(){
     _hid = H5Pcreate(H5P_FILE_ACCESS);
 }
 
-inline FileDriver::FileDriver(hid_t fapl){
+FileDriver::FileDriver(hid_t fapl){
     _hid = fapl;
 }
 
 
 
 template<typename Comm, typename Info>
-inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info){
+MPIOFileDriver::MPIOFileDriver(Comm comm, Info info){
     if( H5Pset_fapl_mpio(_hid, comm, info) <0){
          HDF5ErrMapper::ToException<FileException>("Unable to setup MPIO Driver configuration");
     }

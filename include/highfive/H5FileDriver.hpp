@@ -21,8 +21,8 @@ namespace HighFive{
 ///
 class FileDriver : public Properties {
 public:
-    FileDriver();
-    FileDriver(hid_t fapl);
+    inline FileDriver();
+    inline FileDriver(hid_t fapl);
 private:
 };
 
@@ -33,12 +33,12 @@ private:
 class MPIOFileDriver : public FileDriver {
 public:
     template<typename Comm, typename Info>
-    MPIOFileDriver(Comm mpi_comm, Info mpi_info);
+    inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);
 private:
 };
 
 // internal usage
-FileDriver default_file_driver();
+inline FileDriver default_file_driver();
 
 
 } // HighFive

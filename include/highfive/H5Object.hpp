@@ -15,6 +15,7 @@
 namespace HighFive{
 
 template <typename Derivate> class NodeTraits;
+template <typename Derivate> class AnnotateTraits;
 
 class Object{
 public:
@@ -52,6 +53,8 @@ protected:
 private:
     template <typename Derivate>
     friend class NodeTraits;
+    template <typename Derivate>
+    friend class AnnotateTraits;
 };
 
 
