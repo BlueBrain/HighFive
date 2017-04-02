@@ -15,6 +15,7 @@
 #include "H5FileDriver.hpp"
 
 #include "bits/H5Node_traits.hpp"
+#include "bits/H5Annotate_traits.hpp"
 
 
 namespace HighFive{
@@ -22,7 +23,7 @@ namespace HighFive{
 ///
 /// \brief File class
 ///
-class File : public Object, public NodeTraits<File> {
+class File : public Object, public NodeTraits<File>, public AnnotateTraits<File> {
 public:
 
     /// Open flag: Read only access

@@ -13,6 +13,7 @@
 #include <vector>
 #include <cstdlib>
 #include <typeinfo>
+#include <ctime>
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5DataSpace.hpp>
@@ -20,7 +21,8 @@
 #include <highfive/H5Group.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTest
-#include <boost/test/included/unit_test.hpp>
+
+#include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 
 #ifdef H5_USE_BOOST
@@ -351,7 +353,7 @@ BOOST_AUTO_TEST_CASE( DataSpaceTest )
 
     DataSpace dataspace(dims);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with size_t type
     DataSet dataset = file.createDataSet<size_t>(DATASET_NAME, dataspace);
 
     DataSpace space = dataset.getSpace();
@@ -393,7 +395,7 @@ void readWrite2DArrayTest()
 
     DataSpace dataspace(dims);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with arbitrary type
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
 
 
@@ -440,20 +442,15 @@ void readWriteVectorTest(){
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    vec.resize(x_size);
-    ContentGenerate<T> generator;
-
-    std::generate(vec.begin(), vec.end(), generator);
-
-    // Create a dataset with double precision floating points
+     // Create a dataset with double precision floating points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
-
 
     dataset.write(vec);
 
     typename std::vector<T> result;
 
     dataset.read(result);
+
 
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
@@ -462,13 +459,101 @@ void readWriteVectorTest(){
         //std::cout << result[i] << " " << vec[i] << "  ";
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }
+
 }
 
 
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWriteDataSetVector, T, dataset_test_types)
+
+
+template <typename T>
+void readWriteAttributeVectorTest(){
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_attribute_vec_" << typeid(T).name() << "_test.h5";
+
+    std::srand((unsigned int) std::time(0));
+    const size_t x_size = 25;
+    const std::string DATASET_NAME("dset");
+    typename std::vector<T> vec;
+
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    vec.resize(x_size);
+    ContentGenerate<T> generator;
+
+    std::generate(vec.begin(), vec.end(), generator);
+
+    {
+        // Create a dummy group to annotate with an attribute
+        Group g = file.createGroup("dummy_group");
+
+        // check that no attributes are there
+        std::size_t n = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n, 0 );
+
+        std::vector<std::string> all_attribute_names = g.listAttributeNames();
+        BOOST_CHECK_EQUAL(all_attribute_names.size(), 0 );
+
+        Attribute a1 = g.createAttribute<T>("my_attribute", DataSpace::From(vec));
+        a1.write(vec);
+
+        // check now that we effectively have an attribute listable
+        std::size_t n2 = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n2, 1 );
+
+        all_attribute_names = g.listAttributeNames();
+        BOOST_CHECK_EQUAL(all_attribute_names.size(), 1 );
+        BOOST_CHECK_EQUAL(all_attribute_names[0], std::string("my_attribute"));
+
+        // Create the same attribute on a newly created dataset
+        DataSet s = g.createDataSet("dummy_dataset", DataSpace(1), AtomicType<int>());
+
+        Attribute a2 = s.createAttribute<T>("my_attribute_copy", DataSpace::From(vec));
+        a2.write(vec);
+
+
+    }
+
+
+    typename std::vector<T> result1, result2;
+
+    {
+        Attribute a1_read = file.getGroup("dummy_group").getAttribute("my_attribute");
+        a1_read.read(result1);
+
+        BOOST_CHECK_EQUAL(vec.size(), x_size);
+        BOOST_CHECK_EQUAL(result1.size(), x_size);
+
+        for(size_t i =0; i < x_size; ++i){
+            //std::cout << result[i] << " " << vec[i] << "  ";
+            BOOST_CHECK_EQUAL(result1[i], vec[i]);
+        }
+
+
+        Attribute a2_read = file.getDataSet("/dummy_group/dummy_dataset").getAttribute("my_attribute_copy");
+        a2_read.read(result2);
+
+        BOOST_CHECK_EQUAL(vec.size(), x_size);
+        BOOST_CHECK_EQUAL(result2.size(), x_size);
+
+        for(size_t i =0; i < x_size; ++i){
+            //std::cout << result[i] << " " << vec[i] << "  ";
+            BOOST_CHECK_EQUAL(result2[i], vec[i]);
+        }
+
+
+    }
+}
+
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( ReadWriteAttributeVector, T, dataset_test_types)
 {
-    readWriteVectorTest<T>();
+    readWriteAttributeVectorTest<T>();
 }
 
 

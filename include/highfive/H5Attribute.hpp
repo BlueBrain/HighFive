@@ -19,7 +19,7 @@
 namespace HighFive{
 
 
-template <typename Derivate> class NodeTraits;
+template <typename Derivate> class AnnotateTraits;
 class DataType;
 class DataSpace;
 
@@ -70,7 +70,7 @@ public:
 private:
     Attribute();
     template <typename Derivate>
-    friend class ::HighFive::NodeTraits;
+    friend class ::HighFive::AnnotateTraits;
 
 };
 

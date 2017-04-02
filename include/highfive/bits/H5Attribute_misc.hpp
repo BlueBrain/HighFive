@@ -29,6 +29,7 @@
 #include "../H5DataSpace.hpp"
 
 #include "H5Converter_misc.hpp"
+#include "H5Node_traits_misc.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive{
