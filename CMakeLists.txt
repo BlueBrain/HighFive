@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 
 set(HIGHFIVE_VERSION_MAJOR 1)
-set(HIGHFIVE_VERSION_MINOR 0)
+set(HIGHFIVE_VERSION_MINOR 2)
 
 
 
