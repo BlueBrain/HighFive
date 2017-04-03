@@ -55,6 +55,10 @@ See [boost_ublas_double.cpp](src/examples/boost_ublas_double.cpp)
 
 See [select_partial_dataset_cpp11.cpp](src/examples/select_partial_dataset_cpp11.cpp)
 
+### Create, write and list HDF5 attributes
+
+See [create_attribute_string_integer.cpp](src/examples/create_attribute_string_integer.cpp)
+
 ### And others
 
 See [src/examples/](src/examples/)  sub-directory for more infos
