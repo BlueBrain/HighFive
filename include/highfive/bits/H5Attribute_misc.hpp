@@ -106,10 +106,10 @@ inline void Attribute::read(std::string & str) const {
 
 template <typename T>
 inline void Attribute::read_scalar(T & scalar) const {
-    const hid_t id = getId();
-    const hid_t atype = H5Aget_type(id);
+    // memory type, so eventual conversion can occur
+    AtomicType<T> memtype;
 
-    if ( H5Aread(id, atype, &scalar) < 0) {
+    if ( H5Aread(getId(), memtype.getId(), &scalar) < 0) {
       HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
     }
 }
