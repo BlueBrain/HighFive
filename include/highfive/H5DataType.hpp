@@ -28,6 +28,8 @@ public:
 
     bool operator!=(const DataType & other) const;
 
+    size_t get_size() const;
+
 protected:
 
     friend class Attribute;

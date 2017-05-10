@@ -92,6 +92,29 @@ inline void Attribute::read(T & array) const {
     converter.process_result(array);
 }
 
+template <>
+inline void Attribute::read(std::string & str) const {
+    const DataType datatype = getDataType();
+
+    // make room for str
+    str.resize(datatype.get_size());
+
+    if (H5Aread(getId(), datatype.getId(), (char*)str.data()) < 0) {
+        HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
+    }
+}
+
+template <typename T>
+inline void Attribute::read_scalar(T & scalar) const {
+    const hid_t id = getId();
+    const hid_t atype = H5Aget_type(id);
+
+    if ( H5Aread(id, atype, &scalar) < 0) {
+      HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
+    }
+}
+
+
 
 template <typename T>
 inline void Attribute::write(T & buffer) {

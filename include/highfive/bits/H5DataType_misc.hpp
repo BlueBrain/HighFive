@@ -32,6 +32,12 @@ inline bool DataType::operator !=(const DataType & other) const{
     return !(*this == other);
 }
 
+
+inline size_t DataType::get_size() const {
+    return H5Tget_size(_hid);
+}
+
+
 // char mapping
 template <>
 inline AtomicType<char>::AtomicType(){
