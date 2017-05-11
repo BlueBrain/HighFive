@@ -122,12 +122,12 @@ inline AtomicType<std::string>::AtomicType(){
     _hid = H5Tcopy(H5T_C_S1);
 }
 
-StringType::StringType( const DataType & other ) {
+inline StringType::StringType( const DataType & other ) {
     _hid = H5Tcopy(other._hid);
     // H5Tset_cset(_hid, H5T_CSET_UTF8);
 }
 
-StringType::StringType( size_t fixedLengthTo ) {
+inline StringType::StringType( size_t fixedLengthTo ) {
     /// define encoding to UTF-8 by default
     /// For the moment we keep the original representation.
     /// Its up to the user to know what encoding he has in the std::string
@@ -136,7 +136,7 @@ StringType::StringType( size_t fixedLengthTo ) {
     this->setFixedLengthTo(fixedLengthTo);
 }
 
-void StringType::setFixedLengthTo( size_t fixedLengthTo ) {
+inline void StringType::setFixedLengthTo( size_t fixedLengthTo ) {
     if( H5Tset_size(_hid, fixedLengthTo) <0){
         HDF5ErrMapper::ToException<DataTypeException>("Unable to define datatype size to variable");
     }
@@ -144,15 +144,15 @@ void StringType::setFixedLengthTo( size_t fixedLengthTo ) {
     H5Tset_strpad(_hid, (fixedLengthTo==H5T_VARIABLE)? H5T_STR_NULLPAD : H5T_STR_NULLTERM );
 }
 
-void StringType::setStrPad(PaddingType pad_t) {
+inline void StringType::setStrPad(PaddingType pad_t) {
     H5Tset_strpad(_hid, (H5T_str_t)pad_t);
 }
 
-StringType::PaddingType StringType::getStrPad() {
+inline StringType::PaddingType StringType::getStrPad() {
     return (StringType::PaddingType) H5Tget_strpad(_hid);
 }
 
-char* StringType::prepareRead(std::string & str) {
+inline char* StringType::prepareRead(std::string & str) {
     if( isVarLength() ) {
         //H5read allocates for us
         return (char*)&_buf;
@@ -163,20 +163,21 @@ char* StringType::prepareRead(std::string & str) {
     }
 }
 
-void StringType::postRead(std::string & str) {
+inline void StringType::postRead(std::string & str) {
     if( isVarLength() ) {
         str = _buf;
     }
 }
 
-char* StringType::prepareWrite(std::string & str) {
+inline char* StringType::prepareWrite(std::string & str) {
     return (char*) str.data();
 }
 
-void StringType::postWrite(std::string & str) {
+inline void StringType::postWrite(std::string & str) {
+    (void) str;
 }
 
-StringType::~StringType() {
+inline StringType::~StringType() {
     if ( _buf && isVarLength() ) {
         free(_buf);
     }

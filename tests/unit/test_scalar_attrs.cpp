@@ -63,4 +63,15 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
     att3.read_scalar(twodotone);
     BOOST_CHECK_CLOSE( twodotone, 2.1, 1e-8 );
 
+
+    // enum
+    if( ! g.hasAttribute("enum") ) {
+        throw std::runtime_error("Attribute enum not found");
+    }
+
+    Attribute att4 = g.getAttribute("enum");
+    int enumval;
+    att4.read_scalar(enumval);
+    BOOST_CHECK_EQUAL( enumval, 55 );
+
 }
