@@ -92,28 +92,28 @@ inline void Attribute::read(T & array) const {
     converter.process_result(array);
 }
 
+
 template <>
 inline void Attribute::read(std::string & str) const {
     const DataType datatype = getDataType();
+    StringType memStrType(datatype);
 
-    // make room for str
-    str.resize(datatype.get_size());
-
-    if (H5Aread(getId(), datatype.getId(), (char*)str.data()) < 0) {
+    if ( H5Aread(getId(), datatype.getId(), memStrType.prepareRead(str)) < 0 ) {
         HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
     }
+    memStrType.postRead(str);
 }
+
 
 template <typename T>
 inline void Attribute::read_scalar(T & scalar) const {
     // memory type, so eventual conversion can occur
-    AtomicType<T> memtype;
+    const AtomicType<T> memtype;
 
     if ( H5Aread(getId(), memtype.getId(), &scalar) < 0) {
       HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
     }
 }
-
 
 
 template <typename T>

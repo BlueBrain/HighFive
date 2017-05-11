@@ -31,6 +31,17 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
     BOOST_CHECK_EQUAL( out, "NEURON" );
 
 
+    // std::string
+    if( ! g.hasAttribute("vlstr") ) {
+        throw std::runtime_error("Attribute vlstr not found");
+    }
+
+    Attribute attx = g.getAttribute("vlstr");
+    std::string outx;
+    attx.read(outx);
+    BOOST_CHECK_EQUAL( outx, "this is a VL string" );
+
+
     // int
     if( ! g.hasAttribute("one") ) {
         throw std::runtime_error("Attribute One not found");
