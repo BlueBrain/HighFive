@@ -120,18 +120,20 @@ inline AtomicType<bool>::AtomicType(){
 template <>
 inline AtomicType<std::string>::AtomicType(){
     _hid = H5Tcopy(H5T_C_S1);
+    if( H5Tset_size(_hid, H5T_VARIABLE) <0){
+        HDF5ErrMapper::ToException<DataTypeException>("Unable to define datatype size to variable");
+    }
+    // define encoding to UTF-8 by default
+    H5Tset_cset(_hid, H5T_CSET_UTF8);
 }
 
 inline StringType::StringType( const DataType & other ) {
     _hid = H5Tcopy(other._hid);
-    // H5Tset_cset(_hid, H5T_CSET_UTF8);
 }
 
 inline StringType::StringType( size_t fixedLengthTo ) {
-    /// define encoding to UTF-8 by default
-    /// For the moment we keep the original representation.
-    /// Its up to the user to know what encoding he has in the std::string
-    // H5Tset_cset(_hid, H5T_CSET_UTF8);
+    /// For the moment we keep the original encoding.
+    /// Its not strightforward to preallocate equivallent utf8 space. User can always convert
 
     this->setFixedLengthTo(fixedLengthTo);
 }

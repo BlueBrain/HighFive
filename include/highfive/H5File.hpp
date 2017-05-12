@@ -54,6 +54,8 @@ public:
 
     void flush();
 
+    bool hasGroup(const char * name);
+
 
 
 private:
