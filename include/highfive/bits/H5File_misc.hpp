@@ -67,11 +67,6 @@ inline void File::flush(){
     }
 }
 
-inline bool File::hasGroup(const char * name) {
-    herr_t status = H5Gget_objinfo (_hid, name, 0, NULL);
-    return (status == 0);
-}
-
 
 }
 

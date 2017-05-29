@@ -51,11 +51,7 @@ public:
 
     virtual ~File();
 
-
     void flush();
-
-    bool hasGroup(const char * name);
-
 
 
 private:
