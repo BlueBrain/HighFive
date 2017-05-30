@@ -42,6 +42,8 @@ protected:
     // copy constructor, increase reference counter
     Object(const Object & other);
 
+    Object & operator=(const Object &other);
+
     // decrease reference counter
     virtual ~Object();
 

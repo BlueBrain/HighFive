@@ -16,11 +16,20 @@ namespace HighFive{
 
 inline Object::Object() : _hid(H5I_INVALID_HID) {}
 
-
 inline Object::Object(const Object &other) : _hid(other._hid){
     if(other.isValid() && H5Iinc_ref(_hid) <0){
             throw ObjectException("Reference counter increase failure");
     }
+}
+
+inline Object & Object::operator=(const Object &other) {
+    if (this != &other) {
+        _hid = other._hid;
+        if(other.isValid() && H5Iinc_ref(_hid) <0){
+            throw ObjectException("Reference counter increase failure");
+        }
+    }
+    return *this;
 }
 
 
