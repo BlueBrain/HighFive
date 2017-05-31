@@ -57,6 +57,11 @@ public:
     template <typename T>
     void read(T & array) const;
 
+
+    template <typename T>
+    void read_scalar(T& scalar) const;
+
+
     ///
     /// Write the integrality N-dimension buffer to this attribute
     /// An exception is raised if the numbers of dimension of the buffer and of the attribute are different

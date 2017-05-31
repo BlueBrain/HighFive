@@ -71,7 +71,6 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string & group_name){
 }
 
 
-
 template <typename Derivate>
 inline Group NodeTraits<Derivate>::getGroup(const std::string & group_name) const{
     Group group;
@@ -79,6 +78,12 @@ inline Group NodeTraits<Derivate>::getGroup(const std::string & group_name) cons
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open the group \"")+ group_name + "\":");
     }
     return group;
+}
+
+
+template <typename Derivate>
+inline bool NodeTraits<Derivate>::hasItem(const std::string & node_name) const{
+    return H5Lexists(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
 }
 
 

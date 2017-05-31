@@ -68,7 +68,6 @@ inline void File::flush(){
 }
 
 
-
 }
 
 #endif // H5FILE_MISC_HPP

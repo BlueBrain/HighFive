@@ -51,9 +51,7 @@ public:
 
     virtual ~File();
 
-
     void flush();
-
 
 
 private:

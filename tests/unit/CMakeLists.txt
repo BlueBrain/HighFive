@@ -21,6 +21,12 @@ target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
 add_test(NAME tests_high_five COMMAND tests_high_five_bin)
 
 
+FILE(COPY "scalar_attrs.h5" DESTINATION ".")
+file(GLOB test_scalar_attr_src "*scalar_attrs.cpp")
+add_executable(test_scalar_attrs_bin ${test_scalar_attr_src})
+target_link_libraries(test_scalar_attrs_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES}  ${MPI_C_LIBRARIES})
+add_test(NAME test_scalar_attrs COMMAND test_scalar_attrs_bin)
+
 
 if(HIGHFIVE_PARALLEL_HDF5)
 

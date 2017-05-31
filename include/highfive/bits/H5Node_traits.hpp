@@ -13,7 +13,7 @@
 
 
 namespace HighFive{
-  
+
 class Attribute;
 class DataSet;
 class Group;
@@ -64,6 +64,12 @@ public:
     /// \return the group object
     ///
     Group getGroup(const std::string & group_name) const;
+
+
+    ///
+    /// \brief Check a dataset or group exists in the current node / group
+    bool hasItem(const std::string & node_name) const;
+
 
     ///
     /// \brief return the number of leaf objects of the node / group
