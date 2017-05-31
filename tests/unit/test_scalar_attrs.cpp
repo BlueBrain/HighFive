@@ -36,9 +36,9 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
         throw std::runtime_error("Attribute vlstr not found");
     }
 
-    Attribute attx = g.getAttribute("vlstr");
+    att = g.getAttribute("vlstr");
     std::string outx;
-    attx.read(outx);
+    att.read(outx);
     BOOST_CHECK_EQUAL( outx, "this is a VL string" );
 
 
@@ -47,9 +47,9 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
         throw std::runtime_error("Attribute One not found");
     }
 
-    Attribute att2 = g.getAttribute("one");
+    att = g.getAttribute("one");
     int one;
-    att2.read_scalar(one);
+    att.read_scalar(one);
     BOOST_CHECK_EQUAL( one, 1 );
 
 
@@ -58,9 +58,9 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
         throw std::runtime_error("Attribute twodotone not found");
     }
 
-    Attribute att3 = g.getAttribute("twodotone");
+    att = g.getAttribute("twodotone");
     double twodotone;
-    att3.read_scalar(twodotone);
+    att.read_scalar(twodotone);
     BOOST_CHECK_CLOSE( twodotone, 2.1, 1e-8 );
 
 
@@ -69,9 +69,9 @@ BOOST_AUTO_TEST_CASE( GetScalars ) {
         throw std::runtime_error("Attribute enum not found");
     }
 
-    Attribute att4 = g.getAttribute("enum");
+    att = g.getAttribute("enum");
     int enumval;
-    att4.read_scalar(enumval);
+    att.read_scalar(enumval);
     BOOST_CHECK_EQUAL( enumval, 55 );
 
 }
