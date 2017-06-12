@@ -20,12 +20,20 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#ifndef H5_USE_CXX11
+#   if ___cplusplus >= 201103L
+#       define H5_USE_CXX11 1
+#   else
+#       define H5_USE_CXX11 0
+#   endif
+#endif
+
 // shared ptr portability
 // if boost is used, simply use boost
 #if (defined H5_USE_BOOST)
 #include <boost/shared_ptr.hpp>
 // if C++11 compliant compiler, use std::shared_ptr
-#elif ___cplusplus >= 201103L
+#elif H5_USE_CXX11
 #  include <memory>
 // GNU C++ or Intel C++ using libstd++.
 // without C++11: use tr1
@@ -127,6 +135,25 @@ template<typename T>
 struct is_container<std::vector<T> >{
     static const bool value = true;
 };
+
+
+// check if the type is a basic C-Array
+// check if the type is a container ( only vector supported for now )
+template<typename >
+struct is_c_array{
+    static const bool value = false;
+};
+
+template<typename T>
+struct is_c_array<T*>{
+    static const bool value = true;
+};
+
+template<typename T, std::size_t N>
+struct is_c_array<T [N]>{
+    static const bool value = true;
+};
+
 
 // enable if implem for not c++11 compiler
 template <bool Cond, typename T = void>

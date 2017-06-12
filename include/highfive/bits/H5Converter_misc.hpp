@@ -29,6 +29,10 @@
 
 #include "H5Utils.hpp"
 
+#if H5_USE_CXX11
+#include <type_traits>
+#endif
+
 namespace HighFive{
   
 namespace details{
@@ -98,18 +102,39 @@ inline typename std::vector<T>::iterator single_buffer_to_vectors(
 }
 
 
-// apply conversion operations to the incoming data
-template<typename Array, class Enable = void>
+// apply conversion operations to basic scalar type
+template<typename Scalar, class Enable = void>
 struct data_converter{
-    inline data_converter(Array & datamem, DataSpace & space){
+    inline data_converter(Scalar & datamem, DataSpace & space){
+#if H5_USE_CXX11
+    static_assert((std::is_arithmetic<ScalarValue>::value || std::is_same<std::string, ScalarValue>::value),
+                  "supported datatype should be an arithmetic value, a std::string or a container/array");
+#endif
         (void) datamem; (void) space; // do nothing
     }
 
-    inline Array & transform_read (Array & datamem) { return datamem; }
+    inline Scalar* transform_read (Scalar & datamem) { return &datamem; }
 
-    inline Array & transform_write (Array & datamem) { return datamem; }
+    inline Scalar* transform_write (Scalar & datamem) { return &datamem; }
 
-    inline void process_result(Array & datamem){
+    inline void process_result(Scalar & datamem){
+        (void) datamem; // do nothing
+    }
+};
+
+// apply conversion operations to the incoming data
+// if they are a cstyle array
+template<typename CArray>
+struct data_converter<CArray, typename enable_if< (is_c_array<CArray>::value) >::type >{
+    inline data_converter(CArray & datamem, DataSpace & space){
+        (void) datamem; (void) space; // do nothing
+    }
+
+    inline CArray & transform_read (CArray & datamem) { return datamem; }
+
+    inline CArray & transform_write (CArray & datamem) { return datamem; }
+
+    inline void process_result(CArray & datamem){
         (void) datamem; // do nothing
     }
 };
@@ -239,6 +264,46 @@ struct data_converter<std::vector<T>, typename enable_if< (is_container<T>::valu
     std::vector<size_t> _dims;
     size_t _dim;
     std::vector< typename type_of_array<T>::type > _vec_align;
+};
+
+
+// apply conversion to scalar string
+template<>
+struct data_converter<std::string, void>{
+    inline data_converter(std::string & vec, DataSpace & space) : _space(space) {
+        (void) vec;
+    }
+
+    // create a C vector adapted to HDF5
+    // fill last element with NULL to identify end
+    inline char**  transform_read(std::string &) {
+        return (&_c_vec);
+    }
+
+    static inline char* char_converter(const std::string & str){
+        return const_cast<char*>(str.c_str());
+    }
+
+    inline char**  transform_write(std::string & str) {
+        _c_vec = const_cast<char*>(str.c_str());
+        return &_c_vec;
+    }
+
+    inline void process_result(std::string & str){
+
+
+        str = std::string(_c_vec);
+
+        if(_c_vec != NULL ){
+             AtomicType<std::string > str_type;
+            (void) H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT, &_c_vec);
+        }
+
+    }
+
+    char* _c_vec;
+    DataSpace &  _space;
+
 };
 
 // apply conversion for vectors of string (derefence)

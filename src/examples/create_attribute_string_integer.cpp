@@ -40,9 +40,8 @@ int main (void)
 
         // Now let's add a attribute on this dataset
         // This attribute will be named "note"
-        // and will be an array 1x1 with one string inside
-        std::vector<std::string> string_list;
-        string_list.push_back("very important Dataset !");
+        // and have the following content
+        std::string string_list("very important Dataset !");
 
         Attribute a = dataset.createAttribute<std::string>(ATTRIBUTE_NAME_NOTE, DataSpace::From(string_list));
         a.write(string_list);

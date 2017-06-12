@@ -26,6 +26,13 @@ class DataSet;
 
 class DataSpace : public Object{
 public:
+    /// dataspace type
+    enum DataspaceType {
+        datascape_scalar,
+        datascape_null
+        // simple dataspace are handle directly from their dimensions
+    };
+
     /// create a dataspace of N-dimensions
     /// Each dimension is configured this way
     ///  size(dim1) = vec[0]
@@ -38,6 +45,11 @@ public:
     /// \param dim1
     ///
     explicit DataSpace(size_t dim1);
+
+    ///
+    /// \brief DataSpace create a scalar dataspace or a null dataset
+    ///
+    explicit DataSpace(DataspaceType dtype);
 
     /// Create a new DataSpace
     ///  with a different id avaiable for modifications
@@ -53,6 +65,11 @@ public:
     /// \return return a vector of N-element, each element is the size of the associated dataset dimension
     std::vector<size_t> getDimensions() const;
 
+
+    /// Create a dataspace matching a single element of a basic type
+    ///  supported type are integrals (int,long), floating points (float,double) and std::string
+    template<typename ScalarValue>
+    static DataSpace From(const ScalarValue & scalar_value);
 
     /// Create a dataspace matching the container dimensions and size
     /// Supported Containers are:
