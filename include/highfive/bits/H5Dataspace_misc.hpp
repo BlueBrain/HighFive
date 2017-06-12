@@ -42,6 +42,24 @@ inline DataSpace::DataSpace(const size_t dim1){
     }
 }
 
+inline DataSpace::DataSpace(DataSpace::DataspaceType dtype){
+    H5S_class_t h5_dataspace_type;
+    switch(dtype){
+        case DataSpace::datascape_scalar:
+            h5_dataspace_type = H5S_SCALAR;
+            break;
+        case DataSpace::datascape_null:
+            h5_dataspace_type = H5S_NULL;
+            break;
+        default:
+            throw DataSpaceException("Invalid dataspace type: should be datascape_scalar or datascape_null");
+    }
+
+    if( (_hid = H5Screate(h5_dataspace_type) ) < 0){
+        throw DataSpaceException("Unable to create dataspace");
+    }
+}
+
 inline DataSpace::DataSpace() {}
 
 
@@ -70,6 +88,23 @@ inline std::vector<size_t> DataSpace::getDimensions() const{
     std::vector<size_t> res(dims.size());
     std::copy(dims.begin(), dims.end(), res.begin());
     return res;
+}
+
+template<typename ScalarValue>
+inline DataSpace DataSpace::From(const ScalarValue & scalar){
+    (void) scalar;
+#if H5_USE_CXX11
+    static_assert( (std::is_arithmetic<ScalarValue>::value || std::is_same<std::string, ScalarValue>::value),
+        "Only the following types are supported by DataSpace::From: \n"
+        "  signed_arithmetic_types = int |  long | float |  double \n"
+        "  unsigned_arithmetic_types = unsigned signed_arithmetic_types \n"
+        "  string_types = std::string \n"
+        "  all_basic_types = string_types | unsigned_arithmetic_types | signed_arithmetic_types \n "
+        "  stl_container_types = std::vector<all_basic_types> "
+        "  boost_container_types = boost::numeric::ublas::matrix<all_basic_types> | boost::multi_array<all_basic_types> \n"
+        "  all_supported_types = all_basic_types | stl_container_types | boost_container_types");
+#endif
+    return DataSpace(DataSpace::datascape_scalar);
 }
 
 template<typename Value>

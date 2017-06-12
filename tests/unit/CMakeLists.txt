@@ -21,6 +21,19 @@ target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
 add_test(NAME tests_high_five COMMAND tests_high_five_bin)
 
 
+## if the compiler support C++11
+## lets recompile the base tests with C++11 support
+if(COMPILER_SUPPORTS_CXX11)
+
+    add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
+    target_link_libraries(tests_high_five_cpp11_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES}  ${MPI_C_LIBRARIES})
+    target_compile_options(tests_high_five_cpp11_bin PRIVATE "-std=c++11")
+
+    add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
+
+endif()
+
+
 
 if(HIGHFIVE_PARALLEL_HDF5)
 
@@ -35,5 +48,7 @@ target_link_libraries(tests_parallel_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} 
 add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 8 ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
 
 endif()
+
+
 
 endif()

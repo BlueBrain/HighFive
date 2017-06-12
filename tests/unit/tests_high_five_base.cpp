@@ -796,3 +796,54 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types){
 
     selectionArraySimpleTest<T>();
 }
+
+
+template<typename T>
+void attribute_scalar_rw() {
+
+    std::ostringstream filename;
+    filename << "h5_rw_attribute_scalar_rw" << typeid(T).name() << "_test.h5";
+
+    File h5file(filename.str(), File::ReadWrite  | File::Create | File::Truncate);
+
+
+    ContentGenerate<T> generator;
+
+    const T attribute_value(generator());
+
+    Group g = h5file.createGroup("metadata");
+
+    bool family_exist = g.hasAttribute("family");
+    BOOST_CHECK_EQUAL(family_exist, false);
+
+    // write a scalar attribute
+    {
+        T out(attribute_value);
+        Attribute att = g.createAttribute<T>("family", DataSpace::From(out));
+        att.write(out);
+    }
+
+    h5file.flush();
+
+    // test if attribute exist
+    family_exist = g.hasAttribute("family");
+    BOOST_CHECK_EQUAL(family_exist, true);
+
+    // read back a scalar attribute
+    {
+        T res;
+        Attribute att = g.getAttribute("family");
+        att.read(res);
+        BOOST_CHECK_EQUAL(res, attribute_value);
+    }
+
+
+}
+
+
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types)
+{
+    attribute_scalar_rw<T>();
+}
+
