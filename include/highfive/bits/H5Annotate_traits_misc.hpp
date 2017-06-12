@@ -80,6 +80,17 @@ inline std::vector<std::string> AnnotateTraits<Derivate>::listAttributeNames() c
   return names;
 }
 
+template <typename Derivate>
+inline bool AnnotateTraits<Derivate>::hasAttribute(const std::string & attr_name) const {
+    int res = H5Aexists(static_cast<const Derivate*>(this)->getId(), attr_name.c_str());
+    if (res < 0) {
+      HDF5ErrMapper::ToException<AttributeException>(std::string("Unable to check for attribute in group"));
+    }
+    return res;
+}
+
+
+
 
 }
 

@@ -58,6 +58,13 @@ public:
     /// \return number of attributes
     std::vector<std::string> listAttributeNames() const;
 
+    ///
+    /// \brief checks an attribute exists
+    /// \return number of attributes
+    bool hasAttribute(const std::string & attr_name) const;
+
+
+
 private:
     typedef Derivate derivate_type;
 

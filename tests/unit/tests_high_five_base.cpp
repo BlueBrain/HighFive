@@ -498,12 +498,24 @@ void readWriteAttributeVectorTest(){
         std::vector<std::string> all_attribute_names = g.listAttributeNames();
         BOOST_CHECK_EQUAL(all_attribute_names.size(), 0 );
 
+
+        bool has_attribute = g.hasAttribute("my_attribute");
+        BOOST_CHECK_EQUAL(has_attribute, false);
+
+
+
         Attribute a1 = g.createAttribute<T>("my_attribute", DataSpace::From(vec));
         a1.write(vec);
 
         // check now that we effectively have an attribute listable
         std::size_t n2 = g.getNumberAttributes();
         BOOST_CHECK_EQUAL(n2, 1 );
+
+
+
+        has_attribute = g.hasAttribute("my_attribute");
+        BOOST_CHECK_EQUAL(has_attribute, true);
+
 
         all_attribute_names = g.listAttributeNames();
         BOOST_CHECK_EQUAL(all_attribute_names.size(), 1 );
