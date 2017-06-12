@@ -51,7 +51,11 @@ public:
 
     virtual ~File();
 
-
+    ///
+    /// \brief flush
+    ///
+    /// Flushes all buffers associated with a file to disk
+    ///
     void flush();
 
 

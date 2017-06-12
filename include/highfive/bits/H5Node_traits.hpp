@@ -75,6 +75,14 @@ public:
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
 
+    ///
+    /// \brief check a dataset or group exists in the current node / group
+    ///
+    /// \param dataset/group name to check
+    /// \return true if a dataset/group with the asssociated name exist, or false
+    bool exist(const std::string & node_name) const;
+
+
 private:
     typedef Derivate derivate_type;
 

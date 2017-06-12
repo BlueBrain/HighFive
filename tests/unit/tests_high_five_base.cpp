@@ -120,10 +120,19 @@ BOOST_AUTO_TEST_CASE( HighFiveBasic )
 
     DataSpace dataspace(dims);
 
+    // check if the dataset exist
+    bool dataset_exist = file.exist(DATASET_NAME + "_double");
+    BOOST_CHECK_EQUAL(dataset_exist, false);
+
     // Create a dataset with double precision floating points
     DataSet dataset_double = file.createDataSet(DATASET_NAME + "_double", dataspace, AtomicType<double>());
 
     {
+        // check if it exist again
+        dataset_exist = file.exist(DATASET_NAME + "_double");
+        BOOST_CHECK_EQUAL(dataset_exist, true);
+
+        // and also try to recreate it to the sake of exception testing
         BOOST_CHECK_THROW({
             DataSet fail_duplicated = file.createDataSet(DATASET_NAME + "_double", dataspace, AtomicType<double>());
         },
