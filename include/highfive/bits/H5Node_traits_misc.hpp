@@ -111,6 +111,13 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const{
     return names;
 }
 
+template <typename Derivate>
+inline bool NodeTraits<Derivate>::exist(const std::string & node_name) const{
+    return H5Lexists(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
+}
+
+
+
 }
 
 #endif // H5NODE_TRAITS_MISC_HPP
