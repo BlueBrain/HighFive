@@ -42,7 +42,7 @@ public:
     ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
     template <typename T>
-    void write(T & buffer);
+    void write(const T & buffer);
 
 
 private:

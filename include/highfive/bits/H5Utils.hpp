@@ -163,6 +163,18 @@ template <typename T>
 struct enable_if<true, T> { typedef T type; };
 
 
+// remove const
+template <typename Type>
+struct remove_const {
+    typedef Type type;
+};
+
+template <typename Type>
+struct remove_const<Type const> {
+    typedef Type type;
+};
+
+
 
 // shared ptr portability
 namespace Mem{
