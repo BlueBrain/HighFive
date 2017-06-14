@@ -39,6 +39,11 @@ inline AtomicType<char>::AtomicType(){
 }
 
 template <>
+inline AtomicType<signed char>::AtomicType(){
+    _hid = H5Tcopy(H5T_NATIVE_CHAR);
+}
+
+template <>
 inline AtomicType<unsigned char>::AtomicType(){
     _hid = H5Tcopy(H5T_NATIVE_UCHAR);
 }
