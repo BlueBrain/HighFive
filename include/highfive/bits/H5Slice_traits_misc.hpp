@@ -31,7 +31,6 @@
 #include "../H5Selection.hpp"
 
 #include "H5Converter_misc.hpp"
-#include "H5Utils.hpp"
 
 namespace HighFive{
 
@@ -69,6 +68,9 @@ inline hid_t get_memspace_id(const DataSet* ptr){
 }
 
 
+inline ElementSet::ElementSet(const std::vector<std::size_t> & element_ids) : _ids(element_ids){
+}
+
 
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t> & offset, const std::vector<size_t> & count) const{
@@ -84,6 +86,32 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t> & offse
     }
 
     return Selection(DataSpace(count), space, details::get_dataset(static_cast<const Derivate*>(this)));
+}
+
+
+
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(const ElementSet & elements) const{
+    hsize_t* data = NULL;
+    const std::size_t length = elements._ids.size();
+    std::vector<hsize_t> raw_elements;
+
+    // optimised at compile time
+    // switch for data conversion on 32bits platforms
+    if( details::is_same<std::size_t, hsize_t>::value ){
+        data = (hsize_t*)(&(elements._ids[0]));
+    }else {
+        raw_elements.resize(length);
+        std::copy(elements._ids.begin(), elements._ids.end(), raw_elements.begin() );
+        data = &(raw_elements[0]);
+    }
+
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
+    if( H5Sselect_elements(space.getId(), H5S_SELECT_SET,  length, data) < 0){
+         HDF5ErrMapper::ToException<DataSpaceException>("Unable to select elements");
+    }
+
+    return Selection(DataSpace(length), space, details::get_dataset(static_cast<const Derivate*>(this)));
 }
 
 

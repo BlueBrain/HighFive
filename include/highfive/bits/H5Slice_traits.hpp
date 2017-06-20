@@ -9,6 +9,11 @@
 #ifndef H5SLICE_TRAITS_HPP
 #define H5SLICE_TRAITS_HPP
 
+#include <cstdlib>
+#include <vector>
+
+#include "H5Utils.hpp"
+
 namespace HighFive{
 
 class DataSet;
@@ -16,6 +21,20 @@ class Group;
 class DataSpace;
 class DataType;
 class Selection;
+
+template<typename Derivate>
+class SliceTraits;
+
+
+class ElementSet {
+public:
+    explicit ElementSet(const std::vector<std::size_t> & element_ids);
+private:
+    std::vector<std::size_t> _ids;
+
+    template<typename Derivate> friend class SliceTraits;
+};
+
 
 template<typename Derivate>
 class SliceTraits{
@@ -27,6 +46,11 @@ public:
     /// vector offset and count have to be from the same dimension
     ///
     Selection select(const std::vector<size_t> & offset, const std::vector<size_t> & count) const;
+
+    ///
+    /// select a region in the current Slice/Dataset out of a list of elements
+    ///
+    Selection select(const ElementSet & elements ) const;
 
     ///
     /// Read the entire dataset into a buffer
