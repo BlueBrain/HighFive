@@ -766,27 +766,59 @@ void selectionArraySimpleTest()
 
     file.flush();
 
-    // read it back
-    Vector result;
-    std::vector<size_t> offset;
-    offset.push_back(offset_x);
-    std::vector<size_t> size;
-    size.push_back(count_x);
+    // select slice
+    {
+        // read it back
+        Vector result;
+        std::vector<size_t> offset;
+        offset.push_back(offset_x);
+        std::vector<size_t> size;
+        size.push_back(count_x);
 
-    Selection slice = dataset.select(offset, size);
+        Selection slice = dataset.select(offset, size);
 
-    BOOST_CHECK_EQUAL(slice.getSpace().getDimensions()[0], size_x);
-    BOOST_CHECK_EQUAL(slice.getMemSpace().getDimensions()[0], count_x);
+        BOOST_CHECK_EQUAL(slice.getSpace().getDimensions()[0], size_x);
+        BOOST_CHECK_EQUAL(slice.getMemSpace().getDimensions()[0], count_x);
 
-    slice.read(result);
+        slice.read(result);
 
 
 
-    BOOST_CHECK_EQUAL(result.size(), 5);
+        BOOST_CHECK_EQUAL(result.size(), 5);
 
-    for(size_t i =0; i < count_x; ++i){
-                //std::cout << result[i] << " ";
-                BOOST_CHECK_EQUAL(values[i+offset_x], result[i]);
+        for(size_t i =0; i < count_x; ++i){
+                    //std::cout << result[i] << " ";
+                    BOOST_CHECK_EQUAL(values[i+offset_x], result[i]);
+        }
+
+    }
+
+    // select cherry pick
+    {
+        // read it back
+        Vector result;
+        std::vector<size_t> ids;
+        ids.push_back(1);
+        ids.push_back(3);
+        ids.push_back(4);
+        ids.push_back(7);
+
+        Selection slice = dataset.select(ElementSet(ids));
+
+        BOOST_CHECK_EQUAL(slice.getSpace().getDimensions()[0], size_x);
+        BOOST_CHECK_EQUAL(slice.getMemSpace().getDimensions()[0], ids.size());
+
+        slice.read(result);
+
+
+
+        BOOST_CHECK_EQUAL(result.size(), ids.size());
+
+        for(size_t i =0; i < ids.size(); ++i){
+                    const std::size_t id = ids[i];
+                    BOOST_CHECK_EQUAL(values[id], result[i]);
+        }
+
     }
 
 }
