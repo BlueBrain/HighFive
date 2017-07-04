@@ -8,10 +8,10 @@ set(HIGHFIVE_VERSION_MINOR 2)
 
 
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
-      ${PROJECT_SOURCE_DIR}/CMake/portability
-      ${PROJECT_SOURCE_DIR}/CMake/packages
-      ${PROJECT_SOURCE_DIR}/CMake/config)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+      ${CMAKE_CURRENT_SOURCE_DIR}/CMake/portability
+      ${CMAKE_CURRENT_SOURCE_DIR}/CMake/packages
+      ${CMAKE_CURRENT_SOURCE_DIR}/CMake/config)
 
 include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
@@ -42,10 +42,10 @@ if(HIGHFIVE_PARALLEL_HDF5)
     find_package(MPI)
 endif()
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/highfive
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
 		DESTINATION ${INCLUDE_INSTALL_DIR})
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${MPI_C_INCLUDE_PATH})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS} ${Boost_INCLUDE_DIR} ${MPI_C_INCLUDE_PATH})
 
 if(HIGHFIVE_EXAMPLES)
     add_subdirectory(src/examples)

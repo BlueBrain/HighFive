@@ -1,6 +1,7 @@
 
 if(UNIT_TESTS AND USE_BOOST)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include ${HDF5_INCLUDE_DIRS})
 
 if(NOT MSVC)
     # silent boost warnings
