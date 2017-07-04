@@ -2,10 +2,10 @@
 
 
 
-include_directories(${CMAKE_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
 
-FILE(GLOB headers_highfive "${CMAKE_SOURCE_DIR}/include/highfive/*.hpp")
-FILE(GLOB headers_highfive_bits "${CMAKE_SOURCE_DIR}/include/highfive/bits/*.hpp")
+FILE(GLOB headers_highfive "${PROJECT_SOURCE_DIR}/include/highfive/*.hpp")
+FILE(GLOB headers_highfive_bits "${PROJECT_SOURCE_DIR}/include/highfive/bits/*.hpp")
 
 
 function(compile_example exemple_source)
