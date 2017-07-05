@@ -1,7 +1,3 @@
-
-
-
-
 include_directories(${PROJECT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
 
 FILE(GLOB headers_highfive "${PROJECT_SOURCE_DIR}/include/highfive/*.hpp")
