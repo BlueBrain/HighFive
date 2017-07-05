@@ -14,7 +14,7 @@
 
 #include "H5Utils.hpp"
 
-namespace HighFive{
+namespace HighFive {
 
 class DataSet;
 class Group;
@@ -22,58 +22,59 @@ class DataSpace;
 class DataType;
 class Selection;
 
-template<typename Derivate>
+template <typename Derivate>
 class SliceTraits;
 
-
 class ElementSet {
-public:
-    explicit ElementSet(const std::vector<std::size_t> & element_ids);
-private:
+  public:
+    explicit ElementSet(const std::vector<std::size_t>& element_ids);
+
+  private:
     std::vector<std::size_t> _ids;
 
-    template<typename Derivate> friend class SliceTraits;
+    template <typename Derivate>
+    friend class SliceTraits;
 };
 
-
-template<typename Derivate>
-class SliceTraits{
-public:
-
-
+template <typename Derivate>
+class SliceTraits {
+  public:
     ///
-    /// select a region in the current Slice/Dataset of 'count' points at 'offset'
+    /// select a region in the current Slice/Dataset of 'count' points at
+    /// 'offset'
     /// vector offset and count have to be from the same dimension
     ///
-    Selection select(const std::vector<size_t> & offset, const std::vector<size_t> & count) const;
+    Selection select(const std::vector<size_t>& offset,
+                     const std::vector<size_t>& count) const;
 
     ///
     /// select a region in the current Slice/Dataset out of a list of elements
     ///
-    Selection select(const ElementSet & elements ) const;
+    Selection select(const ElementSet& elements) const;
 
     ///
     /// Read the entire dataset into a buffer
-    /// An exception is raised is if the numbers of dimension of the buffer and of the dataset are different
+    /// An exception is raised is if the numbers of dimension of the buffer and
+    /// of the dataset are different
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
+    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+    /// dimensional array )
     template <typename T>
-    void read(T & array) const;
+    void read(T& array) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
-    /// An exception is raised is if the numbers of dimension of the buffer and of the dataset are different
+    /// An exception is raised is if the numbers of dimension of the buffer and
+    /// of the dataset are different
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
+    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+    /// dimensional array )
     template <typename T>
-    void write(const T & buffer);
+    void write(const T& buffer);
 
-
-private:
+  private:
     typedef Derivate derivate_type;
 };
-
 }
-
 
 #endif // H5SLICE_TRAITS_HPP

@@ -12,23 +12,22 @@
 #include <vector>
 
 #include "H5Object.hpp"
-#include "bits/H5Slice_traits.hpp"
 #include "bits/H5Annotate_traits.hpp"
+#include "bits/H5Slice_traits.hpp"
 
+namespace HighFive {
 
-
-
-namespace HighFive{
-
-
-template <typename Derivate> class NodeTraits;
-template <typename Derivate> class SliceTraits;
+template <typename Derivate>
+class NodeTraits;
+template <typename Derivate>
+class SliceTraits;
 class DataType;
 class DataSpace;
 
-class DataSet : public Object,  public SliceTraits<DataSet>, public AnnotateTraits<DataSet>{
-public:
-
+class DataSet : public Object,
+                public SliceTraits<DataSet>,
+                public AnnotateTraits<DataSet> {
+  public:
     size_t getStorageSize() const;
 
     ///
@@ -43,20 +42,18 @@ public:
     ///
     DataSpace getSpace() const;
 
-
     ///
     /// \brief getMemSpace
-    /// \return same than getSpace for DataSet, compatibility with Selection class
+    /// \return same than getSpace for DataSet, compatibility with Selection
+    /// class
     ///
     DataSpace getMemSpace() const;
 
-private:
+  private:
     DataSet();
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
-
 };
-
 }
 
 #include "bits/H5DataSet_misc.hpp"

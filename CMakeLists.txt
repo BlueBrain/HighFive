@@ -7,6 +7,7 @@ set(HIGHFIVE_VERSION_MAJOR 1)
 set(HIGHFIVE_VERSION_MINOR 2)
 
 
+add_subdirectory(deps/git-cmake-format)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake
       ${CMAKE_CURRENT_SOURCE_DIR}/CMake/portability
