@@ -55,7 +55,7 @@ struct array_dims {
 };
 
 template <typename T>
-struct array_dims<std::vector<T>> {
+struct array_dims<std::vector<T> > {
     static const size_t value = 1 + array_dims<T>::value;
 };
 
@@ -71,12 +71,12 @@ struct array_dims<T[N]> {
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
-struct array_dims<boost::multi_array<T, Dims>> {
+struct array_dims<boost::multi_array<T, Dims> > {
     static const size_t value = Dims;
 };
 
 template <typename T>
-struct array_dims<boost::numeric::ublas::matrix<T>> {
+struct array_dims<boost::numeric::ublas::matrix<T> > {
     static const size_t value = 2;
 };
 #endif
@@ -108,18 +108,18 @@ struct type_of_array {
 };
 
 template <typename T>
-struct type_of_array<std::vector<T>> {
+struct type_of_array<std::vector<T> > {
     typedef typename type_of_array<T>::type type;
 };
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
-struct type_of_array<boost::multi_array<T, Dims>> {
+struct type_of_array<boost::multi_array<T, Dims> > {
     typedef typename type_of_array<T>::type type;
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T>> {
+struct type_of_array<boost::numeric::ublas::matrix<T> > {
     typedef typename type_of_array<T>::type type;
 };
 #endif
@@ -152,7 +152,7 @@ struct is_container {
 };
 
 template <typename T>
-struct is_container<std::vector<T>> {
+struct is_container<std::vector<T> > {
     static const bool value = true;
 };
 
