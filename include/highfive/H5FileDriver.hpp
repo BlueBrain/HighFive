@@ -11,35 +11,32 @@
 
 #include "H5PropertyList.hpp"
 
-
-
-namespace HighFive{
-
+namespace HighFive {
 
 ///
 /// \brief file driver base concept
 ///
 class FileDriver : public Properties {
-public:
+  public:
     inline FileDriver();
     inline FileDriver(hid_t fapl);
-private:
-};
 
+  private:
+};
 
 ///
 /// \brief MPIIO Driver for Parallel HDF5
 ///
 class MPIOFileDriver : public FileDriver {
-public:
-    template<typename Comm, typename Info>
+  public:
+    template <typename Comm, typename Info>
     inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);
-private:
+
+  private:
 };
 
 // internal usage
 inline FileDriver default_file_driver();
-
 
 } // HighFive
 

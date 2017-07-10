@@ -13,24 +13,11 @@
 
 #include "../H5PropertyList.hpp"
 
-namespace HighFive{
+namespace HighFive {
 
-namespace {
+namespace {}
 
-
-
+inline Properties::Properties() {}
 }
-
-
-inline Properties::Properties(){
-
-}
-
-
-
-}
-
-
-
 
 #endif // H5PROPERTY_LIST_HPP

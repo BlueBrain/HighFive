@@ -17,15 +17,13 @@
 
 #include "H5Object.hpp"
 
-
-
-namespace HighFive{
+namespace HighFive {
 
 class File;
 class DataSet;
 
-class DataSpace : public Object{
-public:
+class DataSpace : public Object {
+  public:
     /// dataspace type
     enum DataspaceType {
         datascape_scalar,
@@ -38,10 +36,11 @@ public:
     ///  size(dim1) = vec[0]
     ///  size(dim2) = vec[1]
     ///  etc...
-    explicit DataSpace(const std::vector<size_t> & dims);
+    explicit DataSpace(const std::vector<size_t>& dims);
 
     ///
-    /// \brief DataSpace create a dataspace of a single dimension and of size dim1
+    /// \brief DataSpace create a dataspace of a single dimension and of size
+    /// dim1
     /// \param dim1
     ///
     explicit DataSpace(size_t dim1);
@@ -62,42 +61,39 @@ public:
     size_t getNumberDimensions() const;
 
     /// \brief getDimensions
-    /// \return return a vector of N-element, each element is the size of the associated dataset dimension
+    /// \return return a vector of N-element, each element is the size of the
+    /// associated dataset dimension
     std::vector<size_t> getDimensions() const;
 
-
     /// Create a dataspace matching a single element of a basic type
-    ///  supported type are integrals (int,long), floating points (float,double) and std::string
-    template<typename ScalarValue>
-    static DataSpace From(const ScalarValue & scalar_value);
+    ///  supported type are integrals (int,long), floating points (float,double)
+    ///  and std::string
+    template <typename ScalarValue>
+    static DataSpace From(const ScalarValue& scalar_value);
 
     /// Create a dataspace matching the container dimensions and size
     /// Supported Containers are:
     ///  - vector of fundamental types
     ///  - vector of std::string
     ///  - boost::multi_array
-    template<typename Value>
-    static DataSpace From(const std::vector<Value> & vec);
+    template <typename Value>
+    static DataSpace From(const std::vector<Value>& vec);
 
 #ifdef H5_USE_BOOST
-    template<typename Value, std::size_t Dims>
-    static DataSpace From(const boost::multi_array<Value, Dims> & container);
+    template <typename Value, std::size_t Dims>
+    static DataSpace From(const boost::multi_array<Value, Dims>& container);
 
-    template<typename Value>
-    static DataSpace From(const boost::numeric::ublas::matrix<Value> & mat);
+    template <typename Value>
+    static DataSpace From(const boost::numeric::ublas::matrix<Value>& mat);
 #endif
 
-
-
-protected:
-
+  protected:
     explicit DataSpace();
 
     friend class Attribute;
     friend class File;
     friend class DataSet;
 };
-
 }
 
 #include "bits/H5Dataspace_misc.hpp"

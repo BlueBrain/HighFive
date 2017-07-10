@@ -11,35 +11,33 @@
 
 #include <string>
 
-#include "H5Object.hpp"
 #include "H5FileDriver.hpp"
+#include "H5Object.hpp"
 
-#include "bits/H5Node_traits.hpp"
 #include "bits/H5Annotate_traits.hpp"
+#include "bits/H5Node_traits.hpp"
 
-
-namespace HighFive{
+namespace HighFive {
 
 ///
 /// \brief File class
 ///
-class File : public Object, public NodeTraits<File>, public AnnotateTraits<File> {
-public:
-
+class File : public Object,
+             public NodeTraits<File>,
+             public AnnotateTraits<File> {
+  public:
     /// Open flag: Read only access
-    static const int ReadOnly=0x00;
+    static const int ReadOnly = 0x00;
     /// Open flag: Read Write access
-    static const int ReadWrite=0x01;
+    static const int ReadWrite = 0x01;
     /// Open flag: Truncate a file if already existing
-    static const int Truncate=0x02;
+    static const int Truncate = 0x02;
     /// Open flag: Open will fail if file already exist
-    static const int Excl=0x04;
+    static const int Excl = 0x04;
     /// Open flag: Open in debug mode
-    static const int Debug=0x08;
+    static const int Debug = 0x08;
     /// Open flag: Create non existing file
-    static const int Create=0x10;
-
-
+    static const int Create = 0x10;
 
     ///
     /// \brief File
@@ -47,7 +45,8 @@ public:
     /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
     ///
     /// Open or create a new HDF5 file
-    explicit File(const std::string & filename, int openFlags = ReadOnly, const FileDriver & driver = default_file_driver());
+    explicit File(const std::string& filename, int openFlags = ReadOnly,
+                  const FileDriver& driver = default_file_driver());
 
     virtual ~File();
 
@@ -58,15 +57,9 @@ public:
     ///
     void flush();
 
-
-
-private:
+  private:
     std::string _filename;
 };
-
-
-
-
 }
 
 #include "bits/H5File_misc.hpp"
