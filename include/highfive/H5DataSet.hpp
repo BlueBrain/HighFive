@@ -56,6 +56,7 @@ class DataSet : public Object,
 };
 }
 
+#include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5DataSet_misc.hpp"
 
 #endif // H5DATASET_HPP

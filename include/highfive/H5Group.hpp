@@ -27,6 +27,7 @@ class Group : public Object,
 };
 }
 
+#include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5Group_misc.hpp"
 
 #endif // HIGHFIVE_H5GROUP_HPP
