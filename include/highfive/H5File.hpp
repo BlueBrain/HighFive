@@ -62,6 +62,7 @@ class File : public Object,
 };
 }
 
+#include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5File_misc.hpp"
 
 #endif // H5FILE_HPP

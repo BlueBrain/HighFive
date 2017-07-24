@@ -71,6 +71,4 @@ class AnnotateTraits {
 };
 }
 
-#include "H5Annotate_traits_misc.hpp"
-
 #endif // H5ANNOTATE_TRAITS_HPP
