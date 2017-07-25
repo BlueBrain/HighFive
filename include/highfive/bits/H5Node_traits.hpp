@@ -74,6 +74,11 @@ class NodeTraits {
     size_t getNumberObjects() const;
 
     ///
+    /// \brief return the name of the object with the given index
+    /// \return the name of the object
+    std::string getObjectName(size_t index) const;
+
+    ///
     /// \brief list all leaf objects name of the node / group
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;

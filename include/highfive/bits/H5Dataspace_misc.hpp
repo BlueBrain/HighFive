@@ -136,6 +136,36 @@ DataSpace::From(const boost::numeric::ublas::matrix<Value>& mat) {
 }
 
 #endif
+
+namespace details {
+
+/// dimension checks @internal
+inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
+    size_t dataset_dims = mem_space.getNumberDimensions();
+    if (input_dims == dataset_dims)
+        return true;
+
+    const std::vector<size_t> dims = mem_space.getDimensions();
+    for (std::vector<size_t>::const_reverse_iterator i = dims.rbegin();
+         i != --dims.rend() && *i == 1; ++i)
+        --dataset_dims;
+
+    if (input_dims == dataset_dims)
+        return true;
+
+    dataset_dims = dims.size();
+    for (std::vector<size_t>::const_iterator i = dims.begin();
+         i != --dims.end() && *i == 1; ++i)
+        --dataset_dims;
+
+    if (input_dims == dataset_dims)
+        return true;
+
+    // The final tests is for scalars
+    return input_dims == 0 && dataset_dims == 1 && dims[dims.size() - 1] == 1;
+}
+
+}
 }
 
 #endif // H5DATASPACE_MISC_HPP

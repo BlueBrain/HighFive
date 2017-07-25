@@ -59,6 +59,10 @@ inline File::File(const std::string& filename, int openFlags,
 
 inline File::~File() {}
 
+inline const std::string& File::getName() const {
+    return _filename;
+}
+
 inline void File::flush() {
     if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
         HDF5ErrMapper::ToException<FileException>(

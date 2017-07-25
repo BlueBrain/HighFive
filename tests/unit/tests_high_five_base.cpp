@@ -109,6 +109,8 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     // Create a new file using the default property lists.
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
+    BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
+
     // Create the data space for the dataset.
     std::vector<size_t> dims;
     dims.push_back(4);
@@ -123,6 +125,8 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     // Create a dataset with double precision floating points
     DataSet dataset_double = file.createDataSet(
         DATASET_NAME + "_double", dataspace, AtomicType<double>());
+
+    BOOST_CHECK_EQUAL(file.getObjectName(0), DATASET_NAME + "_double");
 
     {
         // check if it exist again
@@ -719,7 +723,6 @@ void selectionArraySimpleTest() {
         BOOST_CHECK_EQUAL(result.size(), 5);
 
         for (size_t i = 0; i < count_x; ++i) {
-            // std::cout << result[i] << " ";
             BOOST_CHECK_EQUAL(values[i + offset_x], result[i]);
         }
     }
@@ -753,6 +756,60 @@ void selectionArraySimpleTest() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types) {
 
     selectionArraySimpleTest<T>();
+}
+
+template <typename T>
+void columnSelectionTest() {
+
+    std::ostringstream filename;
+    filename << "h5_rw_select_column_test_" << typeid(T).name() << "_test.h5";
+
+    const size_t x_size = 10;
+    const size_t y_size = 7;
+
+    const std::string DATASET_NAME("dset");
+
+    T values[x_size][y_size];
+
+    ContentGenerate<T> generator;
+    generate2D(values, x_size, y_size, generator);
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create the data space for the dataset.
+    std::vector<size_t> dims;
+    dims.push_back(x_size);
+    dims.push_back(y_size);
+
+    DataSpace dataspace(dims);
+    // Create a dataset with arbitrary type
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
+
+    dataset.write(values);
+
+    file.flush();
+
+    std::vector<size_t> columns;
+    columns.push_back(1);
+    columns.push_back(3);
+    columns.push_back(5);
+
+    Selection slice = dataset.select(columns);
+    T result[x_size][3];
+    slice.read(result);
+
+    BOOST_CHECK_EQUAL(slice.getSpace().getDimensions()[0], x_size);
+    BOOST_CHECK_EQUAL(slice.getMemSpace().getDimensions()[0], x_size);
+
+    for (size_t i = 0; i < 3; ++i)
+        for (size_t j = 0; j < x_size; ++j)
+            BOOST_CHECK_EQUAL(result[j][i], values[j][columns[i]]);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(columnSelection, T, numerical_test_types) {
+
+    columnSelectionTest<T>();
 }
 
 template <typename T>

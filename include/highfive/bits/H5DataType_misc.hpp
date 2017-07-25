@@ -44,6 +44,17 @@ inline AtomicType<unsigned char>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_UCHAR);
 }
 
+// short mapping
+template <>
+inline AtomicType<short>::AtomicType() {
+    _hid = H5Tcopy(H5T_NATIVE_SHORT);
+}
+
+template <>
+inline AtomicType<unsigned short>::AtomicType() {
+    _hid = H5Tcopy(H5T_NATIVE_USHORT);
+}
+
 // integer mapping
 template <>
 inline AtomicType<int>::AtomicType() {
