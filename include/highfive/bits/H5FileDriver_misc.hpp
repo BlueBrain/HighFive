@@ -24,22 +24,16 @@ namespace {
 class DefaultFileDriver : public FileDriver {
   public:
     inline DefaultFileDriver() : FileDriver(H5P_DEFAULT) {}
-
-    inline virtual void destroy() {}
-
-  private:
 };
 }
 
-FileDriver default_file_driver() { return DefaultFileDriver(); }
-
 // file access property
-FileDriver::FileDriver() { _hid = H5Pcreate(H5P_FILE_ACCESS); }
+inline FileDriver::FileDriver() { _hid = H5Pcreate(H5P_FILE_ACCESS); }
 
-FileDriver::FileDriver(hid_t fapl) { _hid = fapl; }
+inline FileDriver::FileDriver(hid_t fapl) { _hid = fapl; }
 
 template <typename Comm, typename Info>
-MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
+inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
     if (H5Pset_fapl_mpio(_hid, comm, info) < 0) {
         HDF5ErrMapper::ToException<FileException>(
             "Unable to setup MPIO Driver configuration");

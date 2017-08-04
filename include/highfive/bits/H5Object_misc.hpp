@@ -32,9 +32,7 @@ inline Object& Object::operator=(const Object& other) {
     return *this;
 }
 
-inline Object::~Object() { destroy(); }
-
-inline void Object::destroy() {
+inline Object::~Object() {
     if (isValid() && H5Idec_ref(_hid) < 0) {
         throw ObjectException("Reference counter decrease failure");
     }

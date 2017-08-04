@@ -43,11 +43,7 @@ class Object {
     Object& operator=(const Object& other);
 
     // decrease reference counter
-    virtual ~Object();
-
-    // override object destruction phase
-    // needed for specific HDF5 type
-    virtual void destroy();
+    ~Object();
 
     hid_t _hid;
 
