@@ -1,8 +1,3 @@
-# cmake target install
-if(NOT CMAKE_MAJOR_VERSION GREATER 2) # No export(EXPORT) in CMake 2
-  return()
-endif()
-
 add_library(HighFive INTERFACE)
 target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
 target_include_directories(HighFive INTERFACE
@@ -10,11 +5,13 @@ target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
   "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-
 if(USE_BOOST)
   target_include_directories(HighFive SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
   target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
 endif()
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
+		DESTINATION ${INCLUDE_INSTALL_DIR})
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
@@ -35,7 +32,3 @@ install(TARGETS HighFive EXPORT ${PROJECT_NAME}Targets
 
 export(EXPORT HighFiveTargets
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
-export(TARGETS HighFive
-  FILE "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
-
-
