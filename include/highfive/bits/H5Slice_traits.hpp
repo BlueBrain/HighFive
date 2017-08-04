@@ -41,11 +41,20 @@ class SliceTraits {
   public:
     ///
     /// select a region in the current Slice/Dataset of 'count' points at
-    /// 'offset'
+    /// 'offset' separated by 'stride'. If strides are not provided they will
+    /// default to 1 in all dimensions.
     /// vector offset and count have to be from the same dimension
     ///
     Selection select(const std::vector<size_t>& offset,
-                     const std::vector<size_t>& count) const;
+                     const std::vector<size_t>& count,
+                     const std::vector<size_t>& stride = std::vector<size_t>())
+        const;
+
+    ///
+    /// select a set of columns in the last dimension of this dataset.
+    /// The column indices must be smaller than the dimension size.
+    ///
+    Selection select(const std::vector<size_t>& columns) const;
 
     ///
     /// select a region in the current Slice/Dataset out of a list of elements

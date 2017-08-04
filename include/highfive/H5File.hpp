@@ -50,6 +50,12 @@ class File : public Object,
 
     virtual ~File();
 
+
+    ///
+    /// \brief Return the name of the file
+    ///
+    const std::string& getName() const;
+
     ///
     /// \brief flush
     ///

@@ -64,22 +64,56 @@ inline ElementSet::ElementSet(const std::vector<std::size_t>& element_ids)
 template <typename Derivate>
 inline Selection
 SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
-                              const std::vector<size_t>& count) const {
+                              const std::vector<size_t>& count,
+                              const std::vector<size_t>& stride) const {
     // hsize_t type convertion
     // TODO : normalize hsize_t type in HighFive namespace
-    std::vector<hsize_t> offset_local(offset.size()), count_local(count.size());
+    std::vector<hsize_t> offset_local(offset.size());
+    std::vector<hsize_t> count_local(count.size());
+    std::vector<hsize_t> stride_local(stride.size());
     std::copy(offset.begin(), offset.end(), offset_local.begin());
     std::copy(count.begin(), count.end(), count_local.begin());
+    std::copy(stride.begin(), stride.end(), stride_local.begin());
 
     DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
-    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, &(offset_local[0]),
-                            NULL, &(count_local[0]), NULL) < 0) {
+    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
+                            stride.empty() ? NULL : stride_local.data(),
+                            count_local.data(), NULL) < 0) {
         HDF5ErrMapper::ToException<DataSpaceException>(
             "Unable to select hyperslap");
     }
 
     return Selection(DataSpace(count), space,
                      details::get_dataset(static_cast<const Derivate*>(this)));
+}
+
+template <typename Derivate>
+inline Selection
+SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
+
+    const DataSpace& space = static_cast<const Derivate*>(this)->getSpace();
+    const DataSet& dataset =
+        details::get_dataset(static_cast<const Derivate*>(this));
+    std::vector<size_t> dims = space.getDimensions();
+    std::vector<hsize_t> counts(dims.size());
+    std::copy(dims.begin(), dims.end(), counts.begin());
+    counts[dims.size() - 1] = 1;
+    std::vector<hsize_t> offsets(dims.size(), 0);
+
+    H5Sselect_none(space.getId());
+    for (std::vector<size_t>::const_iterator i = columns.begin();
+         i != columns.end(); ++i) {
+
+        offsets[offsets.size() - 1] = *i;
+        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(),
+                                0, counts.data(), 0) < 0) {
+            HDF5ErrMapper::ToException<DataSpaceException>(
+                "Unable to select hyperslap");
+        }
+    }
+
+    dims[dims.size() - 1] = columns.size();
+    return Selection(DataSpace(dims), space, dataset);
 }
 
 template <typename Derivate>
@@ -121,11 +155,11 @@ inline void SliceTraits<Derivate>::read(T& array) const {
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
-    const size_t dim_dataset = mem_space.getNumberDimensions();
-    if (dim_array != dim_dataset) {
+    if (!details::checkDimensions(mem_space, dim_array)) {
         std::ostringstream ss;
-        ss << "Impossible to read DataSet of dimensions " << dim_dataset
-           << " into arrays of dimensions " << dim_array;
+        ss << "Impossible to read DataSet of dimensions "
+           << mem_space.getNumberDimensions() << " into arrays of dimensions "
+           << dim_array;
         throw DataSpaceException(ss.str());
     }
 
@@ -161,11 +195,10 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
-    const size_t dim_dataset = mem_space.getNumberDimensions();
-    if (dim_buffer != dim_dataset) {
+    if (!details::checkDimensions(mem_space, dim_buffer)) {
         std::ostringstream ss;
         ss << "Impossible to write buffer of dimensions " << dim_buffer
-           << " into dataset of dimensions " << dim_dataset;
+           << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
 

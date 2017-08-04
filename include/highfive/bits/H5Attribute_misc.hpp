@@ -64,11 +64,11 @@ inline void Attribute::read(T& array) const {
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 
-    const size_t dim_attribute = mem_space.getNumberDimensions();
-    if (dim_array != dim_attribute) {
+    if (!details::checkDimensions(mem_space, dim_array)) {
         std::ostringstream ss;
-        ss << "Impossible to read attribute of dimensions " << dim_attribute
-           << " into arrays of dimensions " << dim_array;
+        ss << "Impossible to read attribute of dimensions "
+           << mem_space.getNumberDimensions() << " into arrays of dimensions "
+           << dim_array;
         throw DataSpaceException(ss.str());
     }
 
@@ -90,7 +90,7 @@ inline void Attribute::read(T& array) const {
 }
 
 template <typename T>
-inline void Attribute::write(T& buffer) {
+inline void Attribute::write(const T& buffer) {
     typedef typename details::remove_const<T>::type type_no_const;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
@@ -99,11 +99,11 @@ inline void Attribute::write(T& buffer) {
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 
-    const size_t dim_attribute = mem_space.getNumberDimensions();
-    if (dim_buffer != dim_attribute) {
+    if (!details::checkDimensions(mem_space, dim_buffer)) {
         std::ostringstream ss;
         ss << "Impossible to write buffer of dimensions " << dim_buffer
-           << " into attribute of dimensions " << dim_attribute;
+           << " into attribute of dimensions "
+           << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
 
