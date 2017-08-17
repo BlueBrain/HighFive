@@ -57,8 +57,6 @@ inline File::File(const std::string& filename, int openFlags,
     }
 }
 
-inline File::~File() {}
-
 inline const std::string& File::getName() const {
     return _filename;
 }
