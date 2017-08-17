@@ -24,6 +24,9 @@ inline Object::Object(const Object& other) : _hid(other._hid) {
 
 inline Object& Object::operator=(const Object& other) {
     if (this != &other) {
+        if (_hid != H5I_INVALID_HID)
+            H5Idec_ref(_hid);
+
         _hid = other._hid;
         if (other.isValid() && H5Iinc_ref(_hid) < 0) {
             throw ObjectException("Reference counter increase failure");

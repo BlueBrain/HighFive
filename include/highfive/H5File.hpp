@@ -48,9 +48,6 @@ class File : public Object,
     explicit File(const std::string& filename, int openFlags = ReadOnly,
                   const FileDriver& driver = DefaultFileDriver());
 
-    ~File();
-
-
     ///
     /// \brief Return the name of the file
     ///
