@@ -37,7 +37,8 @@ inline Object& Object::operator=(const Object& other) {
 
 inline Object::~Object() {
     if (isValid() && H5Idec_ref(_hid) < 0) {
-        throw ObjectException("Reference counter decrease failure");
+        std::cerr << "HighFive::~Object: reference counter decrease failure"
+                  << std::endl;
     }
 }
 
