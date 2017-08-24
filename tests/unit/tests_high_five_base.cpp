@@ -14,10 +14,13 @@
 #include <typeinfo>
 #include <vector>
 
+#include <stdio.h>
+
 #include <highfive/H5File.hpp>
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5Group.hpp>
+#include <highfive/util.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTest
 
@@ -144,6 +147,24 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
 
     DataSet dataset_size_t =
         file.createDataSet<size_t>(DATASET_NAME + "_size_t", dataspace);
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveSilence) {
+
+    // Setting up a buffer for stderr so we can detect if the stack trace
+    // was disabled
+    char buffer[1024];
+    buffer[0] = '\0';
+    setvbuf(stderr, buffer, _IOLBF, 1024);
+
+    try
+    {
+        SilenceHDF5 silence;
+        File file("nonexistent", File::ReadOnly);
+    }
+    catch (const FileException&)
+    {}
+    BOOST_CHECK_EQUAL(buffer[0], '\0');
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveException) {
