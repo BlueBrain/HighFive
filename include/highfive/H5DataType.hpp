@@ -11,47 +11,39 @@
 
 #include "H5Object.hpp"
 
-
-
-namespace HighFive{
+namespace HighFive {
 
 struct TypeMapper;
 
 ///
 /// \brief HDF5 Data Type
 ///
-class DataType : public Object{
-public:
+class DataType : public Object {
+  public:
     DataType();
 
-    bool operator==(const DataType & other) const;
+    bool operator==(const DataType& other) const;
 
-    bool operator!=(const DataType & other) const;
+    bool operator!=(const DataType& other) const;
 
-protected:
-
+  protected:
     friend class Attribute;
     friend class File;
     friend class DataSet;
 };
-
 
 ///
 /// \brief create an HDF5 DataType from a C++ type
 ///
 ///  Support only basic data type
 ///
-template<typename T>
-class AtomicType : public DataType{
-public:
-
+template <typename T>
+class AtomicType : public DataType {
+  public:
     AtomicType();
-
 
     typedef T basic_type;
 };
-
-
 }
 
 #include "bits/H5DataType_misc.hpp"

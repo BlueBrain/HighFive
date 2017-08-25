@@ -13,19 +13,15 @@
 
 #include "H5Object.hpp"
 
+namespace HighFive {
 
-
-
-namespace HighFive{
-
-
-template <typename Derivate> class AnnotateTraits;
+template <typename Derivate>
+class AnnotateTraits;
 class DataType;
 class DataSpace;
 
-class Attribute : public Object{
-public:
-
+class Attribute : public Object {
+  public:
     size_t getStorageSize() const;
 
     ///
@@ -40,40 +36,38 @@ public:
     ///
     DataSpace getSpace() const;
 
-
     ///
     /// \brief getMemSpace
-    /// \return same than getSpace for DataSet, compatibility with Selection class
+    /// \return same than getSpace for DataSet, compatibility with Selection
+    /// class
     ///
     DataSpace getMemSpace() const;
 
-
-
     ///
     /// Read the attribute into a buffer
-    /// An exception is raised if the numbers of dimension of the buffer and of the attribute are different
+    /// An exception is raised if the numbers of dimension of the buffer and of
+    /// the attribute are different
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
+    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+    /// dimensional array )
     template <typename T>
-    void read(T & array) const;
+    void read(T& array) const;
 
     ///
     /// Write the integrality N-dimension buffer to this attribute
-    /// An exception is raised if the numbers of dimension of the buffer and of the attribute are different
+    /// An exception is raised if the numbers of dimension of the buffer and of
+    /// the attribute are different
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two dimensional array )
+    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+    /// dimensional array )
     template <typename T>
-    void write(T & buffer);
+    void write(const T& buffer);
 
-
-
-private:
+  private:
     Attribute();
     template <typename Derivate>
     friend class ::HighFive::AnnotateTraits;
-
 };
-
 }
 
 #include "bits/H5Attribute_misc.hpp"

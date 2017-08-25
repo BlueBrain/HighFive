@@ -9,30 +9,23 @@
 #ifndef H5PROPERTY_LIST_HPP
 #define H5PROPERTY_LIST_HPP
 
-
 #include "H5Object.hpp"
 
-namespace HighFive{
+namespace HighFive {
 
 ///
 /// \brief Generic HDF5 property List
 ///
 class Properties : public Object {
-public:
-
-protected:
+  public:
+  protected:
     // protected constructor
     inline Properties();
 
-private:
+  private:
 };
 
-
-
-
 } // HighFive
-
-
 
 #include "bits/H5PropertyList_misc.hpp"
 

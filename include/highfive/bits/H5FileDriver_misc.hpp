@@ -9,7 +9,6 @@
 #ifndef H5FILEDRIVER_MISC_HPP
 #define H5FILEDRIVER_MISC_HPP
 
-
 #include "../H5FileDriver.hpp"
 
 #include <H5Ppublic.h>
@@ -18,48 +17,28 @@
 #include <H5FDmpi.h>
 #endif
 
-
 namespace HighFive {
 
-
-namespace{
-
+namespace {
 
 class DefaultFileDriver : public FileDriver {
-public:
+  public:
     inline DefaultFileDriver() : FileDriver(H5P_DEFAULT) {}
-
-    inline virtual void destroy() {}
-private:
 };
-
 }
-
-
-FileDriver default_file_driver(){
-    return DefaultFileDriver();
-}
-
 
 // file access property
-FileDriver::FileDriver(){
-    _hid = H5Pcreate(H5P_FILE_ACCESS);
-}
+inline FileDriver::FileDriver() { _hid = H5Pcreate(H5P_FILE_ACCESS); }
 
-FileDriver::FileDriver(hid_t fapl){
-    _hid = fapl;
-}
+inline FileDriver::FileDriver(hid_t fapl) { _hid = fapl; }
 
-
-
-template<typename Comm, typename Info>
-MPIOFileDriver::MPIOFileDriver(Comm comm, Info info){
-    if( H5Pset_fapl_mpio(_hid, comm, info) <0){
-         HDF5ErrMapper::ToException<FileException>("Unable to setup MPIO Driver configuration");
+template <typename Comm, typename Info>
+inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
+    if (H5Pset_fapl_mpio(_hid, comm, info) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            "Unable to setup MPIO Driver configuration");
     }
 }
-
-
 }
 
 #endif // H5FILEDRIVER_MISC_HPP

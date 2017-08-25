@@ -11,9 +11,8 @@
 #include <vector>
 
 #include <highfive/H5File.hpp>
-#include <highfive/H5DataSpace.hpp>
 #include <highfive/H5DataSet.hpp>
-
+#include <highfive/H5DataSpace.hpp>
 
 using namespace HighFive;
 
@@ -21,27 +20,28 @@ const std::string FILE_NAME("dataset_integer.h5");
 const std::string DATASET_NAME("dset");
 const size_t size_dataset = 20;
 
-
 // create a dataset 1D from a vector of string
-void write_dataset(){
+void write_dataset() {
 
     // we create a new hdf5 file
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     std::vector<int> data(size_dataset);
-    for(size_t i =0; i < data.size(); ++i){
+    for (size_t i = 0; i < data.size(); ++i) {
         data[i] = int(i);
     }
 
-    // lets create a dataset of native interger with the size of the vector 'data'
-    DataSet dataset = file.createDataSet<int>(DATASET_NAME,  DataSpace::From(data));
+    // lets create a dataset of native interger with the size of the vector
+    // 'data'
+    DataSet dataset =
+        file.createDataSet<int>(DATASET_NAME, DataSpace::From(data));
 
     // lets write our vector of int to the HDF5 dataset
     dataset.write(data);
 }
 
 // read our data back
-void read_dataset(){
+void read_dataset() {
     // we open the existing hdf5 file we created before
     File file(FILE_NAME, File::ReadOnly);
 
@@ -53,26 +53,22 @@ void read_dataset(){
     // we convert the hdf5 dataset to a single dimension vector
     dataset.read(read_data);
 
-    for(size_t i=0; i < read_data.size(); ++i){
+    for (size_t i = 0; i < read_data.size(); ++i) {
         std::cout << read_data[i] << " ";
     }
     std::cout << "\n";
 }
 
-int main (void)
-{
+int main(void) {
 
-    try
-    {
+    try {
         write_dataset();
         read_dataset();
 
-    }catch(Exception & err){
+    } catch (Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }
 
-    return 0;  // successfully terminated
+    return 0; // successfully terminated
 }
-
-
