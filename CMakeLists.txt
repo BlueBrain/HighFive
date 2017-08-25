@@ -49,3 +49,4 @@ if(HIGHFIVE_EXAMPLES)
 endif()
 
 add_subdirectory(tests/unit)
+add_subdirectory(doc)
