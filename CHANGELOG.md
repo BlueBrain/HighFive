@@ -1,8 +1,11 @@
-## Version 1.3 - 2017/08/25
+## Version 1.4 - 2017/08/25
 	- Support id selection for the `select` function
 	- Suport STL containers of const elements
 	- Support scalar values and strings management
 	- Fix attribute assignment issue #40
+
+## Version 1.3 - 2017/06/21
+    - Minor fixes
 
 ## Version 1.2 - 2017/04/03
 	- Add Attribute support for Dataset
