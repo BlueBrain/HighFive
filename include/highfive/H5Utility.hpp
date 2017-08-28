@@ -17,14 +17,14 @@ namespace HighFive {
 /// \brief Utility class to disable HDF5 stack printing inside a scope.
 class SilenceHDF5 {
 public:
-    SilenceHDF5()
+    inline SilenceHDF5()
         : _client_data(0)
     {
         H5Eget_auto2(H5E_DEFAULT, &_func, &_client_data);
         H5Eset_auto2(H5E_DEFAULT, 0, 0);
     }
 
-    ~SilenceHDF5() { H5Eset_auto2(H5E_DEFAULT, _func, _client_data); }
+    inline ~SilenceHDF5() { H5Eset_auto2(H5E_DEFAULT, _func, _client_data); }
 private:
     H5E_auto2_t _func;
     void* _client_data;
