@@ -153,9 +153,10 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
 
     // Setting up a buffer for stderr so we can detect if the stack trace
     // was disabled
+    fflush(stderr);
     char buffer[1024];
-    buffer[0] = '\0';
-    setvbuf(stderr, buffer, _IOLBF, 1024);
+    memset(buffer, 0, sizeof(char) * 1024);
+    setvbuf(stderr, buffer, _IOLBF, 1023);
 
     try
     {
@@ -165,6 +166,11 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     catch (const FileException&)
     {}
     BOOST_CHECK_EQUAL(buffer[0], '\0');
+    
+    // restore the dyn allocated buffer
+    // or using stderr will segfault when buffer get out of scope
+    fflush(stderr);
+    setvbuf(stderr, NULL, _IONBF, 0);
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveException) {
