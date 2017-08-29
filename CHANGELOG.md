@@ -3,6 +3,10 @@
 	- Suport STL containers of const elements
 	- Support scalar values and strings management
 	- Fix attribute assignment issue #40
+    - Fix Object assignment operator missing unref (possible memory leak )
+    - Introduce SilenceHDF5 for HDF5 error report
+    - Fix a unit test issue with SilenceHDF5
+
 
 ## Version 1.3 - 2017/06/21
     - Minor fixes
