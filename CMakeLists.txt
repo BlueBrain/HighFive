@@ -17,7 +17,7 @@ include(CheckCXX11Portability)
 
 include(BlueGenePortability)
 
-option(UNIT_TESTS "enable unit tests" TRUE)
+option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
