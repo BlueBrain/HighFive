@@ -20,7 +20,7 @@
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5Group.hpp>
-#include <highfive/util.hpp>
+#include <highfive/H5Utility.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTest
 

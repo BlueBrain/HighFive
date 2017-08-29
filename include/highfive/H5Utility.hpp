@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef H5UTIL_HPP
-#define H5UTIL_HPP
+#ifndef H5UTILITY_HPP
+#define H5UTILITY_HPP
 
 #include <H5Epublic.h>
 
