@@ -1,4 +1,7 @@
-#HighFive - HDF5 header-only C++ Library
+# HighFive - HDF5 header-only C++ Library
+
+[![Build Status](https://travis-ci.org/BlueBrain/HighFive.svg?branch=master)](https://travis-ci.org/BlueBrain/HighFive) 
+
 
 ## Brief
 
