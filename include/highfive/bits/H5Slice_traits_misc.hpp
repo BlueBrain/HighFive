@@ -186,6 +186,27 @@ inline void SliceTraits<Derivate>::read(T& array) const {
 
 template <typename Derivate>
 template <typename T>
+inline void SliceTraits<Derivate>::read(T* array) const {
+
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
+    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+
+    // Create mem datatype
+    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+
+    if (H5Dread(
+            details::get_dataset(static_cast<const Derivate*>(this)).getId(),
+            array_datatype.getId(),
+            details::get_memspace_id((static_cast<const Derivate*>(this))),
+            space.getId(), H5P_DEFAULT,
+            static_cast<void*>(array)) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Error during HDF5 Read: ");
+    }
+}
+
+template <typename Derivate>
+template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
     typedef typename details::remove_const<T>::type type_no_const;
 
@@ -214,6 +235,25 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
                  space.getId(), H5P_DEFAULT,
                  static_cast<const void*>(
                      converter.transform_write(nocv_buffer))) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Error during HDF5 Write: ");
+    }
+}
+
+template <typename Derivate>
+template <typename T>
+inline void SliceTraits<Derivate>::write(const T* buffer) {
+
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
+    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+
+    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+
+    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
+                 array_datatype.getId(),
+                 details::get_memspace_id((static_cast<Derivate*>(this))),
+                 space.getId(), H5P_DEFAULT,
+                 static_cast<const void*>(buffer)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Write: ");
     }
