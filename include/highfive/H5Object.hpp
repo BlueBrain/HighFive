@@ -20,6 +20,9 @@ class AnnotateTraits;
 
 class Object {
   public:
+    // decrease reference counter
+    ~Object();
+
     ///
     /// \brief isValid
     /// \return true if current Object is a valid HDF5Object
@@ -41,9 +44,6 @@ class Object {
     Object(const Object& other);
 
     Object& operator=(const Object& other);
-
-    // decrease reference counter
-    ~Object();
 
     hid_t _hid;
 

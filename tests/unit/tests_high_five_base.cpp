@@ -14,6 +14,10 @@
 #include <typeinfo>
 #include <vector>
 
+#ifdef HIGHFIVE_CPP11_ENABLE
+#include <memory>
+#endif
+
 #include <stdio.h>
 
 #include <highfive/H5File.hpp>
@@ -237,6 +241,84 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         BOOST_CHECK_EQUAL(4, dataset_relative.getSpace().getDimensions()[0]);
     }
 }
+
+#ifdef HIGHFIVE_CPP11_ENABLE
+BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
+
+    const std::string FILE_NAME("h5_ref_count_test.h5");
+    const std::string DATASET_NAME("dset");
+    const std::string GROUP_NAME1("/group1");
+    const std::string GROUP_NAME2("/group2");
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    std::unique_ptr<DataSet> d1_ptr;
+    std::unique_ptr<Group> g_ptr;
+
+    {
+
+
+        // create group
+        Group g1 = file.createGroup(GROUP_NAME1);
+
+        // override object
+        g1 = file.createGroup(GROUP_NAME2);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims = { 10 , 10 };
+
+        DataSpace dataspace(dims);
+
+        DataSet d1 = file.createDataSet(
+            GROUP_NAME1 + DATASET_NAME,
+            dataspace, AtomicType<double>());
+
+        double values[10][10] = { 0 };
+        values[5][0] = 1;
+        d1.write(values);
+
+        // force move
+        d1_ptr.reset( new DataSet(std::move(d1)));
+
+        // force copy
+        g_ptr.reset(new Group(g1));
+
+    }
+    // read it back
+    {
+        DataSet d2(std::move(*d1_ptr));
+        d1_ptr.reset();
+
+        double values[10][10];
+        memset(values, 255, 10*10);
+
+        d2.read(values);
+
+        for(std::size_t i =0; i < 10; ++i){
+            for(std::size_t j =0;  j < 10; ++j){
+                double v = values[i][j];
+
+                if( i == 5 && j == 0){
+                    BOOST_CHECK_EQUAL(v, 1);
+                }else{
+                    BOOST_CHECK_EQUAL(v, 0);
+                }
+            }
+        }
+
+
+        // force copy
+        Group g2 = *g_ptr;
+
+        // add a subgroup
+        g2.createGroup("blabla");
+
+    }
+}
+
+#endif
+
 
 BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
 
