@@ -145,9 +145,16 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::exist(const std::string& node_name) const {
-    return H5Lexists(static_cast<const Derivate*>(this)->getId(),
+    htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                      node_name.c_str(), H5P_DEFAULT);
+    if( val < 0){
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Invalid link for exist() "));
+    }
+
+    return (val > 0 );
 }
+
 }
 
 #endif // H5NODE_TRAITS_MISC_HPP
