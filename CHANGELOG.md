@@ -1,3 +1,7 @@
+## Version 1.5
+    - SliceTraits::read split in two overloads, the first one for plain C arrays
+      and the second one for other types.
+
 ## Version 1.4 - 2017/08/25
 	- Support id selection for the `select` function
 	- Suport STL containers of const elements

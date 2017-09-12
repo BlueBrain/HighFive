@@ -66,10 +66,21 @@ class SliceTraits {
     /// An exception is raised is if the numbers of dimension of the buffer and
     /// of the dataset are different
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
-    /// dimensional array )
+    /// The array type can be a N-pointer or a N-vector. For plain pointers
+    /// not dimensionality checking will be performed, it is the user's
+    /// reponsibility to ensure that the right amount of space has been
+    /// allocated.
     template <typename T>
     void read(T& array) const;
+
+    ///
+    /// Read the entire dataset into a raw buffer
+    ///
+    /// No dimensionality checks will be performed, it is the user's
+    /// reponsibility to ensure that the right amount of space has been
+    /// allocated.
+    template <typename T>
+    void read(T* array) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
@@ -80,6 +91,16 @@ class SliceTraits {
     /// dimensional array )
     template <typename T>
     void write(const T& buffer);
+
+    ///
+    /// Write from a raw buffer into this dataset
+    ///
+    /// No dimensionality checks will be performed, it is the user's
+    /// reponsibility to ensure that the buffer holds the right amount of
+    /// elements. For n-dimensional matrices the buffer layout follows H5
+    /// default conventions.
+    template <typename T>
+    void write(const T* buffer);
 
   private:
     typedef Derivate derivate_type;
