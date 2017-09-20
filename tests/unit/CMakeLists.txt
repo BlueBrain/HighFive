@@ -1,4 +1,4 @@
-if(NOT UNIT_TESTS OR NOT USE_BOOST)
+if(NOT HIGHFIVE_UNIT_TESTS OR NOT USE_BOOST)
   return()
 endif()
 
@@ -36,6 +36,7 @@ if(COMPILER_SUPPORTS_CXX11)
     target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
   endif()
   target_compile_options(tests_high_five_cpp11_bin PRIVATE "-std=c++11")
+  target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
 
   add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 

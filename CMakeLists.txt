@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 enable_testing()
 
 set(HIGHFIVE_VERSION_MAJOR 1)
-set(HIGHFIVE_VERSION_MINOR 2)
+set(HIGHFIVE_VERSION_MINOR 5)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
@@ -17,7 +17,7 @@ include(CheckCXX11Portability)
 
 include(BlueGenePortability)
 
-option(UNIT_TESTS "enable unit tests" TRUE)
+option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
@@ -49,3 +49,4 @@ if(HIGHFIVE_EXAMPLES)
 endif()
 
 add_subdirectory(tests/unit)
+add_subdirectory(doc)
