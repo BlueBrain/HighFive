@@ -116,6 +116,35 @@ inline AtomicType<std::string>::AtomicType() {
     // define encoding to UTF-8 by default
     H5Tset_cset(_hid, H5T_CSET_UTF8);
 }
+
+
+
+// std complex
+#include <complex>
+
+template <> 
+inline AtomicType<std::complex<double> >::AtomicType()
+{
+		static hid_t cplx_hid;
+		static size_t real_offset;//
+		static size_t imag_offset;//
+        
+        cplx_hid =   H5Tcreate( H5T_COMPOUND, sizeof(std::complex<double>) );
+
+        std::complex<double> cplx(0.0);
+        real_offset=  0.;
+        imag_offset=  sizeof(double);
+        
+
+        // h5py/numpy compatible datatype
+        H5Tinsert(cplx_hid , "r" , real_offset , H5T_NATIVE_DOUBLE);
+        H5Tinsert(cplx_hid, "i" , imag_offset , H5T_NATIVE_DOUBLE);
+        _hid = H5Tcopy(cplx_hid);
 }
+
+}
+
+
+
 
 #endif // H5DATATYPE_MISC_HPP
