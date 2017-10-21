@@ -7,10 +7,20 @@
 using namespace HighFive;
 
 const std::string FILE_NAME("create_datatype_example.h5");
+const std::string DATASET_NAME("test_dataset");
+
+
+// Struct representation of custom type (type v below)
+typedef struct {
+    char a;
+    short b;
+    unsigned long long c;
+} csl;
+
 
 int main(void) {
 
-    try {
+    // try {
 
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
@@ -22,27 +32,59 @@ int main(void) {
         t.autoCreate();
         t.commit(file, "new_type1");
 
+        // Create a complex nested datatype with manual alignment
+        CompoundType u;
+        u.addMember("u1", t, 0);
+        u.addMember("u2", t, 9);
+        u.addMember("u3", H5T_NATIVE_INT, 20);
+        u.manualCreate(26);
+        u.commit(file, "new_type3");
+
         // Create a more complex type with automatic alignment. For this the
         // type alignment is more complex.
-        CompoundType u;
-        u.addMember("u1", H5T_NATIVE_UCHAR);
-        u.addMember("u2", H5T_NATIVE_SHORT);
-        u.addMember("u3", H5T_NATIVE_ULLONG);
-        u.autoCreate();
-        u.commit(file, "new_type2");
+        CompoundType v_aligned;
+        v_aligned.addMember("u1", H5T_NATIVE_UCHAR);
+        v_aligned.addMember("u2", H5T_NATIVE_SHORT);
+        v_aligned.addMember("u3", H5T_NATIVE_ULLONG);
+        v_aligned.autoCreate();
+        v_aligned.commit(file, "new_type2_aligned");
 
-        // Create a complex nested datatype with manual alignment
-        CompoundType v;
-        v.addMember("v1", t, 0);
-        v.addMember("v2", t, 9);
-        v.addMember("v3", H5T_NATIVE_INT, 20);
-        v.manualCreate(26);
-        v.commit(file, "new_type3");
+        // Create the equivalent type, but fully packed
+        CompoundType v_packed;
+        v_packed.addMember("u1", H5T_NATIVE_UCHAR, 0);
+        v_packed.addMember("u2", H5T_NATIVE_SHORT, 1);
+        v_packed.addMember("u3", H5T_NATIVE_ULLONG, 3);
+        v_packed.manualCreate(11);
+        v_packed.commit(file, "new_type2_packed");
 
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
-    }
+
+        // Initialise some data
+        std::vector<csl> data;
+        data.push_back({'f', 1, 4});
+        data.push_back({'g', -4, 18});
+
+        // Write the data into the file in a fully packed form
+        DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(2), v_packed);
+        dataset.write(data, v_aligned);
+
+        file.flush();
+
+        // Read a subset of the data back
+        std::vector<csl> result;
+        dataset.select({0}, {2}).read(result, v_aligned);
+
+        for(const auto& el : result) {
+            std::cout << "CSL:" << std::endl;
+            std::cout << "  " << el.a << std::endl;
+            std::cout << "  " << el.b << std::endl;
+            std::cout << "  " << el.c << std::endl;
+        }
+
+
+    // } catch (Exception& err) {
+    //     // catch and print any HDF5 error
+    //     std::cerr << err.what() << std::endl;
+    // }
 
     return 0; // successfully terminated
 }

@@ -74,6 +74,18 @@ class SliceTraits {
     void read(T& array) const;
 
     ///
+    /// Read the entire dataset into a buffer with a specified memory datatype
+    /// An exception is raised is if the numbers of dimension of the buffer and
+    /// of the dataset are different
+    ///
+    /// The array type can be a N-pointer or a N-vector. For plain pointers
+    /// not dimensionality checking will be performed, it is the user's
+    /// reponsibility to ensure that the right amount of space has been
+    /// allocated.
+    template <typename T>
+    void read(T& array, const DataType& mem_datatype) const;
+
+    ///
     /// Read the entire dataset into a raw buffer
     ///
     /// No dimensionality checks will be performed, it is the user's
@@ -81,6 +93,15 @@ class SliceTraits {
     /// allocated.
     template <typename T>
     void read(T* array) const;
+
+    ///
+    /// Read the entire dataset into a raw buffer with a specified memory datatype
+    ///
+    /// No dimensionality checks will be performed, it is the user's
+    /// reponsibility to ensure that the right amount of space has been
+    /// allocated.
+    template <typename T>
+    void read(T* array, const DataType& mem_datatype) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
@@ -93,6 +114,16 @@ class SliceTraits {
     void write(const T& buffer);
 
     ///
+    /// Write the integrality N-dimension buffer to this dataset with a specified memory datatype
+    /// An exception is raised is if the numbers of dimension of the buffer and
+    /// of the dataset are different
+    ///
+    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+    /// dimensional array )
+    template <typename T>
+    void write(const T& buffer, const DataType& mem_datatype);
+
+    ///
     /// Write from a raw buffer into this dataset
     ///
     /// No dimensionality checks will be performed, it is the user's
@@ -101,6 +132,16 @@ class SliceTraits {
     /// default conventions.
     template <typename T>
     void write(const T* buffer);
+
+    ///
+    /// Write from a raw buffer into this dataset with a specified memory datatype
+    ///
+    /// No dimensionality checks will be performed, it is the user's
+    /// reponsibility to ensure that the buffer holds the right amount of
+    /// elements. For n-dimensional matrices the buffer layout follows H5
+    /// default conventions.
+    template <typename T>
+    void write(const T* buffer, const DataType& mem_datatype);
 
   private:
     typedef Derivate derivate_type;

@@ -26,6 +26,13 @@ class DataType : public Object {
 
     bool operator!=(const DataType& other) const;
 
+    ///
+    /// \brief Get the size of the datatype in bytes
+    ///
+    /// The datatype must already have been created or an exception will be
+    /// thrown
+    size_t getSize() const;
+
   protected:
     friend class Attribute;
     friend class File;
@@ -81,10 +88,17 @@ public:
     void commit(const Object& object, const std::string& name);
 
 
+
 private:
 
+    struct member_def {
+        const std::string& name;
+        hid_t base_type;
+        size_t offset;
+    };
+
     // Store the list of currently added members (name, hid, offset)
-    std::vector<std::tuple<const std::string&, hid_t, size_t>> member_list;
+    std::vector<member_def> member_list;
 };
 }
 
