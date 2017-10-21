@@ -99,7 +99,7 @@ public:
 private:
 
     struct member_def {
-        const std::string& name;
+        std::string name;
         hid_t base_type;
         size_t offset;
     };
