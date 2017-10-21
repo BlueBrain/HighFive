@@ -37,6 +37,13 @@ inline size_t DataType::getSize() const {
     return H5Tget_size(_hid);
 }
 
+inline bool DataType::isVariableStr() const {
+    if(!isValid()) {
+        throw DataTypeException("Cannot test a DataType before creation\
+        (try calling autoCreate/manualCreate if this is a CompoundType).");
+    }
+    return (H5Tis_variable_str(_hid) > 0);
+}
 
 // char mapping
 template <>

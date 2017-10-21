@@ -178,25 +178,20 @@ inline void SliceTraits<Derivate>::read(T& array, const DataType& mem_datatype) 
     }
 
     // Check that the buffer datatype matches the size that HDF5 is expecting
-    if(sizeof(element_type) != mem_datatype.getSize()) {
+    if(!mem_datatype.isVariableStr() &&
+       (sizeof(element_type) != mem_datatype.getSize())) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(element_type)
-           << " != that of memory datatype " << mem_datatype.getSize();
+           << " != that of memory datatype " << mem_datatype.getSize()
+           << std::endl;
         throw DataTypeException(ss.str());
     }
 
     // Apply pre read convertions
     details::data_converter<type_no_const> converter(nocv_array, mem_space);
 
-    if (H5Dread(
-            details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-            mem_datatype.getId(),
-            details::get_memspace_id((static_cast<const Derivate*>(this))),
-            space.getId(), H5P_DEFAULT,
-            static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Read: ");
-    }
+    read(static_cast<void*>(converter.transform_read(nocv_array)),
+         mem_datatype);
 
     // re-arrange results
     converter.process_result(array);
@@ -261,27 +256,21 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataType& mem_da
         throw DataSpaceException(ss.str());
     }
 
-
     // Check that the buffer datatype matches the size that HDF5 is expecting
-    if(sizeof(element_type) != mem_datatype.getSize()) {
+    if(!mem_datatype.isVariableStr() &&
+       (sizeof(element_type) != mem_datatype.getSize())) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(element_type)
-           << " != that of memory datatype " << mem_datatype.getSize();
+           << " != that of memory datatype " << mem_datatype.getSize()
+           << std::endl;
         throw DataTypeException(ss.str());
     }
 
     // Apply pre write convertions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
-    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 mem_datatype.getId(),
-                 details::get_memspace_id((static_cast<Derivate*>(this))),
-                 space.getId(), H5P_DEFAULT,
-                 static_cast<const void*>(
-                     converter.transform_write(nocv_buffer))) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Write: ");
-    }
+    write(static_cast<const void*>(converter.transform_write(nocv_buffer)),
+          mem_datatype);
 }
 
 

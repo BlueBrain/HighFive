@@ -33,6 +33,13 @@ class DataType : public Object {
     /// thrown
     size_t getSize() const;
 
+    ///
+    /// \brief Test if the type is a variable length string
+    ///
+    /// The datatype must already have been created or an exception will be
+    /// thrown
+    bool isVariableStr() const;
+
   protected:
     friend class Attribute;
     friend class File;
