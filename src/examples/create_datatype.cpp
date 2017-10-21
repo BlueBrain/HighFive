@@ -20,7 +20,7 @@ typedef struct {
 
 int main(void) {
 
-    // try {
+    try {
 
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
@@ -81,10 +81,10 @@ int main(void) {
         }
 
 
-    // } catch (Exception& err) {
-    //     // catch and print any HDF5 error
-    //     std::cerr << err.what() << std::endl;
-    // }
+    } catch (Exception& err) {
+        // catch and print any HDF5 error
+        std::cerr << err.what() << std::endl;
+    }
 
     return 0; // successfully terminated
 }
