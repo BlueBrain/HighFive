@@ -107,6 +107,18 @@ private:
     // Store the list of currently added members (name, hid, offset)
     std::vector<member_def> member_list;
 };
+
+
+/// \brief Create a DataType instance representing type T
+template <typename T>
+DataType create_datatype();
+
+
+/// \brief Create a DataType instance representing type T and perform a sanity check on its size
+template <typename T>
+DataType create_and_check_datatype();
+
+
 }
 
 #include "bits/H5DataType_misc.hpp"

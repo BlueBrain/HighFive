@@ -226,9 +226,34 @@ inline void CompoundType::commit(const Object& object, const std::string& name) 
 
 }
 
+
+/// \brief Create a DataType instance representing type T
+template <typename T>
+inline DataType create_datatype() {
+    return AtomicType<T>();
 }
 
 
+/// \brief Create a DataType instance representing type T and perform a sanity check on its size
+template <typename T>
+inline DataType create_and_check_datatype() {
+
+    DataType t = create_datatype<T>();
+
+    // Check that the size of the template type matches the size that HDF5 is
+    // expecting. Skip this check if the base type is a variable length string
+    if(!t.isVariableStr() && (sizeof(T) != t.getSize())) {
+        std::ostringstream ss;
+        ss << "Size of array type " << sizeof(T)
+           << " != that of memory datatype " << t.getSize()
+           << std::endl;
+        throw DataTypeException(ss.str());
+    }
+
+    return t;
+}
+
+}
 
 
 #endif // H5DATATYPE_MISC_HPP

@@ -144,22 +144,10 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
                      details::get_dataset(static_cast<const Derivate*>(this)));
 }
 
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
-    typedef typename details::remove_const<T>::type type_no_const;
-
-    // Create mem datatype
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
-
-    read(array, array_datatype);
-}
-
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::read(T& array, const DataType& mem_datatype) const {
     typedef typename details::remove_const<T>::type type_no_const;
     typedef typename details::type_of_array<T>::type element_type;
 
@@ -177,42 +165,26 @@ inline void SliceTraits<Derivate>::read(T& array, const DataType& mem_datatype) 
         throw DataSpaceException(ss.str());
     }
 
-    // Check that the buffer datatype matches the size that HDF5 is expecting
-    if(!mem_datatype.isVariableStr() &&
-       (sizeof(element_type) != mem_datatype.getSize())) {
-        std::ostringstream ss;
-        ss << "Size of array type " << sizeof(element_type)
-           << " != that of memory datatype " << mem_datatype.getSize()
-           << std::endl;
-        throw DataTypeException(ss.str());
-    }
-
     // Apply pre read convertions
     details::data_converter<type_no_const> converter(nocv_array, mem_space);
 
-    read(static_cast<void*>(converter.transform_read(nocv_array)),
-         mem_datatype);
-
+    read((element_type*)(converter.transform_read(nocv_array)));
     // re-arrange results
     converter.process_result(array);
 }
+
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T* array) const {
 
-    // Create mem datatype
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
-
-    read(array, array_datatype);
-}
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::read(T* array, const DataType& mem_datatype) const {
+    typedef typename details::type_of_array<T>::type element_type;
 
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+
+    // Create mem datatype
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     if (H5Dread(
             details::get_dataset(static_cast<const Derivate*>(this)).getId(),
@@ -225,23 +197,13 @@ inline void SliceTraits<Derivate>::read(T* array, const DataType& mem_datatype) 
     }
 }
 
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
+
     typedef typename details::remove_const<T>::type type_no_const;
-
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
-
-    write(buffer, array_datatype);
-
-}
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::write(const T& buffer, const DataType& mem_datatype) {
-    typedef typename details::remove_const<T>::type type_no_const;
-    typedef typename details::type_of_array<T>::type element_type;
+    typedef typename details::type_of_array<type_no_const>::type element_type;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
 
@@ -256,39 +218,25 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataType& mem_da
         throw DataSpaceException(ss.str());
     }
 
-    // Check that the buffer datatype matches the size that HDF5 is expecting
-    if(!mem_datatype.isVariableStr() &&
-       (sizeof(element_type) != mem_datatype.getSize())) {
-        std::ostringstream ss;
-        ss << "Size of array type " << sizeof(element_type)
-           << " != that of memory datatype " << mem_datatype.getSize()
-           << std::endl;
-        throw DataTypeException(ss.str());
-    }
-
     // Apply pre write convertions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
-    write(static_cast<const void*>(converter.transform_write(nocv_buffer)),
-          mem_datatype);
+    write((const element_type*)(converter.transform_write(nocv_buffer)));
 }
 
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T* buffer) {
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
 
-    write(buffer, array_datatype);
-
-}
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::write(const T* buffer, const DataType& mem_datatype) {
+    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename details::type_of_array<type_no_const>::type element_type;
 
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+
+    // Create mem datatype
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
                  mem_datatype.getId(),

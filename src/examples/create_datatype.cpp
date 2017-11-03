@@ -18,6 +18,18 @@ typedef struct {
 } csl;
 
 
+// Tell HighFive how to create the HDF5 datatype for this base type by
+// specialising the create_datatype template
+template <> inline DataType HighFive::create_datatype<csl>() {
+    CompoundType v_aligned;
+    v_aligned.addMember("u1", H5T_NATIVE_UCHAR);
+    v_aligned.addMember("u2", H5T_NATIVE_SHORT);
+    v_aligned.addMember("u3", H5T_NATIVE_ULLONG);
+    v_aligned.autoCreate();
+
+    return v_aligned;
+}
+
 int main(void) {
 
     try {
@@ -49,7 +61,9 @@ int main(void) {
         v_aligned.autoCreate();
         v_aligned.commit(file, "new_type2_aligned");
 
-        // Create the equivalent type, but fully packed
+        // Create a more complex type with a fully packed alignment. The
+        // equivalent type is created with a standard struct alignment in the
+        // implementation of HighFive::create_datatype above
         CompoundType v_packed;
         v_packed.addMember("u1", H5T_NATIVE_UCHAR, 0);
         v_packed.addMember("u2", H5T_NATIVE_SHORT, 1);
@@ -65,13 +79,13 @@ int main(void) {
 
         // Write the data into the file in a fully packed form
         DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(2), v_packed);
-        dataset.write(data, v_aligned);
+        dataset.write(data);
 
         file.flush();
 
         // Read a subset of the data back
         std::vector<csl> result;
-        dataset.select({0}, {2}).read(result, v_aligned);
+        dataset.select({0}, {2}).read(result);
 
         for(const auto& el : result) {
             std::cout << "CSL:" << std::endl;

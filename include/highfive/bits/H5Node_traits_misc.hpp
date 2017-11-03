@@ -52,7 +52,7 @@ template <typename Type>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space) {
-    return createDataSet(dataset_name, space, AtomicType<Type>());
+    return createDataSet(dataset_name, space, create_and_check_datatype<Type>());
 }
 
 template <typename Derivate>
