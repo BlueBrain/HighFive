@@ -20,7 +20,8 @@ typedef struct {
 
 // Tell HighFive how to create the HDF5 datatype for this base type by
 // specialising the create_datatype template
-template <> inline DataType HighFive::create_datatype<csl>() {
+namespace HighFive {
+template <> inline DataType create_datatype<csl>() {
     CompoundType v_aligned;
     v_aligned.addMember("u1", H5T_NATIVE_UCHAR);
     v_aligned.addMember("u2", H5T_NATIVE_SHORT);
@@ -29,6 +30,7 @@ template <> inline DataType HighFive::create_datatype<csl>() {
 
     return v_aligned;
 }
+};
 
 int main(void) {
 
