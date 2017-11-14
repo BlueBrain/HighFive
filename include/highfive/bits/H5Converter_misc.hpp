@@ -150,33 +150,31 @@ struct data_converter<CArray,
 };
 
 // apply conversion for vectors 1D
-template <typename T>
-struct data_converter<
+  template <typename T>
+  struct data_converter<
     std::vector<T>,
-    typename enable_if<(
-        is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::vector<T>& vec, DataSpace& space, size_t dim = 0)
-        : _space(&space), _dim(dim) {
-        assert(_space->getDimensions().size() > dim);
-        (void)vec;
+    typename enable_if<(is_same<T, typename type_of_array<T>::type>::value)>::type> {
+    inline data_converter(std::vector<T>& vec, DataSpace& space, size_t dim = 0) : _space(&space), _dim(dim) {
+      assert(_space->getDimensions().size() > dim);
+      (void)vec;
     }
 
     inline typename type_of_array<T>::type*
     transform_read(std::vector<T>& vec) {
-        vec.resize(_space->getDimensions()[_dim]);
-        return &(vec[0]);
+      vec.resize(_space->getDimensions()[_dim]);
+      return &(vec[0]);
     }
 
     inline typename type_of_array<T>::type*
     transform_write(std::vector<T>& vec) {
-        return &(vec[0]);
+      return &(vec[0]);
     }
 
     inline void process_result(std::vector<T>& vec) { (void)vec; }
 
     DataSpace* _space;
     size_t _dim;
-};
+  };
 
 #ifdef H5_USE_BOOST
 // apply conversion to boost multi array
@@ -202,7 +200,8 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
     }
 
     inline typename type_of_array<T>::type* transform_write(MultiArray& array) {
-        return array.data();
+      assert(array->storage_order_type()==boost::c_storage_order());
+      return array.data();
     }
 
     inline void process_result(MultiArray& array) { (void)array; }
@@ -211,10 +210,10 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
 };
 
 // apply conversion to boost matrix ublas
-template <typename T>
-struct data_converter<boost::numeric::ublas::matrix<T>, void> {
+  template <typename T,typename L, typename A>
+  struct data_converter<boost::numeric::ublas::matrix<T,L,A>, void> {
 
-    typedef typename boost::numeric::ublas::matrix<T> Matrix;
+    typedef typename boost::numeric::ublas::matrix<T,L,A> Matrix;
 
     inline data_converter(Matrix& array, DataSpace& space, size_t dim = 0)
         : _dims(space.getDimensions()) {
@@ -235,13 +234,17 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
     }
 
     inline typename type_of_array<T>::type* transform_write(Matrix& array) {
+
         return &(array(0, 0));
     }
 
     inline void process_result(Matrix& array) { (void)array; }
 
     std::vector<size_t> _dims;
-};
+  };
+
+
+  
 #endif
 
 // apply conversion for vectors nested vectors

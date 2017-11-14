@@ -84,7 +84,10 @@ class DataSpace : public Object {
     static DataSpace From(const boost::multi_array<Value, Dims>& container);
 
     template <typename Value>
-    static DataSpace From(const boost::numeric::ublas::matrix<Value>& mat);
+    static DataSpace From(const boost::numeric::ublas::matrix<Value,boost::numeric::ublas::row_major>& mat);
+
+      template <typename Value>
+      static DataSpace From(const boost::numeric::ublas::matrix<Value,boost::numeric::ublas::column_major>& mat);
 #endif
 
   protected:

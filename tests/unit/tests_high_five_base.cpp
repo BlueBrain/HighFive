@@ -741,10 +741,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(MultiArray3D, T, numerical_test_types) {
 template <typename T>
 void ublas_matrix_Test() {
 
-    typedef typename boost::numeric::ublas::matrix<T> Matrix;
+  typedef typename boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major> Matrix;
 
     std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_matrix_rm_" << typeid(T).name() << "_test.h5";
 
     const size_t size_x = 10, size_y = 10;
     const std::string DATASET_NAME("dset");
@@ -781,6 +781,52 @@ void ublas_matrix_Test() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_matrix, T, numerical_test_types) {
 
     ublas_matrix_Test<T>();
+}
+
+
+template <typename T>
+void ublas_cm_matrix_Test() {
+
+  typedef typename boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_cm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (std::size_t i = 0; i < mat.size1(); ++i) {
+        for (std::size_t j = 0; j < mat.size2(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+
+    dataset.write(mat);
+
+    // read it back
+    Matrix result;
+
+    dataset.read(result);
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_cm_matrix, T, numerical_test_types) {
+
+    ublas_cm_matrix_Test<T>();
 }
 
 #endif

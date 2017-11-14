@@ -76,9 +76,14 @@ struct array_dims<boost::multi_array<T, Dims> > {
 };
 
 template <typename T>
-struct array_dims<boost::numeric::ublas::matrix<T> > {
+struct array_dims<boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major> > {
     static const size_t value = 2;
 };
+
+template <typename T>
+struct array_dims<boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major> > {
+    static const size_t value = 2;
+};  
 #endif
 
 // determine recursively the size of each dimension of a N dimension vector
@@ -119,7 +124,12 @@ struct type_of_array<boost::multi_array<T, Dims> > {
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T> > {
+struct type_of_array<boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major> > {
+    typedef typename type_of_array<T>::type type;
+};
+
+  template <typename T>
+struct type_of_array<boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major> > {
     typedef typename type_of_array<T>::type type;
 };
 #endif
