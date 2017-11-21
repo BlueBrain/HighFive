@@ -10,6 +10,7 @@
 #define H5DATATYPE_MISC_HPP
 
 #include <string>
+#include <complex>
 
 #include "../H5DataType.hpp"
 #include "../H5Exception.hpp"
@@ -118,9 +119,6 @@ inline AtomicType<std::string>::AtomicType() {
 }
 
 
-
-// std complex
-#include <complex>
 
 template <> 
 inline AtomicType<std::complex<double> >::AtomicType()
