@@ -18,7 +18,7 @@
 #include <memory>
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5DataSet.hpp>
@@ -101,7 +101,7 @@ struct ContentGenerate<std::string> {
     std::string operator()() {
         ContentGenerate<char> gen;
         std::string random_string;
-        const size_t size_string = std::rand() % 1000;
+        const int size_string = std::rand() % 1000;
         random_string.resize(size_string);
         std::generate(random_string.begin(), random_string.end(), gen);
         return random_string;
@@ -828,6 +828,55 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_cm_matrix, T, numerical_test_types) {
 
     ublas_cm_matrix_Test<T>();
 }
+
+
+template<typename T>
+void ublas_cm_rm_matrix_Test() {
+
+    typedef typename boost::numeric::ublas::matrix<T, boost::numeric::ublas::column_major> Matrix_cm;
+    typedef typename boost::numeric::ublas::matrix<T, boost::numeric::ublas::row_major> Matrix_rm;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_cm_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix_rm mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (std::size_t i = 0; i < mat.size1(); ++i) {
+        for (std::size_t j = 0; j < mat.size2(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+
+    dataset.write(mat);
+
+    // read it back
+    Matrix_cm result;
+
+    dataset.read(result);
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_cm_rm_matrix, T, numerical_test_types) {
+
+    ublas_cm_rm_matrix_Test<T>();
+}
+
+
 
 #endif
 

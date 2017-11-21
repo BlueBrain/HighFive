@@ -16,6 +16,7 @@ endif()
 ## base tests
 file(GLOB tests_high_five_src "*base.cpp")
 
+
 add_executable(tests_high_five_bin ${tests_high_five_src})
 target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
   ${HDF5_C_LIBRARIES})
@@ -36,7 +37,9 @@ if(COMPILER_SUPPORTS_CXX11)
     target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
   endif()
   target_compile_options(tests_high_five_cpp11_bin PRIVATE "-std=c++11")
+  target_compile_options(tests_high_five_bin PRIVATE "-std=c++11")
   target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
+  target_compile_definitions(tests_high_five_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
 
   add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 

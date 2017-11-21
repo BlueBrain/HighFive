@@ -19,6 +19,7 @@
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <type_traits>
 #endif
 
 #include <H5Dpublic.h>
@@ -180,71 +181,124 @@ struct data_converter<CArray,
 // apply conversion to boost multi array
 template <typename T, std::size_t Dims>
 struct data_converter<boost::multi_array<T, Dims>, void> {
-
     typedef typename boost::multi_array<T, Dims> MultiArray;
 
+
     inline data_converter(MultiArray& array, DataSpace& space, size_t dim = 0)
-        : _dims(space.getDimensions()) {
+            : _dims(space.getDimensions()),
+              is_row_major(array.storage_order() == boost::c_storage_order()) {
+        if (!is_row_major) {
+            _temp_array = array;
+        }
         assert(_dims.size() == Dims);
         (void)dim;
         (void)array;
     }
 
     inline typename type_of_array<T>::type* transform_read(MultiArray& array) {
+
+        auto return_pointer = array.data();
         if (std::equal(_dims.begin(), _dims.end(), array.shape()) == false) {
             boost::array<typename MultiArray::index, Dims> ext;
             std::copy(_dims.begin(), _dims.end(), ext.begin());
             array.resize(ext);
+
         }
-        return array.data();
+        if (!is_row_major) {
+            boost::array<typename MultiArray::index, Dims> ext;
+            std::copy(_dims.begin(), _dims.end(), ext.begin());
+            _temp_array.resize(ext);
+            return_pointer = _temp_array.data();
+        }
+        return return_pointer;
     }
 
     inline typename type_of_array<T>::type* transform_write(MultiArray& array) {
-      assert(array->storage_order_type()==boost::c_storage_order());
-      return array.data();
+        assert(array.storage_order() == boost::c_storage_order());
+        return array.data();
     }
 
-    inline void process_result(MultiArray& array) { (void)array; }
+    inline void process_result(MultiArray &array) {
+        if (!(array.storage_order() == boost::c_storage_order())) {
+            MultiArray temp_array(_dims, boost::c_storage_order());
+            boost::detail::multi_array::copy_n(array.begin(), array.num_elements(), temp_array.begin());
+            array = temp_array;
+        }
 
+        (void) array;
+    }
+
+    const bool is_row_major;
+    boost::multi_array<T, Dims> _temp_array;
     std::vector<size_t> _dims;
 };
 
 // apply conversion to boost matrix ublas
-  template <typename T,typename L, typename A>
-  struct data_converter<boost::numeric::ublas::matrix<T,L,A>, void> {
+        template<typename T, class L, class A>
+        struct data_converter<boost::numeric::ublas::matrix<T, L, A>, void> {
 
-    typedef typename boost::numeric::ublas::matrix<T,L,A> Matrix;
+            typedef typename boost::numeric::ublas::matrix<T, L, A> Matrix;
+            typedef typename boost::numeric::ublas::matrix<T, boost::numeric::ublas::row_major> Matrix_rm;
 
-    inline data_converter(Matrix& array, DataSpace& space, size_t dim = 0)
-        : _dims(space.getDimensions()) {
-        assert(_dims.size() == 2);
-        (void)dim;
-        (void)array;
-    }
+            inline data_converter(Matrix &array, DataSpace &space, size_t dim = 0)
+                    : _dims(space.getDimensions()),
+                      is_row_major(
+                              std::is_same<
+                                      typename boost::numeric::ublas::matrix<T, L, A>::orientation_category,
+                                      typename Matrix_rm::orientation_category
+                              >::value
+                      ) {
+                assert(_dims.size() == 2);
+                (void) dim;
+                (void) array;
+            }
 
-    inline typename type_of_array<T>::type* transform_read(Matrix& array) {
-        boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
+            inline typename type_of_array<T>::type *transform_read(Matrix &array) {
+                boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
+                auto return_pointer = &(array(0, 0));
+                if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
+                    array.resize(_dims[0], _dims[1], false);
+                    array(0, 0) = 0; // force initialization
+                    return_pointer = &(array(0, 0));
+                }
+                if (!is_row_major) {
+                    _temp_array.resize(_dims[0], _dims[1]);
+                    _temp_array(0, 0) = 0;
+                    const size_t num_elem = _dims[0] * _dims[1];
+                    return_pointer = &(_temp_array(0, 0));
+                }
 
-        if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
-            array.resize(_dims[0], _dims[1], false);
-            array(0, 0) = 0; // force initialization
-        }
+                return return_pointer;
+            }
 
-        return &(array(0, 0));
-    }
+            inline typename type_of_array<T>::type *transform_write(Matrix &array) {
+                auto return_pointer = &(array(0, 0));
+                if (!is_row_major) {
+                    _temp_array.resize(_dims[0], _dims[1]);
+                    _temp_array(0, 0) = 0;
+                    _temp_array = array;
+                    return_pointer = &(_temp_array(0, 0));
 
-    inline typename type_of_array<T>::type* transform_write(Matrix& array) {
+                }
+                return return_pointer;
+            }
 
-        return &(array(0, 0));
-    }
+            inline void process_result(Matrix &array) {
 
-    inline void process_result(Matrix& array) { (void)array; }
+                if (!is_row_major) {
+                    array = _temp_array;
+                }
 
-    std::vector<size_t> _dims;
-  };
+                (void) array;
+            }
+
+            const bool is_row_major;
+            std::vector<size_t> _dims;
+            Matrix_rm _temp_array;
+        };
 
 
-  
+
 #endif
 
 // apply conversion for vectors nested vectors
@@ -309,7 +363,7 @@ struct data_converter<std::string, void> {
 
         str = std::string(_c_vec);
 
-        if (_c_vec != NULL) {
+        if (_c_vec != nullptr) {
             AtomicType<std::string> str_type;
             (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
                                   &_c_vec);
@@ -353,7 +407,7 @@ struct data_converter<std::vector<std::string>, void> {
             vec[i] = std::string(_c_vec[i]);
         }
 
-        if (_c_vec.empty() == false && _c_vec[0] != NULL) {
+        if (_c_vec.empty() == false && _c_vec[0] != nullptr) {
             AtomicType<std::string> str_type;
             (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
                                   &(_c_vec[0]));

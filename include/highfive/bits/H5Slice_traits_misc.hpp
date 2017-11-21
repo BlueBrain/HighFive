@@ -146,12 +146,12 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T& array) const {
-    typedef typename details::remove_const<T>::type type_no_const;
+inline void SliceTraits<Derivate>::read(T &array) {
+    // typedef typename details::remove_const<T>::type type_no_const;
 
-    type_no_const& nocv_array = const_cast<type_no_const&>(array);
+    // type_no_const& nocv_array = const_cast<type_no_const&>(array);
 
-    const size_t dim_array = details::array_dims<type_no_const>::value;
+    const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
@@ -164,18 +164,18 @@ inline void SliceTraits<Derivate>::read(T& array) const {
     }
 
     // Create mem datatype
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
+    const AtomicType<typename details::type_of_array<T>::type>
         array_datatype;
 
     // Apply pre read convertions
-    details::data_converter<type_no_const> converter(nocv_array, mem_space);
+    details::data_converter<T> converter(array, mem_space);
 
     if (H5Dread(
             details::get_dataset(static_cast<const Derivate*>(this)).getId(),
             array_datatype.getId(),
             details::get_memspace_id((static_cast<const Derivate*>(this))),
             space.getId(), H5P_DEFAULT,
-            static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
+            static_cast<void *>(converter.transform_read(array))) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Read: ");
     }
@@ -186,7 +186,7 @@ inline void SliceTraits<Derivate>::read(T& array) const {
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T* array) const {
+inline void SliceTraits<Derivate>::read(T *array) {
 
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
