@@ -757,12 +757,10 @@ void ublas_matrix_Test() {
             mat(i, j) = generator();
         }
     }
-
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
-
     dataset.write(mat);
 
     // read it back

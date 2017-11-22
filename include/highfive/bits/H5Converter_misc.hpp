@@ -202,6 +202,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
             boost::array<typename MultiArray::index, Dims> ext;
             std::copy(_dims.begin(), _dims.end(), ext.begin());
             array.resize(ext);
+            return_pointer = array.data();
 
         }
         if (!is_row_major) {
@@ -255,12 +256,12 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
 
             inline typename type_of_array<T>::type *transform_read(Matrix &array) {
                 boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
-                auto return_pointer = &(array(0, 0));
+
                 if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
                     array.resize(_dims[0], _dims[1], false);
                     array(0, 0) = 0; // force initialization
-                    return_pointer = &(array(0, 0));
                 }
+                auto return_pointer = &(array(0, 0));
                 if (!is_row_major) {
                     _temp_array.resize(_dims[0], _dims[1]);
                     _temp_array(0, 0) = 0;

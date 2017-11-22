@@ -11,6 +11,7 @@
 
 // internal utilities functions
 #include <cstddef> // __GLIBCXX__
+#include <iostream>
 #include <exception>
 #include <string>
 #include <vector>
