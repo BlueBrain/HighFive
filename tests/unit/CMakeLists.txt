@@ -20,6 +20,11 @@ file(GLOB tests_high_five_src "*base.cpp")
 add_executable(tests_high_five_bin ${tests_high_five_src})
 target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
   ${HDF5_C_LIBRARIES})
+
+if (USE_EIGEN)
+  target_link_libraries(tests_high_five_bin Eigen3::Eigen)
+endif ()
+
 if(HIGHFIVE_PARALLEL_HDF5)
   target_link_libraries(tests_high_five_bin ${MPI_C_LIBRARIES})
 endif()

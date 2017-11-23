@@ -22,6 +22,13 @@
 #include <type_traits>
 #endif
 
+
+#ifdef H5_USE_EIGEN
+
+#include <Eigen/Core>
+
+#endif
+
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
@@ -177,6 +184,86 @@ struct data_converter<CArray,
     size_t _dim;
   };
 
+#ifdef H5_USE_EIGEN
+// apply conversion to boost multi arra
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct data_converter<Eigen::Matrix < Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>,void> {
+        typedef Eigen::Matrix <Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> Matrix;
+
+
+        inline data_converter(Matrix
+        & matrix,
+        DataSpace &space, size_t
+        dim = 0
+        )
+        :
+        _dims(space
+        .
+
+        getDimensions()
+
+        ),
+        is_row_major {
+        Options == Eigen::RowMajor
+    }
+{
+    if (!is_row_major) {
+    _temp_matrix = matrix;
+}
+assert(_dims.size() == 2);
+(void)
+dim;
+(void)
+matrix;
+}
+
+inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
+
+    auto return_pointer = matrix.data();
+    if (std::pair<size_t, size_t>(_dims[0], _dims[1]) != std::pair<size_t, size_t>(matrix.rows(), matrix.cols())) {
+        matrix.resize(_dims[0], _dims[1]);
+        return_pointer = matrix.data();
+
+    }
+    if (!is_row_major) {
+
+        _temp_matrix.resize(_dims[0], _dims[1]);
+        return_pointer = _temp_matrix.data();
+    }
+    return return_pointer;
+}
+
+inline typename type_of_array<Scalar>::type *transform_write(Matrix &matrix) {
+    auto return_pointer = matrix.data();
+    if (!is_row_major) {
+        _temp_matrix.resize(_dims[0], _dims[1]);
+        _temp_matrix = matrix;
+        return_pointer = _temp_matrix.data();
+    }
+    return return_pointer;
+}
+
+inline void process_result(Matrix &matrix) {
+    if (!is_row_major) {
+        matrix = _temp_matrix;
+    }
+
+    (void) matrix;
+}
+
+std::vector<size_t> _dims;
+const bool is_row_major;
+Matrix _temp_matrix;
+
+};
+
+
+#endif
+
+
+
+
+
 #ifdef H5_USE_BOOST
 // apply conversion to boost multi array
 template <typename T, std::size_t Dims>
@@ -229,9 +316,10 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
         (void) array;
     }
 
+    std::vector<size_t> _dims;
     const bool is_row_major;
     boost::multi_array<T, Dims> _temp_array;
-    std::vector<size_t> _dims;
+
 };
 
 // apply conversion to boost matrix ublas
@@ -265,7 +353,6 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
                 if (!is_row_major) {
                     _temp_array.resize(_dims[0], _dims[1]);
                     _temp_array(0, 0) = 0;
-                    const size_t num_elem = _dims[0] * _dims[1];
                     return_pointer = &(_temp_array(0, 0));
                 }
 
@@ -293,8 +380,9 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
                 (void) array;
             }
 
-            const bool is_row_major;
+
             std::vector<size_t> _dims;
+            const bool is_row_major;
             Matrix_rm _temp_array;
         };
 

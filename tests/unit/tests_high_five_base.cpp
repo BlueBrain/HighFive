@@ -36,7 +36,6 @@
 #endif
 
 using namespace HighFive;
-
 typedef boost::mpl::list<float, double> floating_numerics_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
                          char, float, double, long long, unsigned long long>
@@ -174,7 +173,7 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     // restore the dyn allocated buffer
     // or using stderr will segfault when buffer get out of scope
     fflush(stderr);
-    setvbuf(stderr, NULL, _IONBF, 0);
+    setvbuf(stderr, nullptr, _IONBF, 0);
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveException) {
@@ -692,6 +691,55 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
 
     readWriteVector2DTest<T>();
 }
+
+#ifdef H5_USE_EIGEN
+
+template<typename T>
+void eigen_matrix_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+    dataset.write(mat);
+
+    // read it back
+    Matrix result;
+
+    dataset.read(result);
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(eigen_matrix, T, numerical_test_types) {
+
+    eigen_matrix_Test<T>();
+}
+
+
+#endif
+
 
 #ifdef H5_USE_BOOST
 

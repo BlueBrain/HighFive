@@ -21,6 +21,13 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#ifdef H5_USE_EIGEN
+
+#include <Eigen/Core>
+
+#endif
+
+
 #ifndef H5_USE_CXX11
 #if ___cplusplus >= 201103L
 #define H5_USE_CXX11 1
@@ -70,6 +77,15 @@ struct array_dims<T[N]> {
     static const size_t value = 1 + array_dims<T>::value;
 };
 
+
+#ifdef H5_USE_EIGEN
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+
+#endif
+
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
 struct array_dims<boost::multi_array<T, Dims> > {
@@ -117,6 +133,17 @@ template <typename T>
 struct type_of_array<std::vector<T> > {
     typedef typename type_of_array<T>::type type;
 };
+
+#ifdef H5_USE_EIGEN
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+#endif
+
+
+
+
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>

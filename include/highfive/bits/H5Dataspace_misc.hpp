@@ -9,6 +9,7 @@
 #ifndef H5DATASPACE_MISC_HPP
 #define H5DATASPACE_MISC_HPP
 
+
 #include <vector>
 
 #include <H5Spublic.h>
@@ -114,6 +115,21 @@ template <typename Value>
 inline DataSpace DataSpace::From(const std::vector<Value>& container) {
     return DataSpace(details::get_dim_vector<Value>(container));
 }
+
+#ifdef H5_USE_EIGEN
+
+    template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+    inline DataSpace
+    DataSpace::From(const Eigen::Matrix <Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> &mat) {
+        std::vector<size_t> dims(2);
+        dims[0] = mat.rows();
+        dims[1] = mat.cols();
+        return DataSpace(dims);
+    }
+
+#endif
+
+
 
 #ifdef H5_USE_BOOST
 template <typename Value, std::size_t Dims>
