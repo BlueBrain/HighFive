@@ -123,7 +123,18 @@ class GroupException : public Exception {
   public:
     GroupException(const std::string& err_msg) : Exception(err_msg) {}
 };
+
+    ///
+/// \brief Exception specific to HighFive Filter interface
+///
+    class FilterException : public Exception {
+    public:
+        FilterException(const std::string &err_msg) : Exception(err_msg) {}
+    };
+
 }
+
+
 
 #include "bits/H5Exception_misc.hpp"
 

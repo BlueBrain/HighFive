@@ -163,21 +163,30 @@ inline void SliceTraits<Derivate>::read(T &array) {
         throw DataSpaceException(ss.str());
     }
 
+    // Apply pre read convertions (these will depend on the dataset, unfortunately)
+
+    const Dataset *dataset = details::get_dataset(static_cast<const Derivate *>(this);
+    details::data_converter<T> converter(array, mem_space, dataset);
     // Create mem datatype
     const AtomicType<typename details::type_of_array<T>::type>
         array_datatype;
 
-    // Apply pre read convertions
-    details::data_converter<T> converter(array, mem_space);
-
+    auto dataset_datatype = H5Dget_type().getId());
+    //Need to add a check (in the case of strings) to handle when strings are fixed length
+    auto mem_datatype = array_datatype.getId();
+    if (H5Tis_variable_str(mem_datatype) && (!H5Tis_variable_str(dataset_datatype))) {
+        auto fixed_size = H5Tget_size(dataset_datatype);
+        converter.prealloc_string(fixed_size);
+        mem_datatype = dataset_datatype;
+    }
     if (H5Dread(
-            details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-            array_datatype.getId(),
-            details::get_memspace_id((static_cast<const Derivate*>(this))),
+            details::get_dataset(static_cast<const Derivate *>(this)).getId(),
+            mem_datatype,
+            details::get_memspace_id((static_cast<const Derivate *>(this))),
             space.getId(), H5P_DEFAULT,
             static_cast<void *>(converter.transform_read(array))) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Read: ");
+                "Error during HDF5 Read: ");
     }
 
     // re-arrange results

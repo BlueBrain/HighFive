@@ -19,9 +19,17 @@ class Group;
 class DataSpace;
 class DataType;
 
+    class Properties;
+
 template <typename Derivate>
 class NodeTraits {
   public:
+
+
+    DataSet createDataSet(const std::string &dataset_name,
+                          const DataSpace &space,
+                          const DataType &dtype,
+                          hid_t create_params);
     ///
     /// \brief createDataSet Create a new dataset in the current file of
     /// datatype type and of size space
