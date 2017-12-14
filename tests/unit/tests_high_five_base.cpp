@@ -544,6 +544,8 @@ void readWriteVectorCompressionTest() {
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec(x_size);
 
+    ContentGenerate<T> generator;
+    std::generate(vec.begin(), vec.end(), generator);
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
