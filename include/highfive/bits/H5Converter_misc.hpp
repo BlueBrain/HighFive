@@ -427,29 +427,29 @@ struct data_converter<std::string, void> {
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline char** transform_read(std::string&) { return (&_c_vec); }
+    inline char *transform_read(std::string &) {
+        _c_vec.resize(255);
+
+        return (_c_vec.data());
+    }
 
     static inline char* char_converter(const std::string& str) {
         return const_cast<char*>(str.c_str());
     }
 
-    inline char** transform_write(std::string& str) {
-        _c_vec = const_cast<char*>(str.c_str());
-        return &_c_vec;
+    inline char *transform_write(std::string &str) {
+        _c_vec.resize(255);
+        std::copy(str.begin(), str.end(), _c_vec.begin());
+        return _c_vec.data();
     }
 
     inline void process_result(std::string& str) {
 
-        str = std::string(_c_vec);
+        str = std::string(&_c_vec[0]);
 
-        if (_c_vec != nullptr) {
-            AtomicType<std::string> str_type;
-            (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
-                                  &_c_vec);
-        }
     }
 
-    char* _c_vec;
+    std::vector<char> _c_vec;
     DataSpace& _space;
 };
 
@@ -462,37 +462,47 @@ struct data_converter<std::string, void> {
 
             // create a C vector adapted to HDF5
             // fill last element with NULL to identify end
-            inline char **transform_read(std::vector<std::string> &vec) {
+            inline char *transform_read(std::vector<std::string> &vec) {
                 (void) vec;
-                _c_vec.resize(_space.getDimensions()[0], NULL);
-                return (&_c_vec[0]);
+                _c_vec.resize(255 * _space.getDimensions()[0]);
+
+                //_c_vec.resize(_space.getDimensions()[0], NULL);
+                return (_c_vec.data());
             }
 
             static inline char *char_converter(const std::string &str) {
                 return const_cast<char *>(str.c_str());
             }
 
-            inline char **transform_write(std::vector<std::string> &vec) {
-                _c_vec.resize(vec.size() + 1, NULL);
-                std::transform(vec.begin(), vec.end(), _c_vec.begin(), &char_converter);
-                return (&_c_vec[0]);
+            inline char *transform_write(std::vector<std::string> &vec) {
+                _c_vec.resize(255 * _space.getDimensions()[0]);
+                std::vector<char>::iterator it = _c_vec.begin();
+                const size_t vs = vec.size();
+                for (int i = 0; i < vs; i++) {
+                    auto tb = vec[i].begin();
+                    auto te = vec[i].end();
+                    std::copy(tb, te, it);
+                    it += 255;
+                }
+
+                return (_c_vec.data());
             }
 
             inline void process_result(std::vector<std::string> &vec) {
                 (void) vec;
-                vec.resize(_c_vec.size());
-                for (size_t i = 0; i < vec.size(); ++i) {
-                    vec[i] = std::string(_c_vec[i]);
+                const size_t vs = _space.getDimensions()[0];
+                vec.resize(vs);
+                for (size_t i = 0; i < vs; ++i) {
+                    vec[i] = std::string(&_c_vec[i * 255]);
                 }
-
-                if (_c_vec.empty() == false && _c_vec[0] != NULL) {
+                /*   if (_c_vec.empty() == false && _c_vec[0] != NULL) {
                     AtomicType<std::string> str_type;
                     (void) H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
                                            &(_c_vec[0]));
-                }
+                }*/
             }
 
-            std::vector<char *> _c_vec;
+            std::vector<char> _c_vec;
             DataSpace &_space;
         };
     }

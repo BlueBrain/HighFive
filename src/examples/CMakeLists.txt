@@ -50,28 +50,4 @@ foreach(example_src ${list_example})
 compile_example(${example_src})
 
 endforeach()]]
-add_executable(select_Hmat_bin select_Hmat.cpp)
-target_link_libraries(select_Hmat_bin HighFive)
-target_compile_features(select_Hmat_bin PUBLIC cxx_auto_type)
-
-
-add_executable(LDshrink_ex LDshrink_ex.cpp)
-
-if (USE_BLOSC)
-    add_definitions(-DUSE_BLOSC)
-    target_link_libraries(LDshrink_ex blosc_filter)
-endif ()
-find_package(TBB REQUIRED)
-set(BLA_VENDOR Intel10_64lp_seq)
-find_package(BLAS)
-find_package(LAPACK)
-
-#find_package(MKL REQUIRED)
-message("BLAS_LIBS='${BLAS_LIBRARIES}'")
-message("HDF5_IS_PARALLEL='${HDF5_IS_PARALLEL}'")
-target_link_libraries(LDshrink_ex tbb ${HDF5_C_LIBRARIES} cxxopts
-        ${BLAS_LIBRARIES})
-
-include_directories(${MKL_INCLUDE_DIRS})
-target_compile_definitions(LDshrink_ex PUBLIC "-DEIGEN_USE_MKL_ALL")
 

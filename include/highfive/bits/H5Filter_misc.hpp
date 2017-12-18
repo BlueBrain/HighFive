@@ -35,7 +35,7 @@ namespace HighFive {
         }
     }
 
-    hid_t Filter::getId() const {
+    inline hid_t Filter::getId() const {
         return _hid;
     }
 

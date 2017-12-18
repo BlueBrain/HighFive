@@ -109,7 +109,7 @@ struct ContentGenerate<std::string> {
     std::string operator()() {
         ContentGenerate<char> gen;
         std::string random_string;
-        const int size_string = std::rand() % 1000;
+        const int size_string = std::rand() % 254;
         random_string.resize(size_string);
         std::generate(random_string.begin(), random_string.end(), gen);
         return random_string;
@@ -546,9 +546,6 @@ void readWriteVectorCompressionTest() {
 
     ContentGenerate<T> generator;
     std::generate(vec.begin(), vec.end(), generator);
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
     char *version, *date;
     int r;
 
@@ -556,17 +553,23 @@ void readWriteVectorCompressionTest() {
     r = register_blosc(&version, &date);
     free(version);
     free(date);
-    std::vector<size_t> cshape{100};
-
-    Filter filter(cshape, FILTER_BLOSC, r);
-    // Create a dataset with double precision floating points
-    DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace::From(vec), AtomicType<T>(), filter.getId());
+    // Create a new file using the default property lists.
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
 
-    dataset.write(vec);
+        std::vector<size_t> cshape{100};
 
+        Filter filter(cshape, FILTER_BLOSC, r);
+        // Create a dataset with double precision floating points
+        DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace::From(vec), AtomicType<T>(), filter.getId());
+
+
+        dataset.write(vec);
+    }
     typename std::vector<T> result;
-
+    File file(filename.str(), File::ReadOnly);
+    auto dataset = file.getDataSet(DATASET_NAME);
     dataset.read(result);
 
     BOOST_CHECK_EQUAL(vec.size(), x_size);
