@@ -23,7 +23,8 @@ target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
 
 if (USE_BLOSC)
     add_definitions(-DUSE_BLOSC)
-    target_link_libraries(tests_high_five_bin blosc_filter)
+    target_link_libraries(tests_high_five_bin blosc_f)
+
     #target_include_directories(tests_high_five_bin SHARED blosc_shared)
 endif ()
 
@@ -49,7 +50,11 @@ if(COMPILER_SUPPORTS_CXX11)
   endif()
     if (USE_BLOSC)
         add_definitions(-DUSE_BLOSC)
-        target_link_libraries(tests_high_five_cpp11_bin blosc_filter)
+        ExternalProject_Get_Property(hdf5-blosc install_dir)
+
+        include_directories(${BLOSC_INSTALL_DIR}/include)
+        add_dependencies(tests_high_five_cpp11_bin hdf5-blosc)
+        #target_link_libraries(tests_high_five_cpp11_bin hdf5-blosc)
         #target_include_directories(tests_high_five_bin SHARED blosc_shared)
     endif ()
   target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")

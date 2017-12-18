@@ -1,5 +1,6 @@
 project(HighFive)
 cmake_minimum_required(VERSION 3.0)
+include(ExternalProject)
 set(CMAKE_CXX_STANDARD 17)
 enable_testing()
 
@@ -55,9 +56,29 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 
 if (USE_BLOSC)
-    add_subdirectory(lib/hdf5-blosc)
+    set(BLOSC_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/lib/blosc")
+    set(BLOSC_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib/blosc")
+    set(BLOSC_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${BLOSC_INSTALL_DIR} -DPLUGIN_INSTALL_PATH=${BLOSC_INSTALL_DIR})
+    ExternalProject_Add(hdf5-blosc
+            PREFIX ${BLOSC_PREFIX}
+            GIT_REPOSITORY https://github.com/Blosc/hdf5-blosc.git
+            INSTALL_DIR ${BLOSC_INSTALL_DIR}
+            CMAKE_ARGS ${BLOSC_CMAKE_ARGS}
+            )
+    add_library(blosc_f SHARED IMPORTED)
+    message("${CMAKE_SHARED_LIBRARY_PREFIX}")
+    message("${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    message("${BLOSC_INSTALL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}blosc_filter${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    set_property(TARGET blosc_f PROPERTY IMPORTED_LOCATION ${BLOSC_INSTALL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}blosc_filter${CMAKE_SHARED_LIBRARY_SUFFIX})
+    add_dependencies(blosc_f hdf5-blosc)
+    include_directories(${BLOSC_INSTALL_DIR}/include)
+    ExternalProject_Add_StepTargets(hdf5-blosc build)
+    set(hdf5-blosc_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/lib/blosc/include")
+    include_directories(${hdf5-blosc_INCLUDE_DIRS})
+
+
 endif ()
-add_subdirectory(lib/cxxopts)
+#add_subdirectory(lib/cxxopts)
 
 # Absolute include used to avoid interaction with downstream projects including
 # HighFive as a subproject and using the the same filename
@@ -69,3 +90,6 @@ endif()
 
 add_subdirectory(tests/unit)
 add_subdirectory(doc)
+export(PACKAGE HighFive)
+
+#install ( TARGETS  ... EXPORT <export_name> )
