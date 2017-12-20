@@ -10,7 +10,6 @@
 # nix-shell -I "BBPpkgs=https://goo.gl/wTvE5t"  default.nix
 #
 with import <BBPpkgs> { };
-
 {
 	highfive = highfive.overrideDerivation (oldAttr: rec {
       name = "highfive-0.1";

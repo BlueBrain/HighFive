@@ -14,11 +14,24 @@ if(NOT Boost_USE_STATIC_LIBS)
 endif()
 
 ## base tests
-file(GLOB tests_high_five_src "*base.cpp")
+#file(GLOB tests_high_five_src "*base.cpp")
 
-add_executable(tests_high_five_bin ${tests_high_five_src})
+
+add_executable(tests_high_five_bin tests_high_five_base.cpp)
 target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
   ${HDF5_C_LIBRARIES})
+
+if (USE_BLOSC)
+    add_definitions(-DUSE_BLOSC)
+    target_link_libraries(tests_high_five_bin blosc_f)
+
+    #target_include_directories(tests_high_five_bin SHARED blosc_shared)
+endif ()
+
+if (USE_EIGEN)
+  target_link_libraries(tests_high_five_bin Eigen3::Eigen)
+endif ()
+
 if(HIGHFIVE_PARALLEL_HDF5)
   target_link_libraries(tests_high_five_bin ${MPI_C_LIBRARIES})
 endif()
@@ -29,14 +42,23 @@ add_test(NAME tests_high_five COMMAND tests_high_five_bin)
 ## lets recompile the base tests with C++11 support
 if(COMPILER_SUPPORTS_CXX11)
 
-  add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
+    add_executable(tests_high_five_cpp11_bin tests_high_five_base.cpp)
   target_link_libraries(tests_high_five_cpp11_bin
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
   if(HIGHFIVE_PARALLEL_HDF5)
     target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
   endif()
-  target_compile_options(tests_high_five_cpp11_bin PRIVATE "-std=c++11")
+    if (USE_BLOSC)
+        add_definitions(-DUSE_BLOSC)
+        ExternalProject_Get_Property(hdf5-blosc install_dir)
+
+        include_directories(${BLOSC_INSTALL_DIR}/include)
+        add_dependencies(tests_high_five_cpp11_bin hdf5-blosc)
+        #target_link_libraries(tests_high_five_cpp11_bin hdf5-blosc)
+        #target_include_directories(tests_high_five_bin SHARED blosc_shared)
+    endif ()
   target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
+  target_compile_definitions(tests_high_five_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
 
   add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 
@@ -48,14 +70,17 @@ if(HIGHFIVE_PARALLEL_HDF5)
   include(TestHelpers)
 
   ## parallel MPI tests
-  file(GLOB tests_parallel_src "*parallel.cpp")
-
-  add_executable(tests_parallel_bin ${tests_parallel_src})
+  message("MPI_C_COMPILER='${MPI_C_COMPILER}'")
+  message("MPI_C_LIBRARIES='${MPI_C_LIBRARIES}'")
+  message("HDF5_C_LIBRARIES='${HDF5_C_LIBRARIES}'")
+  message("HDF5_IS_PARALLEL='${HDF5_IS_PARALLEL}'")
+  add_executable(tests_parallel_bin tests_high_five_parallel.cpp)
   target_link_libraries(tests_parallel_bin
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES}
-    ${MPI_C_LIBRARIES})
-  add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 8
-    ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
+          ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
+  target_include_directories(tests_parallel_bin PRIVATE ${MPI_C_INCLUDE_PATH})
+  target_compile_definitions(tests_parallel_bin PRIVATE "-DH5_HAVE_PARALLEL=1")
+  add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 8 tests_parallel_bin)
 
 endif()
 

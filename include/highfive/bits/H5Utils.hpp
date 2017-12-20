@@ -11,6 +11,7 @@
 
 // internal utilities functions
 #include <cstddef> // __GLIBCXX__
+#include <iostream>
 #include <exception>
 #include <string>
 #include <vector>
@@ -19,6 +20,13 @@
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
+
+#ifdef H5_USE_EIGEN
+
+#include <eigen3/Eigen/Core>
+
+#endif
+
 
 #ifndef H5_USE_CXX11
 #if ___cplusplus >= 201103L
@@ -46,7 +54,8 @@
 
 namespace HighFive {
 
-namespace details {
+
+    namespace details {
 
 // determine at compile time number of dimensions of in memory datasets
 template <typename T>
@@ -69,6 +78,20 @@ struct array_dims<T[N]> {
     static const size_t value = 1 + array_dims<T>::value;
 };
 
+
+
+#ifdef H5_USE_EIGEN
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+
+#endif
+
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
 struct array_dims<boost::multi_array<T, Dims> > {
@@ -76,9 +99,14 @@ struct array_dims<boost::multi_array<T, Dims> > {
 };
 
 template <typename T>
-struct array_dims<boost::numeric::ublas::matrix<T> > {
+struct array_dims<boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major> > {
     static const size_t value = 2;
 };
+
+template <typename T>
+struct array_dims<boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major> > {
+    static const size_t value = 2;
+};  
 #endif
 
 // determine recursively the size of each dimension of a N dimension vector
@@ -112,6 +140,21 @@ struct type_of_array<std::vector<T> > {
     typedef typename type_of_array<T>::type type;
 };
 
+#ifdef H5_USE_EIGEN
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+#endif
+
+
+
+
+
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
 struct type_of_array<boost::multi_array<T, Dims> > {
@@ -119,7 +162,12 @@ struct type_of_array<boost::multi_array<T, Dims> > {
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T> > {
+struct type_of_array<boost::numeric::ublas::matrix<T,boost::numeric::ublas::row_major> > {
+    typedef typename type_of_array<T>::type type;
+};
+
+  template <typename T>
+struct type_of_array<boost::numeric::ublas::matrix<T,boost::numeric::ublas::column_major> > {
     typedef typename type_of_array<T>::type type;
 };
 #endif

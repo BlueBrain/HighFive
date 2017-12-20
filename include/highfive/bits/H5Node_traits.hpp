@@ -19,9 +19,17 @@ class Group;
 class DataSpace;
 class DataType;
 
+    class Properties;
+
 template <typename Derivate>
 class NodeTraits {
   public:
+
+
+    DataSet createDataSet(const std::string &dataset_name,
+                          const DataSpace &space,
+                          const DataType &dtype,
+                          hid_t create_params);
     ///
     /// \brief createDataSet Create a new dataset in the current file of
     /// datatype type and of size space
@@ -61,6 +69,8 @@ class NodeTraits {
     ///
     Group createGroup(const std::string& group_name);
 
+    Group createGroups(const std::vector<std::string> group_names);
+
     ///
     /// \brief open an existing group with the name group_name
     /// \param group_name
@@ -92,6 +102,7 @@ class NodeTraits {
     bool exist(const std::string& node_name) const;
 
   private:
+    Group createGroups_rec(std::vector<std::string> group_names, const std::string group_name);
     typedef Derivate derivate_type;
 };
 }

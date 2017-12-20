@@ -23,6 +23,7 @@ class Group : public Object,
   public:
     Group();
 
+
     friend class File;
 };
 }

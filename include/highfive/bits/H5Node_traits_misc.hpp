@@ -11,7 +11,7 @@
 
 #include "H5Iterables_misc.hpp"
 #include "H5Node_traits.hpp"
-
+#include "../H5PropertyList.hpp"
 #include <string>
 #include <vector>
 
@@ -35,17 +35,31 @@ template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
-                                    const DataType& dtype) {
+                                    const DataType &dtype,
+                                    hid_t create_params) {
     DataSet set;
     if ((set._hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                dataset_name.c_str(), dtype._hid, space._hid,
-                               H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
+                               H5P_DEFAULT, create_params, H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to create the dataset \"") + dataset_name +
             "\":");
     }
     return set;
 }
+
+
+    template<typename Derivate>
+    inline DataSet
+    NodeTraits<Derivate>::createDataSet(const std::string &dataset_name,
+                                        const DataSpace &space,
+                                        const DataType &dtype) {
+
+        return createDataSet(dataset_name, space, dtype, H5P_DEFAULT);
+    }
+
+
+
 
 template <typename Derivate>
 template <typename Type>
@@ -75,10 +89,38 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name) {
                                  group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<GroupException>(
-            std::string("Unable to create the group \"") + group_name + "\":");
+                std::string("Unable to create the group \"") + group_name + "\":");
     }
     return group;
 }
+
+    template<typename Derivate>
+    inline Group NodeTraits<Derivate>::createGroups_rec(std::vector<std::string> group_names, std::string group_name) {
+        Group group = this->createGroup(group_name);
+        if (group_names.empty()) {
+            return (group);
+        } else {
+            group_name = group_names.begin();
+            Group last_group = group.createGroups_rec(
+                    std::vector<std::string>(group_names.begin() + 1, group_names.end()),
+                    group_name);
+            return (last_group);
+        }
+    }
+
+
+    template<typename Derivate>
+    inline Group NodeTraits<Derivate>::createGroups(std::vector<std::string> group_names) {
+        if (group_names.empty()) {
+            return (this);
+        } else {
+            std::string group_name = group_names.begin();
+            Group group = this.createGroups_rec(std::vector<std::string>(group_names.begin() + 1, group_names.end()),
+                                                group_name);
+            return (group);
+        }
+    }
+
 
 template <typename Derivate>
 inline Group

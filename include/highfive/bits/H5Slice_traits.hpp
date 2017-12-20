@@ -71,7 +71,7 @@ class SliceTraits {
     /// reponsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
-    void read(T& array) const;
+    void read(T &array);
 
     ///
     /// Read the entire dataset into a raw buffer
@@ -80,7 +80,7 @@ class SliceTraits {
     /// reponsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
-    void read(T* array) const;
+    void read(T *array);
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
