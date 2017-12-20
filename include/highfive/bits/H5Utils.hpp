@@ -54,7 +54,8 @@
 
 namespace HighFive {
 
-namespace details {
+
+    namespace details {
 
 // determine at compile time number of dimensions of in memory datasets
 template <typename T>
@@ -78,9 +79,14 @@ struct array_dims<T[N]> {
 };
 
 
+
 #ifdef H5_USE_EIGEN
         template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
         struct array_dims<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
             static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
         };
 
@@ -137,6 +143,10 @@ struct type_of_array<std::vector<T> > {
 #ifdef H5_USE_EIGEN
         template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
         struct type_of_array<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
             typedef typename type_of_array<Scalar>::type type;
         };
 #endif

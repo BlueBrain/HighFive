@@ -89,10 +89,38 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name) {
                                  group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<GroupException>(
-            std::string("Unable to create the group \"") + group_name + "\":");
+                std::string("Unable to create the group \"") + group_name + "\":");
     }
     return group;
 }
+
+    template<typename Derivate>
+    inline Group NodeTraits<Derivate>::createGroups_rec(std::vector<std::string> group_names, std::string group_name) {
+        Group group = this->createGroup(group_name);
+        if (group_names.empty()) {
+            return (group);
+        } else {
+            group_name = group_names.begin();
+            Group last_group = group.createGroups_rec(
+                    std::vector<std::string>(group_names.begin() + 1, group_names.end()),
+                    group_name);
+            return (last_group);
+        }
+    }
+
+
+    template<typename Derivate>
+    inline Group NodeTraits<Derivate>::createGroups(std::vector<std::string> group_names) {
+        if (group_names.empty()) {
+            return (this);
+        } else {
+            std::string group_name = group_names.begin();
+            Group group = this.createGroups_rec(std::vector<std::string>(group_names.begin() + 1, group_names.end()),
+                                                group_name);
+            return (group);
+        }
+    }
+
 
 template <typename Derivate>
 inline Group

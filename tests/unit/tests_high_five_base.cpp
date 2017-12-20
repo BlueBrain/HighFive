@@ -563,7 +563,7 @@ void readWriteVectorCompressionTest() {
         Filter filter(cshape, FILTER_BLOSC, r);
         // Create a dataset with double precision floating points
         DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace::From(vec), AtomicType<T>(), filter.getId());
-
+        dataset.
 
         dataset.write(vec);
     }
@@ -847,10 +847,12 @@ void eigen_matrix_Test() {
         }
     }
     // Create a new file using the default property lists.
+
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+    auto tgrp = file.getGroup("/");
 
 
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+    DataSet dataset = tgrp.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
     dataset.write(mat);
 
     // read it back
@@ -870,6 +872,104 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(eigen_matrix, T, numerical_test_types) {
 
     eigen_matrix_Test<T>();
 }
+
+template<typename T>
+void eigen_matrix_map_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+    typedef typename Eigen::Map<Matrix> MapMat;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_map_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+    dataset.write(mat);
+
+    // read it back
+    Matrix result(size_x, size_y);
+    MapMat map_res(result.data(), result.rows(), result.cols());
+
+    dataset.read(map_res);
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(eigen_matrix_map, T, numerical_test_types) {
+
+    eigen_matrix_map_Test<T>();
+}
+
+
+template<typename T>
+void eigen_matrix_map_rm_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrix_rm;
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrix_cm;
+    typedef typename Eigen::Map<Matrix_rm> MapMat_rm;
+    typedef typename Eigen::Map<Matrix_cm> MapMat_cm;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_map_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 9, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix_rm mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+    dataset.write(mat);
+    Matrix_rm tmat = mat.transpose();
+
+    // read it back
+    Matrix_cm result(size_y, size_x);
+    MapMat_rm map_res(result.data(), size_x, size_y);
+
+    dataset.read(map_res);
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(tmat(j, i), result(j, i));
+
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(eigen_matrix_map_rm, T, numerical_test_types) {
+
+    eigen_matrix_map_rm_Test<T>();
+}
+
 
 
 //Ensure that the type conversion performed by the library is equivalent to the one performed by Eigen
@@ -931,7 +1031,7 @@ void eigen_cm_rm_matrix_Test() {
     std::ostringstream filename;
     filename << "h5_rw_matrix_cm_rm_" << typeid(T).name() << "_test.h5";
 
-    const size_t size_x = 10, size_y = 10;
+    const size_t size_x = 9, size_y = 10;
     const std::string DATASET_NAME("dset");
 
     Matrix_rm mat(size_x, size_y);
@@ -978,7 +1078,7 @@ void eigen_rm_cm_matrix_Test() {
     std::ostringstream filename;
     filename << "h5_rw_matrix_cm_rm_" << typeid(T).name() << "_test.h5";
 
-    const size_t size_x = 10, size_y = 10;
+    const size_t size_x = 9, size_y = 10;
     const std::string DATASET_NAME("dset");
 
     Matrix_cm mat(size_x, size_y);

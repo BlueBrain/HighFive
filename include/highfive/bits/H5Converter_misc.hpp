@@ -248,6 +248,63 @@ struct data_converter<CArray,
 };
 
 
+// apply conversion to eigen matrix
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct data_converter<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>>, void> {
+            typedef Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>> Matrix;
+
+
+            inline data_converter(Matrix &matrix, DataSpace &space, size_t dim = 0) :
+                    _dims(space.getDimensions()),
+                    is_row_major{Options == Eigen::RowMajor} {
+                if (!is_row_major) {
+                    _temp_matrix = matrix;
+                }
+                assert(_dims.size() == 2);
+                (void)
+                        dim;
+                (void)
+                        matrix;
+            }
+
+            inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
+                assert(_dims[0] == matrix.rows());
+                assert(_dims[1] == matrix.cols());
+
+                auto return_pointer = matrix.data();
+
+                if (!is_row_major) {
+                    _temp_matrix.resize(_dims[0], _dims[1]);
+                    return_pointer = _temp_matrix.data();
+                }
+                return return_pointer;
+            }
+
+            inline typename type_of_array<Scalar>::type *transform_write(Matrix &matrix) {
+                auto return_pointer = matrix.data();
+                if (!is_row_major) {
+                    _temp_matrix.resize(_dims[0], _dims[1]);
+                    _temp_matrix = matrix;
+                    return_pointer = _temp_matrix.data();
+                }
+                return return_pointer;
+            }
+
+            inline void process_result(Matrix &matrix) {
+                if (!is_row_major) {
+                    matrix = _temp_matrix;
+                }
+
+                (void) matrix;
+            }
+
+            std::vector<size_t> _dims;
+            const bool is_row_major;
+            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor> _temp_matrix;
+
+        };
+
+
 #endif
 
 

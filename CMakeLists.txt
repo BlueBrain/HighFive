@@ -75,8 +75,6 @@ if (USE_BLOSC)
     ExternalProject_Add_StepTargets(hdf5-blosc build)
     set(hdf5-blosc_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/lib/blosc/include")
     include_directories(${hdf5-blosc_INCLUDE_DIRS})
-
-
 endif ()
 #add_subdirectory(lib/cxxopts)
 
