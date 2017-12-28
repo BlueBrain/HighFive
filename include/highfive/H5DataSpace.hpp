@@ -84,6 +84,14 @@ class DataSpace : public Object {
         template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
         static DataSpace From(const Eigen::Matrix <Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> &mat);
 
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        static DataSpace
+        From(const Eigen::Map<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat);
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        static DataSpace
+        From(const Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat);
+
 #endif
     /// Create a dataspace matching the container dimensions and size
     /// Supported Containers are:

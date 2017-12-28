@@ -69,7 +69,7 @@ class NodeTraits {
     ///
     Group createGroup(const std::string& group_name);
 
-    Group createGroups(const std::vector<std::string> group_names);
+    Group createGroups(const std::vector<std::string> &group_names);
 
     ///
     /// \brief open an existing group with the name group_name
@@ -77,6 +77,8 @@ class NodeTraits {
     /// \return the group object
     ///
     Group getGroup(const std::string& group_name) const;
+
+    Group createOrGetGroup(const std::string &group_name);
 
     ///
     /// \brief return the number of leaf objects of the node / group
@@ -101,8 +103,9 @@ class NodeTraits {
     /// false
     bool exist(const std::string& node_name) const;
 
+    Group createGroups_rec(const std::vector<std::string> &group_names, const std::string &group_name);
   private:
-    Group createGroups_rec(std::vector<std::string> group_names, const std::string group_name);
+
     typedef Derivate derivate_type;
 };
 }

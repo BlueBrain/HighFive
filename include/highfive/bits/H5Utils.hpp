@@ -86,9 +86,46 @@ struct array_dims<T[N]> {
             static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
         };
         template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<Eigen::Map<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct array_dims<const Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
+            static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
         struct array_dims<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
             static const size_t value = (RowsAtCompileTime != 1 ? 1 : 0) + (ColsAtCompileTime != 1 ? 1 : 0);
         };
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        std::vector<size_t>
+        get_dim_vector(const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> &mat) {
+            const size_t dim_num = array_dims<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> >::value;
+            std::vector<size_t> dims(dim_num);
+            if (dim_num > 0) {
+                dims[0] = mat.rows();
+            }
+            if (dim_num > 1) {
+                dims[1] = mat.cols();
+            }
+            return dims;
+        }
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        std::vector<size_t>
+        get_dim_vector(const Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat) {
+            const size_t dim_num = array_dims<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > >::value;
+            std::vector<size_t> dims(dim_num);
+            if (dim_num > 0) {
+                dims[0] = mat.rows();
+            }
+            if (dim_num > 1) {
+                dims[1] = mat.cols();
+            }
+            return dims;
+        }
+
 
 #endif
 
@@ -147,6 +184,14 @@ struct type_of_array<std::vector<T> > {
         };
         template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
         struct type_of_array<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > {
+            typedef typename type_of_array<Scalar>::type type;
+        };
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        struct type_of_array<Eigen::Map<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > > {
             typedef typename type_of_array<Scalar>::type type;
         };
 #endif
@@ -240,6 +285,7 @@ template <typename Type>
 struct remove_const<Type const> {
     typedef Type type;
 };
+
 
 // shared ptr portability
 namespace Mem {

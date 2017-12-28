@@ -14,10 +14,10 @@ if(NOT Boost_USE_STATIC_LIBS)
 endif()
 
 ## base tests
-#file(GLOB tests_high_five_src "*base.cpp")
 
 
-add_executable(tests_high_five_bin tests_high_five_base.cpp)
+add_executable(tests_high_five_bin tests_high_five_base.cpp ${HIGHFIVE_INC} ${HIGHFIVE_INC_BITS})
+
 target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
   ${HDF5_C_LIBRARIES})
 
@@ -36,7 +36,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
   target_link_libraries(tests_high_five_bin ${MPI_C_LIBRARIES})
 endif()
 
-add_test(NAME tests_high_five COMMAND tests_high_five_bin)
+add_test(NAME tests_high_five COMMAND tests_high_five_bin --log_level=test_suite)
 
 ## if the compiler support C++11
 ## lets recompile the base tests with C++11 support

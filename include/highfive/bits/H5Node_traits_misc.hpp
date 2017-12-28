@@ -95,28 +95,42 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name) {
 }
 
     template<typename Derivate>
-    inline Group NodeTraits<Derivate>::createGroups_rec(std::vector<std::string> group_names, std::string group_name) {
+    inline Group NodeTraits<Derivate>::createOrGetGroup(const std::string &group_name) {
+        if (this->exist(group_name)) {
+            return (this->getGroup(group_name));
+        } else {
+            return (this->createGroup(group_name));
+        }
+
+    }
+
+
+    template<typename Derivate>
+    inline Group
+    NodeTraits<Derivate>::createGroups_rec(const std::vector<std::string> &group_names, const std::string &group_name) {
         Group group = this->createGroup(group_name);
         if (group_names.empty()) {
             return (group);
         } else {
-            group_name = group_names.begin();
-            Group last_group = group.createGroups_rec(
-                    std::vector<std::string>(group_names.begin() + 1, group_names.end()),
-                    group_name);
+            std::string new_group_name = group_names[0];
+            std::vector<std::string> new_group_names(group_names.begin() + 1, group_names.end());
+            Group last_group = group.createGroups_rec(new_group_names, new_group_name);
             return (last_group);
         }
     }
 
 
     template<typename Derivate>
-    inline Group NodeTraits<Derivate>::createGroups(std::vector<std::string> group_names) {
+    inline Group NodeTraits<Derivate>::createGroups(const std::vector<std::string> &group_names) {
         if (group_names.empty()) {
-            return (this);
+            Group group;
+            auto id = static_cast<const Derivate *>(this)->getId();
+            group._hid = id;
+            return (group);
         } else {
-            std::string group_name = group_names.begin();
-            Group group = this.createGroups_rec(std::vector<std::string>(group_names.begin() + 1, group_names.end()),
-                                                group_name);
+            std::string group_name = group_names[0];
+            std::vector<std::string> new_group_names(group_names.begin() + 1, group_names.end());
+            Group group = this->createGroups_rec(new_group_names, group_name);
             return (group);
         }
     }

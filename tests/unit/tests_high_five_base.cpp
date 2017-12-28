@@ -30,12 +30,10 @@
 #include <cstdio>
 
 #include <highfive/H5File.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5Group.hpp>
 #include <highfive/H5Utility.hpp>
+#include <highfive/EigenUtils.hpp>
 
-#define BOOST_TEST_MAIN HighFiveTest
+#define BOOST_TEST_MODULE HighFiveTest
 
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
@@ -161,6 +159,37 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
         file.createDataSet<size_t>(DATASET_NAME + "_size_t", dataspace);
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveGroups) {
+
+    const std::string FILE_NAME("h5nest_grp.h5");
+
+    std::vector<std::string> group_names = {"1", "2", "3"};
+    // Create a new file using the default property lists.
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+        BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
+
+
+        Group group = file.createGroups(group_names);
+    }
+
+    File file(FILE_NAME, File::ReadOnly);
+    bool group_exist = file.exist("1");
+    BOOST_CHECK_EQUAL(group_exist, true);
+    group_exist = file.exist("2");
+    BOOST_CHECK_EQUAL(group_exist, false);
+    group_exist = file.getGroup("1").exist("2");
+    BOOST_CHECK_EQUAL(group_exist, true);
+    group_exist = file.getGroup("1").getGroup("2").exist("3");
+    BOOST_CHECK_EQUAL(group_exist, true);
+}
+
+
+
+
+
+
 BOOST_AUTO_TEST_CASE(HighFiveSilence) {
 
     // Setting up a buffer for stderr so we can detect if the stack trace
@@ -184,6 +213,7 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     fflush(stderr);
     setvbuf(stderr, nullptr, _IONBF, 0);
 }
+/*
 
 BOOST_AUTO_TEST_CASE(HighFiveException) {
 
@@ -198,6 +228,7 @@ BOOST_AUTO_TEST_CASE(HighFiveException) {
         },
         FileException);
 }
+*/
 
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
@@ -282,7 +313,7 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
             GROUP_NAME1 + DATASET_NAME,
             dataspace, AtomicType<double>());
 
-        double values[10][10] = {0};
+        double values[10][10] = {{0}};
         values[5][0] = 1;
         d1.write(values);
 
@@ -563,7 +594,6 @@ void readWriteVectorCompressionTest() {
         Filter filter(cshape, FILTER_BLOSC, r);
         // Create a dataset with double precision floating points
         DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace::From(vec), AtomicType<T>(), filter.getId());
-        dataset.
 
         dataset.write(vec);
     }
@@ -664,7 +694,7 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(has_attribute, false);
 
         Attribute a1 =
-            g.createAttribute<T>("my_attribute", DataSpace::From(vec));
+                g.createAttribute<T>("my_attribute", DataSpace::From(vec));
         a1.write(vec);
 
         // check now that we effectively have an attribute listable
@@ -768,7 +798,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
 }
 
 #ifdef H5_USE_EIGEN
-
 #ifdef USE_BLOSC
 
 template<typename T>
@@ -835,7 +864,7 @@ void eigen_matrix_Test() {
     std::ostringstream filename;
     filename << "h5_rw_matrix_eigen_rm_" << typeid(T).name() << "_test.h5";
 
-    const size_t size_x = 10, size_y = 10;
+    const size_t size_x = 9, size_y = 10;
     const std::string DATASET_NAME("dset");
 
     Matrix mat(size_x, size_y);
@@ -872,6 +901,141 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(eigen_matrix, T, numerical_test_types) {
 
     eigen_matrix_Test<T>();
 }
+
+
+template<typename T>
+void R_eigen_matrix_w_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_R_w_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 9, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    write_mat_h5(filename.str(), "/", "dset", mat);
+
+    File file(filename.str(), File::ReadOnly);
+    auto tgrp = file.getGroup("/");
+
+    Matrix result;
+    DataSet dataset = tgrp.getDataSet("dset");
+    dataset.read(result);
+
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(R_eigen_w_matrix, T, numerical_test_types) {
+
+    R_eigen_matrix_w_Test<T>();
+}
+
+
+template<typename T>
+void R_eigen_matrix_w_t_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_R_w_t_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 9, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    write_mat_h5_transpose(filename.str(), "/", "dset", mat);
+
+    Matrix result;
+
+    read_mat_h5(filename.str(), "/", "dset", result);
+
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(R_eigen_w_t_matrix, T, numerical_test_types) {
+
+    R_eigen_matrix_w_t_Test<T>();
+}
+
+
+template<typename T>
+void R_eigen_matrix_r_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_R_r_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 10, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+        auto tgrp = file.getGroup("/");
+
+
+        DataSet dataset = tgrp.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
+        dataset.write(mat);
+    }
+
+    // read it back
+    Matrix result;
+    read_mat_h5<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>(filename.str(), "/", "dset", result);
+
+
+    for (size_t i = 0; i < size_x; ++i) {
+        for (size_t j = 0; j < size_y; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(R_eigen_r_matrix, T, numerical_test_types) {
+
+    R_eigen_matrix_r_Test<T>();
+}
+
+
 
 template<typename T>
 void eigen_matrix_map_Test() {

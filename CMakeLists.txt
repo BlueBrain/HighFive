@@ -83,11 +83,13 @@ endif ()
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
 
 if(HIGHFIVE_EXAMPLES)
-  add_subdirectory(src/examples)
+    file(GLOB HIGHFIVE_INC ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
+    file(GLOB HIGHFIVE_INC_BITS ${PROJECT_SOURCE_DIR}/include/highfive/bits/*.hpp)
+    add_subdirectory(src/examples)
 endif()
 
 add_subdirectory(tests/unit)
 add_subdirectory(doc)
-export(PACKAGE HighFive)
+#export(PACKAGE HighFive)
 
 #install ( TARGETS  ... EXPORT <export_name> )
