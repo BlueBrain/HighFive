@@ -268,8 +268,8 @@ struct data_converter<CArray,
             }
 
             inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
-                assert(_dims[0] == matrix.rows());
-                assert(_dims[1] == matrix.cols());
+                assert(_dims[0] == (unsigned long) matrix.rows());
+                assert(_dims[1] == (unsigned long) matrix.cols());
 
                 auto return_pointer = matrix.data();
 
@@ -535,7 +535,7 @@ struct data_converter<std::string, void> {
                 _c_vec.resize(255 * _space.getDimensions()[0]);
                 std::vector<char>::iterator it = _c_vec.begin();
                 const size_t vs = vec.size();
-                for (int i = 0; i < vs; i++) {
+                for (size_t i = 0; i < vs; i++) {
                     auto tb = vec[i].begin();
                     auto te = vec[i].end();
                     std::copy(tb, te, it);

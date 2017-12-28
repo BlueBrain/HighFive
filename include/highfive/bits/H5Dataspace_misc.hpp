@@ -121,11 +121,23 @@ inline DataSpace DataSpace::From(const std::vector<Value>& container) {
     template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
     inline DataSpace
     DataSpace::From(const Eigen::Matrix <Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> &mat) {
-        std::vector<size_t> dims(2);
-        dims[0] = mat.rows();
-        dims[1] = mat.cols();
-        return DataSpace(dims);
+        return (DataSpace(details::get_dim_vector<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>(mat)));
     }
+
+    template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+    inline DataSpace
+    DataSpace::From(
+            const Eigen::Map<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat) {
+        return (DataSpace(details::get_dim_vector<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>(mat)));
+    }
+
+    template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+    inline DataSpace
+    DataSpace::From(const Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat) {
+        return (DataSpace(details::get_dim_vector<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>(mat)));
+    }
+
+
 
 #endif
 
