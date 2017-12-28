@@ -61,32 +61,77 @@ inline hid_t get_memspace_id(const DataSet* ptr) {
 inline ElementSet::ElementSet(const std::vector<std::size_t>& element_ids)
     : _ids(element_ids) {}
 
-template <typename Derivate>
-inline Selection
-SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
-                              const std::vector<size_t>& count,
-                              const std::vector<size_t>& stride) const {
-    // hsize_t type convertion
-    // TODO : normalize hsize_t type in HighFive namespace
-    std::vector<hsize_t> offset_local(offset.size());
-    std::vector<hsize_t> count_local(count.size());
-    std::vector<hsize_t> stride_local(stride.size());
-    std::copy(offset.begin(), offset.end(), offset_local.begin());
-    std::copy(count.begin(), count.end(), count_local.begin());
-    std::copy(stride.begin(), stride.end(), stride_local.begin());
 
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
-    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
-                            stride.empty() ? NULL : stride_local.data(),
-                            count_local.data(), NULL) < 0) {
-        HDF5ErrMapper::ToException<DataSpaceException>(
-            "Unable to select hyperslap");
+    template<typename Derivate>
+    inline Selection
+    SliceTraits<Derivate>::select(const std::vector<size_t> &offset,
+                                  const std::vector<size_t> &count,
+                                  const std::vector<size_t> &stride) const {
+        // hsize_t type convertion
+        // TODO : normalize hsize_t type in HighFive namespace
+
+        bool isTranspose = details::get_dataset(static_cast<const Derivate *>(this)).isTransposed();
+
+        std::vector<hsize_t> offset_local(offset.size());
+        std::vector<hsize_t> count_local(count.size());
+        std::vector<hsize_t> stride_local(stride.size());
+        std::copy(offset.begin(), offset.end(), offset_local.begin());
+        std::copy(count.begin(), count.end(), count_local.begin());
+        std::copy(stride.begin(), stride.end(), stride_local.begin());
+        if (isTranspose) {
+            std::reverse(offset_local.begin(), offset_local.end());
+            std::reverse(count_local.begin(), count_local.end());
+            std::reverse(stride_local.begin(), stride_local.end());
+        }
+
+        DataSpace space = static_cast<const Derivate *>(this)->getSpace().clone();
+        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
+                                stride.empty() ? NULL : stride_local.data(),
+                                count_local.data(), NULL) < 0) {
+            HDF5ErrMapper::ToException<DataSpaceException>(
+                    "Unable to select hyperslap");
+        }
+
+        return Selection(DataSpace(count), space,
+                         details::get_dataset(static_cast<const Derivate *>(this)));
     }
 
-    return Selection(DataSpace(count), space,
-                     details::get_dataset(static_cast<const Derivate*>(this)));
-}
+#ifdef H5_USE_EIGEN
 
+    template<typename Derivate>
+    inline Selection
+    SliceTraits<Derivate>::selectEigen(const std::vector<size_t> &offset,
+                                       const std::vector<size_t> &count,
+                                       const std::vector<size_t> &stride) const {
+        // hsize_t type convertion
+
+        bool isTranspose = details::get_dataset(static_cast<const Derivate *>(this)).isTransposed();
+
+        std::vector<hsize_t> offset_local(offset.size());
+        std::vector<hsize_t> count_local(count.size());
+        std::vector<hsize_t> stride_local(stride.size());
+        std::copy(offset.begin(), offset.end(), offset_local.begin());
+        std::copy(count.begin(), count.end(), count_local.begin());
+        std::copy(stride.begin(), stride.end(), stride_local.begin());
+        if (isTranspose) {
+            std::reverse(offset_local.begin(), offset_local.end());
+            std::reverse(count_local.begin(), count_local.end());
+            std::reverse(stride_local.begin(), stride_local.end());
+        }
+
+        DataSpace space = static_cast<const Derivate *>(this)->getSpace().clone();
+        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
+                                stride.empty() ? NULL : stride_local.data(),
+                                count_local.data(), NULL) < 0) {
+            HDF5ErrMapper::ToException<DataSpaceException>(
+                    "Unable to select hyperslap");
+        }
+
+        return Selection(DataSpace(count), space,
+                         details::get_dataset(static_cast<const Derivate *>(this)));
+    }
+
+#endif
 template <typename Derivate>
 inline Selection
 SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
@@ -151,6 +196,7 @@ inline void SliceTraits<Derivate>::read(T &array) {
 
     // type_no_const& nocv_array = const_cast<type_no_const&>(array);
 
+    bool isTranspose = details::get_dataset(static_cast<const Derivate *>(this)).isTransposed();
     const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
@@ -166,17 +212,15 @@ inline void SliceTraits<Derivate>::read(T &array) {
     // Apply pre read convertions (these will depend on the dataset, unfortunately)
 
 
-    details::data_converter<T> converter(array, mem_space);
+    details::data_converter<T> converter(array, mem_space, isTranspose);
     // Create mem datatype
     const AtomicType<typename details::type_of_array<T>::type>
         array_datatype;
 
 
     auto mem_datatype = array_datatype.getId();
-    auto dataset_datatype = H5Dget_type(details::get_dataset(static_cast<const Derivate *>(this)).getId());
-    if (H5Tis_variable_str(mem_datatype) && (!H5Tis_variable_str(dataset_datatype))) {
 
-    }
+
     if (H5Dread(
             details::get_dataset(static_cast<const Derivate *>(this)).getId(),
             mem_datatype,
@@ -234,7 +278,8 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
         array_datatype;
 
     // Apply pre write convertions
-    details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
+    bool isTranspose = details::get_dataset(static_cast<const Derivate *>(this)).isTransposed();
+    details::data_converter<type_no_const> converter(nocv_buffer, mem_space, isTranspose);
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
                  array_datatype.getId(),

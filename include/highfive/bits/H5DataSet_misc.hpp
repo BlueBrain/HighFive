@@ -43,6 +43,29 @@ inline DataType DataSet::getDataType() const {
     return res;
 }
 
+    inline bool DataSet::isTransposed() const {
+        int transpose_int = 0;
+        if (this->hasAttribute("doTranspose")) {
+            this->getAttribute("doTranspose").read(transpose_int);
+        }
+        return (transpose_int != 0);
+    }
+
+    inline void DataSet::setTranspose(const bool transpose) {
+        int transpose_int = transpose ? 1 : 0;
+        auto transpose_attr = this->createAttribute<int>("doTranspose", DataSpace::From(transpose_int));
+        transpose_attr.write(transpose_int);
+        doTranspose = transpose;
+    }
+
+    inline std::vector<size_t> DataSet::getDataDimensions() const {
+        std::vector<size_t> dims = this->getSpace().getDimensions();
+        if (doTranspose) {
+            std::reverse(dims.begin(), dims.end());
+        }
+        return (dims);
+    }
+
 inline DataSpace DataSet::getSpace() const {
     DataSpace space;
     if ((space._hid = H5Dget_space(_hid)) < 0) {

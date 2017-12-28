@@ -61,14 +61,18 @@ class SliceTraits {
     ///
     Selection select(const ElementSet& elements) const;
 
+    Selection selectEigen(const std::vector<size_t> &offset,
+                          const std::vector<size_t> &count,
+                          const std::vector<size_t> &stride) const;
+
     ///
     /// Read the entire dataset into a buffer
     /// An exception is raised is if the numbers of dimension of the buffer and
     /// of the dataset are different
     ///
     /// The array type can be a N-pointer or a N-vector. For plain pointers
-    /// not dimensionality checking will be performed, it is the user's
-    /// reponsibility to ensure that the right amount of space has been
+    /// no dimensionality checking will be performed, it is the user's
+    /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
     void read(T &array);
@@ -77,7 +81,7 @@ class SliceTraits {
     /// Read the entire dataset into a raw buffer
     ///
     /// No dimensionality checks will be performed, it is the user's
-    /// reponsibility to ensure that the right amount of space has been
+    /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
     void read(T *array);
@@ -103,6 +107,7 @@ class SliceTraits {
     void write(const T* buffer);
 
   private:
+
     typedef Derivate derivate_type;
 };
 }

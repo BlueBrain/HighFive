@@ -36,7 +36,8 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataType &dtype,
-                                    hid_t create_params) {
+                                    hid_t create_params,
+                                    const bool doTranspose) {
     DataSet set;
     if ((set._hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                dataset_name.c_str(), dtype._hid, space._hid,
@@ -45,6 +46,7 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
             std::string("Unable to create the dataset \"") + dataset_name +
             "\":");
     }
+    set.setTranspose(doTranspose);
     return set;
 }
 
@@ -79,6 +81,7 @@ NodeTraits<Derivate>::getDataSet(const std::string& dataset_name) const {
             std::string("Unable to open the dataset \"") + dataset_name +
             "\":");
     }
+    set.doTranspose = set.isTransposed();
     return set;
 }
 

@@ -967,7 +967,7 @@ void R_eigen_matrix_w_t_Test() {
         }
     }
     // Create a new file using the default property lists.
-    write_mat_h5_transpose(filename.str(), "/", "dset", mat);
+    write_mat_h5(filename.str(), "/", "dset", mat, true);
 
     Matrix result;
 
@@ -985,6 +985,48 @@ void R_eigen_matrix_w_t_Test() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(R_eigen_w_t_matrix, T, numerical_test_types) {
 
     R_eigen_matrix_w_t_Test<T>();
+}
+
+
+template<typename T>
+void R_eigen_matrix_w_t_c_Test() {
+
+    typedef typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+
+    std::ostringstream filename;
+    filename << "h5_rw_matrix_R_w_t_c_eigen_rm_" << typeid(T).name() << "_test.h5";
+
+    const size_t size_x = 9, size_y = 10;
+    const std::string DATASET_NAME("dset");
+
+    Matrix mat(size_x, size_y);
+
+    ContentGenerate<T> generator;
+    for (Eigen::Index i = 0; i < mat.rows(); ++i) {
+        for (Eigen::Index j = 0; j < mat.cols(); ++j) {
+            mat(i, j) = generator();
+        }
+    }
+    // Create a new file using the default property lists.
+    write_mat_h5(filename.str(), "/", "dset", mat, true);
+
+    Matrix result;
+    Matrix check_res = mat.block(1, 2, 4, 5);
+
+    read_mat_h5(filename.str(), "/", "dset", result, {1, 2}, {4, 5});
+
+
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 5; ++j) {
+            // std::cout << array[i][j][k] << " ";
+            BOOST_CHECK_EQUAL(check_res(i, j), result(i, j));
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(R_eigen_w_t_c_matrix, T, numerical_test_types) {
+
+    R_eigen_matrix_w_t_c_Test<T>();
 }
 
 

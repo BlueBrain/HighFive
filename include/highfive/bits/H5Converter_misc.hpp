@@ -118,13 +118,11 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
-    inline data_converter(Scalar &datamem, DataSpace &space) {
-#if H5_USE_CXX11
-        static_assert((std::is_arithmetic<ScalarValue>::value ||
-                       std::is_same<std::string, ScalarValue>::value),
+    inline data_converter(Scalar &datamem, DataSpace &space, const bool doTranspose = false) {
+        static_assert((std::is_arithmetic<Scalar>::value ||
+                       std::is_same<std::string, Scalar>::value),
                       "supported datatype should be an arithmetic value, a "
                       "std::string or a container/array");
-#endif
         (void)datamem;
         (void)space; // do nothing
     }
@@ -143,7 +141,7 @@ struct data_converter {
 template <typename CArray>
 struct data_converter<CArray,
                       typename enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(CArray &datamem, DataSpace &space) {
+    inline data_converter(CArray &datamem, DataSpace &space, const bool doTranspose = false) {
         (void)datamem;
         (void)space; // do nothing
     }
@@ -162,7 +160,8 @@ struct data_converter<CArray,
   struct data_converter<
     std::vector<T>,
     typename enable_if<(is_same<T, typename type_of_array<T>::type>::value)>::type> {
-      inline data_converter(std::vector<T> &vec, DataSpace &space, size_t dim = 0) : _space(
+      inline data_converter(std::vector<T> &vec, DataSpace &space, size_t dim = 0, const bool doTranspose = false)
+              : _space(
               &space), _dim(dim) {
       assert(_space->getDimensions().size() > dim);
       (void)vec;
@@ -192,16 +191,21 @@ struct data_converter<CArray,
         struct data_converter<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>, void> {
             typedef Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> Matrix;
 
-
-            inline data_converter(Matrix &matrix, DataSpace &space, size_t dim = 0) : _dims(
-                    space.getDimensions()),
-                                                                                      is_row_major{
-                                                                                                                      Options ==
-                                                                                                                      Eigen::RowMajor} {
-                if (!is_row_major) {
-                    _temp_matrix = matrix;
+            inline data_converter(Matrix &matrix, DataSpace &space, const bool doTranspose = false, size_t dim = 0)
+                    : disk_dims(space.getDimensions()),
+                      mem_dims(disk_dims),
+                      is_row_major{Options == Eigen::RowMajor},
+                      transposed(doTranspose) {
+                if (transposed) {
+                    if (is_row_major) {
+                        _temp_col_matrix = matrix;
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix = matrix;
+                    }
                 }
-                assert(_dims.size() == 2);
+                assert(disk_dims.size() == 2);
                 (void)
                         dim;
                 (void)
@@ -211,39 +215,65 @@ struct data_converter<CArray,
             inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
 
                 auto return_pointer = matrix.data();
-                if (std::pair<size_t, size_t>(_dims[0], _dims[1]) !=
+                if (std::pair<size_t, size_t>(mem_dims[0], mem_dims[1]) !=
                     std::pair<size_t, size_t>(matrix.rows(), matrix.cols())) {
-                    matrix.resize(_dims[0], _dims[1]);
+                    matrix.resize(mem_dims[0], mem_dims[1]);
                 }
                 return_pointer = matrix.data();
-                if (!is_row_major) {
-                    _temp_matrix.resize(_dims[0], _dims[1]);
-                    return_pointer = _temp_matrix.data();
+                if (transposed) {
+                    if (is_row_major) {
+                        _temp_col_matrix.resize(mem_dims[0], mem_dims[1]);
+                        return_pointer = _temp_col_matrix.data();
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix.resize(mem_dims[0], mem_dims[1]);
+                        return_pointer = _temp_row_matrix.data();
+                    }
                 }
                 return return_pointer;
+
             }
 
             inline typename type_of_array<Scalar>::type *transform_write(Matrix &matrix) {
+
                 auto return_pointer = matrix.data();
-                if (!is_row_major) {
-                    _temp_matrix.resize(_dims[0], _dims[1]);
-                    _temp_matrix = matrix;
-                    return_pointer = _temp_matrix.data();
+                if (transposed) {
+                    if (is_row_major) {
+                        _temp_col_matrix.resize(mem_dims[0], mem_dims[1]);
+                        _temp_col_matrix = matrix;
+                        return_pointer = _temp_col_matrix.data();
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix.resize(mem_dims[0], mem_dims[1]);
+                        _temp_row_matrix = matrix;
+                        return_pointer = _temp_row_matrix.data();
+                    }
                 }
                 return return_pointer;
             }
 
             inline void process_result(Matrix &matrix) {
-                if (!is_row_major) {
-                    matrix = _temp_matrix;
+                if (transposed) {
+                    if (is_row_major) {
+                        matrix = _temp_col_matrix;
+                    }
+                } else {
+                    if (!is_row_major) {
+                        matrix = _temp_row_matrix;
+                    }
                 }
 
                 (void) matrix;
             }
 
-            std::vector<size_t> _dims;
+            std::vector<size_t> disk_dims;
+            std::vector<size_t> mem_dims;
             const bool is_row_major;
-            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor> _temp_matrix;
+            const bool transposed;
+            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor> _temp_row_matrix;
+            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::ColMajor> _temp_col_matrix;
 
 };
 
@@ -253,54 +283,89 @@ struct data_converter<CArray,
         struct data_converter<Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>>, void> {
             typedef Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options>> Matrix;
 
-
-            inline data_converter(Matrix &matrix, DataSpace &space, size_t dim = 0) :
-                    _dims(space.getDimensions()),
-                    is_row_major{Options == Eigen::RowMajor} {
-                if (!is_row_major) {
-                    _temp_matrix = matrix;
+            inline data_converter(Matrix &matrix, DataSpace &space, const bool doTranspose = false, size_t dim = 0)
+                    : disk_dims(space.getDimensions()),
+                      mem_dims(disk_dims),
+                      is_row_major{Options == Eigen::RowMajor},
+                      transposed(doTranspose) {
+                if (transposed) {
+                    std::reverse(mem_dims.begin(), mem_dims.end());
+                    if (is_row_major) {
+                        _temp_col_matrix = matrix;
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix = matrix;
+                    }
                 }
-                assert(_dims.size() == 2);
+                assert(disk_dims.size() == 2);
                 (void)
                         dim;
                 (void)
                         matrix;
             }
 
-            inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
-                assert(_dims[0] == (unsigned long) matrix.rows());
-                assert(_dims[1] == (unsigned long) matrix.cols());
 
+            inline typename type_of_array<Scalar>::type *transform_read(Matrix &matrix) {
+
+                assert(mem_dims[0] == (unsigned long) matrix.rows());
+                assert(mem_dims[1] == (unsigned long) matrix.cols());
                 auto return_pointer = matrix.data();
 
-                if (!is_row_major) {
-                    _temp_matrix.resize(_dims[0], _dims[1]);
-                    return_pointer = _temp_matrix.data();
+                if (transposed) {
+                    if (is_row_major) {
+                        _temp_col_matrix.resize(mem_dims[0], mem_dims[1]);
+                        return_pointer = _temp_col_matrix.data();
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix.resize(mem_dims[0], mem_dims[1]);
+                        return_pointer = _temp_row_matrix.data();
+                    }
                 }
                 return return_pointer;
+
             }
 
             inline typename type_of_array<Scalar>::type *transform_write(Matrix &matrix) {
                 auto return_pointer = matrix.data();
-                if (!is_row_major) {
-                    _temp_matrix.resize(_dims[0], _dims[1]);
-                    _temp_matrix = matrix;
-                    return_pointer = _temp_matrix.data();
+                if (transposed) {
+                    if (is_row_major) {
+                        _temp_col_matrix.resize(mem_dims[0], mem_dims[1]);
+                        _temp_col_matrix = matrix;
+                        return_pointer = _temp_col_matrix.data();
+                    }
+                } else {
+                    if (!is_row_major) {
+                        _temp_row_matrix.resize(mem_dims[0], mem_dims[1]);
+                        _temp_row_matrix = matrix;
+                        return_pointer = _temp_row_matrix.data();
+                    }
                 }
                 return return_pointer;
+
             }
 
             inline void process_result(Matrix &matrix) {
-                if (!is_row_major) {
-                    matrix = _temp_matrix;
-                }
 
+                if (transposed) {
+                    if (is_row_major) {
+                        matrix = _temp_col_matrix;
+                    }
+                } else {
+                    if (!is_row_major) {
+                        matrix = _temp_row_matrix;
+                    }
+                }
                 (void) matrix;
             }
 
-            std::vector<size_t> _dims;
+            std::vector<size_t> disk_dims;
+            std::vector<size_t> mem_dims;
             const bool is_row_major;
-            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor> _temp_matrix;
+            const bool transposed;
+            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::RowMajor> _temp_row_matrix;
+            Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen::ColMajor> _temp_col_matrix;
 
         };
 
@@ -318,7 +383,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
     typedef typename boost::multi_array<T, Dims> MultiArray;
 
 
-    inline data_converter(MultiArray &array, DataSpace &space, size_t dim = 0)
+    inline data_converter(MultiArray &array, DataSpace &space, size_t dim = 0, const bool doTranspose = false)
             : _dims(space.getDimensions()),
               is_row_major(array.storage_order() == boost::c_storage_order()) {
         if (!is_row_major) {
@@ -376,7 +441,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
             typedef typename boost::numeric::ublas::matrix<T, L, A> Matrix;
             typedef typename boost::numeric::ublas::matrix<T, boost::numeric::ublas::row_major> Matrix_rm;
 
-            inline data_converter(Matrix &array, DataSpace &space, size_t dim = 0)
+            inline data_converter(Matrix &array, DataSpace &space, size_t dim = 0, const bool doTranspose = false)
                     : _dims(space.getDimensions()),
                       is_row_major(
                               std::is_same<
@@ -441,7 +506,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename enable_if<(is_container<T>::value)>::type> {
-    inline data_converter(std::vector<T> &vec, DataSpace &space, size_t dim = 0)
+    inline data_converter(std::vector<T> &vec, DataSpace &space, size_t dim = 0, const bool doTranspose = false)
         : _dims(space.getDimensions()), _dim(dim), _vec_align() {
         (void)vec;
     }
@@ -478,7 +543,7 @@ struct data_converter<std::vector<T>,
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    inline data_converter(std::string &vec, DataSpace &space) : _space(space) {
+    inline data_converter(std::string &vec, DataSpace &space, const bool doTranspose = false) : _space(space) {
         (void)vec;
     }
 
@@ -512,7 +577,7 @@ struct data_converter<std::string, void> {
 
         template<>
         struct data_converter<std::vector<std::string>, void> {
-            inline data_converter(std::vector<std::string> &vec, DataSpace &space)
+            inline data_converter(std::vector<std::string> &vec, DataSpace &space, const bool doTranspose = false)
                     : _space(space) {
                 (void) vec;
             }

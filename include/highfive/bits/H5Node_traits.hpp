@@ -29,7 +29,7 @@ class NodeTraits {
     DataSet createDataSet(const std::string &dataset_name,
                           const DataSpace &space,
                           const DataType &dtype,
-                          hid_t create_params);
+                          hid_t create_params, const bool doTranspose = false);
     ///
     /// \brief createDataSet Create a new dataset in the current file of
     /// datatype type and of size space

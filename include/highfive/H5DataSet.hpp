@@ -28,6 +28,7 @@ class DataSet : public Object,
                 public SliceTraits<DataSet>,
                 public AnnotateTraits<DataSet> {
   public:
+    void setTranspose(const bool doTranspose);
     size_t getStorageSize() const;
 
     ///
@@ -35,6 +36,8 @@ class DataSet : public Object,
     /// \return return the datatype associated with this dataset
     ///
     DataType getDataType() const;
+
+    std::vector<size_t> getDataDimensions() const;
 
     ///
     /// \brief getSpace
@@ -49,8 +52,12 @@ class DataSet : public Object,
     ///
     DataSpace getMemSpace() const;
 
+    bool isTransposed() const;
+
   private:
     DataSet();
+
+    bool doTranspose;
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
 };
