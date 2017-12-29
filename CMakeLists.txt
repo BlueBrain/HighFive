@@ -58,12 +58,13 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 
 if (USE_BLOSC)
+    FIND_PACKAGE(blosc)
     set(BLOSC_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/lib/blosc")
     set(BLOSC_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib/blosc")
     set(BLOSC_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${BLOSC_INSTALL_DIR} -DPLUGIN_INSTALL_PATH=${BLOSC_INSTALL_DIR})
     ExternalProject_Add(hdf5-blosc
             PREFIX ${BLOSC_PREFIX}
-            GIT_REPOSITORY https://github.com/Blosc/hdf5-blosc.git
+            GIT_REPOSITORY https://github.com/CreRecombinase/hdf5-blosc.git
             INSTALL_DIR ${BLOSC_INSTALL_DIR}
             CMAKE_ARGS ${BLOSC_CMAKE_ARGS}
             )
