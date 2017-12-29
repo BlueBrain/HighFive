@@ -4,7 +4,7 @@ FILE(GLOB headers_highfive "${PROJECT_SOURCE_DIR}/include/highfive/*.hpp")
 FILE(GLOB headers_highfive_bits "${PROJECT_SOURCE_DIR}/include/highfive/bits/*.hpp")
 
 
-function(compile_example exemple_source)
+#[[function(compile_example exemple_source)
 
     get_filename_component(example_filename ${exemple_source} NAME)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
@@ -49,4 +49,5 @@ file(GLOB list_example "*.cpp")
 foreach(example_src ${list_example})
 compile_example(${example_src})
 
-endforeach()
+endforeach()]]
+

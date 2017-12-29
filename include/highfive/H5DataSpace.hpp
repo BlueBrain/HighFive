@@ -15,6 +15,13 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#ifdef H5_USE_EIGEN
+
+#include <eigen3/Eigen/Core>
+
+#endif
+
+
 #include "H5Object.hpp"
 
 namespace HighFive {
@@ -36,7 +43,7 @@ class DataSpace : public Object {
     ///  size(dim1) = vec[0]
     ///  size(dim2) = vec[1]
     ///  etc...
-    explicit DataSpace(const std::vector<size_t>& dims);
+    explicit DataSpace(const std::vector<size_t> &dims, const bool doTranspose = false);
 
     ///
     /// \brief DataSpace create a dataspace of a single dimension and of size
@@ -71,6 +78,24 @@ class DataSpace : public Object {
     template <typename ScalarValue>
     static DataSpace From(const ScalarValue& scalar_value);
 
+#ifdef H5_USE_EIGEN
+
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        static DataSpace From(const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> &mat,
+                              const bool doTranspose = false);
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        static DataSpace
+        From(const Eigen::Map<const Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat,
+             const bool doTranspose = false);
+
+        template<typename Scalar, int RowsAtCompileTime, int ColsAtCompileTime, int Options>
+        static DataSpace
+        From(const Eigen::Map<Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Options> > &mat,
+             const bool doTranspose = false);
+
+#endif
     /// Create a dataspace matching the container dimensions and size
     /// Supported Containers are:
     ///  - vector of fundamental types
@@ -84,7 +109,10 @@ class DataSpace : public Object {
     static DataSpace From(const boost::multi_array<Value, Dims>& container);
 
     template <typename Value>
-    static DataSpace From(const boost::numeric::ublas::matrix<Value>& mat);
+    static DataSpace From(const boost::numeric::ublas::matrix<Value,boost::numeric::ublas::row_major>& mat);
+
+      template <typename Value>
+      static DataSpace From(const boost::numeric::ublas::matrix<Value,boost::numeric::ublas::column_major>& mat);
 #endif
 
   protected:
