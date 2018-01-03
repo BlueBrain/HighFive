@@ -1,16 +1,16 @@
 language: cpp
 
-dist: trusty
-
-before_install:
- - sudo mkdir -p /nix
- - sudo chown $USER /nix
+matrix:
+    include:
+        - os: linux
+          sudo: required
 
 install:
- - curl https://nixos.org/nix/install | sh
+ - ./ci/travis/install.sh
 
 script:
- - source /home/$USER/.nix-profile/etc/profile.d/nix.sh
- - git clone --recursive https://github.com/BlueBrain/bbp-nixpkgs
- - nix-build -I "BBPpkgs=${PWD}/bbp-nixpkgs" --arg testExec true  default.nix
+ - mkdir -p build && pushd build
+ - cmake -G Ninja ../
+ - ninja -v
+ - ninja test
 
