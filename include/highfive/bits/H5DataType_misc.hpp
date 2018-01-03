@@ -135,7 +135,7 @@ inline AtomicType<std::string>::AtomicType() {
 }
 
 // std complex
-template <>
+template <> 
 inline AtomicType<std::complex<double> >::AtomicType()
 {
 		static hid_t cplx_hid;
