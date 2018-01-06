@@ -1,6 +1,9 @@
-## Version 1.5
+## Version 1.5 - 2018/01/06
     - SliceTraits::read split in two overloads, the first one for plain C arrays
       and the second one for other types.
+    - Add support for complex number
+    - Add exist() method to the API 
+    - Will be last release before 2.0 and enforcement of C++11 
 
 ## Version 1.4 - 2017/08/25
 	- Support id selection for the `select` function
