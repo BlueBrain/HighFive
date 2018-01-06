@@ -12,7 +12,9 @@
 // internal utilities functions
 #include <cstddef> // __GLIBCXX__
 #include <exception>
+#include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #ifdef H5_USE_BOOST
@@ -26,22 +28,6 @@
 #else
 #define H5_USE_CXX11 0
 #endif
-#endif
-
-// shared ptr portability
-// if boost is used, simply use boost
-#if (defined H5_USE_BOOST)
-#include <boost/shared_ptr.hpp>
-// if C++11 compliant compiler, use std::shared_ptr
-#elif H5_USE_CXX11
-#include <memory>
-// GNU C++ or Intel C++ using libstd++.
-// without C++11: use tr1
-#elif defined(__GNUC__) && __GNUC__ >= 4 && (defined(__GLIBCXX__))
-#include <tr1/memory>
-// last hope to find it in standard <memory> ( VC++, libc++ )
-#else
-#include <memory>
 #endif
 
 namespace HighFive {
@@ -134,17 +120,6 @@ struct type_of_array<T[N]> {
     typedef typename type_of_array<T>::type type;
 };
 
-// same type compile time check
-template <typename T, typename U>
-struct is_same {
-    static const bool value = false;
-};
-
-template <typename T>
-struct is_same<T, T> {
-    static const bool value = true;
-};
-
 // check if the type is a container ( only vector supported for now )
 template <typename>
 struct is_container {
@@ -173,39 +148,11 @@ struct is_c_array<T[N]> {
     static const bool value = true;
 };
 
-// enable if implem for not c++11 compiler
-template <bool Cond, typename T = void>
-struct enable_if {};
-
-template <typename T>
-struct enable_if<true, T> {
-    typedef T type;
-};
-
-// remove const
-template <typename Type>
-struct remove_const {
-    typedef Type type;
-};
-
-template <typename Type>
-struct remove_const<Type const> {
-    typedef Type type;
-};
 
 // shared ptr portability
+// was used pre-C++11, kept for compatibility
 namespace Mem {
-
-#if (defined H5_USE_BOOST)
-using namespace boost;
-#elif ___cplusplus >= 201103L
-using namespace std;
-#elif defined(__GNUC__) && __GNUC__ >= 4 && (defined(__GLIBCXX__))
-using namespace std::tr1;
-#else
-using namespace std;
-#endif
-
+    using namespace std;
 } // end Mem
 
 } // end details

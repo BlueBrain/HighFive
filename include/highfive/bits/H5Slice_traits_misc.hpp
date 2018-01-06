@@ -125,7 +125,7 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
 
     // optimised at compile time
     // switch for data conversion on 32bits platforms
-    if (details::is_same<std::size_t, hsize_t>::value) {
+    if (std::is_same<std::size_t, hsize_t>::value) {
         data = (hsize_t*)(&(elements._ids[0]));
     } else {
         raw_elements.resize(length);
@@ -147,7 +147,7 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
 
     type_no_const& nocv_array = const_cast<type_no_const&>(array);
 
@@ -208,7 +208,7 @@ inline void SliceTraits<Derivate>::read(T* array) const {
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
 

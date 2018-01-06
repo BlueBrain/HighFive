@@ -16,31 +16,19 @@ endif()
 ## base tests
 file(GLOB tests_high_five_src "*base.cpp")
 
-add_executable(tests_high_five_bin ${tests_high_five_src})
-target_link_libraries(tests_high_five_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
-  ${HDF5_C_LIBRARIES})
+add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
+target_link_libraries(tests_high_five_cpp11_bin
+${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
+
 if(HIGHFIVE_PARALLEL_HDF5)
-  target_link_libraries(tests_high_five_bin ${MPI_C_LIBRARIES})
-endif()
-
-add_test(NAME tests_high_five COMMAND tests_high_five_bin)
-
-## if the compiler support C++11
-## lets recompile the base tests with C++11 support
-if(COMPILER_SUPPORTS_CXX11)
-
-  add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
-  target_link_libraries(tests_high_five_cpp11_bin
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
-  if(HIGHFIVE_PARALLEL_HDF5)
     target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
-  endif()
-  target_compile_options(tests_high_five_cpp11_bin PRIVATE "-std=c++11")
-  target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
-
-  add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
-
 endif()
+
+target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
+target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
+
+add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
+
 
 
 if(HIGHFIVE_PARALLEL_HDF5)

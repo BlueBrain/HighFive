@@ -29,10 +29,6 @@
 
 #include "H5Utils.hpp"
 
-#if H5_USE_CXX11
-#include <type_traits>
-#endif
-
 namespace HighFive {
 
 namespace details {
@@ -111,12 +107,11 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
 template <typename Scalar, class Enable = void>
 struct data_converter {
     inline data_converter(Scalar& datamem, DataSpace& space) {
-#if H5_USE_CXX11
-        static_assert((std::is_arithmetic<ScalarValue>::value ||
-                       std::is_same<std::string, ScalarValue>::value),
+
+        static_assert((std::is_arithmetic<Scalar>::value ||
+                       std::is_same<std::string, Scalar>::value),
                       "supported datatype should be an arithmetic value, a "
                       "std::string or a container/array");
-#endif
         (void)datamem;
         (void)space; // do nothing
     }
@@ -134,7 +129,7 @@ struct data_converter {
 // if they are a cstyle array
 template <typename CArray>
 struct data_converter<CArray,
-                      typename enable_if<(is_c_array<CArray>::value)>::type> {
+                      typename std::enable_if<(is_c_array<CArray>::value)>::type> {
     inline data_converter(CArray& datamem, DataSpace& space) {
         (void)datamem;
         (void)space; // do nothing
@@ -153,8 +148,8 @@ struct data_converter<CArray,
 template <typename T>
 struct data_converter<
     std::vector<T>,
-    typename enable_if<(
-        is_same<T, typename type_of_array<T>::type>::value)>::type> {
+    typename std::enable_if<(
+        std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
     inline data_converter(std::vector<T>& vec, DataSpace& space, size_t dim = 0)
         : _space(&space), _dim(dim) {
         assert(_space->getDimensions().size() > dim);
@@ -247,7 +242,7 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
 // apply conversion for vectors nested vectors
 template <typename T>
 struct data_converter<std::vector<T>,
-                      typename enable_if<(is_container<T>::value)>::type> {
+                      typename std::enable_if<(is_container<T>::value)>::type> {
     inline data_converter(std::vector<T>& vec, DataSpace& space, size_t dim = 0)
         : _dims(space.getDimensions()), _dim(dim), _vec_align() {
         (void)vec;

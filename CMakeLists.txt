@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.0)
 
 enable_testing()
 
-set(HIGHFIVE_VERSION_MAJOR 1)
-set(HIGHFIVE_VERSION_MINOR 4)
+set(HIGHFIVE_VERSION_MAJOR 2)
+set(HIGHFIVE_VERSION_MINOR 0)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
@@ -22,8 +22,10 @@ option(USE_BOOST "enable Boost Support" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
+set(HIGHFIVE_CPP_STD_FLAG "-std=c++11" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
+
 if(HIGHFIVE_PARALLEL_HDF5)
-set(HDF5_PREFER_PARALLEL TRUE)
+    set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 
 find_package(HDF5 QUIET REQUIRED)
@@ -38,6 +40,10 @@ endif()
 
 if(HIGHFIVE_PARALLEL_HDF5)
   find_package(MPI)
+endif()
+
+if(NOT COMPILER_SUPPORTS_CXX11)
+    message(FATAL "HighFive version >=2.0 requires c++ standard >= c++11")
 endif()
 
 # Absolute include used to avoid interaction with downstream projects including
