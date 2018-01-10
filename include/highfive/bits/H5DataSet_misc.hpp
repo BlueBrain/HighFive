@@ -55,7 +55,7 @@ inline DataSpace DataSet::getSpace() const {
 inline DataSpace DataSet::getMemSpace() const { return getSpace(); }
 
 inline size_t DataSet::getOffset() const {
-    auto addr = H5Dget_offset(_hid);
+    haddr_t addr = H5Dget_offset(_hid);
     if (addr == HADDR_UNDEF)
     {
         throw std::runtime_error("Cannot get offset of DataSet.");

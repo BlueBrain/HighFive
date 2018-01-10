@@ -700,7 +700,6 @@ BOOST_AUTO_TEST_CASE(datasetOffset) {
 
     File file(filename, File::ReadWrite | File::Create | File::Truncate);
     std::vector<int> data(size_dataset);
-    std::iota(data.begin(), data.end(), 0);
     DataSet ds = file.createDataSet<int>(dsetname, DataSpace::From(data));
     ds.write(data);
     DataSet ds_read = file.getDataSet(dsetname);
