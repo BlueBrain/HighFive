@@ -693,6 +693,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
     readWriteVector2DTest<T>();
 }
 
+BOOST_AUTO_TEST_CASE(datasetOffset) {
+    std::string filename = "datasetOffset.h5";
+    std::string dsetname = "dset";
+    const size_t size_dataset = 20;
+
+    File file(filename, File::ReadWrite | File::Create | File::Truncate);
+    std::vector<int> data(size_dataset);
+    std::iota(data.begin(), data.end(), 0);
+    DataSet ds = file.createDataSet<int>(dsetname, DataSpace::From(data));
+    ds.write(data);
+    DataSet ds_read = file.getDataSet(dsetname);
+    BOOST_CHECK(ds_read.getOffset() > 0);
+}
+
 #ifdef H5_USE_BOOST
 
 template <typename T>

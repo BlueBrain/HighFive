@@ -49,6 +49,13 @@ class DataSet : public Object,
     ///
     DataSpace getMemSpace() const;
 
+    ///
+    /// \brief getOffset
+    /// \return returns DataSet address in file
+    /// class
+    ///
+    size_t getOffset() const;
+
   private:
     DataSet();
     template <typename Derivate>
