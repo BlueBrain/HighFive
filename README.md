@@ -100,6 +100,7 @@ make test
 - Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
 - Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project
 - Tristan Carel <tristan.carel@epfl.ch> - Blue Brain Project
+- Wolf Vollprecht <w.vollprecht@gmail.com> - QuantStack
 
 ### License
 Boost Software License 1.0 

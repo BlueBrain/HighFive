@@ -53,6 +53,14 @@ inline DataSpace DataSet::getSpace() const {
 }
 
 inline DataSpace DataSet::getMemSpace() const { return getSpace(); }
+
+inline size_t DataSet::getOffset() const {
+    haddr_t addr = H5Dget_offset(_hid);
+    if (addr == HADDR_UNDEF){
+        HDF5ErrMapper::ToException<DataSetException>("Cannot get offset of DataSet.");
+    }
+    return addr;
+}
 }
 
 #endif // H5DATASET_MISC_HPP
