@@ -38,6 +38,10 @@ class DataSpace : public Object {
     ///  etc...
     explicit DataSpace(const std::vector<size_t>& dims);
 
+    /// Create a dataspace from an iterator pair
+    template <typename IT>
+    DataSpace(const IT begin, const IT end);
+
     ///
     /// \brief DataSpace create a dataspace of a single dimension and of size
     /// dim1
@@ -78,6 +82,7 @@ class DataSpace : public Object {
     ///  - boost::multi_array
     template <typename Value>
     static DataSpace From(const std::vector<Value>& vec);
+
 
 #ifdef H5_USE_BOOST
     template <typename Value, std::size_t Dims>

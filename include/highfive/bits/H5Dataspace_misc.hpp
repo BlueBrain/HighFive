@@ -20,11 +20,16 @@
 
 namespace HighFive {
 
-inline DataSpace::DataSpace(const std::vector<size_t>& dims) {
-    std::vector<hsize_t> real_dims(dims.size());
-    std::copy(dims.begin(), dims.end(), real_dims.begin());
+inline DataSpace::DataSpace(const std::vector<size_t>& dims)
+    : DataSpace(dims.begin(), dims.end()) {
+}
 
-    if ((_hid = H5Screate_simple(int(dims.size()), &(real_dims.at(0)), NULL)) <
+template <class IT>
+inline DataSpace::DataSpace(const IT begin, const IT end) {
+    std::vector<hsize_t> real_dims(std::distance(begin, end));
+    std::copy(begin, end, real_dims.begin());
+
+    if ((_hid = H5Screate_simple(int(real_dims.size()), &(real_dims.at(0)), NULL)) <
         0) {
         throw DataSpaceException("Impossible to create dataspace");
     }
