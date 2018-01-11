@@ -93,6 +93,7 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
 #if H5_USE_CXX11
     static_assert(
         (std::is_arithmetic<ScalarValue>::value ||
+         std::is_enum<ScalarValue>::value ||
          std::is_same<std::string, ScalarValue>::value),
         "Only the following types are supported by DataSpace::From: \n"
         "  signed_arithmetic_types = int |  long | float |  double \n"
