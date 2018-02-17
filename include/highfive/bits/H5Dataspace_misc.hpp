@@ -81,15 +81,15 @@ inline size_t DataSpace::getNumberDimensions() const {
 }
 
 inline std::vector<size_t> DataSpace::getDimensions() const {
-    std::vector<hsize_t> dims(getNumberDimensions());
-    if (H5Sget_simple_extent_dims(_hid, &(dims[0]), NULL) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Unable to get dataspace dimensions");
-    }
 
-    std::vector<size_t> res(dims.size());
-    std::copy(dims.begin(), dims.end(), res.begin());
-    return res;
+    std::vector<hsize_t> dims(getNumberDimensions());
+    if( dims.size() > 0 ){
+        if (H5Sget_simple_extent_dims(_hid, dims.data(), NULL) < 0) {
+            HDF5ErrMapper::ToException<DataSetException>(
+                "Unable to get dataspace dimensions");
+        }
+    }
+    return details::to_vector_size_t(std::move(dims));
 }
 
 template <typename ScalarValue>

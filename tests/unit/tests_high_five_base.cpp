@@ -977,3 +977,31 @@ void attribute_scalar_rw() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types) {
     attribute_scalar_rw<T>();
 }
+
+
+// regression test https://github.com/BlueBrain/HighFive/issues/98
+BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
+
+    std::string filename("h5_rw_reg_zero_dim_test.h5");
+
+    const std::string DATASET_NAME("dset");
+
+    {
+        // Create a new file using the default property lists.
+        File file(filename, File::ReadWrite | File::Create | File::Truncate);
+
+        DataSpace d_null(DataSpace::DataspaceType::datascape_null);
+
+        DataSet d1 = file.createDataSet<double>(DATASET_NAME, d_null);
+
+        file.flush();
+
+        DataSpace recovered_d1 = d1.getSpace();
+
+        auto ndim = recovered_d1.getNumberDimensions();
+        BOOST_CHECK_EQUAL(ndim, 0);
+
+        auto dims = recovered_d1.getDimensions();
+        BOOST_CHECK_EQUAL(dims.size(), 0);
+    }
+}

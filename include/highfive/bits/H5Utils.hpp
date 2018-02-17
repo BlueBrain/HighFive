@@ -22,6 +22,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#include <H5public.h>
+
 #ifndef H5_USE_CXX11
 #if ___cplusplus >= 201103L
 #define H5_USE_CXX11 1
@@ -148,6 +150,21 @@ struct is_c_array<T[N]> {
     static const bool value = true;
 };
 
+
+
+// convertor function for hsize_t -> size_t when hsize_t != size_t
+template<typename Size>
+inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
+    static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
+    std::vector<size_t> res(vec.size());
+    std::copy(vec.begin(), vec.end(), res.begin());
+    return res;
+}
+
+// convertor function for hsize_t -> size_t when size_t == hsize_t
+inline std::vector<std::size_t> to_vector_size_t(std::vector<std::size_t> vec){
+    return vec;
+}
 
 // shared ptr portability
 // was used pre-C++11, kept for compatibility

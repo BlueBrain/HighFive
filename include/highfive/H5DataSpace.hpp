@@ -55,7 +55,7 @@ class DataSpace : public Object {
     explicit DataSpace(DataspaceType dtype);
 
     /// Create a new DataSpace
-    ///  with a different id avaiable for modifications
+    ///  with a different id available for modifications
     DataSpace clone() const;
 
     ///
