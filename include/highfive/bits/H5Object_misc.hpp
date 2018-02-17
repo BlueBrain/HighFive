@@ -12,6 +12,8 @@
 #include "../H5Exception.hpp"
 #include "../H5Object.hpp"
 
+#include <iostream>
+
 namespace HighFive {
 
 inline Object::Object() : _hid(H5I_INVALID_HID) {}
