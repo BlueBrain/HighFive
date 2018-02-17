@@ -13,6 +13,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <random>
 
 #ifdef HIGHFIVE_CPP11_ENABLE
 #include <memory>
@@ -101,7 +102,11 @@ struct ContentGenerate<std::string> {
     std::string operator()() {
         ContentGenerate<char> gen;
         std::string random_string;
-        const size_t size_string = std::rand() % 1000;
+        std::mt19937_64 rgen;
+        rgen.seed(88);
+        std::uniform_int_distribution<int> int_dist(0, 1000);
+        const size_t size_string = int_dist(rgen);
+
         random_string.resize(size_string);
         std::generate(random_string.begin(), random_string.end(), gen);
         return random_string;

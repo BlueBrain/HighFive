@@ -281,7 +281,7 @@ struct data_converter<std::vector<T>,
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    inline data_converter(std::string& vec, DataSpace& space) : _space(space) {
+    inline data_converter(std::string& vec, DataSpace& space) : _c_vec(nullptr),  _space(space) {
         (void)vec;
     }
 
@@ -299,7 +299,7 @@ struct data_converter<std::string, void> {
     }
 
     inline void process_result(std::string& str) {
-
+        assert(_c_vec != nullptr);
         str = std::string(_c_vec);
 
         if (_c_vec != NULL) {
