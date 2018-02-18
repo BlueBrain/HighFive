@@ -13,6 +13,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <random>
 
 #ifdef HIGHFIVE_CPP11_ENABLE
 #include <memory>
@@ -101,7 +102,11 @@ struct ContentGenerate<std::string> {
     std::string operator()() {
         ContentGenerate<char> gen;
         std::string random_string;
-        const size_t size_string = std::rand() % 1000;
+        std::mt19937_64 rgen;
+        rgen.seed(88);
+        std::uniform_int_distribution<int> int_dist(0, 1000);
+        const size_t size_string = int_dist(rgen);
+
         random_string.resize(size_string);
         std::generate(random_string.begin(), random_string.end(), gen);
         return random_string;
@@ -976,4 +981,32 @@ void attribute_scalar_rw() {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types) {
     attribute_scalar_rw<T>();
+}
+
+
+// regression test https://github.com/BlueBrain/HighFive/issues/98
+BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
+
+    std::string filename("h5_rw_reg_zero_dim_test.h5");
+
+    const std::string DATASET_NAME("dset");
+
+    {
+        // Create a new file using the default property lists.
+        File file(filename, File::ReadWrite | File::Create | File::Truncate);
+
+        DataSpace d_null(DataSpace::DataspaceType::datascape_null);
+
+        DataSet d1 = file.createDataSet<double>(DATASET_NAME, d_null);
+
+        file.flush();
+
+        DataSpace recovered_d1 = d1.getSpace();
+
+        auto ndim = recovered_d1.getNumberDimensions();
+        BOOST_CHECK_EQUAL(ndim, 0);
+
+        auto dims = recovered_d1.getDimensions();
+        BOOST_CHECK_EQUAL(dims.size(), 0);
+    }
 }
