@@ -41,7 +41,7 @@ int main(void) {
         DataSet dataset = file.createDataSet<std::string>(
             DATASET_NAME, DataSpace::From(string_list));
 
-        // lets write our vector of  string
+        // let's write our vector of  string
         dataset.write(string_list);
 
         // now we read it back
