@@ -33,7 +33,7 @@ int main(void) {
                 ", ",  "你好", "Tea",   "Moon", "صباح جميل", "Spaceship",
             };
 
-            // lets create a dataset
+            // let's create a dataset
             DataSet dataset = file.createDataSet<std::string>(
                 DATASET_NAME, DataSpace::From(values));
 
@@ -44,7 +44,7 @@ int main(void) {
         {
             DataSet dataset = file.getDataSet(DATASET_NAME);
 
-            // now lets read back by cherry pick our interesting string
+            // now let's read back by cherry pick our interesting string
             std::vector<std::string> result;
             // we select only element N° 2 and 5
             dataset.select(ElementSet({2, 4, 6, 7, 6, 10})).read(result);

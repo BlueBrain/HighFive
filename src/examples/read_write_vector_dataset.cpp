@@ -31,12 +31,12 @@ void write_dataset() {
         data[i] = int(i);
     }
 
-    // lets create a dataset of native interger with the size of the vector
+    // let's create a dataset of native integer with the size of the vector
     // 'data'
     DataSet dataset =
         file.createDataSet<int>(DATASET_NAME, DataSpace::From(data));
 
-    // lets write our vector of int to the HDF5 dataset
+    // let's write our vector of int to the HDF5 dataset
     dataset.write(data);
 }
 
