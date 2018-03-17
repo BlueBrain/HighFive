@@ -42,7 +42,7 @@ inline File::File(const std::string& filename, int openFlags,
 
     openFlags = convert_open_flag(openFlags);
 
-    if (openFlags & H5F_ACC_CREAT) {
+    if (openFlags & (H5F_ACC_CREAT | H5F_ACC_TRUNC)) {
         if ((_hid = H5Fcreate(_filename.c_str(), openFlags & (H5F_ACC_TRUNC),
                               H5P_DEFAULT, driver.getId())) < 0) {
             HDF5ErrMapper::ToException<FileException>(
