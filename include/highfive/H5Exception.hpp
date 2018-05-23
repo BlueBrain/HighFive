@@ -123,6 +123,14 @@ class GroupException : public Exception {
   public:
     GroupException(const std::string& err_msg) : Exception(err_msg) {}
 };
+
+///
+/// \brief Exception specific to HighFive Property interface
+///
+class PropertyException : public Exception {
+  public:
+    PropertyException(const std::string& err_msg) : Exception(err_msg) {}
+};
 }
 
 #include "bits/H5Exception_misc.hpp"
