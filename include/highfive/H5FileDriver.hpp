@@ -19,7 +19,6 @@ namespace HighFive {
 class FileDriver : public Properties {
   public:
     inline FileDriver();
-    inline FileDriver(hid_t fapl);
 
   private:
 };
@@ -34,9 +33,6 @@ class MPIOFileDriver : public FileDriver {
 
   private:
 };
-
-// internal usage
-inline FileDriver default_file_driver();
 
 } // HighFive
 

@@ -29,9 +29,12 @@ class NodeTraits {
     /// \param space Associated DataSpace, see \ref DataSpace for more
     /// informations
     /// \param type Type of Data
+    /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space, const DataType& type);
+                          const DataSpace& space, const DataType& type,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -39,13 +42,16 @@ class NodeTraits {
     /// \param dataset_name identifier of the dataset
     /// \param space Associated DataSpace, see \ref DataSpace for more
     /// informations
+    /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     ///
     ///
     ///
     template <typename Type>
     DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space);
+                          const DataSpace& space,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps());
 
     ///
     /// \brief get an existing dataset in the current file
