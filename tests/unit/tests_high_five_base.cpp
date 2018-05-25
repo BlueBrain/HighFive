@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     catch (const FileException&)
     {}
     BOOST_CHECK_EQUAL(buffer[0], '\0');
-    
+
     // restore the dyn allocated buffer
     // or using stderr will segfault when buffer get out of scope
     fflush(stderr);
@@ -200,6 +200,7 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
+    const std::string CHUNKED_DATASET_NAME("chunked_dset");
     const std::string GROUP_NAME1("/group1");
     const std::string GROUP_NAME2("group2");
     const std::string GROUP_NESTED_NAME("group_nested");
@@ -230,6 +231,23 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSet dataset_relative =
             nested.createDataSet(DATASET_NAME, dataspace, AtomicType<double>());
+
+        DataSetCreateProps goodChunking;
+        goodChunking.add(Chunking(std::vector<hsize_t>{2, 2}));
+
+        // will fail because exceeds dimensions
+        DataSetCreateProps badChunking;
+        badChunking.add(Chunking(std::vector<hsize_t>{10, 10}));
+
+        BOOST_CHECK_THROW(
+            file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                               AtomicType<double>(), badChunking),
+            DataSetException);
+
+        // here we use the other signature
+        DataSet dataset_chuncked =
+            file.createDataSet<float>(CHUNKED_DATASET_NAME, dataspace,
+                                      goodChunking);
     }
     // read it back
     {
@@ -244,6 +262,9 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSet dataset_relative = nested_group2.getDataSet(DATASET_NAME);
         BOOST_CHECK_EQUAL(4, dataset_relative.getSpace().getDimensions()[0]);
+
+        DataSet dataset_chunked = file.getDataSet(CHUNKED_DATASET_NAME);
+        BOOST_CHECK_EQUAL(4, dataset_chunked.getSpace().getDimensions()[0]);
     }
 }
 

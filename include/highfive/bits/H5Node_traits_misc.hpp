@@ -35,11 +35,13 @@ template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
-                                    const DataType& dtype) {
+                                    const DataType& dtype,
+                                    const DataSetCreateProps& createProps) {
     DataSet set;
     if ((set._hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                dataset_name.c_str(), dtype._hid, space._hid,
-                               H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
+                               H5P_DEFAULT, createProps.getId(),
+                               H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to create the dataset \"") + dataset_name +
             "\":");
@@ -51,8 +53,10 @@ template <typename Derivate>
 template <typename Type>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                    const DataSpace& space) {
-    return createDataSet(dataset_name, space, AtomicType<Type>());
+                                    const DataSpace& space,
+                                    const DataSetCreateProps& createProps) {
+    return createDataSet(dataset_name, space, AtomicType<Type>(),
+                         createProps);
 }
 
 template <typename Derivate>

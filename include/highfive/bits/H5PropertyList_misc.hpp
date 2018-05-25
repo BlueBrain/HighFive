@@ -57,5 +57,14 @@ inline void Properties::add(const Property& property)
 
     property.apply(_hid);
 }
+
+inline void Chunking::apply(const hid_t hid) const
+{
+    if (H5Pset_chunk(hid, _dims.size(), _dims.data()) < 0)
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting chunk property");
+    }
+}
 }
 #endif // H5PROPERTY_LIST_HPP

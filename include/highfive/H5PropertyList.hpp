@@ -43,7 +43,7 @@ class Properties {
   protected:
 
     // protected constructor
-    Properties(Type type);
+    explicit Properties(Type type);
 
   private:
     Properties(const Properties&);
@@ -52,6 +52,23 @@ class Properties {
     Type _type;
     hid_t _hid;
 };
+
+class DataSetCreateProps : public Properties {
+public:
+  DataSetCreateProps() : Properties(DATASET_CREATE) {}
+};
+
+class Chunking
+{
+  public:
+    Chunking(const std::vector<hsize_t>& dims) : _dims(dims) {}
+
+  private:
+    friend class Properties;
+    void apply(hid_t hid) const;
+    std::vector<hsize_t> _dims;
+};
+
 
 } // HighFive
 
