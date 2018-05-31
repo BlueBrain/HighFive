@@ -10,10 +10,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <random>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <random>
 
 #ifdef HIGHFIVE_CPP11_ENABLE
 #include <memory>
@@ -21,9 +21,9 @@
 
 #include <stdio.h>
 
-#include <highfive/H5File.hpp>
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
+#include <highfive/H5File.hpp>
 #include <highfive/H5Group.hpp>
 #include <highfive/H5Utility.hpp>
 
@@ -56,7 +56,7 @@ void generate2D(T* table, size_t x, size_t y, Func& func) {
 }
 
 template <typename T, typename Func>
-void generate2D(std::vector<std::vector<T> >& vec, size_t x, size_t y,
+void generate2D(std::vector<std::vector<T>>& vec, size_t x, size_t y,
                 Func& func) {
     vec.resize(x);
     for (size_t i = 0; i < x; i++) {
@@ -167,13 +167,11 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     memset(buffer, 0, sizeof(char) * 1024);
     setvbuf(stderr, buffer, _IOLBF, 1023);
 
-    try
-    {
+    try {
         SilenceHDF5 silence;
         File file("nonexistent", File::ReadOnly);
+    } catch (const FileException&) {
     }
-    catch (const FileException&)
-    {}
     BOOST_CHECK_EQUAL(buffer[0], '\0');
 
     // restore the dyn allocated buffer
@@ -201,6 +199,7 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
     const std::string CHUNKED_DATASET_NAME("chunked_dset");
+    const std::string CHUNKED_DATASET_SMALL_NAME("chunked_dset_small");
     const std::string GROUP_NAME1("/group1");
     const std::string GROUP_NAME2("group2");
     const std::string GROUP_NESTED_NAME("group_nested");
@@ -236,18 +235,31 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         goodChunking.add(Chunking(std::vector<hsize_t>{2, 2}));
 
         // will fail because exceeds dimensions
-        DataSetCreateProps badChunking;
-        badChunking.add(Chunking(std::vector<hsize_t>{10, 10}));
+        DataSetCreateProps badChunking0;
+        badChunking0.add(Chunking(std::vector<hsize_t>{10, 10}));
 
-        BOOST_CHECK_THROW(
-            file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                               AtomicType<double>(), badChunking),
-            DataSetException);
+        DataSetCreateProps badChunking1;
+        badChunking1.add(Chunking(std::vector<hsize_t>{1, 1, 1}));
+
+        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                             AtomicType<double>(),
+                                             badChunking0),
+                          DataSetException);
+
+        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                             AtomicType<double>(),
+                                             badChunking1),
+                          DataSetException);
 
         // here we use the other signature
-        DataSet dataset_chuncked =
-            file.createDataSet<float>(CHUNKED_DATASET_NAME, dataspace,
-                                      goodChunking);
+        DataSet dataset_chunked = file.createDataSet<float>(
+            CHUNKED_DATASET_NAME, dataspace, goodChunking);
+
+        // Here we resize to smaller than the chunking size
+        DataSet dataset_chunked_small = file.createDataSet<float>(
+            CHUNKED_DATASET_SMALL_NAME, dataspace, goodChunking);
+
+        dataset_chunked_small.resize({1, 1});
     }
     // read it back
     {
@@ -265,6 +277,71 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSet dataset_chunked = file.getDataSet(CHUNKED_DATASET_NAME);
         BOOST_CHECK_EQUAL(4, dataset_chunked.getSpace().getDimensions()[0]);
+
+        DataSet dataset_chunked_small =
+            file.getDataSet(CHUNKED_DATASET_SMALL_NAME);
+        BOOST_CHECK_EQUAL(1,
+                          dataset_chunked_small.getSpace().getDimensions()[0]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
+    const std::string FILE_NAME("create_extensible_dataset_example.h5");
+    const std::string DATASET_NAME("dset");
+    constexpr double t1[3][1] = {{2.0}, {2.0}, {4.0}};
+    constexpr double t2[1][3] = {{4.0, 8.0, 6.0}};
+
+    {
+        // Create a new file using the default property lists.
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+        // Create a dataspace with initial shape and max shape
+        DataSpace dataspace = DataSpace({4, 5}, {17, DataSpace::UNLIMITED});
+
+        // Use chunking
+        DataSetCreateProps props;
+        props.add(Chunking(std::vector<hsize_t>{2, 2}));
+
+        // Create the dataset
+        DataSet dataset = file.createDataSet(DATASET_NAME, dataspace,
+                                             AtomicType<double>(), props);
+
+        // Write into the initial part of the dataset
+        dataset.select({0, 0}, {3, 1}).write(t1);
+
+        // Resize the dataset to a larger size
+        dataset.resize({4, 6});
+
+        BOOST_CHECK_EQUAL(4, dataset.getSpace().getDimensions()[0]);
+        BOOST_CHECK_EQUAL(6, dataset.getSpace().getDimensions()[1]);
+
+        // Write into the new part of the dataset
+        dataset.select({3, 3}, {1, 3}).write(t2);
+
+        // Try resize out of bounds
+        BOOST_CHECK_THROW(dataset.resize({18, 1}), DataSetException);
+        // Try resize invalid dimensions
+        BOOST_CHECK_THROW(dataset.resize({1, 2, 3}), DataSetException);
+    }
+
+    // read it back
+    {
+        File file(FILE_NAME, File::ReadOnly);
+
+        DataSet dataset_absolute = file.getDataSet("/" + DATASET_NAME);
+        const auto dims = dataset_absolute.getSpace().getDimensions();
+        double values[4][6];
+        dataset_absolute.read(values);
+        BOOST_CHECK_EQUAL(4, dims[0]);
+        BOOST_CHECK_EQUAL(6, dims[1]);
+
+        BOOST_CHECK_EQUAL(t1[0][0], values[0][0]);
+        BOOST_CHECK_EQUAL(t1[1][0], values[1][0]);
+        BOOST_CHECK_EQUAL(t1[2][0], values[2][0]);
+
+        BOOST_CHECK_EQUAL(t2[0][0], values[3][3]);
+        BOOST_CHECK_EQUAL(t2[0][1], values[3][4]);
+        BOOST_CHECK_EQUAL(t2[0][2], values[3][5]);
     }
 }
 
@@ -284,7 +361,6 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
 
     {
 
-
         // create group
         Group g1 = file.createGroup(GROUP_NAME1);
 
@@ -292,24 +368,22 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         g1 = file.createGroup(GROUP_NAME2);
 
         // Create the data space for the dataset.
-        std::vector<size_t> dims = { 10 , 10 };
+        std::vector<size_t> dims = {10, 10};
 
         DataSpace dataspace(dims);
 
-        DataSet d1 = file.createDataSet(
-            GROUP_NAME1 + DATASET_NAME,
-            dataspace, AtomicType<double>());
+        DataSet d1 = file.createDataSet(GROUP_NAME1 + DATASET_NAME, dataspace,
+                                        AtomicType<double>());
 
-        double values[10][10] = { 0 };
+        double values[10][10] = {0};
         values[5][0] = 1;
         d1.write(values);
 
         // force move
-        d1_ptr.reset( new DataSet(std::move(d1)));
+        d1_ptr.reset(new DataSet(std::move(d1)));
 
         // force copy
         g_ptr.reset(new Group(g1));
-
     }
     // read it back
     {
@@ -317,34 +391,31 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         d1_ptr.reset();
 
         double values[10][10];
-        memset(values, 255, 10*10);
+        memset(values, 255, 10 * 10);
 
         d2.read(values);
 
-        for(std::size_t i =0; i < 10; ++i){
-            for(std::size_t j =0;  j < 10; ++j){
+        for (std::size_t i = 0; i < 10; ++i) {
+            for (std::size_t j = 0; j < 10; ++j) {
                 double v = values[i][j];
 
-                if( i == 5 && j == 0){
+                if (i == 5 && j == 0) {
                     BOOST_CHECK_EQUAL(v, 1);
-                }else{
+                } else {
                     BOOST_CHECK_EQUAL(v, 0);
                 }
             }
         }
-
 
         // force copy
         Group g2 = *g_ptr;
 
         // add a subgroup
         g2.createGroup("blabla");
-
     }
 }
 
 #endif
-
 
 BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
 
@@ -682,7 +753,7 @@ void readWriteVector2DTest() {
     const size_t x_size = 10;
     const size_t y_size = 10;
     const std::string DATASET_NAME("dset");
-    typename std::vector<std::vector<T> > vec;
+    typename std::vector<std::vector<T>> vec;
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -697,7 +768,7 @@ void readWriteVector2DTest() {
 
     dataset.write(vec);
 
-    typename std::vector<std::vector<T> > result;
+    typename std::vector<std::vector<T>> result;
 
     dataset.read(result);
 
@@ -1003,7 +1074,6 @@ void attribute_scalar_rw() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types) {
     attribute_scalar_rw<T>();
 }
-
 
 // regression test https://github.com/BlueBrain/HighFive/issues/98
 BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {

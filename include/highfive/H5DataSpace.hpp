@@ -10,6 +10,8 @@
 #define H5DATASPACE_HPP
 
 #include <vector>
+#include <cstdint>
+
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -24,6 +26,9 @@ class DataSet;
 
 class DataSpace : public Object {
   public:
+
+    static const size_t UNLIMITED = SIZE_MAX;
+
     /// dataspace type
     enum DataspaceType {
         datascape_scalar,
@@ -41,6 +46,12 @@ class DataSpace : public Object {
     /// Create a dataspace from an iterator pair
     template <typename IT>
     DataSpace(const IT begin, const IT end);
+
+    /// \brief Create a resizable N-dimensional dataspace
+    /// \params dims Initial size of dataspace
+    /// \params maxdims Maximum size of the dataspace
+    explicit DataSpace(const std::vector<size_t>& dims,
+                       const std::vector<size_t>& maxdims);
 
     ///
     /// \brief DataSpace create a dataspace of a single dimension and of size
@@ -68,6 +79,11 @@ class DataSpace : public Object {
     /// \return return a vector of N-element, each element is the size of the
     /// associated dataset dimension
     std::vector<size_t> getDimensions() const;
+
+    /// \brief getMaxDimensions
+    /// \return return a vector of N-element, each element is the size of the
+    /// associated dataset maximum dimension
+    std::vector<size_t> getMaxDimensions() const;
 
     /// Create a dataspace matching a single element of a basic type
     ///  supported type are integrals (int,long), floating points (float,double)
