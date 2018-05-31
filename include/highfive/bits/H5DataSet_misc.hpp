@@ -56,11 +56,30 @@ inline DataSpace DataSet::getMemSpace() const { return getSpace(); }
 
 inline size_t DataSet::getOffset() const {
     haddr_t addr = H5Dget_offset(_hid);
-    if (addr == HADDR_UNDEF){
-        HDF5ErrMapper::ToException<DataSetException>("Cannot get offset of DataSet.");
+    if (addr == HADDR_UNDEF) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Cannot get offset of DataSet.");
     }
     return addr;
 }
+
+inline void DataSet::resize(const std::vector<size_t>& dims) {
+
+    const size_t numDimensions = getSpace().getDimensions().size();
+    if (dims.size() != numDimensions) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Invalid dataspace dimensions, got " + std::to_string(dims.size()) +
+            " expected " + std::to_string(numDimensions));
+    }
+
+    std::vector<hsize_t> real_dims(dims.begin(), dims.end());
+
+    if (H5Dset_extent(getId(), real_dims.data()) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Could not resize dataset.");
+    }
 }
+
+} // namespace HighFive
 
 #endif // H5DATASET_MISC_HPP
