@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(HighFiveException) {
     BOOST_CHECK_THROW(
         {
             // triggers a file creation conflict
-            File file2("random_file_123", File::ReadWrite | File::Create);
+            File file2("random_file_123", File::ReadWrite | File::Create | File::Excl);
         },
         FileException);
 }
