@@ -25,7 +25,7 @@ namespace HighFive {
 class File : public Object,
              public NodeTraits<File>,
              public AnnotateTraits<File> {
-  public:
+ public:
     /// Open flag: Read only access
     static const int ReadOnly = 0x00;
     /// Open flag: Read Write access
@@ -38,6 +38,11 @@ class File : public Object,
     static const int Debug = 0x08;
     /// Open flag: Create non existing file
     static const int Create = 0x10;
+    /// Derived open flag: common write mode (=ReadWrite | Create | Truncate)
+    static const int Overwrite = Truncate;
+    /// Derived open flag: Opens RW or exclusivelly creates
+    static const int OpenOrCreate = ReadWrite | Create;
+
 
     ///
     /// \brief File
@@ -60,11 +65,12 @@ class File : public Object,
     ///
     void flush();
 
-  private:
+ private:
     std::string _filename;
 };
-}
+}  // namespace HighFive
 
 #include "bits/H5File_misc.hpp"
 
-#endif // H5FILE_HPP
+#endif  // H5FILE_HPP
+
