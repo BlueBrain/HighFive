@@ -7,6 +7,7 @@
  *
  */
 
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -180,19 +181,44 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
     setvbuf(stderr, NULL, _IONBF, 0);
 }
 
-BOOST_AUTO_TEST_CASE(HighFiveException) {
+BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
 
-    // Create a new file
-    File file1("random_file_123",
-               File::ReadWrite | File::Create | File::Truncate);
+    const std::string FILE_NAME("openmodes.h5");
+    const std::string DATASET_NAME("dset");
 
-    BOOST_CHECK_THROW(
-        {
-            // triggers a file creation conflict
-            File file2("random_file_123", File::ReadWrite | File::Create);
-        },
-        FileException);
+    std::remove(FILE_NAME.c_str());
+
+    // Attempt open file only ReadWrite should fail (wont create)
+    BOOST_CHECK_THROW (
+        { File file(FILE_NAME, File::ReadWrite); },
+        FileException
+    );
+   
+    // But with Create flag should be fine
+    { File file(FILE_NAME, File::ReadWrite | File::Create); }
+   
+    // But if its there and exclusive is given, should fail
+    BOOST_CHECK_THROW (
+        { File file(FILE_NAME, File::ReadWrite | File::Excl); },
+        FileException
+    );
+    // Even though ReadWrite and Excl flags are fine together (posix)
+    std::remove(FILE_NAME.c_str());
+    { File file(FILE_NAME, File::ReadWrite | File::Excl); }
+    // All three are fine as well
+    std::remove(FILE_NAME.c_str());
+    { File file(FILE_NAME, File::ReadWrite | File::Create | File::Excl); }
+    
+    // But in most cases we will truncate and that should always work
+    { File file(FILE_NAME, File::Truncate); }
+    std::remove(FILE_NAME.c_str());
+    { File file(FILE_NAME, File::Truncate); }
+    
+    // Last but not least, defaults should be ok
+    { File file(FILE_NAME); }     // ReadOnly
+    { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
+
 
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
