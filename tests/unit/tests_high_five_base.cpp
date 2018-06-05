@@ -70,7 +70,8 @@ void generate2D(std::vector<std::vector<T>>& vec, size_t x, size_t y,
 
 template <typename T>
 struct ContentGenerate {
-    ContentGenerate(T init_val = T(0), T inc_val = T(1) + T(1) / T(10))
+    explicit ContentGenerate(T init_val = T(0),
+                             T inc_val = T(1) + T(1) / T(10))
         : _init(init_val), _inc(inc_val) {}
 
     T operator()() {
@@ -115,7 +116,6 @@ struct ContentGenerate<std::string> {
 };
 
 BOOST_AUTO_TEST_CASE(HighFiveBasic) {
-
     const std::string FILE_NAME("h5tutr_dset.h5");
     const std::string DATASET_NAME("dset");
 
@@ -160,7 +160,6 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveSilence) {
-
     // Setting up a buffer for stderr so we can detect if the stack trace
     // was disabled
     fflush(stderr);
@@ -182,38 +181,45 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
-
     const std::string FILE_NAME("openmodes.h5");
     const std::string DATASET_NAME("dset");
 
     std::remove(FILE_NAME.c_str());
 
     // Attempt open file only ReadWrite should fail (wont create)
-    BOOST_CHECK_THROW (
+    BOOST_CHECK_THROW(
         { File file(FILE_NAME, File::ReadWrite); },
-        FileException
-    );
-   
+        FileException);
+
     // But with Create flag should be fine
     { File file(FILE_NAME, File::ReadWrite | File::Create); }
-   
+
     // But if its there and exclusive is given, should fail
-    BOOST_CHECK_THROW (
+    BOOST_CHECK_THROW(
         { File file(FILE_NAME, File::ReadWrite | File::Excl); },
-        FileException
-    );
-    // Even though ReadWrite and Excl flags are fine together (posix)
+        FileException);
+    // ReadWrite and Excl flags are fine together (posix)
     std::remove(FILE_NAME.c_str());
     { File file(FILE_NAME, File::ReadWrite | File::Excl); }
-    // All three are fine as well
+    // All three are fine as well (as long as the file does not exist)
     std::remove(FILE_NAME.c_str());
     { File file(FILE_NAME, File::ReadWrite | File::Create | File::Excl); }
-    
+
+    // Just a few combinations are incompatible, detected by hdf5lib
+    BOOST_CHECK_THROW(
+        { File file(FILE_NAME, File::Truncate | File::Excl); },
+        FileException);
+
+    std::remove(FILE_NAME.c_str());
+    BOOST_CHECK_THROW(
+        { File file(FILE_NAME, File::Truncate | File::Excl); },
+        FileException);
+
     // But in most cases we will truncate and that should always work
     { File file(FILE_NAME, File::Truncate); }
     std::remove(FILE_NAME.c_str());
     { File file(FILE_NAME, File::Truncate); }
-    
+
     // Last but not least, defaults should be ok
     { File file(FILE_NAME); }     // ReadOnly
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
@@ -221,7 +227,6 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
 
 
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
-
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
     const std::string CHUNKED_DATASET_NAME("chunked_dset");
@@ -373,7 +378,6 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
 
 #ifdef HIGHFIVE_CPP11_ENABLE
 BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
-
     const std::string FILE_NAME("h5_ref_count_test.h5");
     const std::string DATASET_NAME("dset");
     const std::string GROUP_NAME1("/group1");
@@ -386,7 +390,6 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
     std::unique_ptr<Group> g_ptr;
 
     {
-
         // create group
         Group g1 = file.createGroup(GROUP_NAME1);
 
@@ -444,11 +447,8 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
 #endif
 
 BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
-
     const std::string FILE_NAME("h5_list_test.h5");
-
     const std::string GROUP_NAME_CORE("group_name");
-
     const std::string GROUP_NESTED_NAME("/group_nested");
 
     // Create a new file using the default property lists.
@@ -513,17 +513,12 @@ BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
 }
 
 BOOST_AUTO_TEST_CASE(DataTypeEqualSimple) {
-
     using namespace HighFive;
 
     AtomicType<double> d_var;
-
     AtomicType<size_t> size_var;
-
     AtomicType<double> d_var_test;
-
     AtomicType<size_t> size_var_cpy(size_var);
-
     AtomicType<int> int_var;
     AtomicType<unsigned int> uint_var;
 
@@ -539,7 +534,6 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualSimple) {
 }
 
 BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
-
     using namespace HighFive;
 
     const std::string FILE_NAME("h5tutr_dset.h5");
@@ -567,7 +561,6 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceTest) {
-
     using namespace HighFive;
 
     const std::string FILE_NAME("h5tutr_space.h5");
@@ -600,12 +593,9 @@ BOOST_AUTO_TEST_CASE(DataSpaceTest) {
 
 template <typename T>
 void readWrite2DArrayTest() {
-
     std::ostringstream filename;
     filename << "h5_rw_2d_array_" << typeid(T).name() << "_test.h5";
-
     const std::string DATASET_NAME("dset");
-
     const size_t x_size = 100;
     const size_t y_size = 10;
 
@@ -641,7 +631,6 @@ void readWrite2DArrayTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
-
     readWrite2DArrayTest<T>();
 }
 
@@ -812,7 +801,6 @@ void readWriteVector2DTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
-
     readWriteVector2DTest<T>();
 }
 
@@ -833,7 +821,6 @@ BOOST_AUTO_TEST_CASE(datasetOffset) {
 
 template <typename T>
 void MultiArray3DTest() {
-
     typedef typename boost::multi_array<T, 3> MultiArray;
 
     std::ostringstream filename;
@@ -870,13 +857,11 @@ void MultiArray3DTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(MultiArray3D, T, numerical_test_types) {
-
     MultiArray3DTest<T>();
 }
 
 template <typename T>
 void ublas_matrix_Test() {
-
     typedef typename boost::numeric::ublas::matrix<T> Matrix;
 
     std::ostringstream filename;
@@ -915,7 +900,6 @@ void ublas_matrix_Test() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_matrix, T, numerical_test_types) {
-
     ublas_matrix_Test<T>();
 }
 
@@ -923,7 +907,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_matrix, T, numerical_test_types) {
 
 template <typename T>
 void selectionArraySimpleTest() {
-
     typedef typename std::vector<T> Vector;
 
     std::ostringstream filename;
@@ -999,13 +982,11 @@ void selectionArraySimpleTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types) {
-
     selectionArraySimpleTest<T>();
 }
 
 template <typename T>
 void columnSelectionTest() {
-
     std::ostringstream filename;
     filename << "h5_rw_select_column_test_" << typeid(T).name() << "_test.h5";
 
@@ -1053,13 +1034,11 @@ void columnSelectionTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(columnSelection, T, numerical_test_types) {
-
     columnSelectionTest<T>();
 }
 
 template <typename T>
 void attribute_scalar_rw() {
-
     std::ostringstream filename;
     filename << "h5_rw_attribute_scalar_rw" << typeid(T).name() << "_test.h5";
 
@@ -1103,7 +1082,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types) {
 
 // regression test https://github.com/BlueBrain/HighFive/issues/98
 BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
-
     std::string filename("h5_rw_reg_zero_dim_test.h5");
 
     const std::string DATASET_NAME("dset");
