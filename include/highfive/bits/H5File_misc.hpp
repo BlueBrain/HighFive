@@ -50,7 +50,7 @@ inline File::File(const std::string& filename, int openFlags,
     bool openOrCreate = (openFlags & H5F_ACC_CREAT) > 0;
 
     // open is default. It's skipped only if flags require creation
-    // If open fails if will try create if H5F_ACC_CREAT is set
+    // If open fails it will try create() if H5F_ACC_CREAT is set
     if (!mustCreate) {
         // Silence open errors if create is allowed
         std::unique_ptr<SilenceHDF5> silencer;
