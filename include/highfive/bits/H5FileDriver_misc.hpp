@@ -52,7 +52,7 @@ inline FileDriver::FileDriver() : Properties(FILE_ACCESS) {}
 
 template <typename Comm, typename Info>
 inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
-    add(MPIIOFileAccess(comm, info));
+    add(MPIOFileAccess<Comm, Info>(comm, info));
 }
 }
 
