@@ -1105,3 +1105,63 @@ BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
         BOOST_CHECK_EQUAL(dims.size(), 0);
     }
 }
+
+template <typename T>
+void readWriteShuffleDeflateTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_deflate_" << typeid(T).name() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+    const size_t x_size = 128;
+    const size_t y_size = 32;
+
+    const int deflate_level = 9;
+
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create the data space for the dataset.
+    std::vector<size_t> dims;
+    dims.push_back(x_size);
+    dims.push_back(y_size);
+
+    DataSpace dataspace(dims);
+
+    // Use chunking
+    DataSetCreateProps props;
+    props.add(Chunking(std::vector<hsize_t>{16, 16}));
+
+    // Enable shuffle
+    props.add(Shuffle());
+
+    // Enable deflate
+    props.add(Deflate(deflate_level));
+
+    // Create a dataset with arbitrary type
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
+
+    T array[x_size][y_size];
+
+    ContentGenerate<T> generator;
+    generate2D(array, x_size, y_size, generator);
+
+    dataset.write(array);
+
+    // read it back
+    {
+        File file_read(filename.str(), File::ReadOnly);
+        DataSet dataset_read = file_read.getDataSet("/" + DATASET_NAME);
+
+        T result[x_size][y_size];
+
+        dataset_read.read(result);
+
+        for (size_t i = 0; i < x_size; ++i) {
+            for (size_t j = 0; i < y_size; ++i) {
+                BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) {
+    readWriteShuffleDeflateTest<T>();
+}
