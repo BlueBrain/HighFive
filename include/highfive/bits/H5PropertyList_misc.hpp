@@ -21,7 +21,7 @@ inline Properties::Properties(Type type)
 {
 }
 
-#if H5_USE_CXX11
+#ifdef H5_USE_CXX11
 inline Properties::Properties(Properties&& other)
     : _type(other._type)
     , _hid(other._hid)
