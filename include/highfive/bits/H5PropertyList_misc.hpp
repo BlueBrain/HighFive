@@ -21,6 +21,25 @@ inline Properties::Properties(Type type)
 {
 }
 
+#if H5_USE_CXX11
+inline Properties::Properties(Properties&& other)
+    : _type(other._type)
+    , _hid(other._hid)
+{
+    other._hid = H5P_DEFAULT;
+}
+
+inline Properties& Properties::operator=(Properties&& other)
+{
+    _type = other._type;
+    // This code handles self-assigment without ifs
+    const auto hid = other._hid;
+    other._hid = H5P_DEFAULT;
+    _hid = hid;
+    return *this;
+}
+#endif
+
 inline Properties::~Properties()
 {
     // H5P_DEFAULT and H5I_INVALID_HID are not the same Ensuring that ~Object
