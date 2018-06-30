@@ -22,6 +22,7 @@ option(USE_BOOST "enable Boost Support" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
+set(HDF5_DIR "" CACHE STRING "flag to set cmake to find hdf5 in a non-standard install path")
 set(HIGHFIVE_CPP_STD_FLAG "-std=c++11" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
 
 if(HIGHFIVE_PARALLEL_HDF5)
@@ -29,6 +30,14 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 
 find_package(HDF5 QUIET REQUIRED)
+
+if(EXISTS "${HDF5_DIR}")
+    find_package(HDF5 PATHS ${HDF5_DIR}/share/cmake REQUIRED)
+    include_directories(${HDF5_INCLUDE_DIRS})
+    link_directories(${HDF5_LIBRARY_DIR})
+else()
+    find_package(HDF5 REQUIRED)
+endif()
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 
