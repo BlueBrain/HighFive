@@ -129,7 +129,6 @@ inline AtomicType<std::complex<double> >::AtomicType()
         
         cplx_hid =   H5Tcreate( H5T_COMPOUND, sizeof(std::complex<double>) );
 
-        std::complex<double> cplx(0.0);
         real_offset=  0.;
         imag_offset=  sizeof(double);
         
