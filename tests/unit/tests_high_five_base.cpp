@@ -1113,37 +1113,44 @@ void readWriteShuffleDeflateTest() {
     const std::string DATASET_NAME("dset");
     const size_t x_size = 128;
     const size_t y_size = 32;
+    const size_t x_chunk = 16;
+    const size_t y_chunk = 16;
 
     const int deflate_level = 9;
 
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(x_size);
-    dims.push_back(y_size);
-
-    DataSpace dataspace(dims);
-
-    // Use chunking
-    DataSetCreateProps props;
-    props.add(Chunking(std::vector<hsize_t>{16, 16}));
-
-    // Enable shuffle
-    props.add(Shuffle());
-
-    // Enable deflate
-    props.add(Deflate(deflate_level));
-
-    // Create a dataset with arbitrary type
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
-
     T array[x_size][y_size];
 
-    ContentGenerate<T> generator;
-    generate2D(array, x_size, y_size, generator);
+    // write a compressed file
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    dataset.write(array);
+        // Create the data space for the dataset.
+        std::vector<size_t> dims;
+        dims.push_back(x_size);
+        dims.push_back(y_size);
+
+        DataSpace dataspace(dims);
+
+        // Use chunking
+        DataSetCreateProps props;
+        props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
+
+        // Enable shuffle
+        props.add(Shuffle());
+
+        // Enable deflate
+        props.add(Deflate(deflate_level));
+
+        // Create a dataset with arbitrary type
+        DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
+
+        ContentGenerate<T> generator;
+        generate2D(array, x_size, y_size, generator);
+
+        dataset.write(array);
+
+        file.flush();
+    }
 
     // read it back
     {
