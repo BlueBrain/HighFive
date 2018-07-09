@@ -85,5 +85,35 @@ inline void Chunking::apply(const hid_t hid) const
             "Error setting chunk property");
     }
 }
+
+inline void Deflate::apply(const hid_t hid) const
+{
+    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE))
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting deflate property");
+    }
+
+    if (H5Pset_deflate(hid, _level) < 0)
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting deflate property");
+    }
+}
+
+inline void Shuffle::apply(const hid_t hid) const
+{
+    if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE))
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting shuffle property");
+    }
+
+    if (H5Pset_shuffle(hid) < 0)
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting shuffle property");
+    }
+}
 }
 #endif // H5PROPERTY_LIST_HPP

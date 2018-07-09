@@ -79,6 +79,26 @@ class Chunking
     std::vector<hsize_t> _dims;
 };
 
+class Deflate
+{
+  public:
+    Deflate(int level) : _level(level) {}
+
+  private:
+    friend class Properties;
+    void apply(hid_t hid) const;
+    int _level;
+};
+
+class Shuffle
+{
+  public:
+    Shuffle() {}
+
+  private:
+    friend class Properties;
+    void apply(hid_t hid) const;
+};
 
 } // HighFive
 
