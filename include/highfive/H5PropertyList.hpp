@@ -28,6 +28,11 @@ class Properties {
 
     ~Properties();
 
+#ifdef H5_USE_CXX11
+    Properties(Properties&& other);
+    Properties& operator=(Properties&& other);
+#endif
+
     Type getType() const { return _type; }
 
     hid_t getId() const { return _hid; }
@@ -46,8 +51,13 @@ class Properties {
     explicit Properties(Type type);
 
   private:
+#ifdef H5_USE_CXX11
+    Properties(const Properties&) = delete;
+    Properties& operator=(const Properties&) = delete;
+#else
     Properties(const Properties&);
     Properties& operator=(const Properties&);
+#endif
 
     Type _type;
     hid_t _hid;
