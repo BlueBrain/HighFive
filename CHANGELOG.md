@@ -1,3 +1,13 @@
+##Version 2.0 - 2018/07/19
+    - First version with C++11 enforcement
+    - Support for property list
+    - Support for Chunking
+    - Support for Compression / Deflate
+    - Fix: missing move constructor for properties
+    - Fix: typo in MPI IO driver
+    - Fix: several typo fixes
+    - Fix: Add missing include
+
 ## Version 1.5 - 2018/01/06
     - SliceTraits::read split in two overloads, the first one for plain C arrays
       and the second one for other types.
