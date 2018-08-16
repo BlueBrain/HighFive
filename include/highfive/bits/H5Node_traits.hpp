@@ -30,11 +30,14 @@ class NodeTraits {
     /// informations
     /// \param type Type of Data
     /// \param createProps A property list with data set creation properties
+    /// \param createProps A property list with data set access properties
     /// \return DataSet Object
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space, const DataType& type,
                           const DataSetCreateProps& createProps =
-                            DataSetCreateProps());
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -51,14 +54,19 @@ class NodeTraits {
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps =
-                            DataSetCreateProps());
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
 
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
+    /// \param accessProps property list to configure dataset chunk cache
     /// \return return the named dataset, or throw exception if not found
     ///
-    DataSet getDataSet(const std::string& dataset_name) const;
+    DataSet getDataSet(const std::string& dataset_name,
+                       const DataSetAccessProps& accessProps =
+                         DataSetAccessProps()) const;
 
     ///
     /// \brief create a new group with the name group_name

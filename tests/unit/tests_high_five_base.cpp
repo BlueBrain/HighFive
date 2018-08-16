@@ -264,6 +264,8 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSetCreateProps goodChunking;
         goodChunking.add(Chunking(std::vector<hsize_t>{2, 2}));
+        DataSetAccessProps cacheConfig;
+        cacheConfig.add(Caching(13, 1024, 0.5));
 
         // will fail because exceeds dimensions
         DataSetCreateProps badChunking0;
@@ -271,6 +273,7 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSetCreateProps badChunking1;
         badChunking1.add(Chunking(std::vector<hsize_t>{1, 1, 1}));
+
 
         BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
                                              AtomicType<double>(),
@@ -284,7 +287,7 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         // here we use the other signature
         DataSet dataset_chunked = file.createDataSet<float>(
-            CHUNKED_DATASET_NAME, dataspace, goodChunking);
+            CHUNKED_DATASET_NAME, dataspace, goodChunking, cacheConfig);
 
         // Here we resize to smaller than the chunking size
         DataSet dataset_chunked_small = file.createDataSet<float>(
@@ -306,7 +309,10 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         DataSet dataset_relative = nested_group2.getDataSet(DATASET_NAME);
         BOOST_CHECK_EQUAL(4, dataset_relative.getSpace().getDimensions()[0]);
 
-        DataSet dataset_chunked = file.getDataSet(CHUNKED_DATASET_NAME);
+        DataSetAccessProps accessProps;
+        accessProps.add(Caching(13, 1024, 0.5));
+        DataSet dataset_chunked = file.getDataSet(CHUNKED_DATASET_NAME,
+                                                  accessProps);
         BOOST_CHECK_EQUAL(4, dataset_chunked.getSpace().getDimensions()[0]);
 
         DataSet dataset_chunked_small =

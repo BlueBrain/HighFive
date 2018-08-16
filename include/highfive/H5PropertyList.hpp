@@ -23,7 +23,8 @@ class Properties {
     enum Type
     {
        FILE_ACCESS,
-       DATASET_CREATE
+       DATASET_CREATE,
+       DATASET_ACCESS
     };
 
     ~Properties();
@@ -37,11 +38,11 @@ class Properties {
 
     hid_t getId() const { return _hid; }
 
-    /**
-     * Add a property to this property list.
-     * A property is an object which is expected to have a method with the
-     * following signature void apply(hid_t hid) const
-     */
+    ///
+    /// Add a property to this property list.
+    /// A property is an object which is expected to have a method with the
+    /// following signature void apply(hid_t hid) const
+    ///
     template <typename Property>
     void add(const Property& property);
 
@@ -68,6 +69,11 @@ public:
   DataSetCreateProps() : Properties(DATASET_CREATE) {}
 };
 
+class DataSetAccessProps : public Properties {
+public:
+  DataSetAccessProps() : Properties(DATASET_ACCESS) {}
+};
+
 class Chunking
 {
   public:
@@ -76,7 +82,7 @@ class Chunking
   private:
     friend class Properties;
     void apply(hid_t hid) const;
-    std::vector<hsize_t> _dims;
+    const std::vector<hsize_t> _dims;
 };
 
 class Deflate
@@ -87,7 +93,7 @@ class Deflate
   private:
     friend class Properties;
     void apply(hid_t hid) const;
-    int _level;
+    const int _level;
 };
 
 class Shuffle
@@ -98,6 +104,28 @@ class Shuffle
   private:
     friend class Properties;
     void apply(hid_t hid) const;
+};
+
+/// Dataset access property to control chunk cache configuration.
+/// Do not confuse with the similar file access property for H5Pset_cache
+class Caching
+{
+  public:
+    /// https://support.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_chunk_cache.html for
+    /// details.
+    Caching(const size_t numSlots, const size_t cacheSize,
+            const double w0 = H5D_CHUNK_CACHE_W0_DEFAULT)
+        : _numSlots(numSlots)
+        , _cacheSize(cacheSize)
+        , _w0(w0)
+    {}
+
+  private:
+    friend class Properties;
+    void apply(hid_t hid) const;
+    const unsigned int _numSlots;
+    const size_t _cacheSize;
+    const double _w0;
 };
 
 } // HighFive

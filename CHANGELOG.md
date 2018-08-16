@@ -1,3 +1,6 @@
+## master
+    - Support for chunk cache configuration at data set create/open
+
 ##Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
     - Support for property list
@@ -12,8 +15,8 @@
     - SliceTraits::read split in two overloads, the first one for plain C arrays
       and the second one for other types.
     - Add support for complex number
-    - Add exist() method to the API 
-    - Will be last release before 2.0 and enforcement of C++11 
+    - Add exist() method to the API
+    - Will be last release before 2.0 and enforcement of C++11
 
 ## Version 1.4 - 2017/08/25
 	- Support id selection for the `select` function
@@ -37,7 +40,7 @@
 ## Version 1.1 - 2017/03/23
     - Add support and examples for Parallel HDF5
     - Initial implementation for H5 Properties
-    - Support for Attributes 
+    - Support for Attributes
     - Improve documentation
     - Add example for boost.Ublas matrix support
 

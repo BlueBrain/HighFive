@@ -53,7 +53,8 @@ inline void Properties::add(const Property& property)
     if (_hid == H5P_DEFAULT)
     {
         hid_t type;
-        // The HP5_XXX are macros with function calls
+        // The HP5_XXX are macros with function calls so we can't assign
+        // them as the enum values
         switch (_type)
         {
         case FILE_ACCESS: {
@@ -62,6 +63,10 @@ inline void Properties::add(const Property& property)
         }
         case DATASET_CREATE: {
             type = H5P_DATASET_CREATE;
+            break;
+        }
+        case DATASET_ACCESS: {
+            type = H5P_DATASET_ACCESS;
             break;
         }
         default:
@@ -113,6 +118,15 @@ inline void Shuffle::apply(const hid_t hid) const
     {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting shuffle property");
+    }
+}
+
+inline void Caching::apply(const hid_t hid) const
+{
+    if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0)
+    {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting dataset cache parameters");
     }
 }
 }
