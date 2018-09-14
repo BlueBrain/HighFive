@@ -180,8 +180,9 @@ template <typename T, std::size_t S>
 struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
-                         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::array<T, S>& vec, DataSpace& space, size_t dim = 0) {
+        std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
+    inline data_converter(std::array<T, S>& vec, DataSpace& space,
+                          size_t dim = 0) {
         if (space.getDimensions().size() != 1) {
             throw DataSpaceException("Only 1D std::array supported currently.");
         }
@@ -194,17 +195,17 @@ struct data_converter<
         (void)vec;
         (void)dim;
     }
-    
+
     inline typename type_of_array<T>::type*
     transform_read(std::array<T, S>& vec) {
         return vec.data();
     }
-    
+
     inline typename type_of_array<T>::type*
     transform_write(std::array<T, S>& vec) {
         return vec.data();
     }
-    
+
     inline void process_result(std::array<T, S>& vec) { (void)vec; }
 };
 
