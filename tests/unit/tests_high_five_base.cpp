@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <complex>
 #include <iostream>
 #include <random>
 #include <string>
@@ -35,10 +36,12 @@
 #endif
 
 using namespace HighFive;
+using complex = std::complex<double>;
 
 typedef boost::mpl::list<float, double> floating_numerics_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
-                         char, float, double, long long, unsigned long long>
+                         char, float, double, long long, unsigned long long,
+                         complex>
     numerical_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
                          char, float, double, std::string>
@@ -67,9 +70,7 @@ void generate2D(std::vector<std::vector<T>>& vec, size_t x, size_t y,
 
 template <typename T>
 struct ContentGenerate {
-    explicit ContentGenerate(T init_val = T(0),
-                             T inc_val = T(1) + T(1) / T(10))
-        : _init(init_val), _inc(inc_val) {}
+    ContentGenerate() : _init(0), _inc(T(1) + T(1) / T(10)) {}
 
     T operator()() {
         T ret = _init;
@@ -79,6 +80,12 @@ struct ContentGenerate {
 
     T _init, _inc;
 };
+
+template <>
+ContentGenerate<complex>::ContentGenerate()
+    : _init(0, 0)
+    , _inc(complex(1, 1) + complex(1, 1) / complex(10))
+{}
 
 template <>
 struct ContentGenerate<char> {
@@ -694,8 +701,8 @@ void readWriteVectorTest() {
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;
     vec.resize(x_size);
-    for(size_t i = 0; i < x_size; i++)
-        vec.at(i) = i % 100;
+    ContentGenerate<T> generator;
+    std::generate(vec.begin(), vec.end(), generator);
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -712,10 +719,8 @@ void readWriteVectorTest() {
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
 
-    for (size_t i = 0; i < x_size; ++i) {
-        // std::cout << result[i] << " " << vec[i] << "  ";
-        BOOST_CHECK_EQUAL(result.at(i), vec.at(i));
-    }
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
+                                  vec.begin(), vec.end());
 }
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector, T, numerical_test_types) {
     readWriteVectorTest<T>();
@@ -731,8 +736,8 @@ void readWriteArrayTest() {
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     typename std::array<T, x_size> vec;
-    for (size_t i = 0; i < x_size; i++)
-        vec.at(i) = i % 100;
+    ContentGenerate<T> generator;
+    std::generate(vec.begin(), vec.end(), generator);
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -746,10 +751,8 @@ void readWriteArrayTest() {
 
     dataset.read(result);
 
-    for (size_t i = 0; i < x_size; ++i) {
-        // std::cout << result[i] << " " << vec[i] << "  ";
-        BOOST_CHECK_EQUAL(result[i], vec[i]);
-    }
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
+                                  vec.begin(), vec.end());
 
     typename std::array<T, 1> tooSmall;
     BOOST_CHECK_THROW(dataset.read(tooSmall), DataSpaceException);
@@ -775,7 +778,6 @@ void readWriteAttributeVectorTest() {
 
     vec.resize(x_size);
     ContentGenerate<T> generator;
-
     std::generate(vec.begin(), vec.end(), generator);
 
     {
@@ -826,10 +828,8 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(vec.size(), x_size);
         BOOST_CHECK_EQUAL(result1.size(), x_size);
 
-        for (size_t i = 0; i < x_size; ++i) {
-            // std::cout << result[i] << " " << vec[i] << "  ";
+        for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result1[i], vec[i]);
-        }
 
         Attribute a2_read = file.getDataSet("/dummy_group/dummy_dataset")
                                 .getAttribute("my_attribute_copy");
@@ -838,10 +838,8 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(vec.size(), x_size);
         BOOST_CHECK_EQUAL(result2.size(), x_size);
 
-        for (size_t i = 0; i < x_size; ++i) {
-            // std::cout << result[i] << " " << vec[i] << "  ";
+        for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
-        }
     }
 }
 
@@ -940,7 +938,6 @@ void MultiArray3DTest() {
     for (size_t i = 0; i < size_x; ++i) {
         for (size_t j = 0; j < size_y; ++j) {
             for (size_t k = 0; k < size_z; ++k) {
-                // std::cout << array[i][j][k] << " ";
                 BOOST_CHECK_EQUAL(array[i][j][k], result[i][j][k]);
             }
         }
@@ -984,7 +981,6 @@ void ublas_matrix_Test() {
 
     for (size_t i = 0; i < size_x; ++i) {
         for (size_t j = 0; j < size_y; ++j) {
-            // std::cout << array[i][j][k] << " ";
             BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
         }
     }
