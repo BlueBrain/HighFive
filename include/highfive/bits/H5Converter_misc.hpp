@@ -15,6 +15,7 @@
 #include <numeric>
 #include <sstream>
 #include <string>
+#include <array>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
@@ -170,6 +171,34 @@ struct data_converter<
 
     inline void process_result(std::vector<T>& vec) { (void)vec; }
 
+    DataSpace* _space;
+    size_t _dim;
+};
+
+// apply conversion to std::array
+template <typename T, std::size_t S>
+struct data_converter<
+    std::array<T, S>,
+    typename std::enable_if<(
+                         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
+    inline data_converter(std::array<T,S>& vec, DataSpace& space, size_t dim = 0)
+    : _space(&space), _dim(dim) {
+        assert(_space->getDimensions().size() >= dim);
+        (void)vec;
+    }
+    
+    inline typename type_of_array<T>::type*
+    transform_read(std::array<T, S>& vec) {
+        return &(vec[0]);
+    }
+    
+    inline typename type_of_array<T>::type*
+    transform_write(std::array<T, S>& vec) {
+        return vec.data();
+    }
+    
+    inline void process_result(std::array<T, S>& vec) { (void)vec; }
+    
     DataSpace* _space;
     size_t _dim;
 };

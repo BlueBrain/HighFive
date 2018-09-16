@@ -647,10 +647,12 @@ void readWriteVectorTest() {
     std::ostringstream filename;
     filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
 
-    std::srand((unsigned int)std::time(0));
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;
+    vec.resize(x_size);
+    for(size_t i=0; i<x_size; i++)
+        vec.at(i) = i % 100;
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -669,8 +671,45 @@ void readWriteVectorTest() {
 
     for (size_t i = 0; i < x_size; ++i) {
         // std::cout << result[i] << " " << vec[i] << "  ";
+        BOOST_CHECK_EQUAL(result.at(i), vec.at(i));
+    }
+}
+BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector, T, numerical_test_types) {
+    readWriteVectorTest<T>();
+}
+
+template <typename T>
+void readWriteArrayTest() {
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
+
+    const size_t x_size = 800;
+    const std::string DATASET_NAME("dset");
+    typename std::array<T, x_size> vec;
+    for(size_t i=0; i<x_size; i++)
+        vec.at(i) = i % 100;
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create a dataset with double precision floating points
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
+
+    dataset.write(vec);
+
+    typename std::array<T, x_size> result;
+
+    dataset.read(result);
+
+    for (size_t i = 0; i < x_size; ++i) {
+        // std::cout << result[i] << " " << vec[i] << "  ";
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }
+}
+BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteArray, T, numerical_test_types) {
+    readWriteArrayTest<T>();
 }
 
 template <typename T>

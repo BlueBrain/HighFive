@@ -16,6 +16,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <array>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
@@ -55,6 +56,12 @@ struct array_dims<T*> {
 template <typename T, std::size_t N>
 struct array_dims<T[N]> {
     static const size_t value = 1 + array_dims<T>::value;
+};
+
+// Only supporting 1D arrays at the moment
+template<typename T, std::size_t N>
+struct array_dims<std::array<T,N>> {
+    static const size_t value = 1;
 };
 
 #ifdef H5_USE_BOOST
@@ -97,6 +104,11 @@ struct type_of_array {
 
 template <typename T>
 struct type_of_array<std::vector<T> > {
+    typedef typename type_of_array<T>::type type;
+};
+
+template <typename T, std::size_t N>
+struct type_of_array<std::array<T, N> > {
     typedef typename type_of_array<T>::type type;
 };
 

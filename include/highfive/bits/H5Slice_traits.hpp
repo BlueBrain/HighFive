@@ -68,7 +68,7 @@ class SliceTraits {
     ///
     /// The array type can be a N-pointer or a N-vector. For plain pointers
     /// not dimensionality checking will be performed, it is the user's
-    /// reponsibility to ensure that the right amount of space has been
+    /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
     void read(T& array) const;
@@ -77,7 +77,7 @@ class SliceTraits {
     /// Read the entire dataset into a raw buffer
     ///
     /// No dimensionality checks will be performed, it is the user's
-    /// reponsibility to ensure that the right amount of space has been
+    /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
     void read(T* array) const;
@@ -96,7 +96,7 @@ class SliceTraits {
     /// Write from a raw buffer into this dataset
     ///
     /// No dimensionality checks will be performed, it is the user's
-    /// reponsibility to ensure that the buffer holds the right amount of
+    /// responsibility to ensure that the buffer holds the right amount of
     /// elements. For n-dimensional matrices the buffer layout follows H5
     /// default conventions.
     template <typename T>
