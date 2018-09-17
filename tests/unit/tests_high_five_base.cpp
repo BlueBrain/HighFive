@@ -707,6 +707,9 @@ void readWriteArrayTest() {
         // std::cout << result[i] << " " << vec[i] << "  ";
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }
+
+    typename std::array<T, 1> tooSmall;
+    BOOST_CHECK_THROW(dataset.read(tooSmall), DataSpaceException);
 }
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteArray, T, numerical_test_types) {
     readWriteArrayTest<T>();
