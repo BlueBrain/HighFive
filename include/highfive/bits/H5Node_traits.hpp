@@ -69,7 +69,7 @@ class NodeTraits {
     ///
     ///
     ///
-    template <typename Type, typename InferredType>
+    template <typename InferredType>
     DataSet createDataSet(const std::string& dataset_name,
                           const InferredType& data,
                           const DataSetCreateProps& createProps =

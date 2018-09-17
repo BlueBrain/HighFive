@@ -52,7 +52,7 @@ class AnnotateTraits {
     /// information on DataSpace::From
     /// \return Attribute Object
     ///
-    template <typename Type, typename InferredType>
+    template <typename InferredType>
     Attribute createAttribute(const std::string& attribute_name,
                               const InferredType& data);
 

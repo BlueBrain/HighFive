@@ -49,7 +49,7 @@ dataset.read(result);
 > Note: if you can use `DataSpace::From` on your data, you can combine the create and write into one statement:
 > 
 > ```c++
-> DataSet dataset = file.createDataSet<int>("/dataset_one",  data);
+> DataSet dataset = file.createDataSet("/dataset_one",  data);
 > ```
 >
 > This works with `createAttribute`, as well.

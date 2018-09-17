@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         DataSet d1 = file.createDataSet(GROUP_NAME1 + DATASET_NAME, dataspace,
                                         AtomicType<double>());
 
-        double values[10][10] = {0};
+        double values[10][10] = {{0}};
         values[5][0] = 1;
         d1.write(values);
 
@@ -649,18 +649,27 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
 
     std::string at_contents("Contents of string");
     std::string read_in;
+    
+    int my_int = 3;
+    int out_int = 0;
+
+    std::vector<std::vector<int>> my_nested = {{1,2},{3,4}};
+    auto out_nested = my_nested;
+
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create a dataset with int points
-    DataSet dataset = file.createDataSet<int>(DATASET_NAME, vec);
-    dataset.createAttribute<std::string>("str", at_contents);
+    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+    dataset.createAttribute("str", at_contents);
+
+    DataSet ds_int = file.createDataSet("/TmpInt", my_int);
+    DataSet ds_nested = file.createDataSet("/TmpNest", my_nested);
 
     std::vector<int> result;
     dataset.read(result);
 
-    dataset.getAttribute("str").read(read_in);
 
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
@@ -669,7 +678,19 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }
 
+    dataset.getAttribute("str").read(read_in);
     BOOST_CHECK_EQUAL(read_in, at_contents);
+
+    ds_int.read(out_int);
+    BOOST_CHECK_EQUAL(my_int, out_int);
+
+    ds_nested.read(out_nested);
+
+    for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = 0; j < 2; ++j) {
+            BOOST_CHECK_EQUAL(my_nested[i][j], out_nested[i][j]);
+        }
+    }
 }
 
 template <typename T>

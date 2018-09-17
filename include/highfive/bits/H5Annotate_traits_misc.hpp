@@ -49,11 +49,11 @@ AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
 }
 
 template <typename Derivate>
-template <typename Type, typename InferredType>
+template <typename InferredType>
 inline Attribute
 AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
-                                         const InferredType& data) {
-    Attribute att = createAttribute(attribute_name, DataSpace::From(data), AtomicType<Type>());
+                                          const InferredType& data) {
+    Attribute att = createAttribute(attribute_name, DataSpace::From(data), AtomicType<typename details::type_of_array<InferredType>::type>());
     att.write(data);
     return att;
 }
