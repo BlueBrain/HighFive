@@ -181,16 +181,14 @@ struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
                          std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::array<T,S>& vec, DataSpace& space, size_t dim = 0) {
-        if(space.getDimensions().size() != 1) {
+    inline data_converter(std::array<T, S>& vec, DataSpace& space, size_t dim = 0) {
+        if (space.getDimensions().size() != 1) {
             throw DataSpaceException("Only 1D std::array supported currently.");
         }
-        if(space.getDimensions()[0] != S) {
+        if (space.getDimensions()[0] != S) {
             std::ostringstream ss;
-            ss << "Impossible to pair DataSet with "
-               << space.getDimensions()[0] << " elements into "
-                       "an array with "
-               << S << " elements.";
+            ss << "Impossible to pair DataSet with " << space.getDimensions()[0]
+               << " elements into an array with " << S << " elements.";
             throw DataSpaceException(ss.str());
         }
         (void)vec;
