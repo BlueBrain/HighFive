@@ -25,7 +25,6 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 
 target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
-target_compile_definitions(tests_high_five_cpp11_bin PRIVATE "-DHIGHFIVE_CPP11_ENABLE=1")
 
 add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 
