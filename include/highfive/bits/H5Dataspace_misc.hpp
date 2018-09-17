@@ -10,6 +10,7 @@
 #define H5DATASPACE_MISC_HPP
 
 #include <vector>
+#include <array>
 
 #include <H5Spublic.h>
 
@@ -150,6 +151,14 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
 template <typename Value>
 inline DataSpace DataSpace::From(const std::vector<Value>& container) {
     return DataSpace(details::get_dim_vector<Value>(container));
+}
+
+/// Currently only supports 1D std::array
+template <typename Value, std::size_t N>
+inline DataSpace DataSpace::From(const std::array<Value, N>& ) {
+    std::vector<size_t> dims;
+    dims.push_back(N);
+    return DataSpace(dims);
 }
 
 #ifdef H5_USE_BOOST

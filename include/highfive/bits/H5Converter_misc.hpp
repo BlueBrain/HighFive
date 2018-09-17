@@ -15,6 +15,7 @@
 #include <numeric>
 #include <sstream>
 #include <string>
+#include <array>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
@@ -174,6 +175,39 @@ struct data_converter<
     size_t _dim;
 };
 
+// apply conversion to std::array
+template <typename T, std::size_t S>
+struct data_converter<
+    std::array<T, S>,
+    typename std::enable_if<(
+                         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
+    inline data_converter(std::array<T, S>& vec, DataSpace& space, size_t dim = 0) {
+        if (space.getDimensions().size() != 1) {
+            throw DataSpaceException("Only 1D std::array supported currently.");
+        }
+        if (space.getDimensions()[0] != S) {
+            std::ostringstream ss;
+            ss << "Impossible to pair DataSet with " << space.getDimensions()[0]
+               << " elements into an array with " << S << " elements.";
+            throw DataSpaceException(ss.str());
+        }
+        (void)vec;
+        (void)dim;
+    }
+    
+    inline typename type_of_array<T>::type*
+    transform_read(std::array<T, S>& vec) {
+        return vec.data();
+    }
+    
+    inline typename type_of_array<T>::type*
+    transform_write(std::array<T, S>& vec) {
+        return vec.data();
+    }
+    
+    inline void process_result(std::array<T, S>& vec) { (void)vec; }
+};
+
 #ifdef H5_USE_BOOST
 // apply conversion to boost multi array
 template <typename T, std::size_t Dims>
@@ -277,6 +311,7 @@ struct data_converter<std::vector<T>,
     size_t _dim;
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
+
 
 // apply conversion to scalar string
 template <>
