@@ -15,10 +15,7 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#ifdef HIGHFIVE_CPP11_ENABLE
 #include <memory>
-#endif
 
 #include <stdio.h>
 
@@ -382,7 +379,6 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
     }
 }
 
-#ifdef HIGHFIVE_CPP11_ENABLE
 BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
     const std::string FILE_NAME("h5_ref_count_test.h5");
     const std::string DATASET_NAME("dset");
@@ -449,8 +445,6 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         g2.createGroup("blabla");
     }
 }
-
-#endif
 
 BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
     const std::string FILE_NAME("h5_list_test.h5");
