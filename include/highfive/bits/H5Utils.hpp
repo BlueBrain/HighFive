@@ -40,39 +40,39 @@ namespace details {
 // determine at compile time number of dimensions of in memory datasets
 template <typename T>
 struct array_dims {
-    static const size_t value = 0;
+    static constexpr size_t value = 0;
 };
 
 template <typename T>
 struct array_dims<std::vector<T> > {
-    static const size_t value = 1 + array_dims<T>::value;
+    static constexpr size_t value = 1 + array_dims<T>::value;
 };
 
 template <typename T>
 struct array_dims<T*> {
-    static const size_t value = 1 + array_dims<T>::value;
+    static constexpr size_t value = 1 + array_dims<T>::value;
 };
 
 template <typename T, std::size_t N>
 struct array_dims<T[N]> {
-    static const size_t value = 1 + array_dims<T>::value;
+    static constexpr size_t value = 1 + array_dims<T>::value;
 };
 
 // Only supporting 1D arrays at the moment
 template<typename T, std::size_t N>
 struct array_dims<std::array<T,N>> {
-    static const size_t value = 1;
+    static constexpr size_t value = 1 + array_dims<T>::value;
 };
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
 struct array_dims<boost::multi_array<T, Dims> > {
-    static const size_t value = Dims;
+    static constexpr size_t value = Dims;
 };
 
 template <typename T>
 struct array_dims<boost::numeric::ublas::matrix<T> > {
-    static const size_t value = 2;
+    static constexpr size_t value = 2;
 };
 #endif
 

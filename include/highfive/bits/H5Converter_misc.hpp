@@ -182,14 +182,16 @@ struct data_converter<
     typename std::enable_if<(
                          std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
     inline data_converter(std::array<T,S>& vec, DataSpace& space, size_t dim = 0)
-    : _space(&space), _dim(dim) {
-        assert(_space->getDimensions().size() >= dim);
+    : _space(&space) {
+        assert(_space->getDimensions().size() > 0);
+        assert(_space->getDimensions().at(0) == S);
         (void)vec;
+        (void)dim;
     }
     
     inline typename type_of_array<T>::type*
     transform_read(std::array<T, S>& vec) {
-        return &(vec[0]);
+        return vec.data();
     }
     
     inline typename type_of_array<T>::type*
@@ -200,7 +202,6 @@ struct data_converter<
     inline void process_result(std::array<T, S>& vec) { (void)vec; }
     
     DataSpace* _space;
-    size_t _dim;
 };
 
 #ifdef H5_USE_BOOST
@@ -306,6 +307,7 @@ struct data_converter<std::vector<T>,
     size_t _dim;
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
+
 
 // apply conversion to scalar string
 template <>

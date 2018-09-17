@@ -651,7 +651,7 @@ void readWriteVectorTest() {
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;
     vec.resize(x_size);
-    for(size_t i=0; i<x_size; i++)
+    for(size_t i = 0; i < x_size; i++)
         vec.at(i) = i % 100;
 
     // Create a new file using the default property lists.
@@ -683,12 +683,12 @@ void readWriteArrayTest() {
     using namespace HighFive;
 
     std::ostringstream filename;
-    filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_arr_" << typeid(T).name() << "_test.h5";
 
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     typename std::array<T, x_size> vec;
-    for(size_t i=0; i<x_size; i++)
+    for(size_t i = 0; i < x_size; i++)
         vec.at(i) = i % 100;
 
     // Create a new file using the default property lists.
