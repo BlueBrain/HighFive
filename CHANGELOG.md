@@ -1,7 +1,8 @@
 ## master
     - Support for chunk cache configuration at data set create/open
+    - Support for std::array (unnested)
 
-##Version 2.0 - 2018/07/19
+## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
     - Support for property list
     - Support for Chunking
