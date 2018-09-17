@@ -653,7 +653,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with int points
     DataSet dataset = file.createDataSet<int>(DATASET_NAME, vec);
     dataset.createAttribute<std::string>("str", at_contents);
 
@@ -689,7 +689,7 @@ void readWriteVectorTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);
@@ -726,7 +726,7 @@ void readWriteArrayTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);
@@ -858,7 +858,7 @@ void readWriteVector2DTest() {
 
     generate2D(vec, x_size, y_size, generator);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);

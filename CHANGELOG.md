@@ -1,7 +1,7 @@
 ## master
     - Support for chunk cache configuration at data set create/open
     - Support for std::array (unnested)
-    - Add direct data write shortcut 
+    - Added AnnotateTraits::createAttribute and NodeTraits::createDataset overloads to create and initialize the data in a single call
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement

@@ -60,7 +60,7 @@ class NodeTraits {
 
     
     /// \brief createDataSet create a new dataset in the current file and
-    /// write to it, inferring the DataSpace from teh data.
+    /// write to it, inferring the DataSpace from the data.
     /// \param dataset_name identifier of the dataset
     /// \param data Associated data, must support DataSpace::From, see
     /// \ref DataSpace for more information
