@@ -46,13 +46,13 @@ std::vector<int> result;
 dataset.read(result);
 ```
 
-> Note: if you can use From, you can combine the create and write into one statement:
+> Note: if you can use `DataSpace::From` on your data, you can combine the create and write into one statement:
 > 
 > ```c++
-> DataSet dataset = file.writeDataSet<int>("/dataset_one",  data);
+> DataSet dataset = file.createDataSet<int>("/dataset_one",  data);
 > ```
 >
-> This works with `writeAttribute`, as well.
+> This works with `createAttribute`, as well.
 
 #### Write a 2 dimensional C double float array to a 2D HDF5 dataset
 

@@ -59,7 +59,7 @@ class NodeTraits {
                             DataSetAccessProps());
 
     
-    /// \brief writeDataSet create a new dataset in the current file and
+    /// \brief createDataSet create a new dataset in the current file and
     /// write to it, inferring the DataSpace from teh data.
     /// \param dataset_name identifier of the dataset
     /// \param data Associated data, must support DataSpace::From, see
@@ -70,7 +70,7 @@ class NodeTraits {
     ///
     ///
     template <typename Type, typename InferredType>
-    DataSet writeDataSet(const std::string& dataset_name,
+    DataSet createDataSet(const std::string& dataset_name,
                           const InferredType& data,
                           const DataSetCreateProps& createProps =
                             DataSetCreateProps(),

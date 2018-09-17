@@ -654,8 +654,8 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create a dataset with double precision floating points
-    DataSet dataset = file.writeDataSet<int>(DATASET_NAME, vec);
-    dataset.writeAttribute<std::string>("str", at_contents);
+    DataSet dataset = file.createDataSet<int>(DATASET_NAME, vec);
+    dataset.createAttribute<std::string>("str", at_contents);
 
     std::vector<int> result;
     dataset.read(result);

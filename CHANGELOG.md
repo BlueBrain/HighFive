@@ -1,6 +1,7 @@
 ## master
     - Support for chunk cache configuration at data set create/open
     - Support for std::array (unnested)
+    - Add direct data write shortcut 
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement

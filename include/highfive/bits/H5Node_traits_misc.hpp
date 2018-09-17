@@ -66,7 +66,7 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
 template <typename Derivate>
 template <typename Type, typename InferredType>
 inline DataSet
-NodeTraits<Derivate>::writeDataSet(const std::string& dataset_name,
+NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const InferredType& data,
                                     const DataSetCreateProps& createProps,
                                     const DataSetAccessProps& accessProps)
