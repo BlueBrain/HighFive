@@ -643,17 +643,24 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     std::vector<int> vec;
+    vec.resize(x_size);
     for(size_t i=0; i < x_size; i++)
         vec[i] = i * 2;
+
+    std::string at_contents("Contents of string");
+    std::string read_in;
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create a dataset with double precision floating points
     DataSet dataset = file.writeDataSet<int>(DATASET_NAME, vec);
+    dataset.writeAttribute<std::string>("str", at_contents);
 
     std::vector<int> result;
     dataset.read(result);
+
+    dataset.getAttribute("str").read(read_in);
 
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
@@ -661,6 +668,8 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     for (size_t i = 0; i < x_size; ++i) {
         BOOST_CHECK_EQUAL(result[i], vec[i]);
     }
+
+    BOOST_CHECK_EQUAL(read_in, at_contents);
 }
 
 template <typename T>
