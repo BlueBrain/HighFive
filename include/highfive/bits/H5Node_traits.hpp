@@ -44,7 +44,7 @@ class NodeTraits {
     /// size specified by space
     /// \param dataset_name identifier of the dataset
     /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// informations
+    /// information
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     ///
@@ -53,6 +53,25 @@ class NodeTraits {
     template <typename Type>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
+
+    
+    /// \brief writeDataSet create a new dataset in the current file and
+    /// write to it, inferring the DataSpace from teh data.
+    /// \param dataset_name identifier of the dataset
+    /// \param data Associated data, must support DataSpace::From, see
+    /// \ref DataSpace for more information
+    /// \param createProps A property list with data set creation properties
+    /// \return DataSet Object
+    ///
+    ///
+    ///
+    template <typename Type, typename InferredType>
+    DataSet writeDataSet(const std::string& dataset_name,
+                          const InferredType& data,
                           const DataSetCreateProps& createProps =
                             DataSetCreateProps(),
                           const DataSetAccessProps& accessProps =

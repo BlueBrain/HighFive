@@ -634,6 +634,35 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
     readWrite2DArrayTest<T>();
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_vec_shortcut_test.h5";
+
+    const size_t x_size = 800;
+    const std::string DATASET_NAME("dset");
+    std::vector<int> vec;
+    for(size_t i=0; i < x_size; i++)
+        vec[i] = i * 2;
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create a dataset with double precision floating points
+    DataSet dataset = file.writeDataSet<int>(DATASET_NAME, vec);
+
+    std::vector<int> result;
+    dataset.read(result);
+
+    BOOST_CHECK_EQUAL(vec.size(), x_size);
+    BOOST_CHECK_EQUAL(result.size(), x_size);
+
+    for (size_t i = 0; i < x_size; ++i) {
+        BOOST_CHECK_EQUAL(result[i], vec[i]);
+    }
+}
+
 template <typename T>
 void readWriteVectorTest() {
     using namespace HighFive;
