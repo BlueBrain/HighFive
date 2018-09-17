@@ -688,7 +688,7 @@ void readWriteArrayTest() {
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
     typename std::array<T, x_size> vec;
-    for(size_t i = 0; i < x_size; i++)
+    for (size_t i = 0; i < x_size; i++)
         vec.at(i) = i % 100;
 
     // Create a new file using the default property lists.
