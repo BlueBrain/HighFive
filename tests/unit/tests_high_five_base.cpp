@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         DataSet d1 = file.createDataSet(GROUP_NAME1 + DATASET_NAME, dataspace,
                                         AtomicType<double>());
 
-        double values[10][10] = {0};
+        double values[10][10] = {{0}};
         values[5][0] = 1;
         d1.write(values);
 
@@ -634,6 +634,55 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
     readWrite2DArrayTest<T>();
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_vec_shortcut_test.h5";
+
+    const size_t x_size = 800;
+    const std::string DATASET_NAME("dset");
+    std::vector<int> vec;
+    vec.resize(x_size);
+    for(size_t i=0; i < x_size; i++)
+        vec[i] = i * 2;
+    std::string at_contents("Contents of string");
+    int my_int = 3;
+    std::vector<std::vector<int>> my_nested = {{1,2},{3,4}};
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create a dataset with int points
+    DataSet dataset = file.createDataSet(DATASET_NAME, vec);
+    dataset.createAttribute("str", at_contents);
+
+    DataSet ds_int = file.createDataSet("/TmpInt", my_int);
+    DataSet ds_nested = file.createDataSet("/TmpNest", my_nested);
+
+    std::vector<int> result;
+    dataset.read(result);
+    BOOST_CHECK_EQUAL_COLLECTIONS(vec.begin(), vec.end(),
+                                  result.begin(), result.end());
+    
+    std::string read_in;
+    dataset.getAttribute("str").read(read_in);
+    BOOST_CHECK_EQUAL(read_in, at_contents);
+
+    int out_int = 0;
+    ds_int.read(out_int);
+    BOOST_CHECK_EQUAL(my_int, out_int);
+
+    decltype(my_nested) out_nested; 
+    ds_nested.read(out_nested);
+
+    for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = 0; j < 2; ++j) {
+            BOOST_CHECK_EQUAL(my_nested[i][j], out_nested[i][j]);
+        }
+    }
+}
+
 template <typename T>
 void readWriteVectorTest() {
     using namespace HighFive;
@@ -651,7 +700,7 @@ void readWriteVectorTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);
@@ -688,7 +737,7 @@ void readWriteArrayTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);
@@ -820,7 +869,7 @@ void readWriteVector2DTest() {
 
     generate2D(vec, x_size, y_size, generator);
 
-    // Create a dataset with double precision floating points
+    // Create a dataset with type T points
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
 
     dataset.write(vec);

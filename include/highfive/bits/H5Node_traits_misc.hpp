@@ -64,6 +64,22 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
 }
 
 template <typename Derivate>
+template <typename T>
+inline DataSet
+NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
+                                    const T& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps)
+{
+    DataSet ds = createDataSet(
+        dataset_name, DataSpace::From(data),
+        AtomicType<typename details::type_of_array<T>::type>(),
+        createProps, accessProps);
+    ds.write(data);
+    return ds;
+}
+
+template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                  const DataSetAccessProps& accessProps) const {

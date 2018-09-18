@@ -31,18 +31,30 @@ class AnnotateTraits {
                               const DataSpace& space, const DataType& type);
 
     ///
-    /// \brief createDataSet create a new dataset in the current file with a
+    /// \brief createAttribute create a new attribute on the current dataset with
     /// size specified by space
-    /// \param dataset_name identifier of the dataset
+    /// \param dataset_name identifier of the attribute
     /// \param space Associated DataSpace, see \ref DataSpace for more
     /// informations
-    /// \return DataSet Object
+    /// \return Attribute Object
     ///
     ///
     ///
     template <typename Type>
     Attribute createAttribute(const std::string& attribute_name,
                               const DataSpace& space);
+
+    ///
+    /// \brief createAttribute create a new attribute on the current dataset and
+    /// write to it, inferring the DataSpace from data.
+    /// \param attribute_name identifier of the attribute
+    /// \param data Associated data to write, must support DataSpace::From, see
+    ///  \ref DataSpace for more information
+    /// \return Attribute Object
+    ///
+    template <typename T>
+    Attribute createAttribute(const std::string& attribute_name,
+                              const T& data);
 
     ///
     /// \brief open an existing attribute with the name attribute_name
