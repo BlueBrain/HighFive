@@ -646,16 +646,9 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     vec.resize(x_size);
     for(size_t i=0; i < x_size; i++)
         vec[i] = i * 2;
-
     std::string at_contents("Contents of string");
-    std::string read_in;
-    
     int my_int = 3;
-    int out_int = 0;
-
     std::vector<std::vector<int>> my_nested = {{1,2},{3,4}};
-    auto out_nested = my_nested;
-
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -669,21 +662,18 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
 
     std::vector<int> result;
     dataset.read(result);
-
-
-    BOOST_CHECK_EQUAL(vec.size(), x_size);
-    BOOST_CHECK_EQUAL(result.size(), x_size);
-
-    for (size_t i = 0; i < x_size; ++i) {
-        BOOST_CHECK_EQUAL(result[i], vec[i]);
-    }
-
+    BOOST_CHECK_EQUAL_COLLECTIONS(vec.begin(), vec.end(),
+                                  result.begin(), result.end());
+    
+    std::string read_in;
     dataset.getAttribute("str").read(read_in);
     BOOST_CHECK_EQUAL(read_in, at_contents);
 
+    int out_int = 0;
     ds_int.read(out_int);
     BOOST_CHECK_EQUAL(my_int, out_int);
 
+    decltype(my_nested) out_nested; 
     ds_nested.read(out_nested);
 
     for (size_t i = 0; i < 2; ++i) {
