@@ -64,15 +64,17 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
 }
 
 template <typename Derivate>
-template <typename InferredType>
+template <typename T>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                    const InferredType& data,
+                                    const T& data,
                                     const DataSetCreateProps& createProps,
                                     const DataSetAccessProps& accessProps)
 {
-    DataSet ds = createDataSet(dataset_name, DataSpace::From(data), AtomicType<typename details::type_of_array<InferredType>::type>(),
-                               createProps, accessProps);
+    DataSet ds = createDataSet(
+        dataset_name, DataSpace::From(data),
+        AtomicType<typename details::type_of_array<T>::type>(),
+        createProps, accessProps);
     ds.write(data);
     return ds;
 }
