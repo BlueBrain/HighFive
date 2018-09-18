@@ -46,15 +46,15 @@ class AnnotateTraits {
 
     ///
     /// \brief createAttribute create a new attribute on the current dataset and
-    /// writes to it; must support DataSpace::From
+    /// write to it, inferring the DataSpace from data.
     /// \param attribute_name identifier of the attribute
-    /// \param data Associated data to write, see \ref DataSpace for more
-    /// information on DataSpace::From
+    /// \param data Associated data to write, must support DataSpace::From, see
+    ///  \ref DataSpace for more information
     /// \return Attribute Object
     ///
-    template <typename InferredType>
+    template <typename T>
     Attribute createAttribute(const std::string& attribute_name,
-                              const InferredType& data);
+                              const T& data);
 
     ///
     /// \brief open an existing attribute with the name attribute_name
