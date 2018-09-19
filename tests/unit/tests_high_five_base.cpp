@@ -129,9 +129,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(4);
-    dims.push_back(6);
+    std::vector<size_t> dims = {4,6};
 
     DataSpace dataspace(dims);
 
@@ -577,11 +575,7 @@ BOOST_AUTO_TEST_CASE(DataSpaceTest) {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(10);
-    dims.push_back(1);
-
-    DataSpace dataspace(dims);
+    DataSpace dataspace{std::vector<size_t>{10, 1}};
 
     // Create a dataset with size_t type
     DataSet dataset = file.createDataSet<size_t>(DATASET_NAME, dataspace);
@@ -596,6 +590,63 @@ BOOST_AUTO_TEST_CASE(DataSpaceTest) {
     BOOST_CHECK_EQUAL(space.getDimensions().size(), 2);
     BOOST_CHECK_EQUAL(space.getDimensions()[0], 10);
     BOOST_CHECK_EQUAL(space.getDimensions()[1], 1);
+}
+
+BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
+    using namespace HighFive;
+
+    // Create 1D shortcut dataspace
+    DataSpace space(7);
+
+    BOOST_CHECK_EQUAL(space.getDimensions().size(), 1);
+    BOOST_CHECK_EQUAL(space.getDimensions()[0], 7);
+
+    // Initializer list (explicit)
+    DataSpace space3({8, 9, 10});
+
+    BOOST_CHECK_EQUAL(space3.getDimensions().size(), 3);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[0], 8);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[1], 9);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[2], 10);
+
+    // Verify 2D works (note that without the {}, this matches the iterator constructor)
+    DataSpace space2(std::vector<size_t>{3, 4});
+
+    BOOST_CHECK_EQUAL(space2.getDimensions().size(), 2);
+    BOOST_CHECK_EQUAL(space2.getDimensions()[0], 3);
+    BOOST_CHECK_EQUAL(space2.getDimensions()[1], 4);
+}
+
+BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
+    using namespace HighFive;
+
+    // Create 1D shortcut dataspace
+    DataSpace space {7};
+
+    BOOST_CHECK_EQUAL(space.getDimensions().size(), 1);
+    BOOST_CHECK_EQUAL(space.getDimensions()[0], 7);
+
+    // Initializer list (explicit)
+    DataSpace space3{8, 9, 10};
+
+    BOOST_CHECK_EQUAL(space3.getDimensions().size(), 3);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[0], 8);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[1], 9);
+    BOOST_CHECK_EQUAL(space3.getDimensions()[2], 10);
+
+    // Verify 2D works using explicit syntax
+    DataSpace space2{3, 4};
+
+    BOOST_CHECK_EQUAL(space2.getDimensions().size(), 2);
+    BOOST_CHECK_EQUAL(space2.getDimensions()[0], 3);
+    BOOST_CHECK_EQUAL(space2.getDimensions()[1], 4);
+    
+    // Verify 2D works using old syntax (this used to match the iterator!)
+    DataSpace space2b(3, 4);
+
+    BOOST_CHECK_EQUAL(space2b.getDimensions().size(), 2);
+    BOOST_CHECK_EQUAL(space2b.getDimensions()[0], 3);
+    BOOST_CHECK_EQUAL(space2b.getDimensions()[1], 4);
 }
 
 template <typename T>
