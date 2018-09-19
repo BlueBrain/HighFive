@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <array>
+#include <initializer_list>
 
 #include <H5Spublic.h>
 
@@ -24,7 +25,15 @@ namespace HighFive {
 inline DataSpace::DataSpace(const std::vector<size_t>& dims)
     : DataSpace(dims.begin(), dims.end()) {}
 
-template <class IT>
+inline DataSpace::DataSpace(std::initializer_list<size_t> items)
+    : DataSpace(std::vector<size_t>(items)) {}
+
+template<typename... Args>
+    inline DataSpace::DataSpace(size_t dim1, Args... dims)
+    : DataSpace(std::vector<size_t>{static_cast<size_t>(dim1),
+                                    static_cast<size_t>(dims)...}){}
+
+template <class IT, typename>
 inline DataSpace::DataSpace(const IT begin, const IT end) {
     std::vector<hsize_t> real_dims(begin, end);
 
@@ -53,13 +62,6 @@ inline DataSpace::DataSpace(const std::vector<size_t>& dims,
         throw DataSpaceException("Impossible to create dataspace");
     }
 } // namespace HighFive
-
-inline DataSpace::DataSpace(const size_t dim1) {
-    const hsize_t dims = hsize_t(dim1);
-    if ((_hid = H5Screate_simple(1, &dims, NULL)) < 0) {
-        throw DataSpaceException("Unable to create dataspace");
-    }
-}
 
 inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
     H5S_class_t h5_dataspace_type;
