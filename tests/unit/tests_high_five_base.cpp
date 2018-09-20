@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims = {4,6};
+    std::vector<size_t> dims{4,6};
 
     DataSpace dataspace(dims);
 
@@ -251,9 +251,7 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         Group nested = g1.createGroup(GROUP_NESTED_NAME);
 
         // Create the data space for the dataset.
-        std::vector<size_t> dims;
-        dims.push_back(4);
-        dims.push_back(6);
+        std::vector<size_t> dims{4, 6};
 
         DataSpace dataspace(dims);
 
@@ -548,9 +546,7 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(10);
-    dims.push_back(1);
+    std::vector<size_t> dims{10, 1};
 
     DataSpace dataspace(dims);
 
@@ -603,50 +599,62 @@ BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
 
     // Initializer list (explicit)
     DataSpace space3({8, 9, 10});
+    auto space3_res = space3.getDimensions();
+    std::vector<size_t> space3_ans{8, 9, 10};
 
-    BOOST_CHECK_EQUAL(space3.getDimensions().size(), 3);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[0], 8);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[1], 9);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[2], 10);
+    BOOST_CHECK_EQUAL_COLLECTIONS(space3_res.begin(), space3_res.end(),
+                                  space3_ans.begin(), space3_ans.end());
 
     // Verify 2D works (note that without the {}, this matches the iterator constructor)
     DataSpace space2(std::vector<size_t>{3, 4});
 
-    BOOST_CHECK_EQUAL(space2.getDimensions().size(), 2);
-    BOOST_CHECK_EQUAL(space2.getDimensions()[0], 3);
-    BOOST_CHECK_EQUAL(space2.getDimensions()[1], 4);
+    auto space2_res = space2.getDimensions();
+    std::vector<size_t> space2_ans{3, 4};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(space2_res.begin(), space2_res.end(),
+                                  space2_ans.begin(), space2_ans.end());
+
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
     using namespace HighFive;
 
     // Create 1D shortcut dataspace
-    DataSpace space {7};
+    DataSpace space1 {7};
 
-    BOOST_CHECK_EQUAL(space.getDimensions().size(), 1);
-    BOOST_CHECK_EQUAL(space.getDimensions()[0], 7);
+    auto space1_res = space1.getDimensions();
+    std::vector<size_t> space1_ans{7};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(space1_res.begin(), space1_res.end(),
+                                  space1_ans.begin(), space1_ans.end());
+
 
     // Initializer list (explicit)
     DataSpace space3{8, 9, 10};
 
-    BOOST_CHECK_EQUAL(space3.getDimensions().size(), 3);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[0], 8);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[1], 9);
-    BOOST_CHECK_EQUAL(space3.getDimensions()[2], 10);
+    auto space3_res = space3.getDimensions();
+    std::vector<size_t> space3_ans{8, 9, 10};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(space3_res.begin(), space3_res.end(),
+                                  space3_ans.begin(), space3_ans.end());
 
     // Verify 2D works using explicit syntax
     DataSpace space2{3, 4};
 
-    BOOST_CHECK_EQUAL(space2.getDimensions().size(), 2);
-    BOOST_CHECK_EQUAL(space2.getDimensions()[0], 3);
-    BOOST_CHECK_EQUAL(space2.getDimensions()[1], 4);
+    auto space2_res = space2.getDimensions();
+    std::vector<size_t> space2_ans{3, 4};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(space2_res.begin(), space2_res.end(),
+                                  space2_ans.begin(), space2_ans.end());
     
     // Verify 2D works using old syntax (this used to match the iterator!)
     DataSpace space2b(3, 4);
 
-    BOOST_CHECK_EQUAL(space2b.getDimensions().size(), 2);
-    BOOST_CHECK_EQUAL(space2b.getDimensions()[0], 3);
-    BOOST_CHECK_EQUAL(space2b.getDimensions()[1], 4);
+    auto space2b_res = space2b.getDimensions();
+    std::vector<size_t> space2b_ans{3, 4};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(space2b_res.begin(), space2b_res.end(),
+                                  space2b_ans.begin(), space2b_ans.end());
 }
 
 template <typename T>
@@ -661,9 +669,7 @@ void readWrite2DArrayTest() {
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(x_size);
-    dims.push_back(y_size);
+    std::vector<size_t> dims{x_size, y_size};
 
     DataSpace dataspace(dims);
 
@@ -1074,10 +1080,8 @@ void selectionArraySimpleTest() {
     {
         // read it back
         Vector result;
-        std::vector<size_t> offset;
-        offset.push_back(offset_x);
-        std::vector<size_t> size;
-        size.push_back(count_x);
+        std::vector<size_t> offset{offset_x};
+        std::vector<size_t> size{count_x};
 
         Selection slice = dataset.select(offset, size);
 
@@ -1097,11 +1101,7 @@ void selectionArraySimpleTest() {
     {
         // read it back
         Vector result;
-        std::vector<size_t> ids;
-        ids.push_back(1);
-        ids.push_back(3);
-        ids.push_back(4);
-        ids.push_back(7);
+        std::vector<size_t> ids{1,3,4,7};
 
         Selection slice = dataset.select(ElementSet(ids));
 
@@ -1142,9 +1142,7 @@ void columnSelectionTest() {
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims;
-    dims.push_back(x_size);
-    dims.push_back(y_size);
+    std::vector<size_t> dims{x_size, y_size};
 
     DataSpace dataspace(dims);
     // Create a dataset with arbitrary type
@@ -1154,10 +1152,7 @@ void columnSelectionTest() {
 
     file.flush();
 
-    std::vector<size_t> columns;
-    columns.push_back(1);
-    columns.push_back(3);
-    columns.push_back(5);
+    std::vector<size_t> columns{1, 3, 5};
 
     Selection slice = dataset.select(columns);
     T result[x_size][3];
@@ -1263,9 +1258,7 @@ void readWriteShuffleDeflateTest() {
         File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
         // Create the data space for the dataset.
-        std::vector<size_t> dims;
-        dims.push_back(x_size);
-        dims.push_back(y_size);
+        std::vector<size_t> dims{x_size, y_size};
 
         DataSpace dataspace(dims);
 
