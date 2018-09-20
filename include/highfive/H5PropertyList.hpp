@@ -79,6 +79,13 @@ class Chunking
   public:
     Chunking(const std::vector<hsize_t>& dims) : _dims(dims) {}
 
+    Chunking(std::initializer_list<hsize_t> items) : Chunking(std::vector<hsize_t>{items}) {}
+
+    template<typename... Args>
+    Chunking(hsize_t item, Args... args) : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
+
+    const std::vector<hsize_t>& getDimensions() const {return _dims;}
+
   private:
     friend class Properties;
     void apply(hid_t hid) const;
