@@ -657,6 +657,32 @@ BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
                                   space2b_ans.begin(), space2b_ans.end());
 }
 
+BOOST_AUTO_TEST_CASE(ChunkingConstructorsTest) {
+    Chunking first(1,2,3);
+
+    auto first_res = first.getDimensions();
+    std::vector<hsize_t> first_ans{1,2,3};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(first_res.begin(), first_res.end(),
+                                  first_ans.begin(), first_ans.end());
+
+    Chunking second{1,2,3};
+
+    auto second_res = second.getDimensions();
+    std::vector<hsize_t> second_ans{1,2,3};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(second_res.begin(), second_res.end(),
+                                  second_ans.begin(), second_ans.end());
+
+    Chunking third({1,2,3});
+
+    auto third_res = third.getDimensions();
+    std::vector<hsize_t> third_ans{1,2,3};
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(third_res.begin(), third_res.end(),
+                                  third_ans.begin(), third_ans.end());
+}
+
 template <typename T>
 void readWrite2DArrayTest() {
     std::ostringstream filename;
