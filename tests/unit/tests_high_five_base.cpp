@@ -646,7 +646,7 @@ BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
 
     BOOST_CHECK_EQUAL_COLLECTIONS(space2_res.begin(), space2_res.end(),
                                   space2_ans.begin(), space2_ans.end());
-    
+
     // Verify 2D works using old syntax (this used to match the iterator!)
     DataSpace space2b(3, 4);
 
@@ -754,7 +754,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     dataset.read(result);
     BOOST_CHECK_EQUAL_COLLECTIONS(vec.begin(), vec.end(),
                                   result.begin(), result.end());
-    
+
     std::string read_in;
     dataset.getAttribute("str").read(read_in);
     BOOST_CHECK_EQUAL(read_in, at_contents);
@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     ds_int.read(out_int);
     BOOST_CHECK_EQUAL(my_int, out_int);
 
-    decltype(my_nested) out_nested; 
+    decltype(my_nested) out_nested;
     ds_nested.read(out_nested);
 
     for (size_t i = 0; i < 2; ++i) {
@@ -1352,8 +1352,10 @@ BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
     DataSpace dataspace_b(dims_b);
 
     // Create a dataset with double precision floating points
-    DataSet dataset_a = file.createDataSet(DATASET_NAME + "_a", dataspace_a, AtomicType<double>());
-    DataSet dataset_b = file.createDataSet(DATASET_NAME + "_b", dataspace_b, AtomicType<double>());
+    DataSet dataset_a = file.createDataSet(DATASET_NAME + "_a", dataspace_a,
+                                           AtomicType<double>());
+    DataSet dataset_b = file.createDataSet(DATASET_NAME + "_b", dataspace_b,
+                                           AtomicType<double>());
 
     dataset_a.write(some_data);
     dataset_b.write(some_data);
