@@ -16,6 +16,10 @@
 #include <initializer_list>
 
 #ifdef H5_USE_BOOST
+
+// In some versions of Boost (starting with 1.64), you have to include the serialization header before ublas
+#include <boost/serialization/vector.hpp>
+
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
