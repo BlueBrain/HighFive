@@ -31,7 +31,7 @@ class Exception : public std::exception {
     /// \brief get the current exception error message
     /// \return
     ///
-    inline virtual const char* what() const throw() { return _errmsg.c_str(); }
+    inline const char* what() const throw() override { return _errmsg.c_str(); }
 
     ///
     /// \brief define the error message
