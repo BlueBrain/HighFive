@@ -119,14 +119,15 @@ SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
 template <typename Derivate>
 inline Selection
 SliceTraits<Derivate>::select(const ElementSet& elements) const {
-    hsize_t* data = NULL;
+    const hsize_t* data = NULL;
     const std::size_t length = elements._ids.size();
     std::vector<hsize_t> raw_elements;
 
     // optimised at compile time
     // switch for data conversion on 32bits platforms
     if (std::is_same<std::size_t, hsize_t>::value) {
-        data = (hsize_t*)(&(elements._ids[0]));
+        // `if constexpr` can't be used, thus a reinterpret_cast is needed.
+        data = reinterpret_cast<const hsize_t*>(&(elements._ids[0]));
     } else {
         raw_elements.resize(length);
         std::copy(elements._ids.begin(), elements._ids.end(),
