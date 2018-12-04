@@ -19,6 +19,9 @@
 #include <string>
 
 #ifdef H5_USE_BOOST
+// In some versions of Boost (starting with 1.64), you have to include the serialization header before ublas
+#include <boost/serialization/vector.hpp>
+
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
@@ -119,14 +122,15 @@ SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
 template <typename Derivate>
 inline Selection
 SliceTraits<Derivate>::select(const ElementSet& elements) const {
-    hsize_t* data = NULL;
+    const hsize_t* data = NULL;
     const std::size_t length = elements._ids.size();
     std::vector<hsize_t> raw_elements;
 
     // optimised at compile time
     // switch for data conversion on 32bits platforms
-    if (details::is_same<std::size_t, hsize_t>::value) {
-        data = (hsize_t*)(&(elements._ids[0]));
+    if (std::is_same<std::size_t, hsize_t>::value) {
+        // `if constexpr` can't be used, thus a reinterpret_cast is needed.
+        data = reinterpret_cast<const hsize_t*>(&(elements._ids[0]));
     } else {
         raw_elements.resize(length);
         std::copy(elements._ids.begin(), elements._ids.end(),
@@ -148,7 +152,7 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
     typedef typename details::type_of_array<T>::type element_type;
 
     type_no_const& nocv_array = const_cast<type_no_const&>(array);
@@ -202,7 +206,7 @@ template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
 
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
     typedef typename details::type_of_array<type_no_const>::type element_type;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
@@ -229,7 +233,7 @@ template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T* buffer) {
 
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
     typedef typename details::type_of_array<type_no_const>::type element_type;
 
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();

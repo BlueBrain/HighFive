@@ -56,7 +56,7 @@ int main(void) {
 
         // Ok all attributes are now written
 
-        // lets list the keys of all attributes now
+        // let's list the keys of all attributes now
         std::vector<std::string> all_attributes_keys =
             dataset.listAttributeNames();
         for (std::vector<std::string>::const_iterator it =

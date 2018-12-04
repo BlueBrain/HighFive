@@ -56,7 +56,7 @@ inline DataSpace Attribute::getMemSpace() const { return getSpace(); }
 
 template <typename T>
 inline void Attribute::read(T& array) const {
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
 
     type_no_const& nocv_array = const_cast<type_no_const&>(array);
 
@@ -91,7 +91,7 @@ inline void Attribute::read(T& array) const {
 
 template <typename T>
 inline void Attribute::write(const T& buffer) {
-    typedef typename details::remove_const<T>::type type_no_const;
+    typedef typename std::remove_const<T>::type type_no_const;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
 

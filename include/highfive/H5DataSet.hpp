@@ -49,6 +49,20 @@ class DataSet : public Object,
     ///
     DataSpace getMemSpace() const;
 
+    ///
+    /// \brief getOffset
+    /// \return returns DataSet address in file
+    /// class
+    ///
+    size_t getOffset() const;
+    
+    /// \brief Change the size of the dataset
+    ///
+    /// This requires that the dataset was created with chunking, and you would
+    /// generally want to have set a larger maxdims setting
+    /// \param dims New size of the dataset
+    void resize(const std::vector<size_t>& dims);
+
   private:
     DataSet();
     template <typename Derivate>

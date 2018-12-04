@@ -134,25 +134,20 @@ inline AtomicType<std::string>::AtomicType() {
     H5Tset_cset(_hid, H5T_CSET_UTF8);
 }
 
-// std complex
-template <> 
+template <>
 inline AtomicType<std::complex<double> >::AtomicType()
 {
-		static hid_t cplx_hid;
-		static size_t real_offset;//
-		static size_t imag_offset;//
-
-        cplx_hid =   H5Tcreate( H5T_COMPOUND, sizeof(std::complex<double>) );
-
-        std::complex<double> cplx(0.0);
-        real_offset=  0.;
-        imag_offset=  sizeof(double);
-
-
-        // h5py/numpy compatible datatype
-        H5Tinsert(cplx_hid , "r" , real_offset , H5T_NATIVE_DOUBLE);
-        H5Tinsert(cplx_hid, "i" , imag_offset , H5T_NATIVE_DOUBLE);
-        _hid = H5Tcopy(cplx_hid);
+    static struct ComplexType : public Object
+    {
+        ComplexType()
+        {
+            _hid = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
+            // h5py/numpy compatible datatype
+            H5Tinsert(_hid, "r", 0, H5T_NATIVE_DOUBLE);
+            H5Tinsert(_hid, "i", sizeof(double), H5T_NATIVE_DOUBLE);
+        };
+    } complexType;
+    _hid = H5Tcopy(complexType.getId());
 }
 
 

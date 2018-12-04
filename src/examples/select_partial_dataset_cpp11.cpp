@@ -30,7 +30,7 @@ int main(void) {
         std::vector<std::vector<double>> values = {
             {1.0, 2.0, 4.0, 8.0, 16.0}, {32.0, 64.0, 128.0, 256.0, 512.0}};
 
-        // lets create a dataset of this size
+        // let's create a dataset of this size
         DataSet dataset =
             file.createDataSet<double>(DATASET_NAME, DataSpace::From(values));
         // and write them

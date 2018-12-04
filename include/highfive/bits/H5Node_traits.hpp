@@ -29,43 +29,67 @@ class NodeTraits {
     /// \param space Associated DataSpace, see \ref DataSpace for more
     /// informations
     /// \param type Type of Data
+    /// \param createProps A property list with data set creation properties
+    /// \param createProps A property list with data set access properties
     /// \return DataSet Object
     DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space, const DataType& type);
+                          const DataSpace& space, const DataType& type,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
 
-    ///
+    ///                            
     /// \brief createDataSet create a new dataset in the current file with a
     /// size specified by space
     /// \param dataset_name identifier of the dataset
     /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// informations
+    /// information
+    /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
-    ///
-    ///
-    ///
     template <typename Type>
     DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space);
+                          const DataSpace& space,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
+
+    ///
+    /// \brief createDataSet create a new dataset in the current file and
+    /// write to it, inferring the DataSpace from the data.
+    /// \param dataset_name identifier of the dataset
+    /// \param data Associated data, must support DataSpace::From, see
+    /// \ref DataSpace for more information
+    /// \param createProps A property list with data set creation properties
+    /// \return DataSet Object
+    template <typename T>
+    DataSet createDataSet(const std::string& dataset_name,
+                          const T& data,
+                          const DataSetCreateProps& createProps =
+                            DataSetCreateProps(),
+                          const DataSetAccessProps& accessProps =
+                            DataSetAccessProps());
 
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
+    /// \param accessProps property list to configure dataset chunk cache
     /// \return return the named dataset, or throw exception if not found
-    ///
-    DataSet getDataSet(const std::string& dataset_name) const;
+    DataSet getDataSet(const std::string& dataset_name,
+                       const DataSetAccessProps& accessProps =
+                         DataSetAccessProps()) const;
 
     ///
     /// \brief create a new group with the name group_name
     /// \param group_name
     /// \return the group object
-    ///
     Group createGroup(const std::string& group_name);
 
     ///
     /// \brief open an existing group with the name group_name
     /// \param group_name
     /// \return the group object
-    ///
     Group getGroup(const std::string& group_name) const;
 
     ///
@@ -83,9 +107,8 @@ class NodeTraits {
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
 
-    ///
+    ///    
     /// \brief check a dataset or group exists in the current node / group
-    ///
     /// \param dataset/group name to check
     /// \return true if a dataset/group with the asssociated name exist, or
     /// false

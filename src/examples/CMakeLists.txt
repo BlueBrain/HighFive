@@ -10,12 +10,6 @@ function(compile_example exemple_source)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
     set(require_cpp11 FALSE)
-    if(${example_filename} MATCHES ".*cpp11.*")
-        set(require_cpp11 TRUE)
-        if(NOT MSVC)
-            add_definitions(-std=c++11)
-        endif()
-    endif()
 
     if(${example_filename} MATCHES ".*boost.*")
         if(NOT USE_BOOST)
@@ -40,6 +34,7 @@ function(compile_example exemple_source)
     if(HIGHFIVE_PARALLEL_HDF5)
         target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
     endif()
+    target_compile_options(${example_name} PUBLIC ${HIGHFIVE_CPP_STD_FLAG})
 
 endfunction()
 
@@ -47,6 +42,5 @@ endfunction()
 file(GLOB list_example "*.cpp")
 
 foreach(example_src ${list_example})
-compile_example(${example_src})
-
+    compile_example(${example_src})
 endforeach()

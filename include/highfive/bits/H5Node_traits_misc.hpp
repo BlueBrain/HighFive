@@ -35,11 +35,15 @@ template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
-                                    const DataType& dtype) {
+                                    const DataType& dtype,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps)
+{
     DataSet set;
     if ((set._hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                dataset_name.c_str(), dtype._hid, space._hid,
-                               H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
+                               H5P_DEFAULT, createProps.getId(),
+                               accessProps.getId())) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to create the dataset \"") + dataset_name +
             "\":");
@@ -51,16 +55,38 @@ template <typename Derivate>
 template <typename Type>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                    const DataSpace& space) {
-    return createDataSet(dataset_name, space, create_and_check_datatype<Type>());
+                                    const DataSpace& space,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps)
+{
+    return createDataSet(dataset_name, space,
+                         create_and_check_datatype<Type>(),
+                         createProps, accessProps);
+}
+
+template <typename Derivate>
+template <typename T>
+inline DataSet
+NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
+                                    const T& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps)
+{
+    DataSet ds = createDataSet(
+        dataset_name, DataSpace::From(data),
+        create_and_check_datatype<typename details::type_of_array<T>::type>(),
+        createProps, accessProps);
+    ds.write(data);
+    return ds;
 }
 
 template <typename Derivate>
 inline DataSet
-NodeTraits<Derivate>::getDataSet(const std::string& dataset_name) const {
+NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
+                                 const DataSetAccessProps& accessProps) const {
     DataSet set;
     if ((set._hid = H5Dopen2(static_cast<const Derivate*>(this)->getId(),
-                             dataset_name.c_str(), H5P_DEFAULT)) < 0) {
+                             dataset_name.c_str(), accessProps.getId())) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to open the dataset \"") + dataset_name +
             "\":");

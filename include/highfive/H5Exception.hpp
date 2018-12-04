@@ -31,7 +31,7 @@ class Exception : public std::exception {
     /// \brief get the current exception error message
     /// \return
     ///
-    inline virtual const char* what() const throw() { return _errmsg.c_str(); }
+    inline const char* what() const throw() override { return _errmsg.c_str(); }
 
     ///
     /// \brief define the error message
@@ -122,6 +122,14 @@ class DataSetException : public Exception {
 class GroupException : public Exception {
   public:
     GroupException(const std::string& err_msg) : Exception(err_msg) {}
+};
+
+///
+/// \brief Exception specific to HighFive Property interface
+///
+class PropertyException : public Exception {
+  public:
+    PropertyException(const std::string& err_msg) : Exception(err_msg) {}
 };
 }
 
