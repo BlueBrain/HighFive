@@ -40,9 +40,11 @@ class File : public Object,
     static const int Create = 0x10;
     /// Derived open flag: common write mode (=ReadWrite | Create | Truncate)
     static const int Overwrite = Truncate;
-    /// Derived open flag: Opens RW or exclusivelly creates
+    /// Derived open flag: Opens RW or exclusively creates
     static const int OpenOrCreate = ReadWrite | Create;
 
+    // Default constructor
+    explicit File() = default;
 
     ///
     /// \brief File
