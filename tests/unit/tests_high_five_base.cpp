@@ -1374,3 +1374,40 @@ BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
             data_b.begin(), data_b.end(),
             some_data.begin(), some_data.end());
 }
+
+BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
+    const std::string FILE_NAME("h5_ds_exist.h5");
+    const std::string GROUP_1("group1"), GROUP_2("group2");
+    const std::string DS_PATH = GROUP_1 + "/" + GROUP_2;
+    const std::string DS_NAME = "ds";
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
+
+    BOOST_CHECK_THROW(file.createGroup(DS_PATH), std::exception);
+    Group g2 = file.createGroup(DS_PATH, true);
+
+    std::vector<double> some_data{5.0, 6.0, 7.0};
+    g2.createDataSet(DS_NAME, some_data);
+
+    BOOST_CHECK( file.exist(GROUP_1) );
+
+    Group g1 = file.getGroup(GROUP_1);
+    BOOST_CHECK( g1.exist(GROUP_2) );
+
+    // checks with full path
+    BOOST_CHECK(file.exist(DS_PATH)); // If path is all good, default version will still do
+    BOOST_CHECK(file.exist(DS_PATH, true));
+    BOOST_CHECK(file.exist(DS_PATH + "/" + DS_NAME, true));
+
+    // Check with wrong middle path
+    BOOST_CHECK_THROW(file.exist(std::string("blabla/group2")), GroupException);
+    BOOST_CHECK_EQUAL(file.exist(std::string("blabla/group2"), true), false);
+
+    // Using root slash
+    BOOST_CHECK(file.exist(std::string("/") + DS_PATH, true));
+    BOOST_CHECK_THROW(g1.exist(std::string("/") + DS_PATH, true), GroupException);
+
+}

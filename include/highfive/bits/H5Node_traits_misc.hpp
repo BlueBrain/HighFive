@@ -106,6 +106,24 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name) {
 }
 
 template <typename Derivate>
+inline Group NodeTraits<Derivate>::createGroup(const std::string& group_path,
+                                               bool recursive) {
+    if (recursive) {
+        size_t split_pos = group_path.find("/");
+
+        if (split_pos != std::string::npos) {
+            std::string cur_node_name = group_path.substr(0, split_pos);
+            std::string remaining_path = group_path.substr(split_pos + 1);
+            Group cur_g = exist(cur_node_name)? getGroup(cur_node_name)
+                                              : createGroup(cur_node_name);
+            return cur_g.createGroup(remaining_path, true);
+        }
+    }
+    // No groups
+    return createGroup(group_path);
+}
+
+template <typename Derivate>
 inline Group
 NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
     Group group;
@@ -120,8 +138,7 @@ NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
 template <typename Derivate>
 inline size_t NodeTraits<Derivate>::getNumberObjects() const {
     hsize_t res;
-    if (H5Gget_num_objs(static_cast<const Derivate*>(this)->getId(), &res) <
-        0) {
+    if (H5Gget_num_objs(static_cast<const Derivate*>(this)->getId(), &res) < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to count objects in existing group or file"));
     }
@@ -180,6 +197,35 @@ inline bool NodeTraits<Derivate>::exist(const std::string& node_name) const {
     return (val > 0 );
 }
 
+template <typename Derivate>
+inline bool NodeTraits<Derivate>::exist(const std::string& group_path,
+                                        bool recursive) const {
+    if (recursive) {
+        std::string path = group_path;
+        size_t split_pos = path.find('/');
+
+        // Absolute paths only checkable at file level
+        if (split_pos == 0) {
+            if (!std::is_same<Derivate, File>::value) {
+                throw GroupException("Attempt to check absolute path from within a group");
+            }
+            // Search again, skip leading '/'
+            path = group_path.substr(1);
+            split_pos = path.find('/');
+        }
+        if (split_pos != std::string::npos) {
+            std::string cur_node_name = path.substr(0, split_pos);
+            std::string remaining_path = path.substr(split_pos + 1);
+            if (!exist(cur_node_name)) {
+                return false;
+            }
+            return getGroup(cur_node_name).exist(remaining_path, true);
+        }
+    }
+    // No groups
+    return exist(group_path);
 }
+
+}  // namespace HighFive
 
 #endif // H5NODE_TRAITS_MISC_HPP

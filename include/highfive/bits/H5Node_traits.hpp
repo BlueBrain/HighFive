@@ -39,7 +39,7 @@ class NodeTraits {
                           const DataSetAccessProps& accessProps =
                             DataSetAccessProps());
 
-    ///                            
+    ///
     /// \brief createDataSet create a new dataset in the current file with a
     /// size specified by space
     /// \param dataset_name identifier of the dataset
@@ -87,6 +87,13 @@ class NodeTraits {
     Group createGroup(const std::string& group_name);
 
     ///
+    /// \brief create a new group, and eventually intermediate groups
+    /// \param group_name
+    /// \param recursive Whether it shall create intermediate groups if necessary
+    /// \return the group object
+    Group createGroup(const std::string& group_name, bool recursive);
+
+    ///
     /// \brief open an existing group with the name group_name
     /// \param group_name
     /// \return the group object
@@ -107,12 +114,20 @@ class NodeTraits {
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
 
-    ///    
+    ///
     /// \brief check a dataset or group exists in the current node / group
     /// \param dataset/group name to check
     /// \return true if a dataset/group with the asssociated name exist, or
     /// false
     bool exist(const std::string& node_name) const;
+
+    /// \brief Checks if a node / path exist under the current node / group.
+    /// \param node / path name to check
+    /// \param Whether recursive checking shall be activated. When disabled
+    ///        plain H5Lexists is used, which fails if a part of the path 
+    ////       doesnt exist
+    /// \return true if the given node name / path exists
+    bool exist(const std::string& node_path, bool recursive) const;
 
   private:
     typedef Derivate derivate_type;
