@@ -109,14 +109,14 @@ template <typename Derivate>
 inline Group NodeTraits<Derivate>::createGroup(const std::string& group_path,
                                                bool recursive) {
     if (recursive) {
-        size_t split_pos = group_path.find("/");
+        auto split = std::find(group_path.begin(), group_path.end(), '/');
 
-        if (split_pos != std::string::npos) {
-            std::string cur_node_name = group_path.substr(0, split_pos);
-            std::string remaining_path = group_path.substr(split_pos + 1);
+        if (split != group_path.end()) {
+            std::string cur_node_name(group_path.begin(), split);
             Group cur_g = exist(cur_node_name)? getGroup(cur_node_name)
                                               : createGroup(cur_node_name);
-            return cur_g.createGroup(remaining_path, true);
+            return cur_g.createGroup(std::string(split + 1, group_path.end()),
+                                     true);
         }
     }
     // No groups
@@ -201,25 +201,24 @@ template <typename Derivate>
 inline bool NodeTraits<Derivate>::exist(const std::string& group_path,
                                         bool recursive) const {
     if (recursive) {
-        std::string path = group_path;
-        size_t split_pos = path.find('/');
+        auto split = std::find(group_path.begin(), group_path.end(), '/');
 
         // Absolute paths only checkable at file level
-        if (split_pos == 0) {
+        if (split == group_path.begin()) {
             if (!std::is_same<Derivate, File>::value) {
-                throw GroupException("Attempt to check absolute path from within a group");
+                throw GroupException(
+                    "Attempt to check absolute path from within a group");
             }
             // Search again, skip leading '/'
-            path = group_path.substr(1);
-            split_pos = path.find('/');
+            split = std::find(split + 1, group_path.end(), '/');
         }
-        if (split_pos != std::string::npos) {
-            std::string cur_node_name = path.substr(0, split_pos);
-            std::string remaining_path = path.substr(split_pos + 1);
+        if (split != group_path.end()) {
+            std::string cur_node_name(group_path.begin(), split);
             if (!exist(cur_node_name)) {
                 return false;
             }
-            return getGroup(cur_node_name).exist(remaining_path, true);
+            return getGroup(cur_node_name).exist(
+                std::string(split + 1, group_path.end()), true);
         }
     }
     // No groups
