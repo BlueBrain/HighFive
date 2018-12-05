@@ -26,23 +26,24 @@ class File : public Object,
              public NodeTraits<File>,
              public AnnotateTraits<File> {
  public:
-    /// Open flag: Read only access
-    static const int ReadOnly = 0x00;
-    /// Open flag: Read Write access
-    static const int ReadWrite = 0x01;
-    /// Open flag: Truncate a file if already existing
-    static const int Truncate = 0x02;
-    /// Open flag: Open will fail if file already exist
-    static const int Excl = 0x04;
-    /// Open flag: Open in debug mode
-    static const int Debug = 0x08;
-    /// Open flag: Create non existing file
-    static const int Create = 0x10;
-    /// Derived open flag: common write mode (=ReadWrite | Create | Truncate)
-    static const int Overwrite = Truncate;
-    /// Derived open flag: Opens RW or exclusivelly creates
-    static const int OpenOrCreate = ReadWrite | Create;
-
+    enum : int {
+        /// Open flag: Read only access
+        ReadOnly = 0x00,
+        /// Open flag: Read Write access
+        ReadWrite = 0x01,
+        /// Open flag: Truncate a file if already existing
+        Truncate = 0x02,
+        /// Open flag: Open will fail if file already exist
+        Excl = 0x04,
+        /// Open flag: Open in debug mode
+        Debug = 0x08,
+        /// Open flag: Create non existing file
+        Create = 0x10,
+        /// Derived open flag: common write mode (=ReadWrite|Create|Truncate)
+        Overwrite = Truncate,
+        /// Derived open flag: Opens RW or exclusivelly creates
+        OpenOrCreate = ReadWrite | Create
+    };
 
     ///
     /// \brief File
