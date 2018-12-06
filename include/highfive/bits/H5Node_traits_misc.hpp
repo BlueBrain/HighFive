@@ -206,7 +206,7 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
         _exist("/");  // Shall not throw under normal circumstances
         try {
             SilenceHDF5 silencer;
-            _exist(group_path);
+            return _exist(group_path);
         }
         catch(const GroupException&) {
             return false;
