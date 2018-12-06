@@ -1398,16 +1398,13 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     BOOST_CHECK( g1.exist(GROUP_2) );
 
     // checks with full path
-    BOOST_CHECK(file.exist(DS_PATH)); // If path is all good, default version will still do
-    BOOST_CHECK(file.exist(DS_PATH, true));
-    BOOST_CHECK(file.exist(DS_PATH + "/" + DS_NAME, true));
+    BOOST_CHECK(file.exist(DS_PATH));
+    BOOST_CHECK(file.exist(DS_PATH + "/" + DS_NAME));
 
-    // Check with wrong middle path
-    BOOST_CHECK_THROW(file.exist(std::string("blabla/group2")), GroupException);
-    BOOST_CHECK_EQUAL(file.exist(std::string("blabla/group2"), true), false);
+    // Check with wrong middle path (before would raise Exception)
+    BOOST_CHECK_EQUAL(file.exist(std::string("blabla/group2")), false);
 
     // Using root slash
-    BOOST_CHECK(file.exist(std::string("/") + DS_PATH, true));
-    BOOST_CHECK_THROW(g1.exist(std::string("/") + DS_PATH, true), GroupException);
+    BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
 
 }

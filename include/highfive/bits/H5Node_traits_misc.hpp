@@ -21,6 +21,7 @@
 #include "../H5DataType.hpp"
 #include "../H5Exception.hpp"
 #include "../H5Group.hpp"
+#include "../H5Utility.hpp"
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
@@ -94,7 +95,7 @@ NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
 }
 
 template <typename Derivate>
-inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name) {
+inline Group NodeTraits<Derivate>::_createGroup(const std::string& group_name) {
     Group group;
     if ((group._hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
                                  group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT,
@@ -119,8 +120,8 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_path,
                                      true);
         }
     }
-    // No groups
-    return createGroup(group_path);
+    // No recursion
+    return _createGroup(group_path);
 }
 
 template <typename Derivate>
@@ -186,10 +187,10 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 }
 
 template <typename Derivate>
-inline bool NodeTraits<Derivate>::exist(const std::string& node_name) const {
+inline bool NodeTraits<Derivate>::_exist(const std::string& node_name) const {
     htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                      node_name.c_str(), H5P_DEFAULT);
-    if( val < 0){
+    if (val < 0){
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Invalid link for exist() "));
     }
@@ -198,31 +199,20 @@ inline bool NodeTraits<Derivate>::exist(const std::string& node_name) const {
 }
 
 template <typename Derivate>
-inline bool NodeTraits<Derivate>::exist(const std::string& group_path,
-                                        bool recursive) const {
-    if (recursive) {
-        auto split = std::find(group_path.begin(), group_path.end(), '/');
-
-        // Absolute paths only checkable at file level
-        if (split == group_path.begin()) {
-            if (!std::is_same<Derivate, File>::value) {
-                throw GroupException(
-                    "Attempt to check absolute path from within a group");
-            }
-            // Search again, skip leading '/'
-            split = std::find(split + 1, group_path.end(), '/');
+inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
+    // When there are slashes, first check everything is fine
+    // so that subsequent errors are only due to missing intermediate groups
+    if (group_path.find('/') != std::string::npos) {
+        _exist("/");  // Shall not throw under normal circumstances
+        try {
+            SilenceHDF5 silencer;
+            _exist(group_path);
         }
-        if (split != group_path.end()) {
-            std::string cur_node_name(group_path.begin(), split);
-            if (!exist(cur_node_name)) {
-                return false;
-            }
-            return getGroup(cur_node_name).exist(
-                std::string(split + 1, group_path.end()), true);
+        catch(const GroupException&) {
+            return false;
         }
     }
-    // No groups
-    return exist(group_path);
+    return _exist(group_path);
 }
 
 }  // namespace HighFive

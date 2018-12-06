@@ -81,17 +81,11 @@ class NodeTraits {
                          DataSetAccessProps()) const;
 
     ///
-    /// \brief create a new group with the name group_name
-    /// \param group_name
-    /// \return the group object
-    Group createGroup(const std::string& group_name);
-
-    ///
     /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
     /// \param recursive Whether it shall create intermediate groups if necessary
     /// \return the group object
-    Group createGroup(const std::string& group_name, bool recursive);
+    Group createGroup(const std::string& group_name, bool recursive=false);
 
     ///
     /// \brief open an existing group with the name group_name
@@ -121,17 +115,19 @@ class NodeTraits {
     /// false
     bool exist(const std::string& node_name) const;
 
-    /// \brief Checks if a node / path exist under the current node / group.
-    /// \param node / path name to check
-    /// \param Whether recursive checking shall be activated. When disabled
-    ///        plain H5Lexists is used, which fails if a part of the path 
-    ////       doesnt exist
-    /// \return true if the given node name / path exists
-    bool exist(const std::string& node_path, bool recursive) const;
-
   private:
     typedef Derivate derivate_type;
+
+    ///
+    /// \brief create a new group with the name group_name
+    /// \param group_name
+    /// \return the group object
+    Group _createGroup(const std::string& group_name);
+
+    // A wraper over the low-level H5Lexist
+    bool _exist(const std::string& node_name) const;
 };
+
 }
 
 #include "H5Node_traits_misc.hpp"
