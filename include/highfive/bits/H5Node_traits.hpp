@@ -124,7 +124,7 @@ class NodeTraits {
     /// \return the group object
     Group _createGroup(const std::string& group_name);
 
-    // A wraper over the low-level H5Lexist
+    // A wrapper over the low-level H5Lexist
     bool _exist(const std::string& node_name) const;
 };
 
