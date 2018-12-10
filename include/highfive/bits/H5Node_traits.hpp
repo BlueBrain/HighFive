@@ -85,7 +85,7 @@ class NodeTraits {
     /// \param group_name
     /// \param recursive Whether it shall create intermediate groups if necessary
     /// \return the group object
-    Group createGroup(const std::string& group_name, bool recursive=false);
+    Group createGroup(const std::string& group_name, bool parents=false);
 
     ///
     /// \brief open an existing group with the name group_name
@@ -118,17 +118,11 @@ class NodeTraits {
   private:
     typedef Derivate derivate_type;
 
-    ///
-    /// \brief create a new group with the name group_name
-    /// \param group_name
-    /// \return the group object
-    Group _createGroup(const std::string& group_name);
-
     // A wrapper over the low-level H5Lexist
     bool _exist(const std::string& node_name) const;
 };
 
-}
+}  // namespace HighFive
 
 #include "H5Node_traits_misc.hpp"
 

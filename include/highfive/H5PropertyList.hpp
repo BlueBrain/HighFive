@@ -20,11 +20,22 @@ namespace HighFive {
 ///
 class Properties {
   public:
-    enum Type
-    {
+    enum Type {
+       OBJECT_CREATE,
+       FILE_CREATE,
        FILE_ACCESS,
        DATASET_CREATE,
-       DATASET_ACCESS
+       DATASET_ACCESS,
+       DATASET_XFER,
+       GROUP_CREATE,
+       GROUP_ACCESS,
+       DATATYPE_CREATE,
+       DATATYPE_ACCESS,
+       STRING_CREATE,
+       ATTRIBUTE_CREATE,
+       OBJECT_COPY,
+       LINK_CREATE,
+       LINK_ACCESS
     };
 
     ~Properties();
@@ -51,6 +62,11 @@ class Properties {
     // protected constructor
     explicit Properties(Type type);
 
+    void _initializeIfNeeded();
+
+    Type _type;
+    hid_t _hid;
+
   private:
 #ifdef H5_USE_CXX11
     Properties(const Properties&) = delete;
@@ -60,8 +76,18 @@ class Properties {
     Properties& operator=(const Properties&);
 #endif
 
-    Type _type;
-    hid_t _hid;
+};
+
+///
+/// RawPropertieLists are to be used when advanced H5 properties
+/// are desired and are not part of the HighFive API.
+/// Therefore this class is mainly for internal use.
+class RawPropertyList : public Properties {
+public:
+  explicit RawPropertyList(Type type);
+
+  template <typename T, typename... Args>
+  void add(const T& funct, const Args&... args);
 };
 
 class DataSetCreateProps : public Properties {
@@ -82,7 +108,8 @@ class Chunking
     Chunking(std::initializer_list<hsize_t> items) : Chunking(std::vector<hsize_t>{items}) {}
 
     template<typename... Args>
-    Chunking(hsize_t item, Args... args) : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
+    Chunking(hsize_t item, Args... args)
+        : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
 
     const std::vector<hsize_t>& getDimensions() const {return _dims;}
 

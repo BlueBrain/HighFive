@@ -95,33 +95,21 @@ NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
 }
 
 template <typename Derivate>
-inline Group NodeTraits<Derivate>::_createGroup(const std::string& group_name) {
+inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
+                                               bool parents) {
+    RawPropertyList lcpl(Properties::LINK_CREATE);
+    if(parents) {
+        lcpl.add(H5Pset_create_intermediate_group, 1);
+    }
+
     Group group;
     if ((group._hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                                 group_name.c_str(), H5P_DEFAULT, H5P_DEFAULT,
+                                 group_name.c_str(), lcpl.getId(), H5P_DEFAULT,
                                  H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to create the group \"") + group_name + "\":");
     }
     return group;
-}
-
-template <typename Derivate>
-inline Group NodeTraits<Derivate>::createGroup(const std::string& group_path,
-                                               bool recursive) {
-    if (recursive) {
-        auto split = std::find(group_path.begin(), group_path.end(), '/');
-
-        if (split != group_path.end()) {
-            std::string cur_node_name(group_path.begin(), split);
-            Group cur_g = exist(cur_node_name)? getGroup(cur_node_name)
-                                              : createGroup(cur_node_name);
-            return cur_g.createGroup(std::string(split + 1, group_path.end()),
-                                     true);
-        }
-    }
-    // No recursion
-    return _createGroup(group_path);
 }
 
 template <typename Derivate>
