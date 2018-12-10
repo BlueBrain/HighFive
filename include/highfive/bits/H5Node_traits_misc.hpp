@@ -95,7 +95,7 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
                                                bool parents) {
     RawPropertyList<PropertyType::LINK_CREATE> lcpl;
     if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1);
+        lcpl.add(H5Pset_create_intermediate_group, 1u);
     }
     Group group;
     if ((group._hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
@@ -140,12 +140,12 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
         HDF5ErrMapper::ToException<GroupException>(
             "Error accessing object name");
     if (length <= maxLength)
-        return std::string(buffer, length);
-    std::vector<char> bigBuffer(length + 1, 0);
+        return std::string(buffer, static_cast<std::size_t>(length));
+    std::vector<char> bigBuffer(static_cast<std::size_t>(length) + 1, 0);
     H5Lget_name_by_idx(static_cast<const Derivate*>(this)->getId(), ".",
                        H5_INDEX_NAME, H5_ITER_INC, index, bigBuffer.data(),
-                       length, H5P_DEFAULT);
-    return std::string(bigBuffer.data(), length);
+                       static_cast<hsize_t>(length), H5P_DEFAULT);
+    return std::string(bigBuffer.data(), static_cast<size_t>(length));
 }
 
 template <typename Derivate>

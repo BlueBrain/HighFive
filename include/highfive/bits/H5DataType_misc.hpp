@@ -63,7 +63,7 @@ inline AtomicType<int>::AtomicType() {
 }
 
 template <>
-inline AtomicType<unsigned int>::AtomicType() {
+inline AtomicType<unsigned>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_UINT);
 }
 

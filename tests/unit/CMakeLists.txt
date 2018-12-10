@@ -4,11 +4,6 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
 
-if(NOT MSVC)
-  # silent boost warnings
-  add_definitions(-Wno-unused-parameter -Wno-unused-local-typedef)
-endif()
-
 if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
 endif()

@@ -78,7 +78,7 @@ struct ContentGenerate {
 
     T operator()() {
         T ret = _init;
-        _init += _inc;
+        _init = static_cast<T>(_init + _inc);
         return ret;
     }
 
@@ -114,7 +114,7 @@ struct ContentGenerate<std::string> {
         std::string random_string;
         std::mt19937_64 rgen;
         rgen.seed(88);
-        std::uniform_int_distribution<int> int_dist(0, 1000);
+        std::uniform_int_distribution<unsigned> int_dist(0, 1000);
         const size_t size_string = int_dist(rgen);
 
         random_string.resize(size_string);
@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualSimple) {
     AtomicType<double> d_var_test;
     AtomicType<size_t> size_var_cpy(size_var);
     AtomicType<int> int_var;
-    AtomicType<unsigned int> uint_var;
+    AtomicType<unsigned> uint_var;
 
     // check different type matching
     BOOST_CHECK(d_var == d_var_test);
@@ -727,11 +727,11 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     std::ostringstream filename;
     filename << "h5_rw_vec_shortcut_test.h5";
 
-    const size_t x_size = 800;
+    const unsigned x_size = 800;
     const std::string DATASET_NAME("dset");
-    std::vector<int> vec;
+    std::vector<unsigned> vec;
     vec.resize(x_size);
-    for (size_t i = 0; i < x_size; i++)
+    for(unsigned i = 0; i < x_size; i++)
         vec[i] = i * 2;
     std::string at_contents("Contents of string");
     int my_int = 3;
@@ -848,7 +848,7 @@ void readWriteAttributeVectorTest() {
     std::ostringstream filename;
     filename << "h5_rw_attribute_vec_" << typeid(T).name() << "_test.h5";
 
-    std::srand((unsigned int)std::time(0));
+    std::srand((unsigned)std::time(0));
     const size_t x_size = 25;
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;
@@ -995,7 +995,7 @@ void MultiArray3DTest() {
     std::ostringstream filename;
     filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
 
-    const size_t size_x = 10, size_y = 10, size_z = 10;
+    const int size_x = 10, size_y = 10, size_z = 10;
     const std::string DATASET_NAME("dset");
     MultiArray array(boost::extents[size_x][size_y][size_z]);
 
@@ -1015,9 +1015,9 @@ void MultiArray3DTest() {
 
     dataset.read(result);
 
-    for (size_t i = 0; i < size_x; ++i) {
-        for (size_t j = 0; j < size_y; ++j) {
-            for (size_t k = 0; k < size_z; ++k) {
+    for (long i = 0; i < size_x; ++i) {
+        for (long j = 0; j < size_y; ++j) {
+            for (long k = 0; k < size_z; ++k) {
                 BOOST_CHECK_EQUAL(array[i][j][k], result[i][j][k]);
             }
         }
