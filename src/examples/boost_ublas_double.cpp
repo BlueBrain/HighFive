@@ -36,7 +36,7 @@ int main(void) {
 
         // fill it
         for (std::size_t i = 0; i < size_x; ++i) {
-            mat(i, i) = i;
+            mat(i, i) = static_cast<double>(i);
         }
 
         // Create a new HDF5 file

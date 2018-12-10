@@ -46,7 +46,7 @@ inline bool is_1D(const std::vector<size_t>& dims)
 
 inline size_t compute_total_size(const std::vector<size_t>& dims)
 {
-    return std::accumulate(dims.begin(), dims.end(), 1,
+    return std::accumulate(dims.begin(), dims.end(), 1ul,
                            std::multiplies<size_t>());
 }
 
@@ -98,7 +98,7 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
                          std::vector<T>& vec_single_dim) {
     const size_t n_elems = dims[current_dim];
     typename std::vector<T>::iterator end_copy_iter =
-        std::min(begin_buffer + n_elems, end_buffer);
+        std::min(begin_buffer + static_cast<long>(n_elems), end_buffer);
     vec_single_dim.assign(begin_buffer, end_copy_iter);
     return end_copy_iter;
 }

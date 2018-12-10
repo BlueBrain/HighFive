@@ -35,7 +35,7 @@ struct MpiFixture {
 
 BOOST_GLOBAL_FIXTURE(MpiFixture);
 
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
+typedef boost::mpl::list<int, unsigned, long, unsigned long, unsigned char,
                          char, float, double, long long, unsigned long long>
     numerical_test_types;
 

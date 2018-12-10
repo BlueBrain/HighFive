@@ -18,8 +18,8 @@ using namespace HighFive;
 
 const std::string FILE_NAME("boost_multiarray_example.h5");
 const std::string DATASET_NAME("dset");
-const size_t size_x = 10;
-const size_t size_y = 3;
+const int size_x = 10;
+const int size_y = 3;
 
 // Create a 2D dataset 10x3 of double with boost multi array
 // and write it to a file
@@ -29,8 +29,8 @@ int main(void) {
 
         boost::multi_array<double, 2> my_array(boost::extents[size_x][size_y]);
 
-        for (size_t i = 0; i < size_x; ++i) {
-            for (size_t j = 0; j < size_y; ++j) {
+        for (int i = 0; i < size_x; ++i) {
+            for (int j = 0; j < size_y; ++j) {
                 my_array[i][j] = double(j + i * size_y);
             }
         }
