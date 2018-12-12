@@ -83,9 +83,10 @@ class NodeTraits {
     ///
     /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
-    /// \param recursive Whether it shall create intermediate groups if necessary
+    /// \param recursive Whether it shall create intermediate groups if
+    //       necessary. Default: true
     /// \return the group object
-    Group createGroup(const std::string& group_name, bool parents=false);
+    Group createGroup(const std::string& group_name, bool parents=true);
 
     ///
     /// \brief open an existing group with the name group_name

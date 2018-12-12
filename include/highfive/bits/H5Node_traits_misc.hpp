@@ -101,7 +101,6 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
     if(parents) {
         lcpl.add(H5Pset_create_intermediate_group, 1);
     }
-
     Group group;
     if ((group._hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
                                  group_name.c_str(), lcpl.getId(), H5P_DEFAULT,
