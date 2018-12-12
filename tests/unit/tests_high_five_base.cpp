@@ -1386,8 +1386,9 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
 
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
-    BOOST_CHECK_THROW(file.createGroup(DS_PATH), std::exception);
-    Group g2 = file.createGroup(DS_PATH, true);
+    // Without parents creating both groups will fail
+    BOOST_CHECK_THROW(file.createGroup(DS_PATH, false), std::exception);
+    Group g2 = file.createGroup(DS_PATH);
 
     std::vector<double> some_data{5.0, 6.0, 7.0};
     g2.createDataSet(DS_NAME, some_data);
