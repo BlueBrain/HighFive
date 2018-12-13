@@ -73,7 +73,6 @@ matrix:
       osx_image: xcode10
       addons:
         homebrew:
-          update: true
           packages:
           - boost
           - hdf5
