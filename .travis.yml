@@ -70,6 +70,7 @@ matrix:
 
       # osx
     - os: osx
+      osx_image: xcode10
       addons:
         homebrew:
           packages:
@@ -91,4 +92,4 @@ script:
   - mkdir -p build && pushd build
   - cmake --warn-uninitialized -G Ninja ../
   - ninja -v
-  - ninja test
+  - CTEST_OUTPUT_ON_FAILURE=1 ninja test
