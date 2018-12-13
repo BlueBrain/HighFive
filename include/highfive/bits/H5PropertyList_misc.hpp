@@ -19,7 +19,7 @@ namespace {
 inline hid_t convert_plist_type(Properties::Type propertyType) {
     // The HP5_XXX are macros with function calls so we can't assign
     // them as the enum values
-    switch(propertyType) {
+    switch (propertyType) {
     case Properties::OBJECT_CREATE:
         return H5P_OBJECT_CREATE;
     case Properties::FILE_CREATE:
@@ -51,30 +51,26 @@ inline hid_t convert_plist_type(Properties::Type propertyType) {
     case Properties::LINK_ACCESS:
         return H5P_LINK_ACCESS;
     default:
-            HDF5ErrMapper::ToException<PropertyException>(
-                "Unsupported property list type");
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Unsupported property list type");
     }
     return -1;
 }
 
 }  // namespace
 
-
 inline Properties::Properties(Type type)
-  : _type(type)
-  , _hid(H5P_DEFAULT)
-{}
+    : _type(type)
+    , _hid(H5P_DEFAULT) {}
 
 #ifdef H5_USE_CXX11
 inline Properties::Properties(Properties&& other)
     : _type(other._type)
-    , _hid(other._hid)
-{
+    , _hid(other._hid) {
     other._hid = H5P_DEFAULT;
 }
 
-inline Properties& Properties::operator=(Properties&& other)
-{
+inline Properties& Properties::operator=(Properties&& other) {
     _type = other._type;
     // This code handles self-assigment without ifs
     const auto hid = other._hid;
@@ -84,8 +80,7 @@ inline Properties& Properties::operator=(Properties&& other)
 }
 #endif
 
-inline Properties::~Properties()
-{
+inline Properties::~Properties() {
     // H5P_DEFAULT and H5I_INVALID_HID are not the same Ensuring that ~Object
     if (_hid != H5P_DEFAULT) {
         H5Pclose(_hid);
@@ -93,7 +88,9 @@ inline Properties::~Properties()
 }
 
 inline void Properties::_initializeIfNeeded() {
-    if (_hid != H5P_DEFAULT) { return; }
+    if (_hid != H5P_DEFAULT) {
+        return;
+    }
     if ((_hid = H5Pcreate(convert_plist_type(_type))) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Unable to create property list");
@@ -101,20 +98,16 @@ inline void Properties::_initializeIfNeeded() {
 }
 
 template <typename Property>
-inline void Properties::add(const Property& property)
-{
+inline void Properties::add(const Property& property) {
     _initializeIfNeeded();
     property.apply(_hid);
 }
 
-
 inline RawPropertyList::RawPropertyList(Type type)
-  : Properties(type)
-{}
+    : Properties(type) {}
 
 template <typename T, typename... Args>
-inline void RawPropertyList::add(const T& funct, const Args&... args)
-{
+inline void RawPropertyList::add(const T& funct, const Args&... args) {
     _initializeIfNeeded();
     if (funct(_hid, args...) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
@@ -122,53 +115,42 @@ inline void RawPropertyList::add(const T& funct, const Args&... args)
     }
 }
 
-
-inline void Chunking::apply(const hid_t hid) const
-{
-    if (H5Pset_chunk(hid, _dims.size(), _dims.data()) < 0)
-    {
+inline void Chunking::apply(const hid_t hid) const {
+    if (H5Pset_chunk(hid, _dims.size(), _dims.data()) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting chunk property");
     }
 }
 
-inline void Deflate::apply(const hid_t hid) const
-{
-    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE))
-    {
+inline void Deflate::apply(const hid_t hid) const {
+    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE)) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting deflate property");
     }
 
-    if (H5Pset_deflate(hid, _level) < 0)
-    {
+    if (H5Pset_deflate(hid, _level) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting deflate property");
     }
 }
 
-inline void Shuffle::apply(const hid_t hid) const
-{
-    if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE))
-    {
+inline void Shuffle::apply(const hid_t hid) const {
+    if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE)) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting shuffle property");
     }
 
-    if (H5Pset_shuffle(hid) < 0)
-    {
+    if (H5Pset_shuffle(hid) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting shuffle property");
     }
 }
 
-inline void Caching::apply(const hid_t hid) const
-{
-    if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0)
-    {
+inline void Caching::apply(const hid_t hid) const {
+    if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting dataset cache parameters");
     }
 }
-}
-#endif // H5PROPERTY_LIST_HPP
+}  // namespace HighFive
+#endif  // H5PROPERTY_LIST_HPP

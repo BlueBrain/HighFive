@@ -32,12 +32,12 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \param createProps A property list with data set access properties
     /// \return DataSet Object
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space, const DataType& type,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const DataSpace& space,
+                  const DataType& type,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -48,12 +48,11 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     template <typename Type>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const DataSpace& space,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file and
@@ -64,21 +63,20 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     template <typename T>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const T& data,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const T& data,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
     /// \param accessProps property list to configure dataset chunk cache
     /// \return return the named dataset, or throw exception if not found
-    DataSet getDataSet(const std::string& dataset_name,
-                       const DataSetAccessProps& accessProps =
-                         DataSetAccessProps()) const;
+    DataSet getDataSet(
+        const std::string& dataset_name,
+        const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
 
     ///
     /// \brief create a new group, and eventually intermediate groups
@@ -86,7 +84,7 @@ class NodeTraits {
     /// \param recursive Whether it shall create intermediate groups if
     //       necessary. Default: true
     /// \return the group object
-    Group createGroup(const std::string& group_name, bool parents=true);
+    Group createGroup(const std::string& group_name, bool parents = true);
 
     ///
     /// \brief open an existing group with the name group_name
@@ -127,4 +125,4 @@ class NodeTraits {
 
 #include "H5Node_traits_misc.hpp"
 
-#endif // H5NODE_TRAITS_HPP
+#endif  // H5NODE_TRAITS_HPP

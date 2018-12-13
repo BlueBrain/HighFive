@@ -7,16 +7,16 @@
  *
  */
 
+#include <complex>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <complex>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <memory>
 
 #include <stdio.h>
 
@@ -57,7 +57,9 @@ void generate2D(T* table, size_t x, size_t y, Func& func) {
 }
 
 template <typename T, typename Func>
-void generate2D(std::vector<std::vector<T>>& vec, size_t x, size_t y,
+void generate2D(std::vector<std::vector<T>>& vec,
+                size_t x,
+                size_t y,
                 Func& func) {
     vec.resize(x);
     for (size_t i = 0; i < x; i++) {
@@ -70,7 +72,9 @@ void generate2D(std::vector<std::vector<T>>& vec, size_t x, size_t y,
 
 template <typename T>
 struct ContentGenerate {
-    ContentGenerate() : _init(0), _inc(T(1) + T(1) / T(10)) {}
+    ContentGenerate()
+        : _init(0)
+        , _inc(T(1) + T(1) / T(10)) {}
 
     T operator()() {
         T ret = _init;
@@ -84,12 +88,12 @@ struct ContentGenerate {
 template <>
 ContentGenerate<complex>::ContentGenerate()
     : _init(0, 0)
-    , _inc(complex(1, 1) + complex(1, 1) / complex(10))
-{}
+    , _inc(complex(1, 1) + complex(1, 1) / complex(10)) {}
 
 template <>
 struct ContentGenerate<char> {
-    ContentGenerate() : _init('a') {}
+    ContentGenerate()
+        : _init('a') {}
 
     char operator()() {
         char ret = _init;
@@ -129,7 +133,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims{4,6};
+    std::vector<size_t> dims{4, 6};
 
     DataSpace dataspace(dims);
 
@@ -157,8 +161,8 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
             DataSetException);
     }
 
-    DataSet dataset_size_t =
-        file.createDataSet<size_t>(DATASET_NAME + "_size_t", dataspace);
+    DataSet dataset_size_t = file.createDataSet<size_t>(
+        DATASET_NAME + "_size_t", dataspace);
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveSilence) {
@@ -189,17 +193,15 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     std::remove(FILE_NAME.c_str());
 
     // Attempt open file only ReadWrite should fail (wont create)
-    BOOST_CHECK_THROW(
-        { File file(FILE_NAME, File::ReadWrite); },
-        FileException);
+    BOOST_CHECK_THROW({ File file(FILE_NAME, File::ReadWrite); },
+                      FileException);
 
     // But with Create flag should be fine
     { File file(FILE_NAME, File::ReadWrite | File::Create); }
 
     // But if its there and exclusive is given, should fail
-    BOOST_CHECK_THROW(
-        { File file(FILE_NAME, File::ReadWrite | File::Excl); },
-        FileException);
+    BOOST_CHECK_THROW({ File file(FILE_NAME, File::ReadWrite | File::Excl); },
+                      FileException);
     // ReadWrite and Excl flags are fine together (posix)
     std::remove(FILE_NAME.c_str());
     { File file(FILE_NAME, File::ReadWrite | File::Excl); }
@@ -208,14 +210,12 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     { File file(FILE_NAME, File::ReadWrite | File::Create | File::Excl); }
 
     // Just a few combinations are incompatible, detected by hdf5lib
-    BOOST_CHECK_THROW(
-        { File file(FILE_NAME, File::Truncate | File::Excl); },
-        FileException);
+    BOOST_CHECK_THROW({ File file(FILE_NAME, File::Truncate | File::Excl); },
+                      FileException);
 
     std::remove(FILE_NAME.c_str());
-    BOOST_CHECK_THROW(
-        { File file(FILE_NAME, File::Truncate | File::Excl); },
-        FileException);
+    BOOST_CHECK_THROW({ File file(FILE_NAME, File::Truncate | File::Excl); },
+                      FileException);
 
     // But in most cases we will truncate and that should always work
     { File file(FILE_NAME, File::Truncate); }
@@ -226,7 +226,6 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     { File file(FILE_NAME); }     // ReadOnly
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
-
 
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
     const std::string FILE_NAME("h5_group_test.h5");
@@ -259,8 +258,8 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
             GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" + DATASET_NAME,
             dataspace, AtomicType<double>());
 
-        DataSet dataset_relative =
-            nested.createDataSet(DATASET_NAME, dataspace, AtomicType<double>());
+        DataSet dataset_relative = nested.createDataSet(DATASET_NAME, dataspace,
+                                                        AtomicType<double>());
 
         DataSetCreateProps goodChunking;
         goodChunking.add(Chunking(std::vector<hsize_t>{2, 2}));
@@ -273,7 +272,6 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 
         DataSetCreateProps badChunking1;
         badChunking1.add(Chunking(std::vector<hsize_t>{1, 1, 1}));
-
 
         BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
                                              AtomicType<double>(),
@@ -315,8 +313,8 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
                                                   accessProps);
         BOOST_CHECK_EQUAL(4, dataset_chunked.getSpace().getDimensions()[0]);
 
-        DataSet dataset_chunked_small =
-            file.getDataSet(CHUNKED_DATASET_SMALL_NAME);
+        DataSet dataset_chunked_small = file.getDataSet(
+            CHUNKED_DATASET_SMALL_NAME);
         BOOST_CHECK_EQUAL(1,
                           dataset_chunked_small.getSpace().getDimensions()[0]);
     }
@@ -551,8 +549,8 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
     DataSpace dataspace(dims);
 
     // Create a dataset with double precision floating points
-    DataSet dataset =
-        file.createDataSet<size_t>(DATASET_NAME + "_double", dataspace);
+    DataSet dataset = file.createDataSet<size_t>(DATASET_NAME + "_double",
+                                                 dataspace);
 
     AtomicType<size_t> s;
     AtomicType<double> d;
@@ -605,7 +603,8 @@ BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
     BOOST_CHECK_EQUAL_COLLECTIONS(space3_res.begin(), space3_res.end(),
                                   space3_ans.begin(), space3_ans.end());
 
-    // Verify 2D works (note that without the {}, this matches the iterator constructor)
+    // Verify 2D works (note that without the {}, this matches the iterator
+    // constructor)
     DataSpace space2(std::vector<size_t>{3, 4});
 
     auto space2_res = space2.getDimensions();
@@ -613,21 +612,19 @@ BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
 
     BOOST_CHECK_EQUAL_COLLECTIONS(space2_res.begin(), space2_res.end(),
                                   space2_ans.begin(), space2_ans.end());
-
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
     using namespace HighFive;
 
     // Create 1D shortcut dataspace
-    DataSpace space1 {7};
+    DataSpace space1{7};
 
     auto space1_res = space1.getDimensions();
     std::vector<size_t> space1_ans{7};
 
     BOOST_CHECK_EQUAL_COLLECTIONS(space1_res.begin(), space1_res.end(),
                                   space1_ans.begin(), space1_ans.end());
-
 
     // Initializer list (explicit)
     DataSpace space3{8, 9, 10};
@@ -658,26 +655,26 @@ BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
 }
 
 BOOST_AUTO_TEST_CASE(ChunkingConstructorsTest) {
-    Chunking first(1,2,3);
+    Chunking first(1, 2, 3);
 
     auto first_res = first.getDimensions();
-    std::vector<hsize_t> first_ans{1,2,3};
+    std::vector<hsize_t> first_ans{1, 2, 3};
 
     BOOST_CHECK_EQUAL_COLLECTIONS(first_res.begin(), first_res.end(),
                                   first_ans.begin(), first_ans.end());
 
-    Chunking second{1,2,3};
+    Chunking second{1, 2, 3};
 
     auto second_res = second.getDimensions();
-    std::vector<hsize_t> second_ans{1,2,3};
+    std::vector<hsize_t> second_ans{1, 2, 3};
 
     BOOST_CHECK_EQUAL_COLLECTIONS(second_res.begin(), second_res.end(),
                                   second_ans.begin(), second_ans.end());
 
-    Chunking third({1,2,3});
+    Chunking third({1, 2, 3});
 
     auto third_res = third.getDimensions();
-    std::vector<hsize_t> third_ans{1,2,3};
+    std::vector<hsize_t> third_ans{1, 2, 3};
 
     BOOST_CHECK_EQUAL_COLLECTIONS(third_res.begin(), third_res.end(),
                                   third_ans.begin(), third_ans.end());
@@ -734,11 +731,11 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     const std::string DATASET_NAME("dset");
     std::vector<int> vec;
     vec.resize(x_size);
-    for(size_t i=0; i < x_size; i++)
+    for (size_t i = 0; i < x_size; i++)
         vec[i] = i * 2;
     std::string at_contents("Contents of string");
     int my_int = 3;
-    std::vector<std::vector<int>> my_nested = {{1,2},{3,4}};
+    std::vector<std::vector<int>> my_nested = {{1, 2}, {3, 4}};
 
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
@@ -752,8 +749,8 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
 
     std::vector<int> result;
     dataset.read(result);
-    BOOST_CHECK_EQUAL_COLLECTIONS(vec.begin(), vec.end(),
-                                  result.begin(), result.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(vec.begin(), vec.end(), result.begin(),
+                                  result.end());
 
     std::string read_in;
     dataset.getAttribute("str").read(read_in);
@@ -802,8 +799,8 @@ void readWriteVectorTest() {
     BOOST_CHECK_EQUAL(vec.size(), x_size);
     BOOST_CHECK_EQUAL(result.size(), x_size);
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
-                                  vec.begin(), vec.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), vec.begin(),
+                                  vec.end());
 }
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector, T, numerical_test_types) {
     readWriteVectorTest<T>();
@@ -834,8 +831,8 @@ void readWriteArrayTest() {
 
     dataset.read(result);
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(),
-                                  vec.begin(), vec.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), vec.begin(),
+                                  vec.end());
 
     typename std::array<T, 1> tooSmall;
     BOOST_CHECK_THROW(dataset.read(tooSmall), DataSpaceException);
@@ -877,8 +874,8 @@ void readWriteAttributeVectorTest() {
         bool has_attribute = g.hasAttribute("my_attribute");
         BOOST_CHECK_EQUAL(has_attribute, false);
 
-        Attribute a1 =
-            g.createAttribute<T>("my_attribute", DataSpace::From(vec));
+        Attribute a1 = g.createAttribute<T>("my_attribute",
+                                            DataSpace::From(vec));
         a1.write(vec);
 
         // check now that we effectively have an attribute listable
@@ -893,11 +890,11 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(all_attribute_names[0], std::string("my_attribute"));
 
         // Create the same attribute on a newly created dataset
-        DataSet s =
-            g.createDataSet("dummy_dataset", DataSpace(1), AtomicType<int>());
+        DataSet s = g.createDataSet("dummy_dataset", DataSpace(1),
+                                    AtomicType<int>());
 
-        Attribute a2 =
-            s.createAttribute<T>("my_attribute_copy", DataSpace::From(vec));
+        Attribute a2 = s.createAttribute<T>("my_attribute_copy",
+                                            DataSpace::From(vec));
         a2.write(vec);
     }
 
@@ -1008,8 +1005,8 @@ void MultiArray3DTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    DataSet dataset =
-        file.createDataSet<T>(DATASET_NAME, DataSpace::From(array));
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME,
+                                            DataSpace::From(array));
 
     dataset.write(array);
 
@@ -1095,8 +1092,8 @@ void selectionArraySimpleTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    DataSet dataset =
-        file.createDataSet<T>(DATASET_NAME, DataSpace::From(values));
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME,
+                                            DataSpace::From(values));
 
     dataset.write(values);
 
@@ -1127,7 +1124,7 @@ void selectionArraySimpleTest() {
     {
         // read it back
         Vector result;
-        std::vector<size_t> ids{1,3,4,7};
+        std::vector<size_t> ids{1, 3, 4, 7};
 
         Selection slice = dataset.select(ElementSet(ids));
 
@@ -1281,7 +1278,8 @@ void readWriteShuffleDeflateTest() {
 
     // write a compressed file
     {
-        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+        File file(filename.str(),
+                  File::ReadWrite | File::Create | File::Truncate);
 
         // Create the data space for the dataset.
         std::vector<size_t> dims{x_size, y_size};
@@ -1326,7 +1324,9 @@ void readWriteShuffleDeflateTest() {
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) {
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate,
+                              T,
+                              numerical_test_types) {
     readWriteShuffleDeflateTest<T>();
 }
 
@@ -1340,8 +1340,8 @@ BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
-    std::vector<size_t> dims_a{1,3};
-    std::vector<size_t> dims_b{3,1};
+    std::vector<size_t> dims_a{1, 3};
+    std::vector<size_t> dims_b{3, 1};
 
     // 1D input / output vectors
     std::vector<double> some_data{5.0, 6.0, 7.0};
@@ -1366,13 +1366,11 @@ BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
     out_a.read(data_a);
     out_b.read(data_b);
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(
-            data_a.begin(), data_a.end(),
-            some_data.begin(), some_data.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(data_a.begin(), data_a.end(),
+                                  some_data.begin(), some_data.end());
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(
-            data_b.begin(), data_b.end(),
-            some_data.begin(), some_data.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(data_b.begin(), data_b.end(),
+                                  some_data.begin(), some_data.end());
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
@@ -1393,10 +1391,10 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     std::vector<double> some_data{5.0, 6.0, 7.0};
     g2.createDataSet(DS_NAME, some_data);
 
-    BOOST_CHECK( file.exist(GROUP_1) );
+    BOOST_CHECK(file.exist(GROUP_1));
 
     Group g1 = file.getGroup(GROUP_1);
-    BOOST_CHECK( g1.exist(GROUP_2) );
+    BOOST_CHECK(g1.exist(GROUP_2));
 
     // checks with full path
     BOOST_CHECK(file.exist(DS_PATH));
@@ -1407,5 +1405,4 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
 
     // Using root slash
     BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
-
 }
