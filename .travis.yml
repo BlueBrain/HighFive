@@ -70,6 +70,7 @@ matrix:
 
       # osx
     - os: osx
+      osx_image: xcode10
       addons:
         homebrew:
           packages:
