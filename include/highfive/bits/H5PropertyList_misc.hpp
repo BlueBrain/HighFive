@@ -16,7 +16,7 @@
 namespace HighFive {
 
 namespace {
-inline int convert_plist_type(Properties::Type propertyType) {
+inline hid_t convert_plist_type(Properties::Type propertyType) {
     // The HP5_XXX are macros with function calls so we can't assign
     // them as the enum values
     switch(propertyType) {
