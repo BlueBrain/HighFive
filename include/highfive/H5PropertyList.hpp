@@ -15,90 +15,89 @@
 
 namespace HighFive {
 
-///
-/// \brief Generic HDF5 property List
-///
-class Properties {
-  public:
-    enum Type {
-        OBJECT_CREATE,
-        FILE_CREATE,
-        FILE_ACCESS,
-        DATASET_CREATE,
-        DATASET_ACCESS,
-        DATASET_XFER,
-        GROUP_CREATE,
-        GROUP_ACCESS,
-        DATATYPE_CREATE,
-        DATATYPE_ACCESS,
-        STRING_CREATE,
-        ATTRIBUTE_CREATE,
-        OBJECT_COPY,
-        LINK_CREATE,
-        LINK_ACCESS
-    };
 
-    ~Properties();
+enum class PropertyType : int {
+    OBJECT_CREATE,
+    FILE_CREATE,
+    FILE_ACCESS,
+    DATASET_CREATE,
+    DATASET_ACCESS,
+    DATASET_XFER,
+    GROUP_CREATE,
+    GROUP_ACCESS,
+    DATATYPE_CREATE,
+    DATATYPE_ACCESS,
+    STRING_CREATE,
+    ATTRIBUTE_CREATE,
+    OBJECT_COPY,
+    LINK_CREATE,
+    LINK_ACCESS,
+};
+
+///
+/// \brief Base HDF5 property List
+///
+template <PropertyType T>
+class PropertyList {
+  public:
+    ~PropertyList();
 
 #ifdef H5_USE_CXX11
-    Properties(Properties&& other);
-    Properties& operator=(Properties&& other);
+    PropertyList(PropertyList&& other);
+    PropertyList& operator=(PropertyList&& other);
 #endif
-
-    Type getType() const { return _type; }
+    constexpr PropertyType getType() const { return T; }
 
     hid_t getId() const { return _hid; }
+
+    PropertyList();
+
+    template <typename P>
+    PropertyList(std::initializer_list<P>);
 
     ///
     /// Add a property to this property list.
     /// A property is an object which is expected to have a method with the
     /// following signature void apply(hid_t hid) const
     ///
-    template <typename Property>
-    void add(const Property& property);
+    template <typename P>
+    void add(const P& property);
 
   protected:
-    // protected constructor
-    explicit Properties(Type type);
-
     void _initializeIfNeeded();
 
-    Type _type;
     hid_t _hid;
 
   private:
 #ifdef H5_USE_CXX11
-    Properties(const Properties&) = delete;
-    Properties& operator=(const Properties&) = delete;
+    PropertyList(const PropertyList<T>&) = delete;
+    PropertyList& operator=(const PropertyList<T>&) = delete;
 #else
-    Properties(const Properties&);
-    Properties& operator=(const Properties&);
+    PropertyList(const PropertyList<T>&);
+    PropertyList& operator=(const PropertyList<T>&);
 #endif
 };
+
+typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
+typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps ;
+typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
+typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
+typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
 
 ///
 /// RawPropertieLists are to be used when advanced H5 properties
 /// are desired and are not part of the HighFive API.
 /// Therefore this class is mainly for internal use.
-class RawPropertyList : public Properties {
+template <PropertyType T>
+class RawPropertyList : public PropertyList<T> {
   public:
-    explicit RawPropertyList(Type type);
-
-    template <typename T, typename... Args>
-    void add(const T& funct, const Args&... args);
+    template <typename F, typename... Args>
+    void add(const F& funct, const Args&... args);
 };
 
-class DataSetCreateProps : public Properties {
-  public:
-    DataSetCreateProps()
-        : Properties(DATASET_CREATE) {}
-};
 
-class DataSetAccessProps : public Properties {
-  public:
-    DataSetAccessProps()
-        : Properties(DATASET_ACCESS) {}
-};
+
+//class Property <PropertyType T> {}
 
 class Chunking {
   public:
@@ -115,7 +114,7 @@ class Chunking {
     const std::vector<hsize_t>& getDimensions() const { return _dims; }
 
   private:
-    friend class Properties;
+    friend DataSetCreateProps;
     void apply(hid_t hid) const;
     const std::vector<hsize_t> _dims;
 };
@@ -126,7 +125,7 @@ class Deflate {
         : _level(level) {}
 
   private:
-    friend class Properties;
+    friend DataSetCreateProps;
     void apply(hid_t hid) const;
     const int _level;
 };
@@ -136,7 +135,7 @@ class Shuffle {
     Shuffle() {}
 
   private:
-    friend class Properties;
+    friend DataSetCreateProps;
     void apply(hid_t hid) const;
 };
 
@@ -154,7 +153,7 @@ class Caching {
         , _w0(w0) {}
 
   private:
-    friend class Properties;
+    friend DataSetAccessProps;
     void apply(hid_t hid) const;
     const unsigned int _numSlots;
     const size_t _cacheSize;

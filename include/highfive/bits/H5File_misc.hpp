@@ -39,7 +39,7 @@ inline int convert_open_flag(int openFlags) {
 }  // namespace
 
 inline File::File(const std::string& filename, int openFlags,
-                  const Properties& fileAccessProps)
+                  const FileAccessProps& fileAccessProps)
     : _filename(filename) {
 
     openFlags = convert_open_flag(openFlags);
