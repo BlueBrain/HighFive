@@ -80,6 +80,104 @@ See [src/examples/](src/examples/)  sub-directory for more infos
 c++ -o program -I/path/to/highfive/include source.cpp  -lhdf5
 ```
 
+#### H5Easy
+
+For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Easy.hpp) interface is available. It allows:
+
+*   Reading/writing in a single line of:
+
+    -   scalars (to/from an extendible DataSet),
+    -   strings,
+    -   vectors (of standard types),
+    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enabled by including Eigen before including HighFive, or by `#define HIGHFIVE_EIGEN` before including HighFive),
+    -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor) (optional, enabled by including xtensor before including HighFive, or by `#define HIGHFIVE_XTENSOR` before including HighFive).
+
+*   Direct access to the `size` and `shape` of a DataSet.
+
+Consider this example:
+
+```cpp
+#include <Eigen/Eigen>
+#include <xtensor/xtensor.hpp>
+#include <HighFive/H5Easy.hpp>
+
+int main()
+{
+    HighFive::File file("example.h5", HighFive::File::Overwrite);
+
+    // (over)write scalar
+    {
+        int A = 10;
+
+        HighFive::dump(file, "/path/to/A", A);
+        HighFive::dump(file, "/path/to/A", A, HighFive::Mode::Overwrite);
+    }
+
+    // (over)write std::vector
+    {
+        std::vector<double> B = {1., 2., 3.};
+
+        HighFive::dump(file, "/path/to/B", B);
+        HighFive::dump(file, "/path/to/B", B, HighFive::Mode::Overwrite);
+    }
+
+    // (over)write scalar in (automatically expanding) extendible DataSet
+    {
+        HighFive::dump(file, "/path/to/C", 10, {0});
+        HighFive::dump(file, "/path/to/C", 11, {1});
+        HighFive::dump(file, "/path/to/C", 12, {3});
+    }
+
+    // (over)write Eigen::Matrix
+    {
+        Eigen::MatrixXd D = Eigen::MatrixXd::Random(10,5);
+
+        HighFive::dump(file, "/path/to/D", D);
+        HighFive::dump(file, "/path/to/D", D, HighFive::Mode::Overwrite);
+    }
+
+    // (over)write xt::xtensor (or xt::xarray)
+    {
+        xt::xtensor<size_t,1> E = xt::arange<size_t>(10);
+
+        HighFive::dump(file, "/path/to/E", E);
+        HighFive::dump(file, "/path/to/E", E, HighFive::Mode::Overwrite);
+    }
+
+    // read scalar
+    {
+        int A = HighFive::load<int>(file, "/path/to/A");
+    }
+
+    // read std::vector
+    {
+        std::vector<double> B = HighFive::load<std::vector<double>>(file, "/path/to/B");
+    }
+
+    // read scalar from DataSet
+    {
+        int C = HighFive::load<int>(file, "/path/to/C", {0});
+    }
+
+    // read Eigen::Matrix
+    {
+        Eigen::MatrixXd D = HighFive::load<Eigen::MatrixXd>(file, "/path/to/D");
+    }
+
+    // read xt::xtensor (or xt::xarray)
+    {
+        xt::xtensor<size_t,1> E = HighFive::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
+    }
+
+    // get the size/shape of a DataSet
+    {
+        size_t size = HighFive::size(file, "/path/to/C");
+        std::vector<size_t> shape = HighFive::shape(file, "/path/to/C");
+    }
+
+    return 0;
+}
+```
 
 ### Test Compilation
 Remember: Compilation is not required. Used only for unit test and examples
