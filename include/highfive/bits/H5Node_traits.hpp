@@ -32,14 +32,14 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \param createProps A property list with data set access properties
     /// \return DataSet Object
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space, const DataType& type,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const DataSpace& space,
+                  const DataType& type,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
-    ///                            
+    ///
     /// \brief createDataSet create a new dataset in the current file with a
     /// size specified by space
     /// \param dataset_name identifier of the dataset
@@ -48,12 +48,11 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     template <typename Type>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const DataSpace& space,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
     ///
     /// \brief createDataSet create a new dataset in the current file and
@@ -64,27 +63,28 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \return DataSet Object
     template <typename T>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const T& data,
-                          const DataSetCreateProps& createProps =
-                            DataSetCreateProps(),
-                          const DataSetAccessProps& accessProps =
-                            DataSetAccessProps());
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const T& data,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
 
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
     /// \param accessProps property list to configure dataset chunk cache
     /// \return return the named dataset, or throw exception if not found
-    DataSet getDataSet(const std::string& dataset_name,
-                       const DataSetAccessProps& accessProps =
-                         DataSetAccessProps()) const;
+    DataSet getDataSet(
+        const std::string& dataset_name,
+        const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
 
     ///
-    /// \brief create a new group with the name group_name
+    /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
+    /// \param recursive Whether it shall create intermediate groups if
+    //       necessary. Default: true
     /// \return the group object
-    Group createGroup(const std::string& group_name);
+    Group createGroup(const std::string& group_name, bool parents = true);
 
     ///
     /// \brief open an existing group with the name group_name
@@ -107,7 +107,7 @@ class NodeTraits {
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
 
-    ///    
+    ///
     /// \brief check a dataset or group exists in the current node / group
     /// \param dataset/group name to check
     /// \return true if a dataset/group with the asssociated name exist, or
@@ -116,9 +116,13 @@ class NodeTraits {
 
   private:
     typedef Derivate derivate_type;
+
+    // A wrapper over the low-level H5Lexist
+    bool _exist(const std::string& node_name) const;
 };
-}
+
+}  // namespace HighFive
 
 #include "H5Node_traits_misc.hpp"
 
-#endif // H5NODE_TRAITS_HPP
+#endif  // H5NODE_TRAITS_HPP
