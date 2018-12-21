@@ -6,8 +6,8 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ONELINE_HPP
-#define H5ONELINE_HPP
+#ifndef H5EASY_HPP
+#define H5EASY_HPP
 
 #include <iostream>
 #include <string>
@@ -46,22 +46,23 @@ namespace HighFive
     };
 
     ///
-    /// Check if a path exists (is a Group or DataSet) in an open HDF5 file.
+    /// Get the groupName of a path to a DataSet. For example for ``path = "/path/to/dataset"`` this
+    /// function returns ``"/path/to"``.
     ///
-    /// @param file opened HighFive::File
-    /// @param path path of the Group/DataSet
+    /// @param path path to a DataSet
     ///
-    inline bool exist(const HighFive::File &file, const std::string &path);
+    /// @return group the path of the group above the DataSet
+    inline std::string groupName(const std::string& path);
 
     ///
     /// Recursively create groups in an open HDF5 file such that a DataSet can be created.
-    /// For example if the path = "/path/to/dataset", this function will create the groups
-    /// "/path" and "/path/to".
+    /// For example for ``path = "/path/to/dataset"``, this function will create the groups
+    /// ``"/path"`` and ``"/path/to"``.
     ///
     /// @param file opened HighFive::File
     /// @param path path of the DataSet
     ///
-    inline void createGroup(HighFive::File &file, const std::string &path);
+    inline void createGroupsToDataSet(HighFive::File& file, const std::string& path);
 
     ///
     /// Get the size of an existing DataSet in an open HDF5 file.
@@ -70,7 +71,15 @@ namespace HighFive
     /// @param path path of the DataSet
     ///
     /// @return size the size of the HighFive::DataSet
-    inline std::size_t size(const HighFive::File &file, const std::string &path);
+    inline auto size(const HighFive::File& file, const std::string& path);
+
+    ///
+    /// Get the size of an existing DataSet.
+    ///
+    /// @param dataset opened HighFive::DataSet
+    ///
+    /// @return size the size of the HighFive::DataSet
+    inline auto size(const HighFive::DataSet& dataset);
 
     ///
     /// Get the shape of an existing DataSet in an open HDF5 file.
@@ -79,7 +88,15 @@ namespace HighFive
     /// @param path path of the DataSet
     ///
     /// @return shape the shape of the HighFive::DataSet
-    inline std::vector<std::size_t> shape(const HighFive::File &file, const std::string &path);
+    inline auto shape(const HighFive::File& file, const std::string& path);
+
+    ///
+    /// Get the shape of an existing DataSet.
+    ///
+    /// @param path path of the DataSet
+    ///
+    /// @return shape the shape of the HighFive::DataSet
+    inline auto shape(const HighFive::DataSet& dataset);
 
     ///
     /// Write "Eigen::Matrix<T,Rows,Cols,Options>" to a new DataSet in an open HDF5 file.
@@ -93,7 +110,7 @@ namespace HighFive
     ///
     #ifdef HIGHFIVE_EIGEN
     template <class T, int Rows, int Cols, int Options>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const Eigen::Matrix<T,Rows,Cols,Options> &data, HighFive::Mode mode=HighFive::Mode::Create);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const Eigen::Matrix<T,Rows,Cols,Options>& data, HighFive::Mode mode=HighFive::Mode::Create);
     #endif
 
     ///
@@ -108,7 +125,7 @@ namespace HighFive
     ///
     #ifdef HIGHFIVE_XTENSOR
     template <class T>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const xt::xarray<T> &data, HighFive::Mode mode=HighFive::Mode::Create);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const xt::xarray<T>& data, HighFive::Mode mode=HighFive::Mode::Create);
     #endif
 
     ///
@@ -123,7 +140,7 @@ namespace HighFive
     ///
     #ifdef HIGHFIVE_XTENSOR
     template <class T, std::size_t rank>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const xt::xtensor<T,rank> &data, HighFive::Mode mode=HighFive::Mode::Create);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const xt::xtensor<T,rank>& data, HighFive::Mode mode=HighFive::Mode::Create);
     #endif
 
     ///
@@ -137,7 +154,7 @@ namespace HighFive
     /// @return dataset the newly created HighFive::DataSet (e.g. to add an attribute)
     ///
     template <class T>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const std::vector<T> &data, HighFive::Mode mode=HighFive::Mode::Create);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const std::vector<T>& data, HighFive::Mode mode=HighFive::Mode::Create);
 
     ///
     /// Write scalar/string to a new DataSet in an open HDF5 file.
@@ -150,7 +167,7 @@ namespace HighFive
     /// @return dataset the newly created HighFive::DataSet (e.g. to add an attribute)
     ///
     template <class T>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const T &data, HighFive::Mode mode=HighFive::Mode::Create);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const T& data, HighFive::Mode mode=HighFive::Mode::Create);
 
     ///
     /// Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
@@ -163,7 +180,7 @@ namespace HighFive
     /// @return dataset the (newly created) HighFive::DataSet (e.g. to add an attribute)
     ///
     template <class T>
-    inline HighFive::DataSet dump(HighFive::File &file, const std::string &path, const T &data, const std::vector<std::size_t> &idx);
+    inline HighFive::DataSet dump(HighFive::File& file, const std::string& path, const T& data, const std::vector<std::size_t>& idx);
 
     ///
     /// Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
@@ -175,7 +192,7 @@ namespace HighFive
     /// @return data the read data
     ///
     template <class T>
-    inline auto load(const HighFive::File &file, const std::string &path, const std::vector<std::size_t> &idx);
+    inline auto load(const HighFive::File& file, const std::string& path, const std::vector<std::size_t>& idx);
 
     ///
     /// Load a DataSet in an open HDF5 file to an object (templated).
@@ -186,11 +203,15 @@ namespace HighFive
     /// @return data the read data
     ///
     template <class T>
-    inline auto load(const HighFive::File &file, const std::string &path);
+    inline auto load(const HighFive::File& file, const std::string& path);
 
 }
 
-#include "bits/H5OneLine.hpp"
+#include "bits/H5Easy_misc.hpp"
+#include "bits/H5Easy_scalar.hpp"
+#include "bits/H5Easy_vector.hpp"
+#include "bits/H5Easy_Eigen.hpp"
+#include "bits/H5Easy_xtensor.hpp"
 
-#endif  // H5ONELINE_HPP
+#endif // H5EASY_HPP
 
