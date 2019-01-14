@@ -17,9 +17,9 @@ include(CheckCXX11Portability)
 
 include(BlueGenePortability)
 
-option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
-option(USE_BOOST "enable Boost Support" TRUE)
-option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
+option(HIGHFIVE_UNIT_TESTS "enable unit tests" FALSE)
+option(USE_BOOST "enable Boost Support" FALSE)
+option(HIGHFIVE_EXAMPLES "Compile examples" FALSE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
 set(HIGHFIVE_CPP_STD_FLAG "-std=c++11" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
