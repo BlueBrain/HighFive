@@ -16,12 +16,7 @@ namespace HighFive {
 ///
 /// \brief file driver base concept
 ///
-class FileDriver : public Properties {
-  public:
-    inline FileDriver();
-
-  private:
-};
+class FileDriver : public FileAccessProps {};
 
 ///
 /// \brief MPIIO Driver for Parallel HDF5
@@ -34,7 +29,7 @@ class MPIOFileDriver : public FileDriver {
   private:
 };
 
-} // HighFive
+}  // namespace HighFive
 
 #include "bits/H5FileDriver_misc.hpp"
 
