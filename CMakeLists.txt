@@ -19,6 +19,8 @@ include(BlueGenePortability)
 
 option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
+option(USE_XTENSOR "enable xtensor testing" FALSE)
+option(USE_EIGEN "enable Eigen testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 

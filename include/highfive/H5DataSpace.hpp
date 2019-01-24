@@ -93,6 +93,10 @@ class DataSpace : public Object {
     /// associated dataset dimension
     std::vector<size_t> getDimensions() const;
 
+    /// \brief getElementCount
+    /// \return return the total number of elements in the dataspace
+    size_t getElementCount() const;
+
     /// \brief getMaxDimensions
     /// \return return a vector of N-element, each element is the size of the
     /// associated dataset maximum dimension

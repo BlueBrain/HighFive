@@ -21,14 +21,34 @@ target_link_libraries(tests_high_five_cpp11_bin
 ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
 
 if(HIGHFIVE_PARALLEL_HDF5)
-    target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
+  target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
 endif()
 
 target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
 
 add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 
+if(USE_EIGEN)
+  list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-2.8/Modules/")
+  find_package(Eigen3 REQUIRED)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+  add_definitions(-DHIGHFIVE_EIGEN)
+endif()
 
+# disable xtensor-testing for compilers that do not support C++14
+if(USE_XTENSOR)
+  if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
+    message(STATUS "Use g++ 4.9 or greater to enable xtensor testing.")
+    set(USE_XTENSOR FALSE)
+  endif()
+endif()
+
+if(USE_XTENSOR)
+  find_package(xtl REQUIRED)
+  find_package(xtensor REQUIRED)
+  target_link_libraries(tests_high_five_cpp11_bin xtl xtensor)
+  add_definitions(-DHIGHFIVE_XTENSOR)
+endif()
 
 if(HIGHFIVE_PARALLEL_HDF5)
 

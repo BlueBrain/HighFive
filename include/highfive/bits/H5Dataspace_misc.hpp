@@ -102,7 +102,6 @@ inline size_t DataSpace::getNumberDimensions() const {
 }
 
 inline std::vector<size_t> DataSpace::getDimensions() const {
-
     std::vector<hsize_t> dims(getNumberDimensions());
     if (dims.size() > 0) {
         if (H5Sget_simple_extent_dims(_hid, dims.data(), NULL) < 0) {
@@ -111,6 +110,11 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
         }
     }
     return details::to_vector_size_t(std::move(dims));
+}
+
+inline size_t DataSpace::getElementCount() const {
+    auto dims = getDimensions();
+    return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<size_t>());
 }
 
 inline std::vector<size_t> DataSpace::getMaxDimensions() const {

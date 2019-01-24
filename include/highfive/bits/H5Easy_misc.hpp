@@ -11,87 +11,68 @@
 
 #include "../H5Easy.hpp"
 
-namespace HighFive
+namespace HighFive {
+
+namespace detail {
+
+// Generate error-stream and return "HighFive::Exception" (not yet thrown).
+inline HighFive::Exception error(const HighFive::File& file,
+                                 const std::string& path,
+                                 const std::string& message)
 {
-    namespace detail
-    {
-        inline auto error(const HighFive::File& file, const std::string& path, std::string message)
-        {
-            message += "\n";
-            message += "path: '" + path + "'\n";
-            message += "filename: '" + file.getName() + "'\n";
+    std::ostringstream ss;
+    ss << message << std::endl
+       << "Path: " << path << std::endl
+       << "Filename: " << file.getName() << std::endl;
+    return HighFive::Exception(ss.str());
+}
 
-            return std::runtime_error(message);
-        }
-    }
+///
+/// Get the parent of a path.
+/// For example for ``path = "/path/to/dataset"`` this function returns
+/// ``"/path/to"``.
+///
+/// @param path path to a DataSet
+///
+/// @return group the path of the group above the DataSet
+inline std::string getParentName(const std::string& path)
+{
+    std::size_t idx = path.find_last_of("/\\");
 
-    inline std::string groupName(const std::string& path)
-    {
-        std::size_t idx = path.find_last_of("/\\");
-
-        if ( idx == std::string::npos )
-        {
-            return "/";
-        }
-
-        if ( idx == 0 )
-        {
-            return "/";
-        }
-
-        return path.substr(0,idx);
-    }
-
-    inline void createGroupsToDataSet(HighFive::File& file, const std::string& path)
-    {
-        std::string group_name = groupName(path);
-
-        if ( not file.exist(group_name) )
-        {
-            file.createGroup(group_name);
-        }
-    }
-
-    inline auto size(const HighFive::File& file, const std::string& path)
-    {
-        HighFive::DataSet dataset = file.getDataSet(path);
-
-        auto dataspace = dataset.getSpace();
-
-        auto dims = dataspace.getDimensions();
-
-        using T = decltype(dims)::value_type;
-
-        return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<T>());
-    }
-
-    inline auto size(const HighFive::DataSet& dataset)
-    {
-        auto dataspace = dataset.getSpace();
-
-        auto dims = dataspace.getDimensions();
-
-        using T = decltype(dims)::value_type;
-
-        return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<T>());
-    }
-
-    inline auto shape(const HighFive::File& file, const std::string& path)
-    {
-        HighFive::DataSet dataset = file.getDataSet(path);
-
-        auto dataspace = dataset.getSpace();
-
-        return dataspace.getDimensions();
-    }
-
-    inline auto shape(const HighFive::DataSet& dataset)
-    {
-        auto dataspace = dataset.getSpace();
-
-        return dataspace.getDimensions();
+    if (idx == std::string::npos) {
+        return "/";
+    } else if (idx == 0) {
+        return "/";
+    } else {
+        return path.substr(0, idx);
     }
 }
 
-#endif // H5EASY_BITS_MISC_HPP
+///
+/// Recursively create groups in an open HDF5 file such that a DataSet can be
+/// created (see ``getParentName``).
+///
+/// @param file opened HighFive::File
+/// @param path path of the DataSet
+///
+inline void createGroupsToDataSet(HighFive::File& file, const std::string& path)
+{
+    std::string group_name = getParentName(path);
+    if (not file.exist(group_name)) {
+        file.createGroup(group_name);
+    }
+}
 
+}  // namespace detail
+
+inline size_t getSize(const HighFive::File& file, const std::string& path) {
+    return file.getDataSet(path).getElementCount();
+}
+
+inline std::vector<size_t> getShape(const HighFive::File& file, const std::string& path) {
+    return file.getDataSet(path).getDimensions();
+}
+
+}  // namespace HighFive
+
+#endif  // H5EASY_BITS_MISC_HPP

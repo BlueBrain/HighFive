@@ -72,7 +72,7 @@ See [create_attribute_string_integer.cpp](src/examples/create_attribute_string_i
 
 #### And others
 
-See [src/examples/](src/examples/)  sub-directory for more infos
+See [src/examples/](src/examples/) subdirectory for more info.
 
 ### Compile with HighFive
 
@@ -92,92 +92,29 @@ For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Ea
     -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enabled by including Eigen before including HighFive, or by `#define HIGHFIVE_EIGEN` before including HighFive),
     -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor) (optional, enabled by including xtensor before including HighFive, or by `#define HIGHFIVE_XTENSOR` before including HighFive).
 
-*   Direct access to the `size` and `shape` of a DataSet.
+*   Getting in a single line:
 
-Consider this example:
+     -   the size of a DataSet,
+     -   the shape of a DataSet.
+
+The general idea is to 
 
 ```cpp
-#include <Eigen/Eigen>
-#include <xtensor/xtensor.hpp>
 #include <HighFive/H5Easy.hpp>
 
 int main()
 {
     HighFive::File file("example.h5", HighFive::File::Overwrite);
 
-    // (over)write scalar
-    {
-        int A = 10;
+    int A = ...;
 
-        HighFive::dump(file, "/path/to/A", A);
-        HighFive::dump(file, "/path/to/A", A, HighFive::Mode::Overwrite);
-    }
+    HighFive::dump(file, "/path/to/A", A);
 
-    // (over)write std::vector
-    {
-        std::vector<double> B = {1., 2., 3.};
-
-        HighFive::dump(file, "/path/to/B", B);
-        HighFive::dump(file, "/path/to/B", B, HighFive::Mode::Overwrite);
-    }
-
-    // (over)write scalar in (automatically expanding) extendible DataSet
-    {
-        HighFive::dump(file, "/path/to/C", 10, {0});
-        HighFive::dump(file, "/path/to/C", 11, {1});
-        HighFive::dump(file, "/path/to/C", 12, {3});
-    }
-
-    // (over)write Eigen::Matrix
-    {
-        Eigen::MatrixXd D = Eigen::MatrixXd::Random(10,5);
-
-        HighFive::dump(file, "/path/to/D", D);
-        HighFive::dump(file, "/path/to/D", D, HighFive::Mode::Overwrite);
-    }
-
-    // (over)write xt::xtensor (or xt::xarray)
-    {
-        xt::xtensor<size_t,1> E = xt::arange<size_t>(10);
-
-        HighFive::dump(file, "/path/to/E", E);
-        HighFive::dump(file, "/path/to/E", E, HighFive::Mode::Overwrite);
-    }
-
-    // read scalar
-    {
-        int A = HighFive::load<int>(file, "/path/to/A");
-    }
-
-    // read std::vector
-    {
-        std::vector<double> B = HighFive::load<std::vector<double>>(file, "/path/to/B");
-    }
-
-    // read scalar from DataSet
-    {
-        int C = HighFive::load<int>(file, "/path/to/C", {0});
-    }
-
-    // read Eigen::Matrix
-    {
-        Eigen::MatrixXd D = HighFive::load<Eigen::MatrixXd>(file, "/path/to/D");
-    }
-
-    // read xt::xtensor (or xt::xarray)
-    {
-        xt::xtensor<size_t,1> E = HighFive::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
-    }
-
-    // get the size/shape of a DataSet
-    {
-        size_t size = HighFive::size(file, "/path/to/C");
-        std::vector<size_t> shape = HighFive::shape(file, "/path/to/C");
-    }
-
-    return 0;
+    A = HighFive::load<int>(file, "/path/to/A");
 }
 ```
+
+whereby the `int` type of this example can be replaced by any of the above types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more details.
 
 ### Test Compilation
 Remember: Compilation is not required. Used only for unit test and examples
@@ -193,8 +130,8 @@ make test
 
 - create/read/write file,  dataset, group, dataspace.
 - automatic memory management / ref counting
-- automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
-- automatic convertion of std::string to/from variable length string dataset
+- automatic conversion of `std::vector` and nested `std::vector` from/to any dataset with basic types
+- automatic conversion of `std::string` to/from variable length string dataset
 - selection() / slice support
 - parallel Read/Write operations from several nodes with Parallel HDF5
 - support HDF5 attributes
@@ -207,6 +144,7 @@ make test
 - Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project
 - Tristan Carel <tristan.carel@epfl.ch> - Blue Brain Project
 - Wolf Vollprecht <w.vollprecht@gmail.com> - QuantStack
+- Tom de Geus <tom@geus.me> - EPFL
 
 ### License
 Boost Software License 1.0
