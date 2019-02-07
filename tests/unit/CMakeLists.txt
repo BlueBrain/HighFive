@@ -15,8 +15,9 @@ endif()
 
 ## base tests
 file(GLOB tests_high_five_src "*base.cpp")
+file(GLOB tests_high_five_src_easy "*easy.cpp")
 
-add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
+add_executable(tests_high_five_cpp11_bin ${tests_high_five_src} ${tests_high_five_src_easy})
 target_link_libraries(tests_high_five_cpp11_bin
 ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
 

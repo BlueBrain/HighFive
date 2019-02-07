@@ -35,9 +35,11 @@ std::vector<size_t> shape(const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCol
 }
 
 // write to open DataSet of the correct size
-// if the "Eigen::Matrix" is column-major reordering has to be done first; HDF5 is always row-major
+// if the "Eigen::Matrix" is column-major reordering has to be done first;
+// HDF5 is always row-major
 template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-void write(HighFive::DataSet& dataset, const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
+void write(HighFive::DataSet& dataset,
+           const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
 {
     if (data.IsRowMajor) {
         dataset.write(data.data());
@@ -52,11 +54,13 @@ template <class T>
 struct dump_impl
 {
     template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
+    static HighFive::DataSet
+    run(HighFive::File& file,
+        const std::string& path,
         const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
     {
         detail::createGroupsToDataSet(file, path);
-        HighFive::DataSet dataset = file.createDataSet<C>(path, HighFive::DataSpace(shape(data)));
+        DataSet dataset = file.createDataSet<C>(path, DataSpace(shape(data)));
         detail::eigen::write(dataset, data);
         file.flush();
         return dataset;
@@ -68,10 +72,12 @@ template <class T>
 struct overwrite_impl
 {
     template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
+    static HighFive::DataSet
+    run(HighFive::File& file,
+        const std::string& path,
         const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         if (dataset.getDimensions() != shape(data)) {
             throw detail::error(file, path, "HighFive::dump: Inconsistent dimensions");
         }
@@ -82,13 +88,14 @@ struct overwrite_impl
 };
 
 // load "Eigen::Matrix" from DataSet
-// if the "Eigen::Matrix" is column-major reordering has to be done first; HDF5 is always row-major
+// if the "Eigen::Matrix" is column-major reordering has to be done first;
+// HDF5 is always row-major
 template <class T>
 struct load_impl
 {
     static T run(const HighFive::File& file, const std::string& path)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
 
         T data;
@@ -124,9 +131,12 @@ struct load_impl
 template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 struct load_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>
 {
-    static Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols> run(const HighFive::File& file, const std::string& path)
+    static Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>
+    run(const HighFive::File& file,
+        const std::string& path)
     {
-        return detail::eigen::load_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path);
+        return detail::eigen::load_impl<
+            Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path);
     }
 };
 
@@ -134,13 +144,18 @@ struct load_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>
 
 // front-end
 template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-inline HighFive::DataSet dump(HighFive::File& file, const std::string& path,
-    const Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>& data, HighFive::Mode mode)
+inline HighFive::DataSet
+dump(HighFive::File& file,
+     const std::string& path,
+     const Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>& data,
+     HighFive::Mode mode)
 {
     if (!file.exist(path)) {
-        return detail::eigen::dump_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path, data);
+        return detail::eigen::dump_impl<
+            Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path, data);
     } else if (mode == HighFive::Mode::Overwrite) {
-        return detail::eigen::overwrite_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path, data);
+        return detail::eigen::overwrite_impl<
+            Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path, data);
     } else {
         throw detail::error(file, path, "path already exists");
     }
