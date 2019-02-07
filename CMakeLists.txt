@@ -1,10 +1,7 @@
-project(HighFive)
 cmake_minimum_required(VERSION 3.0)
+project(HighFive VERSION 2.0)
 
 enable_testing()
-
-set(HIGHFIVE_VERSION_MAJOR 2)
-set(HIGHFIVE_VERSION_MINOR 0)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability

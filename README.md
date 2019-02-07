@@ -24,6 +24,27 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 - (optional) boost >= 1.41
 
 
+### CMake integration
+
+HighFive can easily be used by other C++ CMake projects.
+Below is a very simple *foo* project creating a *bar* C++ program
+using HighFive library:
+
+```cmake
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+project(foo)
+set(CMAKE_CXX_STANDARD 11)
+
+find_package(HighFive 2.0 REQUIRED)
+add_executable(bar bar.cpp)
+target_include_directories(
+  bar
+  PUBLIC $<TARGET_PROPERTY:HighFive,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(
+  bar
+  PUBLIC $<TARGET_PROPERTY:HighFive,INTERFACE_LINK_LIBRARIES>)
+```
+
 ### Usage
 
 #### Write a std::vector<int> to 1D HDF5 dataset and read it back
@@ -112,7 +133,3 @@ make test
 
 ### License
 Boost Software License 1.0
-
-
-
-
