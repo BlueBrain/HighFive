@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
-project(HighFive VERSION 2.0)
 
+project(HighFive VERSION 2.0)
 enable_testing()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
@@ -25,12 +25,12 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 
-find_package(HDF5 QUIET REQUIRED)
+find_package(HDF5 COMPONENTS C REQUIRED)
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 
 if(USE_BOOST)
-  find_package(Boost QUIET REQUIRED COMPONENTS system unit_test_framework)
+  find_package(Boost REQUIRED COMPONENTS system unit_test_framework)
   add_definitions(-DH5_USE_BOOST)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
@@ -67,11 +67,13 @@ set(HIGHFIVE_CPP_STD_FLAG ${_h5_cpp_std} CACHE STRING "flag to use to enforce c+
 unset(_h5_cpp_std)
 
 if(HIGHFIVE_PARALLEL_HDF5)
-  find_package(MPI)
+    find_package(MPI)
 endif()
 
-if(NOT COMPILER_SUPPORTS_CXX11)
-    message(FATAL "HighFive version >=2.0 requires c++ standard >= c++11")
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
 # Absolute include used to avoid interaction with downstream projects including
@@ -79,7 +81,7 @@ endif()
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
 
 if(HIGHFIVE_EXAMPLES)
-  add_subdirectory(src/examples)
+    add_subdirectory(src/examples)
 endif()
 
 add_subdirectory(tests/unit)

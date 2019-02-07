@@ -34,7 +34,6 @@ function(compile_example exemple_source)
     if(HIGHFIVE_PARALLEL_HDF5)
         target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
     endif()
-    target_compile_options(${example_name} PUBLIC ${HIGHFIVE_CPP_STD_FLAG})
 
 endfunction()
 
