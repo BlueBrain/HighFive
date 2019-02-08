@@ -45,7 +45,8 @@ addons: &clang7
 matrix:
   include:
       # Test default gcc on Ubuntu trusty
-    - os: linux
+    - env: USE_XTENSOR=False
+      os: linux
       dist: trusty
       addons:
         apt:
@@ -55,25 +56,26 @@ matrix:
           - libeigen3-dev
           - ninja-build
       # Test gcc-7
-    - env: GCC_VERSION=7
+    - env: GCC_VERSION=7 USE_XTENSOR=True
       os: linux
       dist: xenial
       addons: *gcc7
 
       # Test clang-6.0
-    - env: CLANG_VERSION=6.0
+    - env: CLANG_VERSION=6.0 USE_XTENSOR=True
       os: linux
       dist: xenial
       addons: *clang6
 
       # Test clang-7
-    - env: CLANG_VERSION=7
+    - env: CLANG_VERSION=7 USE_XTENSOR=True
       os: linux
       dist: xenial
       addons: *clang7
 
       # osx
-    - os: osx
+    - env: USE_XTENSOR=True
+      os: osx
       osx_image: xcode10
       addons:
         homebrew:
@@ -120,6 +122,6 @@ before_script:
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && pushd build
-  - cmake --warn-uninitialized -DUSE_EIGEN=TRUE -DUSE_XTENSOR=TRUE -G Ninja ../
+  - cmake --warn-uninitialized -DUSE_EIGEN:BOOL=TRUE -DUSE_XTENSOR:BOOL=${USE_XTENSOR} -G Ninja ../
   - ninja -v
   - CTEST_OUTPUT_ON_FAILURE=1 ninja test
