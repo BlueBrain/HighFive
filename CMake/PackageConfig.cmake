@@ -11,14 +11,22 @@ if(USE_BOOST)
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
-		DESTINATION ${INCLUDE_INSTALL_DIR})
+  DESTINATION ${INCLUDE_INSTALL_DIR})
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
   ${PROJECT_BINARY_DIR}/HighFiveConfig.cmake
   INSTALL_DESTINATION share/${PROJECT_NAME}/CMake
   )
-install(FILES ${PROJECT_BINARY_DIR}/HighFiveConfig.cmake
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION share/${PROJECT_NAME}/CMake)
 
 # Generate ${PROJECT_NAME}Targets.cmake; is written after the CMake run
