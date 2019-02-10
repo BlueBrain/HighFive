@@ -125,17 +125,19 @@ The general idea is to
 
 int main()
 {
-    HighFive::File file("example.h5", HighFive::File::Overwrite);
+    H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
     int A = ...;
 
-    HighFive::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/A", A);
 
-    A = HighFive::load<int>(file, "/path/to/A");
+    A = H5Easy::load<int>(file, "/path/to/A");
 }
 ```
 
 whereby the `int` type of this example can be replaced by any of the above types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more details.
+
+> Note that `H5Easy::File` is just short for `HighFive::File`. They can thus be used interchangeably.
 
 ### Test Compilation
 Remember: Compilation is not required. Used only for unit test and examples

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,20 +11,20 @@
 
 #include "../H5Easy.hpp"
 
-namespace HighFive {
+namespace H5Easy {
 
 namespace detail {
 
-// Generate error-stream and return "HighFive::Exception" (not yet thrown).
-inline HighFive::Exception error(const HighFive::File& file,
-                                 const std::string& path,
-                                 const std::string& message)
+// Generate error-stream and return "Exception" (not yet thrown).
+inline Exception error(const File& file,
+                       const std::string& path,
+                       const std::string& message)
 {
     std::ostringstream ss;
     ss << message << std::endl
        << "Path: " << path << std::endl
        << "Filename: " << file.getName() << std::endl;
-    return HighFive::Exception(ss.str());
+    return Exception(ss.str());
 }
 
 ///
@@ -52,12 +52,13 @@ inline std::string getParentName(const std::string& path)
 /// Recursively create groups in an open HDF5 file such that a DataSet can be
 /// created (see ``getParentName``).
 ///
-/// @param file opened HighFive::File
+/// @param file opened File
 /// @param path path of the DataSet
 ///
-inline void createGroupsToDataSet(HighFive::File& file, const std::string& path)
+inline void createGroupsToDataSet(File& file, const std::string& path)
 {
     std::string group_name = getParentName(path);
+
     if (not file.exist(group_name)) {
         file.createGroup(group_name);
     }
@@ -65,14 +66,14 @@ inline void createGroupsToDataSet(HighFive::File& file, const std::string& path)
 
 }  // namespace detail
 
-inline size_t getSize(const HighFive::File& file, const std::string& path) {
+inline size_t getSize(const File& file, const std::string& path) {
     return file.getDataSet(path).getElementCount();
 }
 
-inline std::vector<size_t> getShape(const HighFive::File& file, const std::string& path) {
+inline std::vector<size_t> getShape(const File& file, const std::string& path) {
     return file.getDataSet(path).getDimensions();
 }
 
-}  // namespace HighFive
+}  // namespace H5Easy
 
 #endif  // H5EASY_BITS_MISC_HPP

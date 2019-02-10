@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,7 +13,7 @@
 #include "H5Easy_misc.hpp"
 #include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
 
-namespace HighFive {
+namespace H5Easy {
 
 namespace detail {
 
@@ -23,11 +23,10 @@ namespace vector {
 template <class T, class E = void>
 struct dump_impl
 {
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
-        const std::vector<T>& data)
+    static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
     {
         detail::createGroupsToDataSet(file, path);
-        HighFive::DataSet dataset = file.createDataSet<T>(path, HighFive::DataSpace::From(data));
+        DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
         dataset.write(data);
         file.flush();
         return dataset;
@@ -38,16 +37,16 @@ struct dump_impl
 template <class T, class E = void>
 struct overwrite_impl
 {
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
-        const std::vector<T>& data)
+    static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         if (dims.size() > 1) {
-            throw detail::error(file, path, "HighFive::dump: Can only overwrite 1-d vectors");
+            throw detail::error(file, path, 
+                "H5Easy::dump: Can only overwrite 1-d vectors");
         }
         if (dims[0] != data.size()) {
-            throw detail::error(file, path, "HighFive::dump: Inconsistent dimensions");
+            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
         }
         dataset.write(data);
         file.flush();
@@ -61,12 +60,12 @@ struct overwrite_impl
 template <class T>
 struct load_impl<std::vector<T>>
 {
-    static std::vector<T> run(const HighFive::File& file, const std::string& path)
+    static std::vector<T> run(const File& file, const std::string& path)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         if (dims.size() != 1) {
-            throw detail::error(file, path, "HighFive::load: Field not rank 1");
+            throw detail::error(file, path, "H5Easy::load: Field not rank 1");
         }
         std::vector<T> data;
         dataset.read(data);
@@ -78,18 +77,20 @@ struct load_impl<std::vector<T>>
 
 // front-end
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file, const std::string& path,
-    const std::vector<T>& data, HighFive::Mode mode)
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const std::vector<T>& data,
+                    DumpMode mode)
 {
     if (!file.exist(path)) {
         return detail::vector::dump_impl<T>::run(file, path, data);
-    } else if (mode == HighFive::Mode::Overwrite) {
+    } else if (mode == DumpMode::Overwrite) {
         return detail::vector::overwrite_impl<T>::run(file, path, data);
     } else {
-        throw detail::error(file, path, "path already exists");
+        throw detail::error(file, path, "H5Easy: path already exists");
     }
 }
 
-}  // namespace HighFive
+}  // namespace H5Easy
 
 #endif  // H5EASY_BITS_VECTOR_HPP

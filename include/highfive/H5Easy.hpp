@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -37,12 +37,14 @@
 #include <Eigen/Eigen>
 #endif
 
-namespace HighFive {
+namespace H5Easy {
+
+using namespace HighFive;
 
 ///
 /// Write mode for DataSets
 ///
-enum class Mode
+enum class DumpMode
 {
   Create,
   Overwrite
@@ -51,157 +53,156 @@ enum class Mode
 ///
 /// Get the size of an existing DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File
+/// @param file opened File
 /// @param path path of the DataSet
 ///
-/// @return size the size of the HighFive::DataSet
-size_t getSize(const HighFive::File& file, const std::string& path);
-
+/// @return size the size of the DataSet
+size_t getSize(const File& file, const std::string& path);
 
 ///
 /// Get the shape of an existing DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File
+/// @param file opened File
 /// @param path path of the DataSet
 ///
-/// @return shape the shape of the HighFive::DataSet
-inline std::vector<size_t> getShape(const HighFive::File& file, const std::string& path);
+/// @return shape the shape of the DataSet
+inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
 ///
 /// Write "Eigen::Matrix<T,Rows,Cols,Options>" to a new DataSet in an open HDF5
 /// file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
-/// @param mode write mode (HighFive::Mode::Create | HighFive::Mode::Overwrite)
+/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created HighFive::DataSet (e.g. to add an
+/// @return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_EIGEN
 template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const Eigen::Matrix<T, Rows, Cols, Options, MaxRows, MaxCols>& data,
-                              HighFive::Mode mode = HighFive::Mode::Create);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const Eigen::Matrix<T, Rows, Cols, Options, MaxRows, MaxCols>& data,
+                    DumpMode mode = DumpMode::Create);
 #endif
 
 ///
 /// Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
-/// @param mode write mode (HighFive::Mode::Create | HighFive::Mode::Overwrite)
+/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created HighFive::DataSet (e.g. to add an
+/// @return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_XTENSOR
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const xt::xarray<T>& data,
-                              HighFive::Mode mode = HighFive::Mode::Create);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const xt::xarray<T>& data,
+                    DumpMode mode = DumpMode::Create);
 #endif
 
 ///
 /// Write "xt::xtensor<T,rank>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
-/// @param mode write mode (HighFive::Mode::Create | HighFive::Mode::Overwrite)
+/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created HighFive::DataSet (e.g. to add an
+/// @return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_XTENSOR
 template <class T, size_t rank>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const xt::xtensor<T, rank>& data,
-                              HighFive::Mode mode = HighFive::Mode::Create);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const xt::xtensor<T, rank>& data,
+                    DumpMode mode = DumpMode::Create);
 #endif
 
 ///
 /// Write "std::vector<T>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
-/// @param mode write mode (HighFive::Mode::Create | HighFive::Mode::Overwrite)
+/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created HighFive::DataSet (e.g. to add an
+/// @return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const std::vector<T>& data,
-                              HighFive::Mode mode = HighFive::Mode::Create);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const std::vector<T>& data,
+                    DumpMode mode = DumpMode::Create);
 
 ///
 /// Write scalar/string to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
-/// @param mode write mode (HighFive::Mode::Create | HighFive::Mode::Overwrite)
+/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created HighFive::DataSet (e.g. to add an
+/// @return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const T& data,
-                              HighFive::Mode mode = HighFive::Mode::Create);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    DumpMode mode = DumpMode::Create);
 
 ///
 /// Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 /// @param data the data to write
 /// @param idx the indices to which to write
 ///
-/// @return dataset the (newly created) HighFive::DataSet (e.g. to add an
+/// @return dataset the (newly created) DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file,
-                              const std::string& path,
-                              const T& data,
-                              const std::vector<size_t>& idx);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    const std::vector<size_t>& idx);
 
 ///
 /// Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param idx the indices to load
 /// @param path path of the DataSet
 ///
 /// @return data the read data
 ///
 template <class T>
-inline T load(const HighFive::File& file,
+inline T load(const File& file,
               const std::string& path,
               const std::vector<size_t>& idx);
 
 ///
 /// Load a DataSet in an open HDF5 file to an object (templated).
 ///
-/// @param file opened HighFive::File (has to be writeable)
+/// @param file opened File (has to be writeable)
 /// @param path path of the DataSet
 ///
 /// @return data the read data
 ///
 template <class T>
-inline T load(const HighFive::File& file, const std::string& path);
+inline T load(const File& file, const std::string& path);
 
-}  // namespace HighFive
+}  // namespace H5Easy
 
 #include "bits/H5Easy_misc.hpp"
 #include "bits/H5Easy_scalar.hpp"

@@ -113,8 +113,8 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
 }
 
 inline size_t DataSpace::getElementCount() const {
-    auto dims = getDimensions();
-    return std::accumulate(dims.begin(), dims.end(), 1, std::multiplies<size_t>());
+    std::vector<size_t> dims = getDimensions();
+    return std::accumulate(dims.begin(), dims.end(), size_t(1), std::multiplies<size_t>());
 }
 
 inline std::vector<size_t> DataSpace::getMaxDimensions() const {

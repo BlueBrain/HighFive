@@ -25,77 +25,70 @@
 
 int main()
 {
-    HighFive::File file("example.h5", HighFive::File::Overwrite);
+    H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
-    // (over)write scalar
+    // (over)write and read scalar
     {
         int A = 10;
 
-        HighFive::dump(file, "/path/to/A", A);
-        HighFive::dump(file, "/path/to/A", A, HighFive::Mode::Overwrite);
+        H5Easy::dump(file, "/path/to/A", A);
+        H5Easy::dump(file, "/path/to/A", A, H5Easy::DumpMode::Overwrite);
+
+        A = H5Easy::load<int>(file, "/path/to/A");
     }
 
-    // (over)write std::vector
+    // (over)write and read std::vector
     {
         std::vector<double> B = {1., 2., 3.};
 
-        HighFive::dump(file, "/path/to/B", B);
-        HighFive::dump(file, "/path/to/B", B, HighFive::Mode::Overwrite);
+        H5Easy::dump(file, "/path/to/B", B);
+        H5Easy::dump(file, "/path/to/B", B, H5Easy::DumpMode::Overwrite);
+
+        B = H5Easy::load<std::vector<double>>(file, "/path/to/B");
     }
 
-    // (over)write scalar in (automatically expanding) extendible DataSet
+    // (over)write scalar in (automatically expanding) extendible DataSet,
+    // read item from the DataSet
     {
-        HighFive::dump(file, "/path/to/C", 10, {0});
-        HighFive::dump(file, "/path/to/C", 11, {1});
-        HighFive::dump(file, "/path/to/C", 12, {3});
-    }
+        int C = 10;
 
-        // read scalar
-    {
-        int A = HighFive::load<int>(file, "/path/to/A");
-    }
+        H5Easy::dump(file, "/path/to/C", C, {0});
+        H5Easy::dump(file, "/path/to/C", C, {1});
+        H5Easy::dump(file, "/path/to/C", C, {3});
 
-    // read std::vector
-    {
-        std::vector<double> B = HighFive::load<std::vector<double>>(file, "/path/to/B");
-    }
-
-    // read scalar from DataSet
-    {
-        int C = HighFive::load<int>(file, "/path/to/C", {0});
+        C = H5Easy::load<int>(file, "/path/to/C", {0});
     }
 
     // get the size/shape of a DataSet
     {
-        size_t size = HighFive::getSize(file, "/path/to/C");
-        std::vector<size_t> shape = HighFive::getShape(file, "/path/to/C");
+        // outputs "size_t"
+        H5Easy::getSize(file, "/path/to/C");
+
+        // outputs "std::vector<size_t>"
+        H5Easy::getShape(file, "/path/to/C");
     }
 
 #ifdef HIGHFIVE_EIGEN
-    // (over)write Eigen::Matrix
+    // (over)write and read Eigen::Matrix
     {
         Eigen::MatrixXd D = Eigen::MatrixXd::Random(10,5);
 
-        HighFive::dump(file, "/path/to/D", D);
-        HighFive::dump(file, "/path/to/D", D, HighFive::Mode::Overwrite);
-    }
-    // read Eigen::Matrix
-    {
-        Eigen::MatrixXd D = HighFive::load<Eigen::MatrixXd>(file, "/path/to/D");
+        H5Easy::dump(file, "/path/to/D", D);
+        H5Easy::dump(file, "/path/to/D", D, H5Easy::DumpMode::Overwrite);
+
+        D = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/D");
     }
 #endif
 
 #ifdef HIGHFIVE_XTENSOR
-    // (over)write xt::xtensor (or xt::xarray)
+    // (over)write and read xt::xtensor (or xt::xarray)
     {
         xt::xtensor<size_t,1> E = xt::arange<size_t>(10);
 
-        HighFive::dump(file, "/path/to/E", E);
-        HighFive::dump(file, "/path/to/E", E, HighFive::Mode::Overwrite);
-    }
-    // read xt::xtensor (or xt::xarray)
-    {
-        xt::xtensor<size_t,1> E = HighFive::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
+        H5Easy::dump(file, "/path/to/E", E);
+        H5Easy::dump(file, "/path/to/E", E, H5Easy::DumpMode::Overwrite);
+
+        E = H5Easy::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
     }
 #endif
 

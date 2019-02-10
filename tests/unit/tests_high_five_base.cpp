@@ -25,11 +25,6 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Group.hpp>
 #include <highfive/H5Utility.hpp>
-#include <highfive/H5Easy.hpp>
-
-#ifdef HIGHFIVE_XTENSOR
-#include <xtensor/xrandom.hpp>
-#endif
 
 #define BOOST_TEST_MAIN HighFiveTest
 

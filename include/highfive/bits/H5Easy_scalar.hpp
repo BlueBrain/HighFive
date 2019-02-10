@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,7 +12,7 @@
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
 
-namespace HighFive {
+namespace H5Easy {
 
 namespace detail {
 
@@ -22,11 +22,10 @@ namespace scalar {
 template <class T, class E = void>
 struct dump_impl
 {
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
-        const T& data)
+    static DataSet run(File& file, const std::string& path, const T& data)
     {
         detail::createGroupsToDataSet(file, path);
-        HighFive::DataSet dataset = file.createDataSet<T>(path, HighFive::DataSpace::From(data));
+        DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
         dataset.write(data);
         file.flush();
         return dataset;
@@ -37,12 +36,11 @@ struct dump_impl
 template <class T, class E = void>
 struct overwrite_impl
 {
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
-        const T& data)
+    static DataSet run(File& file, const std::string& path, const T& data)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
-            throw detail::error(file, path, "HighFive::dump: Existing field not a scalar");
+            throw detail::error(file, path, "H5Easy::dump: Existing field not a scalar");
         }
         dataset.write(data);
         file.flush();
@@ -54,17 +52,20 @@ struct overwrite_impl
 template <class T, class E = void>
 struct dump_extend_impl
 {
-    static HighFive::DataSet run(HighFive::File& file, const std::string& path,
-        const T& data, const std::vector<size_t>& idx)
+    static DataSet run(File& file,
+                       const std::string& path,
+                       const T& data,
+                       const std::vector<size_t>& idx)
     {
         std::vector<size_t> ones(idx.size(), 1);
+
         if (file.exist(path)) {
-            HighFive::DataSet dataset = file.getDataSet(path);
+            DataSet dataset = file.getDataSet(path);
             std::vector<size_t> dims = dataset.getDimensions();
             std::vector<size_t> shape = dims;
             if (dims.size() != idx.size()) {
                 throw detail::error(file, path,
-                    "HighFive::dump: Rank of the index and the existing field do not match");
+                    "H5Easy::dump: Rank of the index and the existing field do not match");
             }
             for (size_t i = 0; i < dims.size(); ++i) {
                 shape[i] = std::max(dims[i], idx[i] + 1);
@@ -76,18 +77,19 @@ struct dump_extend_impl
             file.flush();
             return dataset;
         }
+
         detail::createGroupsToDataSet(file, path);
         std::vector<size_t> shape = idx;
-        const size_t unlim = HighFive::DataSpace::UNLIMITED;
+        const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
         std::vector<hsize_t> chuncks(idx.size(), 10);
         for (size_t& i : shape) {
             i++;
         }
-        HighFive::DataSpace dataspace = HighFive::DataSpace(shape, unlim_shape);
-        HighFive::DataSetCreateProps props;
-        props.add(HighFive::Chunking(chuncks));
-        HighFive::DataSet dataset = file.createDataSet(path, dataspace, HighFive::AtomicType<T>(), props);
+        DataSpace dataspace = DataSpace(shape, unlim_shape);
+        DataSetCreateProps props;
+        props.add(Chunking(chuncks));
+        DataSet dataset = file.createDataSet(path, dataspace, AtomicType<T>(), props);
         dataset.select(idx, ones).write(data);
         file.flush();
         return dataset;
@@ -98,10 +100,12 @@ struct dump_extend_impl
 template <class T>
 struct load_impl
 {
-    static T run(const HighFive::File& file, const std::string& path, const std::vector<size_t>& idx)
+    static T run(const File& file,
+                 const std::string& path,
+                 const std::vector<size_t>& idx)
     {
         std::vector<size_t> ones(idx.size(), 1);
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         T data;
         dataset.select(idx, ones).read(data);
         return data;
@@ -114,11 +118,11 @@ struct load_impl
 template <class T, class E = void>
 struct load_impl
 {
-    static T run(const HighFive::File& file, const std::string& path)
+    static T run(const File& file, const std::string& path)
     {
-        HighFive::DataSet dataset = file.getDataSet(path);
+        DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
-            throw detail::error(file, path, "HighFive::load: Field not a scalar");
+            throw detail::error(file, path, "H5Easy::load: Field not a scalar");
         }
         T data;
         dataset.read(data);
@@ -130,41 +134,41 @@ struct load_impl
 
 // front-end
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file, const std::string& path,
-    const T& data, HighFive::Mode mode)
+inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode)
 {
     if (!file.exist(path)) {
         return detail::scalar::dump_impl<T>::run(file, path, data);
-    } else if (mode == HighFive::Mode::Overwrite) {
+    } else if (mode == DumpMode::Overwrite) {
         return detail::scalar::overwrite_impl<T>::run(file, path, data);
     } else {
-        throw detail::error(file, path, "path already exists");
+        throw detail::error(file, path, "H5Easy: path already exists");
     }
 }
 
 // front-end
 template <class T>
-inline HighFive::DataSet dump(HighFive::File& file, const std::string& path,
-    const T& data, const std::vector<size_t>& idx)
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    const std::vector<size_t>& idx)
 {
     return detail::scalar::dump_extend_impl<T>::run(file, path, data, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const HighFive::File& file, const std::string& path,
-    const std::vector<size_t>& idx)
+inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx)
 {
     return detail::scalar::load_impl<T>::run(file, path, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const HighFive::File& file, const std::string& path)
+inline T load(const File& file, const std::string& path)
 {
     return detail::load_impl<T>::run(file, path);
 }
 
-}  // namespace HighFive
+}  // namespace H5Easy
 
 #endif  // H5EASY_BITS_SCALAR_HPP
