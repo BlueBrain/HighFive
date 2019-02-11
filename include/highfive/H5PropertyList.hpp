@@ -96,9 +96,6 @@ class RawPropertyList : public PropertyList<T> {
 };
 
 
-
-//class Property <PropertyType T> {}
-
 class Chunking {
   public:
     Chunking(const std::vector<hsize_t>& dims)
@@ -121,13 +118,13 @@ class Chunking {
 
 class Deflate {
   public:
-    Deflate(int level)
+    Deflate(unsigned level)
         : _level(level) {}
 
   private:
     friend DataSetCreateProps;
     void apply(hid_t hid) const;
-    const int _level;
+    const unsigned _level;
 };
 
 class Shuffle {
@@ -147,7 +144,7 @@ class Caching {
     /// details.
     Caching(const size_t numSlots,
             const size_t cacheSize,
-            const double w0 = H5D_CHUNK_CACHE_W0_DEFAULT)
+            const double w0 = static_cast<double>(H5D_CHUNK_CACHE_W0_DEFAULT))
         : _numSlots(numSlots)
         , _cacheSize(cacheSize)
         , _w0(w0) {}
@@ -155,7 +152,7 @@ class Caching {
   private:
     friend DataSetAccessProps;
     void apply(hid_t hid) const;
-    const unsigned int _numSlots;
+    const size_t _numSlots;
     const size_t _cacheSize;
     const double _w0;
 };

@@ -81,8 +81,7 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 
 	## GCC, CLANG, rest of the world
 	else() 
-
-		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL "-Wall -Wextra")
+		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL "-Wall -Wextra -Werror -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual -Wpedantic -Wdouble-promotion -Wformat=2 -Wconversion -Wsign-conversion")
 
 		set(CMAKE_${COMPILER_LANGUAGE}_DEBUGINFO_FLAGS "-g")
 
@@ -109,7 +108,12 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 		endif()
 	endif()
 
-
+    if(CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_GCC
+            AND (CMAKE_${COMPILER_LANGUAGE}_COMPILER_VERSION VERSION_GREATER "4.7.0"))
+        set(CMAKE_${COMPILER_LANGUAGE}_LINK_TIME_OPT "-flto")
+        set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL
+                "${CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL} -Wno-unused-parameter")
+    endif()
 
 endforeach()
 

@@ -117,7 +117,7 @@ inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
 }
 
 inline void Chunking::apply(const hid_t hid) const {
-    if (H5Pset_chunk(hid, _dims.size(), _dims.data()) < 0) {
+    if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting chunk property");
     }
