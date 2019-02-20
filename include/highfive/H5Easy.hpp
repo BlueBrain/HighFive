@@ -39,7 +39,13 @@
 
 namespace H5Easy {
 
-using namespace HighFive;
+using HighFive::AtomicType;
+using HighFive::Chunking;
+using HighFive::DataSet;
+using HighFive::DataSetCreateProps;
+using HighFive::DataSpace;
+using HighFive::Exception;
+using HighFive::File;
 
 ///
 /// Write mode for DataSets
