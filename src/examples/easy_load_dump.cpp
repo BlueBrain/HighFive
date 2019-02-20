@@ -73,15 +73,8 @@ int main()
 
         H5Easy::dump(file, "/path/to/D", D);
         H5Easy::dump(file, "/path/to/D", D, H5Easy::DumpMode::Overwrite);
-<<<<<<< HEAD
 
         D = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/D");
-=======
-    }
-    // read Eigen::Matrix
-    {
-        Eigen::MatrixXd D = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/D");
->>>>>>> Changed namespace to H5Easy
     }
 #endif
 
@@ -92,15 +85,8 @@ int main()
 
         H5Easy::dump(file, "/path/to/E", E);
         H5Easy::dump(file, "/path/to/E", E, H5Easy::DumpMode::Overwrite);
-<<<<<<< HEAD
 
         E = H5Easy::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
-=======
-    }
-    // read xt::xtensor (or xt::xarray)
-    {
-        xt::xtensor<size_t,1> E = H5Easy::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
->>>>>>> Changed namespace to H5Easy
     }
 #endif
 
