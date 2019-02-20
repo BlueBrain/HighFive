@@ -9,7 +9,6 @@
 #ifndef H5EASY_HPP
 #define H5EASY_HPP
 
-#include <iostream>
 #include <string>
 #include <vector>
 
