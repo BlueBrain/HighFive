@@ -32,9 +32,9 @@ inline Exception error(const File& file,
 /// For example for ``path = "/path/to/dataset"`` this function returns
 /// ``"/path/to"``.
 ///
-/// @param path path to a DataSet
+/// \param path path to a DataSet
 ///
-/// @return group the path of the group above the DataSet
+/// \return group the path of the group above the DataSet
 inline std::string getParentName(const std::string& path)
 {
     std::size_t idx = path.find_last_of("/\\");
@@ -49,11 +49,11 @@ inline std::string getParentName(const std::string& path)
 }
 
 ///
-/// Recursively create groups in an open HDF5 file such that a DataSet can be
-/// created (see ``getParentName``).
+/// \brief Recursively create groups in an open HDF5 file such that a
+/// \a DataSet can be created (see ``getParentName``).
 ///
-/// @param file opened File
-/// @param path path of the DataSet
+/// \param file opened File
+/// \param path path of the DataSet
 ///
 inline void createGroupsToDataSet(File& file, const std::string& path)
 {

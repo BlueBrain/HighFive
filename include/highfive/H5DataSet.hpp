@@ -64,7 +64,7 @@ class DataSet : public Object,
     void resize(const std::vector<size_t>& dims);
 
 
-    /// \brif Get the dimensions of the whole DataSet.
+    /// \brief Get the dimensions of the whole DataSet.
     ///       This is a shorthand for getSpace().getDimensions()
     /// \return The shape of the current HighFive::DataSet
     ///
@@ -72,7 +72,7 @@ class DataSet : public Object,
         return getSpace().getDimensions();
     }
 
-    /// \brif Get the total number of elements in the current dataset.
+    /// \brief Get the total number of elements in the current dataset.
     ///       E.g. 2x2x2 matrix has size 8.
     ///       This is a shorthand for getSpace().getTotalCount()
     /// \return The shape of the current HighFive::DataSet

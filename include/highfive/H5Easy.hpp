@@ -57,33 +57,33 @@ enum class DumpMode
 };
 
 ///
-/// Get the size of an existing DataSet in an open HDF5 file.
+/// \brief Get the size of an existing DataSet in an open HDF5 file.
 ///
-/// @param file opened File
-/// @param path path of the DataSet
+/// \param file opened File
+/// \param path path of the DataSet
 ///
-/// @return size the size of the DataSet
+/// \return size the size of the DataSet
 size_t getSize(const File& file, const std::string& path);
 
 ///
-/// Get the shape of an existing DataSet in an open HDF5 file.
+/// \brief Get the shape of an existing DataSet in an open HDF5 file.
 ///
-/// @param file opened File
-/// @param path path of the DataSet
+/// \param file opened File
+/// \param path path of the DataSet
 ///
-/// @return shape the shape of the DataSet
+/// \return the shape of the DataSet
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
 ///
-/// Write "Eigen::Matrix<T,Rows,Cols,Options>" to a new DataSet in an open HDF5
-/// file.
+/// \brief Write "Eigen::Matrix<T,Rows,Cols,Options>" to a new DataSet
+/// in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created DataSet (e.g. to add an
+/// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_EIGEN
@@ -95,14 +95,14 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
+/// \brief Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created DataSet (e.g. to add an
+/// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_XTENSOR
@@ -114,14 +114,14 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// Write "xt::xtensor<T,rank>" to a new DataSet in an open HDF5 file.
+/// \brief Write "xt::xtensor<T,rank>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created DataSet (e.g. to add an
+/// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 #ifdef HIGHFIVE_XTENSOR
@@ -133,14 +133,14 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// Write "std::vector<T>" to a new DataSet in an open HDF5 file.
+/// \brief Write "std::vector<T>" to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created DataSet (e.g. to add an
+/// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
@@ -150,14 +150,14 @@ inline DataSet dump(File& file,
                     DumpMode mode = DumpMode::Create);
 
 ///
-/// Write scalar/string to a new DataSet in an open HDF5 file.
+/// \brief Write scalar/string to a new DataSet in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param mode write mode (DumpMode::Create | DumpMode::Overwrite)
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param mode write mode (DumpMode::Create | DumpMode::Overwrite)
 ///
-/// @return dataset the newly created DataSet (e.g. to add an
+/// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
@@ -167,14 +167,14 @@ inline DataSet dump(File& file,
                     DumpMode mode = DumpMode::Create);
 
 ///
-/// Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
+/// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
-/// @param data the data to write
-/// @param idx the indices to which to write
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write
+/// \param idx the indices to which to write
 ///
-/// @return dataset the (newly created) DataSet (e.g. to add an
+/// \return dataset the (newly created) DataSet (e.g. to add an
 /// attribute)
 ///
 template <class T>
@@ -184,13 +184,13 @@ inline DataSet dump(File& file,
                     const std::vector<size_t>& idx);
 
 ///
-/// Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
+/// brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
 ///
-/// @param file opened File (has to be writeable)
-/// @param idx the indices to load
-/// @param path path of the DataSet
+/// \param file opened File (has to be writeable)
+/// \param idx the indices to load
+/// \param path path of the DataSet
 ///
-/// @return data the read data
+/// \return data the read data
 ///
 template <class T>
 inline T load(const File& file,
@@ -198,12 +198,12 @@ inline T load(const File& file,
               const std::vector<size_t>& idx);
 
 ///
-/// Load a DataSet in an open HDF5 file to an object (templated).
+/// brief Load a DataSet in an open HDF5 file to an object (templated).
 ///
-/// @param file opened File (has to be writeable)
-/// @param path path of the DataSet
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
 ///
-/// @return data the read data
+/// \return data the read data
 ///
 template <class T>
 inline T load(const File& file, const std::string& path);

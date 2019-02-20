@@ -94,7 +94,7 @@ class DataSpace : public Object {
     std::vector<size_t> getDimensions() const;
 
     /// \brief getElementCount
-    /// \return return the total number of elements in the dataspace
+    /// \return the total number of elements in the dataspace
     size_t getElementCount() const;
 
     /// \brief getMaxDimensions
