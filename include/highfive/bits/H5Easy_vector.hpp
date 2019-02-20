@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
+ *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -42,7 +42,7 @@ struct overwrite_impl
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         if (dims.size() > 1) {
-            throw detail::error(file, path, 
+            throw detail::error(file, path,
                 "H5Easy::dump: Can only overwrite 1-d vectors");
         }
         if (dims[0] != data.size()) {

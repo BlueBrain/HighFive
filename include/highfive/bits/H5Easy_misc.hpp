@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2019, Tom de Geus <tom@geus.me>
+ *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
