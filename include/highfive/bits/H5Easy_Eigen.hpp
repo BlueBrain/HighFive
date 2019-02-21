@@ -13,7 +13,7 @@
 #include "H5Easy_misc.hpp"
 #include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
 
-#ifdef HIGHFIVE_EIGEN
+#ifdef H5_USE_EIGEN
 
 namespace H5Easy {
 
@@ -161,6 +161,6 @@ inline DataSet dump(File& file,
 
 }  // namespace H5Easy
 
-#endif  // HIGHFIVE_EIGEN
+#endif  // H5_USE_EIGEN
 
 #endif  // H5EASY_BITS_EIGEN_HPP

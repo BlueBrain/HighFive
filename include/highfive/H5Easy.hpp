@@ -17,22 +17,12 @@
 #include "H5DataType.hpp"
 #include "H5File.hpp"
 
-// optionally enable plug-in xtensor and load the library
-#ifdef XTENSOR_VERSION_MAJOR
-#define HIGHFIVE_XTENSOR
-#endif
-
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
 #endif
 
-// optionally enable plug-in Eigen and load the library
-#ifdef EIGEN_WORLD_VERSION
-#define HIGHFIVE_EIGEN
-#endif
-
-#ifdef HIGHFIVE_EIGEN
+#ifdef H5_USE_EIGEN
 #include <Eigen/Eigen>
 #endif
 
@@ -85,7 +75,7 @@ inline std::vector<size_t> getShape(const File& file, const std::string& path);
 /// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
-#ifdef HIGHFIVE_EIGEN
+#ifdef H5_USE_EIGEN
 template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 inline DataSet dump(File& file,
                     const std::string& path,
@@ -104,7 +94,7 @@ inline DataSet dump(File& file,
 /// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
@@ -123,7 +113,7 @@ inline DataSet dump(File& file,
 /// \return dataset the newly created DataSet (e.g. to add an
 /// attribute)
 ///
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 template <class T, size_t rank>
 inline DataSet dump(File& file,
                     const std::string& path,

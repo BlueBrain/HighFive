@@ -22,7 +22,7 @@
 
 #include <highfive/H5Easy.hpp>
 
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 #include <xtensor/xrandom.hpp>
 #endif
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector)
     BOOST_CHECK_EQUAL(a == a_r, true);
 }
 
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 BOOST_AUTO_TEST_CASE(H5Easy_extend1d)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -81,9 +81,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_extend1d)
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
     BOOST_CHECK_EQUAL(Amax == 9, true);
 }
-#endif
 
-#ifdef HIGHFIVE_XTENSOR
 BOOST_AUTO_TEST_CASE(H5Easy_extend2d)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -105,9 +103,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_extend2d)
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
     BOOST_CHECK_EQUAL(Amax == 49, true);
 }
-#endif
 
-#ifdef HIGHFIVE_XTENSOR
 BOOST_AUTO_TEST_CASE(H5Easy_xtensor)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -124,9 +120,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor)
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
     BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
 }
-#endif
 
-#ifdef HIGHFIVE_XTENSOR
 BOOST_AUTO_TEST_CASE(H5Easy_xarray)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -145,7 +139,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_xarray)
 }
 #endif
 
-#ifdef HIGHFIVE_EIGEN
+#ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);

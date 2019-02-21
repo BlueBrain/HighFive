@@ -110,8 +110,9 @@ For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Ea
     -   scalars (to/from an extendible DataSet),
     -   strings,
     -   vectors (of standard types),
-    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enabled by including Eigen before including HighFive, or by `#define HIGHFIVE_EIGEN` before including HighFive),
-    -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor) (optional, enabled by including xtensor before including HighFive, or by `#define HIGHFIVE_XTENSOR` before including HighFive).
+    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `USE_EIGEN`),
+    -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
+        (optional, enable CMake option `USE_XTENSOR`).
 
 *   Getting in a single line:
 

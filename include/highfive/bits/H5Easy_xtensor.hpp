@@ -13,7 +13,7 @@
 #include "H5Easy_misc.hpp"
 #include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
 
-#ifdef HIGHFIVE_XTENSOR
+#ifdef H5_USE_XTENSOR
 
 namespace H5Easy {
 
@@ -133,6 +133,6 @@ inline DataSet dump(File& file,
 
 }  // namespace H5Easy
 
-#endif  // HIGHFIVE_XTENSOR
+#endif  // H5_USE_XTENSOR
 
 #endif  // H5EASY_BITS_XTENSOR_HPP

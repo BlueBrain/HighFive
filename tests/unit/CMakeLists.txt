@@ -29,25 +29,6 @@ target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLA
 
 add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 
-if(USE_EIGEN)
-  list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-2.8/Modules/")
-  find_package(Eigen3 REQUIRED)
-  include_directories(${EIGEN3_INCLUDE_DIR})
-  add_definitions(-DHIGHFIVE_EIGEN)
-endif()
-
-if(USE_XTENSOR)
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-  if(NOT COMPILER_SUPPORTS_CXX14)
-    message(SEND_ERROR "C++ compiler does not support standard c++14, required to test xtensor.")
-  else()
-    find_package(xtl REQUIRED)
-    find_package(xtensor REQUIRED)
-    target_link_libraries(tests_high_five_cpp11_bin xtl xtensor)
-    add_definitions(-DHIGHFIVE_XTENSOR)
-  endif()
-endif()
-
 if(HIGHFIVE_PARALLEL_HDF5)
 
   include(TestHelpers)
