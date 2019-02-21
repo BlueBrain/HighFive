@@ -19,7 +19,9 @@
 
 // optionally enable plug-in xtensor and load the library
 #ifdef XTENSOR_VERSION_MAJOR
+#ifndef H5_USE_XTENSOR
 #define H5_USE_XTENSOR
+#endif
 #endif
 
 #ifdef H5_USE_XTENSOR
@@ -29,7 +31,9 @@
 
 // optionally enable plug-in Eigen and load the library
 #ifdef EIGEN_WORLD_VERSION
+#ifndef H5_USE_EIGEN
 #define H5_USE_EIGEN
+#endif
 #endif
 
 #ifdef H5_USE_EIGEN
