@@ -17,9 +17,19 @@
 #include "H5DataType.hpp"
 #include "H5File.hpp"
 
+// optionally enable plug-in xtensor and load the library
+#ifdef XTENSOR_VERSION_MAJOR
+#define H5_USE_XTENSOR
+#endif
+
 #ifdef H5_USE_XTENSOR
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
+#endif
+
+// optionally enable plug-in Eigen and load the library
+#ifdef EIGEN_WORLD_VERSION
+#define H5_USE_EIGEN
 #endif
 
 #ifdef H5_USE_EIGEN
