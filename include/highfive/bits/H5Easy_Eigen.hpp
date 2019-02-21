@@ -27,26 +27,60 @@ std::vector<size_t> shape(const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCol
 {
     if (Rows == 1) {
         return {static_cast<size_t>(data.cols())};
-    } else if (Cols == 1) {
-        return {static_cast<size_t>(data.rows())};
-    } else {
-        return {static_cast<size_t>(data.rows()), static_cast<size_t>(data.cols())};
     }
+
+    if (Cols == 1) {
+        return {static_cast<size_t>(data.rows())};
+    }
+
+    return {static_cast<size_t>(data.rows()),
+            static_cast<size_t>(data.cols())};
+}
+
+// get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
+std::vector<Eigen::Index> shape(const File& file,
+                                const std::string& path,
+                                const DataSet& dataset,
+                                int RowsAtCompileTime)
+{
+    std::vector<size_t> dims = dataset.getDimensions();
+
+    if (dims.size() == 1 && RowsAtCompileTime == 1) {
+        return std::vector<Eigen::Index>{1u,
+                                         static_cast<Eigen::Index>(dims[0])};
+    }
+
+    if (dims.size() == 1) {
+        return std::vector<Eigen::Index>{static_cast<Eigen::Index>(dims[0]),
+                                         1u};
+    }
+
+    if (dims.size() == 2) {
+        return std::vector<Eigen::Index>{static_cast<Eigen::Index>(dims[0]),
+                                         static_cast<Eigen::Index>(dims[1])};
+    }
+
+    throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
 }
 
 // write to open DataSet of the correct size
-// if the "Eigen::Matrix" is column-major reordering has to be done first;
-// HDF5 is always row-major
+// (use Eigen::Ref to convert to RowMajor; no action if no conversion is needed)
 template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 void write(DataSet& dataset,
            const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
 {
-    if (data.IsRowMajor) {
-        dataset.write(data.data());
-    } else {
-        Eigen::Matrix<C, Rows, Cols, Eigen::RowMajor, MaxRows, MaxCols> tmp = data;
-        detail::eigen::write(dataset, tmp);
-    }
+    Eigen::Ref<
+        const Eigen::Matrix<
+            C,
+            Rows,
+            Cols,
+            Cols==1?Eigen::ColMajor:Eigen::RowMajor,
+            MaxRows,
+            MaxCols>,
+        0,
+        Eigen::InnerStride<1>> row_major(data);
+
+    dataset.write(row_major.data());
 }
 
 // create DataSet and write data
@@ -59,8 +93,7 @@ struct dump_impl
                        const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
     {
         detail::createGroupsToDataSet(file, path);
-        DataSet dataset =
-            file.createDataSet<C>(path, DataSpace(shape(data)));
+        DataSet dataset = file.createDataSet<C>(path, DataSpace(shape(data)));
         detail::eigen::write(dataset, data);
         file.flush();
         return dataset;
@@ -86,42 +119,29 @@ struct overwrite_impl
     }
 };
 
-// load "Eigen::Matrix" from DataSet
-// if the "Eigen::Matrix" is column-major reordering has to be done first;
-// HDF5 is always row-major
+// load from DataSet
+// convert to ColMajor if needed (HDF5 always stores row-major)
 template <class T>
 struct load_impl
 {
     static T run(const File& file, const std::string& path)
     {
         DataSet dataset = file.getDataSet(path);
-        std::vector<size_t> dims = dataset.getDimensions();
+        std::vector<Eigen::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
+        T data(dims[0], dims[1]);
+        dataset.read(data.data());
 
-        T data;
-        if (dims.size() == 1 && T::RowsAtCompileTime == 1) {
-            data.resize(1u, static_cast<Eigen::Index>(dims[0]));
-        } else if (dims.size() == 1) {
-            data.resize(static_cast<Eigen::Index>(dims[0]), 1u);
-        } else if (dims.size() == 2) {
-            data.resize(static_cast<Eigen::Index>(dims[0]),
-                        static_cast<Eigen::Index>(dims[1]));
-        } else {
-            throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
-        }
-
-        if (data.IsRowMajor || T::RowsAtCompileTime == 1 || T::ColsAtCompileTime == 1) {
-            dataset.read(data.data());
+        if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }
 
-        std::vector<typename T::Scalar> tmp(static_cast<size_t>(data.size()));
-        dataset.read(tmp.data());
-        for (int i = 0; i < data.rows(); ++i) {
-            for (int j = 0; j < data.cols(); ++j) {
-                data(i, j) = tmp[static_cast<size_t>(i * data.cols() + j)];
-            }
-        }
-        return data;
+        return Eigen::Map<Eigen::Matrix<
+            typename T::Scalar,
+            T::RowsAtCompileTime,
+            T::ColsAtCompileTime,
+            T::ColsAtCompileTime==1?Eigen::ColMajor:Eigen::RowMajor,
+            T::MaxRowsAtCompileTime,
+            T::MaxColsAtCompileTime>>(data.data(), dims[0], dims[1]);
     }
 };
 

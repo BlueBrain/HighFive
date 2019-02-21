@@ -157,3 +157,66 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
 #endif
+
+#ifdef H5_USE_EIGEN
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    Eigen::VectorXd A = 100. * Eigen::VectorXd::Random(20);
+    Eigen::VectorXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    Eigen::VectorXd A_r = H5Easy::load<Eigen::VectorXd>(file, "/path/to/A");
+    Eigen::VectorXi B_r = H5Easy::load<Eigen::VectorXi>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+}
+#endif
+
+#ifdef H5_USE_EIGEN
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixXRowMajor)
+{
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
+    typedef Eigen::Matrix<int   , Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXi;
+
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    MatrixXd A = 100. * MatrixXd::Random(20, 5);
+    MatrixXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    MatrixXd A_r = H5Easy::load<MatrixXd>(file, "/path/to/A");
+    MatrixXi B_r = H5Easy::load<MatrixXi>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+}
+#endif
+
+#ifdef H5_USE_EIGEN
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorXRowMajor)
+{
+    typedef Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor> VectorXd;
+    typedef Eigen::Matrix<int   , 1, Eigen::Dynamic, Eigen::RowMajor> VectorXi;
+
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    VectorXd A = 100. * VectorXd::Random(20);
+    VectorXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    VectorXd A_r = H5Easy::load<VectorXd>(file, "/path/to/A");
+    VectorXi B_r = H5Easy::load<VectorXi>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+}
+#endif
