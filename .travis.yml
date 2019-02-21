@@ -45,7 +45,7 @@ addons: &clang7
 matrix:
   include:
       # Test default gcc on Ubuntu trusty
-    - env: USE_XTENSOR=False
+    - env: USE_XTENSOR=False Eigen3_ROOT=/usr/share/cmake-2.8/Modules
       os: linux
       dist: trusty
       addons:
@@ -62,13 +62,13 @@ matrix:
       addons: *gcc7
 
       # Test clang-6.0
-    - env: CLANG_VERSION=6.0 USE_XTENSOR=True
+    - env: CLANG_VERSION=6.0 USE_XTENSOR=True Eigen3_ROOT=/usr/lib/cmake/eigen3
       os: linux
       dist: xenial
       addons: *clang6
 
       # Test clang-7
-    - env: CLANG_VERSION=7 USE_XTENSOR=True
+    - env: CLANG_VERSION=7 USE_XTENSOR=True Eigen3_ROOT=/usr/lib/cmake/eigen3
       os: linux
       dist: xenial
       addons: *clang7
