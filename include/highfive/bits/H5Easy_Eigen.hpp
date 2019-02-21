@@ -99,11 +99,12 @@ struct load_impl
 
         T data;
         if (dims.size() == 1 && T::RowsAtCompileTime == 1) {
-            data.resize(1, dims[0]);
+            data.resize(1u, static_cast<Eigen::Index>(dims[0]));
         } else if (dims.size() == 1) {
-            data.resize(dims[0], 1);
+            data.resize(static_cast<Eigen::Index>(dims[0]), 1u);
         } else if (dims.size() == 2) {
-            data.resize(dims[0], dims[1]);
+            data.resize(static_cast<Eigen::Index>(dims[0]),
+                        static_cast<Eigen::Index>(dims[1]));
         } else {
             throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
         }
@@ -113,11 +114,11 @@ struct load_impl
             return data;
         }
 
-        std::vector<typename T::Scalar> tmp(data.size());
+        std::vector<typename T::Scalar> tmp(static_cast<size_t>(data.size()));
         dataset.read(tmp.data());
         for (int i = 0; i < data.rows(); ++i) {
             for (int j = 0; j < data.cols(); ++j) {
-                data(i, j) = tmp[i * data.cols() + j];
+                data(i, j) = tmp[static_cast<size_t>(i * data.cols() + j)];
             }
         }
         return data;
