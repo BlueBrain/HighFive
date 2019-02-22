@@ -47,20 +47,19 @@ matrix:
       # Test default gcc on Ubuntu trusty
     - env:
       - USE_XTENSOR=False
-      - USE_EIGEN=False
       os: linux
       dist: trusty
       addons:
         apt:
           packages:
           - libboost-all-dev
+          - libeigen3-dev
           - libhdf5-serial-dev
           - ninja-build
       # Test gcc-7
     - env:
       - GCC_VERSION=7
       - USE_XTENSOR=True
-      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *gcc7
@@ -68,8 +67,6 @@ matrix:
       # Test clang-6.0
     - env:
       - CLANG_VERSION=6.0
-      - USE_XTENSOR=True
-      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *clang6
@@ -78,7 +75,6 @@ matrix:
     - env:
       - CLANG_VERSION=7
       - USE_XTENSOR=True
-      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *clang7
@@ -134,7 +130,8 @@ script:
   - mkdir -p build && pushd build
   - >
     cmake --warn-uninitialized
-    -DUSE_EIGEN:BOOL=${USE_XTENSOR}
+    -DUSE_EIGEN:BOOL=ON
+    -DEigen3_DIR=/usr/lib/cmake/eigen3
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
     -G Ninja ../
   - ninja -v
