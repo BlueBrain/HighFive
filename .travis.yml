@@ -47,7 +47,7 @@ matrix:
       # Test default gcc on Ubuntu trusty
     - env:
       - USE_XTENSOR=False
-      - Eigen3_Location=-DCMAKE_MODULE_PATH=/usr/share/cmake-2.8/Modules
+      - Eigen3_Location=-DEigen3_DIR=/usr/share/cmake-2.8/Modules
       os: linux
       dist: trusty
       addons:

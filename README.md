@@ -138,7 +138,7 @@ int main()
 
 whereby the `int` type of this example can be replaced by any of the above types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more details.
 
-> Note that `H5Easy::File` is just short for `HighFive::File`. They can thus be used interchangeably.
+> Note that classes such as `H5Easy::File` are just short for the regular `HighFive` classes (in this case `HighFive::File`). They can thus be used interchangeably.
 
 ### Test Compilation
 Remember: Compilation is not required. Used only for unit test and examples
