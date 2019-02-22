@@ -47,7 +47,7 @@ matrix:
       # Test default gcc on Ubuntu trusty
     - env:
       - USE_XTENSOR=False
-      - Eigen3_Location=-DEigen3_DIR=/usr/share/cmake-2.8/Modules
+      - USE_EIGEN=False
       os: linux
       dist: trusty
       addons:
@@ -55,13 +55,12 @@ matrix:
           packages:
           - libboost-all-dev
           - libhdf5-serial-dev
-          - libeigen3-dev
           - ninja-build
       # Test gcc-7
     - env:
       - GCC_VERSION=7
       - USE_XTENSOR=True
-      - Eigen3_Location=-DEigen3_DIR=/usr/lib/cmake/eigen3
+      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *gcc7
@@ -70,7 +69,7 @@ matrix:
     - env:
       - CLANG_VERSION=6.0
       - USE_XTENSOR=True
-      - Eigen3_Location=-DEigen3_DIR=/usr/lib/cmake/eigen3
+      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *clang6
@@ -79,7 +78,7 @@ matrix:
     - env:
       - CLANG_VERSION=7
       - USE_XTENSOR=True
-      - Eigen3_Location=-DEigen3_DIR=/usr/lib/cmake/eigen3
+      - USE_EIGEN=True
       os: linux
       dist: xenial
       addons: *clang7
@@ -135,7 +134,7 @@ script:
   - mkdir -p build && pushd build
   - >
     cmake --warn-uninitialized
-    -DUSE_EIGEN:BOOL=TRUE ${Eigen3_Location}
+    -DUSE_EIGEN:BOOL=${USE_XTENSOR}
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
     -G Ninja ../
   - ninja -v
