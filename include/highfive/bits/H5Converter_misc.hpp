@@ -46,7 +46,7 @@ inline bool is_1D(const std::vector<size_t>& dims)
 
 inline size_t compute_total_size(const std::vector<size_t>& dims)
 {
-    return std::accumulate(dims.begin(), dims.end(), 1ul,
+    return std::accumulate(dims.begin(), dims.end(), static_cast<size_t>(1),
                            std::multiplies<size_t>());
 }
 

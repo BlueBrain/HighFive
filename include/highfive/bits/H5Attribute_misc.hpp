@@ -33,9 +33,7 @@ namespace HighFive {
 
 inline Attribute::Attribute() {}
 
-inline size_t Attribute::getStorageSize() const {
-    return H5Aget_storage_size(_hid);
-}
+inline hsize_t Attribute::getStorageSize() const { return H5Aget_storage_size(_hid); }
 
 inline DataType Attribute::getDataType() const {
     DataType res;

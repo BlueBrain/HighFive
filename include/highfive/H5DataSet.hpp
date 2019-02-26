@@ -28,7 +28,7 @@ class DataSet : public Object,
                 public SliceTraits<DataSet>,
                 public AnnotateTraits<DataSet> {
   public:
-    size_t getStorageSize() const;
+    hsize_t getStorageSize() const;
 
     ///
     /// \brief getDataType
@@ -54,7 +54,7 @@ class DataSet : public Object,
     /// \return returns DataSet address in file
     /// class
     ///
-    size_t getOffset() const;
+    haddr_t getOffset() const;
 
     /// \brief Change the size of the dataset
     ///

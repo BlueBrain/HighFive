@@ -22,7 +22,7 @@ class DataSpace;
 
 class Attribute : public Object {
   public:
-    size_t getStorageSize() const;
+    hsize_t getStorageSize() const;
 
     ///
     /// \brief getDataType
