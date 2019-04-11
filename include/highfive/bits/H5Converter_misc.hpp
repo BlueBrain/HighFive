@@ -189,7 +189,7 @@ struct data_converter<
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
     inline data_converter(std::array<T, S>&, DataSpace& space) {
-        const auto dims = space.getDimensions();
+        const std::vector<size_t> dims = space.getDimensions();
         if (!is_1D(dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
         }

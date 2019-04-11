@@ -10,20 +10,19 @@ endif()
 
 ## base tests
 file(GLOB tests_high_five_src "*base.cpp")
+file(GLOB tests_high_five_src_easy "*easy.cpp")
 
-add_executable(tests_high_five_cpp11_bin ${tests_high_five_src})
+add_executable(tests_high_five_cpp11_bin ${tests_high_five_src} ${tests_high_five_src_easy})
 target_link_libraries(tests_high_five_cpp11_bin
 ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES})
 
 if(HIGHFIVE_PARALLEL_HDF5)
-    target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
+  target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
 endif()
 
 target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
 
 add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
-
-
 
 if(HIGHFIVE_PARALLEL_HDF5)
 

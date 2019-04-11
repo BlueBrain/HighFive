@@ -55,7 +55,7 @@ class DataSet : public Object,
     /// class
     ///
     size_t getOffset() const;
-    
+
     /// \brief Change the size of the dataset
     ///
     /// This requires that the dataset was created with chunking, and you would
@@ -63,12 +63,31 @@ class DataSet : public Object,
     /// \param dims New size of the dataset
     void resize(const std::vector<size_t>& dims);
 
+
+    /// \brief Get the dimensions of the whole DataSet.
+    ///       This is a shorthand for getSpace().getDimensions()
+    /// \return The shape of the current HighFive::DataSet
+    ///
+    inline std::vector<size_t> getDimensions() const {
+        return getSpace().getDimensions();
+    }
+
+    /// \brief Get the total number of elements in the current dataset.
+    ///       E.g. 2x2x2 matrix has size 8.
+    ///       This is a shorthand for getSpace().getTotalCount()
+    /// \return The shape of the current HighFive::DataSet
+    ///
+    inline size_t getElementCount() const {
+        return getSpace().getElementCount();
+    }
+
   private:
     DataSet();
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
 };
-}
+
+}  // namespace HighFive
 
 #include "bits/H5DataSet_misc.hpp"
 

@@ -13,6 +13,7 @@ addons: &gcc7
       - g++-7
       - libboost-all-dev
       - libhdf5-serial-dev
+      - libeigen3-dev
       - ninja-build
     sources:
       - ubuntu-toolchain-r-test
@@ -23,6 +24,7 @@ addons: &clang6
       - clang-6.0
       - libboost-all-dev
       - libhdf5-serial-dev
+      - libeigen3-dev
       - ninja-build
     sources:
       - ubuntu-toolchain-r-test
@@ -34,6 +36,7 @@ addons: &clang7
       - clang-7
       - libboost-all-dev
       - libhdf5-serial-dev
+      - libeigen3-dev
       - ninja-build
     sources:
       - ubuntu-toolchain-r-test
@@ -42,41 +45,76 @@ addons: &clang7
 matrix:
   include:
       # Test default gcc on Ubuntu trusty
-    - os: linux
+    - env:
+      - USE_XTENSOR=False
+      os: linux
       dist: trusty
       addons:
         apt:
           packages:
           - libboost-all-dev
+          - libeigen3-dev
           - libhdf5-serial-dev
           - ninja-build
       # Test gcc-7
-    - env: GCC_VERSION=7
+    - env:
+      - GCC_VERSION=7
+      - USE_XTENSOR=True
       os: linux
       dist: xenial
       addons: *gcc7
 
       # Test clang-6.0
-    - env: CLANG_VERSION=6.0
+    - env:
+      - CLANG_VERSION=6.0
       os: linux
       dist: xenial
       addons: *clang6
 
       # Test clang-7
-    - env: CLANG_VERSION=7
+    - env:
+      - CLANG_VERSION=7
+      - USE_XTENSOR=True
       os: linux
       dist: xenial
       addons: *clang7
 
       # osx
-    - os: osx
+    - env: USE_XTENSOR=True
+      os: osx
       osx_image: xcode10
       addons:
         homebrew:
           packages:
           - boost
           - hdf5
+          - eigen
           - ninja
+
+env:
+  global:
+    - MINCONDA_VERSION="latest"
+    - MINCONDA_LINUX="Linux-x86_64"
+    - MINCONDA_OSX="MacOSX-x86_64"
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      MINCONDA_OS=$MINCONDA_LINUX;
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      MINCONDA_OS=$MINCONDA_OSX;
+    fi
+  - wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:${PATH}"
+  - export INCLUDE_PATH="$HOME/miniconda/include:${INCLUDE_PATH}"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda install cmake -c conda-forge
+  - conda install xtl -c QuantStack
+  - conda install xsimd -c QuantStack
+  - conda install xtensor -c QuantStack
+  - conda install nlohmann_json -c QuantStack
 
 before_script:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
@@ -90,6 +128,11 @@ before_script:
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && pushd build
-  - cmake --warn-uninitialized -G Ninja ../
+  - >
+    cmake --warn-uninitialized
+    -DUSE_EIGEN:BOOL=ON
+    -DEigen3_DIR=/usr/lib/cmake/eigen3
+    -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
+    -G Ninja ../
   - ninja -v
   - CTEST_OUTPUT_ON_FAILURE=1 ninja test
