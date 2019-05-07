@@ -59,7 +59,7 @@ inline void createGroupsToDataSet(File& file, const std::string& path)
 {
     std::string group_name = getParentName(path);
 
-    if (not file.exist(group_name)) {
+    if (!file.exist(group_name)) {
         file.createGroup(group_name);
     }
 }
