@@ -126,7 +126,7 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to count objects in existing group or file"));
     }
-    return res;
+    return static_cast<size_t>(res);
 }
 
 template <typename Derivate>
