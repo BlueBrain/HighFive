@@ -10,6 +10,7 @@
 #define H5UTILS_HPP
 
 // internal utilities functions
+#include <algorithm>
 #include <cstddef> // __GLIBCXX__
 #include <exception>
 #include <memory>
@@ -169,7 +170,7 @@ template<typename Size>
 inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
     static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
     std::vector<size_t> res(vec.size());
-    std::copy(vec.begin(), vec.end(), res.begin());
+    std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
     return res;
 }
 

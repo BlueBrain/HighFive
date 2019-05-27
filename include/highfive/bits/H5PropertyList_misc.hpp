@@ -54,7 +54,6 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Unsupported property list type");
     }
-    return -1;
 }
 
 }  // namespace

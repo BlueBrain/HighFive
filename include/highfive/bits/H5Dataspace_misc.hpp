@@ -124,10 +124,9 @@ inline std::vector<size_t> DataSpace::getMaxDimensions() const {
             "Unable to get dataspace dimensions");
     }
 
-    std::vector<size_t> res(maxdims.begin(), maxdims.end());
-    std::replace(maxdims.begin(), maxdims.end(),
-                 static_cast<size_t>(H5S_UNLIMITED), DataSpace::UNLIMITED);
-    return res;
+    std::replace(maxdims.begin(), maxdims.end(), H5S_UNLIMITED,
+                 static_cast<hsize_t>(DataSpace::UNLIMITED));
+    return details::to_vector_size_t(maxdims);
 }
 
 template <typename ScalarValue>

@@ -13,10 +13,13 @@
 
 namespace HighFive {
 
+
 template <typename Derivate>
 class NodeTraits;
+
 template <typename Derivate>
 class AnnotateTraits;
+
 
 class Object {
   public:
