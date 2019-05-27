@@ -33,7 +33,9 @@ namespace HighFive {
 
 inline DataSet::DataSet() {}
 
-inline hsize_t DataSet::getStorageSize() const { return H5Dget_storage_size(_hid); }
+inline uint64_t DataSet::getStorageSize() const {
+    return H5Dget_storage_size(_hid);
+}
 
 inline DataType DataSet::getDataType() const {
     DataType res;
@@ -50,10 +52,12 @@ inline DataSpace DataSet::getSpace() const {
     return space;
 }
 
-inline DataSpace DataSet::getMemSpace() const { return getSpace(); }
+inline DataSpace DataSet::getMemSpace() const {
+    return getSpace();
+}
 
-inline haddr_t DataSet::getOffset() const {
-    haddr_t addr = H5Dget_offset(_hid);
+inline uint64_t DataSet::getOffset() const {
+    uint64_t addr = H5Dget_offset(_hid);
     if (addr == HADDR_UNDEF) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Cannot get offset of DataSet.");

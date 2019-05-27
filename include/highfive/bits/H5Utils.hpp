@@ -169,9 +169,8 @@ struct is_c_array<T[N]> {
 template<typename Size>
 inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
     static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
-    std::vector<size_t> res;
-    res.reserve(vec.size());
-    std::transform(vec.begin(), vec.end(), std::back_inserter(res), [](hsize_t e) { return static_cast<size_t>(e);  });
+    std::vector<size_t> res(vec.size());
+    std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
     return res;
 }
 
