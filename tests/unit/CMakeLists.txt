@@ -20,8 +20,6 @@ if(HIGHFIVE_PARALLEL_HDF5)
   target_link_libraries(tests_high_five_cpp11_bin ${MPI_C_LIBRARIES})
 endif()
 
-target_compile_options(tests_high_five_cpp11_bin PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
-
 add_test(NAME tests_high_five_cpp11 COMMAND tests_high_five_cpp11_bin)
 
 if(HIGHFIVE_PARALLEL_HDF5)
