@@ -90,9 +90,9 @@ matrix:
           - hdf5
           - eigen
           - ninja
-        # Temporary workaround to Max OS builds failing 
-        # Same issue seen here: https://travis-ci.community/t/xcode-8-3-homebrew-outdated-error/3798
-        update: true
+          # Temporary workaround to Max OS builds failing
+          # Same issue seen here: https://travis-ci.community/t/xcode-8-3-homebrew-outdated-error/3798
+          update: true
 
 env:
   global:
