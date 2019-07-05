@@ -30,7 +30,7 @@ function(compile_example exemple_source)
     endif()
 
     add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})
-    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES})
+    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES} Boost::serialization)
     if(HIGHFIVE_PARALLEL_HDF5)
         target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
     endif()

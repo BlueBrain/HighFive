@@ -31,11 +31,12 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 find_package(HDF5 REQUIRED)
+add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
 
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 if(USE_BOOST)
-  set(BOOST_REQ_COMPONENTS system)
+  set(BOOST_REQ_COMPONENTS system serialization)
   if(HIGHFIVE_UNIT_TESTS)
       list(APPEND BOOST_REQ_COMPONENTS unit_test_framework)
   endif()

@@ -12,8 +12,8 @@ endif()
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy)
   add_executable(${test_name} "${test_name}.cpp")
   target_link_libraries(${test_name}
-                        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
-                        ${HDF5_C_LIBRARIES})
+                        Boost::unit_test_framework
+                        ${HDF5_C_LIBRARIES} Boost::serialization)
   if(HIGHFIVE_PARALLEL_HDF5)
     target_link_libraries(${test_name} ${MPI_C_LIBRARIES})
   endif()
@@ -33,7 +33,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
 
   add_executable(tests_parallel_bin ${tests_parallel_src})
   target_link_libraries(tests_parallel_bin
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES}
+    Boost::unit_test_framework ${HDF5_C_LIBRARIES}
     ${MPI_C_LIBRARIES})
   add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
     ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
