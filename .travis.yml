@@ -93,6 +93,9 @@ matrix:
           # Temporary workaround to Max OS builds failing
           # Same issue seen here: https://travis-ci.community/t/xcode-8-3-homebrew-outdated-error/3798
           update: true
+      cache:
+        directories:
+          - $HOME/Library/Caches/Homebrew
 
 env:
   global:
