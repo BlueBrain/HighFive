@@ -82,7 +82,7 @@ matrix:
       # osx
     - env: USE_XTENSOR=True
       os: osx
-      osx_image: xcode10
+      osx_image: xcode10.2
       addons:
         homebrew:
           packages:
@@ -90,9 +90,6 @@ matrix:
           - hdf5
           - eigen
           - ninja
-          # Temporary workaround to Max OS builds failing
-          # Same issue seen here: https://travis-ci.community/t/xcode-8-3-homebrew-outdated-error/3798
-          update: true
 
 env:
   global:
