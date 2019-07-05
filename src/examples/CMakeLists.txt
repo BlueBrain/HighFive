@@ -1,8 +1,4 @@
-include_directories(${PROJECT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
-
-FILE(GLOB headers_highfive "${PROJECT_SOURCE_DIR}/include/highfive/*.hpp")
-FILE(GLOB headers_highfive_bits "${PROJECT_SOURCE_DIR}/include/highfive/bits/*.hpp")
-
+include_directories(${HDF5_INCLUDE_DIRS})
 
 function(compile_example exemple_source)
 
@@ -29,8 +25,8 @@ function(compile_example exemple_source)
 	    endif()
     endif()
 
-    add_executable(${example_name} ${exemple_source} ${headers_highfive} ${headers_highfive_bits})
-    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES})
+    add_executable(${example_name} ${exemple_source})
+    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES} HighFive)
     if(HIGHFIVE_PARALLEL_HDF5)
         target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
     endif()

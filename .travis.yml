@@ -44,7 +44,7 @@ addons: &clang7
 
 matrix:
   include:
-      # Test default gcc on Ubuntu trusty
+    # Test default gcc on Ubuntu trusty
     - env:
       - USE_XTENSOR=False
       os: linux
@@ -56,7 +56,7 @@ matrix:
           - libeigen3-dev
           - libhdf5-serial-dev
           - ninja-build
-      # Test gcc-7
+    # Test gcc-7
     - env:
       - GCC_VERSION=7
       - USE_XTENSOR=True
@@ -64,14 +64,14 @@ matrix:
       dist: xenial
       addons: *gcc7
 
-      # Test clang-6.0
+    # Test clang-6.0
     - env:
       - CLANG_VERSION=6.0
       os: linux
       dist: xenial
       addons: *clang6
 
-      # Test clang-7
+    # Test clang-7
     - env:
       - CLANG_VERSION=7
       - USE_XTENSOR=True
@@ -79,7 +79,7 @@ matrix:
       dist: xenial
       addons: *clang7
 
-      # osx
+    # osx
     - env: USE_XTENSOR=True
       os: osx
       osx_image: xcode10.2
@@ -90,6 +90,7 @@ matrix:
           - hdf5
           - eigen
           - ninja
+    - os: windows
 
 env:
   global:
@@ -103,17 +104,26 @@ install:
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       MINCONDA_OS=$MINCONDA_OSX;
     fi
-  - wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:${PATH}"
-  - export INCLUDE_PATH="$HOME/miniconda/include:${INCLUDE_PATH}"
-  - hash -r
+
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      export CMAKE_GENERATOR="Visual Studio 15 2017 Win64" ;
+      export TESTS_TARGET="RUN_TESTS";
+      choco install --yes miniconda3 ;
+      source C:/Tools/miniconda3/Scripts/activate ;
+    else
+      export CMAKE_GENERATOR="Ninja" ;
+      export TESTS_TARGET="test";
+      wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda ;
+      source $HOME/miniconda/bin/activate;
+      hash -r ;
+    fi
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda install cmake -c conda-forge
-  - conda install xtl -c conda-forge
-  - conda install xsimd -c conda-forge
-  - conda install xtensor -c conda-forge
+  - conda install -c conda-forge xtl xsimd xtensor
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      conda install -c conda-forge boost hdf5 eigen;
+    fi
 
 before_script:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
@@ -128,10 +138,11 @@ script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir -p build && pushd build
   - >
-    cmake --warn-uninitialized
+    cmake --warn-uninitialized --debug-output
     -DUSE_EIGEN:BOOL=ON
-    -DEigen3_DIR=/usr/lib/cmake/eigen3
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
-    -G Ninja ../
-  - ninja -v
-  - CTEST_OUTPUT_ON_FAILURE=1 ninja test
+    -G "${CMAKE_GENERATOR}" ../
+  - cmake --build .
+  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
+
+ 

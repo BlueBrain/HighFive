@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
+if(${CMAKE_VERSION} VERSION_LESS 3.13)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+    cmake_policy(VERSION 3.13)
+endif()
+
 project(HighFive VERSION 2.0)
 
 
@@ -31,11 +37,12 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 find_package(HDF5 REQUIRED)
+add_definitions(${HDF5_DEFINITIONS})
 
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 if(USE_BOOST)
-  set(BOOST_REQ_COMPONENTS system)
+  set(BOOST_REQ_COMPONENTS system serialization)
   if(HIGHFIVE_UNIT_TESTS)
       list(APPEND BOOST_REQ_COMPONENTS unit_test_framework)
   endif()
