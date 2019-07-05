@@ -96,6 +96,8 @@ matrix:
       cache:
         directories:
           - $HOME/Library/Caches/Homebrew
+      before_cache:
+        - brew cleanup
 
 env:
   global:
