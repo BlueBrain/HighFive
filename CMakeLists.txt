@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(HighFive VERSION 2.0)
 
-enable_testing()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
@@ -25,12 +24,16 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 
-find_package(HDF5 QUIET REQUIRED)
+find_package(HDF5 REQUIRED)
 
 set(Boost_NO_BOOST_CMAKE TRUE)
 
 if(USE_BOOST)
-  find_package(Boost QUIET REQUIRED COMPONENTS system unit_test_framework)
+  set(BOOST_REQ_COMPONENTS system)
+  if(HIGHFIVE_UNIT_TESTS)
+    set(BOOST_REQ_COMPONENTS ${BOOST_REQ_COMPONENTS} unit_test_framework)
+  endif()
+  find_package(Boost REQUIRED COMPONENTS ${BOOST_REQ_COMPONENTS})
   add_definitions(-DH5_USE_BOOST)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
@@ -82,5 +85,12 @@ if(HIGHFIVE_EXAMPLES)
   add_subdirectory(src/examples)
 endif()
 
-add_subdirectory(tests/unit)
+if(HIGHFIVE_UNIT_TESTS)
+  if (NOT USE_BOOST)
+    message(FATAL_ERROR "Unit tests require boost. Please disable HIGHFIVE_UNIT_TESTS or enable USE_BOOST")
+  endif()
+  enable_testing()
+  add_subdirectory(tests/unit)
+endif()
+
 add_subdirectory(doc)
