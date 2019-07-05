@@ -86,21 +86,16 @@ matrix:
       addons:
         homebrew:
           packages:
+          # - boost is pre-packed. When we attempt to install a whole upgrade chains happens
           - hdf5
           - eigen
           - ninja
-          # - boost should be there. When we attempt to install a whole upgrade chains happens
-          # Temporary workaround to Max OS builds failing
-          # Same issue seen here: https://travis-ci.community/t/xcode-8-3-homebrew-outdated-error/3798
-          # After update was successfully cached, attempt to proceed without updating again
+          # Dont update if not necessary.
           # update: true
       cache:
         directories:
-          - $HOME/Library/Caches/Homebrew
           - /usr/local/Homebrew
           - /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core
-      before_cache:
-        - brew cleanup
 
 env:
   global:
