@@ -10,7 +10,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 
 include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
-include(CheckCXX11Portability)
+include(CheckCXXStandardSupport)
 
 include(BlueGenePortability)
 
@@ -47,22 +47,6 @@ if(USE_EIGEN)
     endif()
 endif()
 
-include(CheckCXXCompilerFlag)
-if (CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang|AppleClang|Intel|PGI)")
-    set(COMPILER_CXX11_FLAG "-std=c++11")
-    set(COMPILER_CXX14_FLAG "-std=c++14")
-    set(COMPILER_CXX17_FLAG "-std=c++17")
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(COMPILER_CXX11_FLAG "/std:c++11")
-    set(COMPILER_CXX14_FLAG "/std:c++14")
-    set(COMPILER_CXX17_FLAG "/std:c++17")
-else()
-    message(FATAL_ERROR "Compiler ID ${CMAKE_CXX_COMPILER_ID} not understood, failed to test for supported c++ standards.")
-endif()
-
-check_cxx_compiler_flag("${COMPILER_CXX11_FLAG}" COMPILER_SUPPORTS_CXX11)
-check_cxx_compiler_flag("${COMPILER_CXX14_FLAG}" COMPILER_SUPPORTS_CXX14)
-check_cxx_compiler_flag("${COMPILER_CXX17_FLAG}" COMPILER_SUPPORTS_CXX17)
 
 if(USE_XTENSOR)
     if(NOT COMPILER_SUPPORTS_CXX14)
