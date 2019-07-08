@@ -11,8 +11,11 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
 include(CheckCXXStandardSupport)
-
 include(BlueGenePortability)
+
+if(NOT COMPILER_SUPPORTS_CXX11)
+    message(FATAL_ERROR "C++ compiler does not support standard c++11.")
+endif()
 
 option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
@@ -21,19 +24,20 @@ option(USE_XTENSOR "enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
+
 if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
-
 find_package(HDF5 QUIET REQUIRED)
 
-set(Boost_NO_BOOST_CMAKE TRUE)
 
+set(Boost_NO_BOOST_CMAKE TRUE)
 if(USE_BOOST)
   find_package(Boost QUIET REQUIRED COMPONENTS system unit_test_framework)
   add_definitions(-DH5_USE_BOOST)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
+
 
 if(USE_EIGEN)
     find_package(Eigen3 NO_MODULE)
@@ -52,17 +56,15 @@ if(USE_XTENSOR)
     if(NOT COMPILER_SUPPORTS_CXX14)
         message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
     else()
-        set(HIGHFIVE_CPP_STD_FLAG "${COMPILER_CXX14_FLAG}" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
+        set(HIGHFIVE_CPP_STD_FLAG "${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
         find_package(xtensor REQUIRED)
         include_directories(SYSTEM $<TARGET_PROPERTY:xtensor,INTERFACE_INCLUDE_DIRECTORIES>)
         add_definitions(-DH5_USE_XTENSOR)
     endif()
 else()
-    if(NOT COMPILER_SUPPORTS_CXX11)
-        message(FATAL_ERROR "C++ compiler does not support standard c++11.")
-    endif()
-    set(HIGHFIVE_CPP_STD_FLAG "${COMPILER_CXX11_FLAG}" CACHE STRING "flag to use to enforce c++ standard (default: c++11)")
+   set(HIGHFIVE_CPP_STD_FLAG "${CMAKE_CXX11_STANDARD_COMPILE_OPTION}" CACHE STRING "flag to use to enforce c++ standard (default: c++11)")
 endif()
+
 
 if(HIGHFIVE_PARALLEL_HDF5)
   find_package(MPI)
