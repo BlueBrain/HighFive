@@ -26,6 +26,10 @@
 #include <xtensor/xrandom.hpp>
 #endif
 
+
+#define BOOST_TEST_MAIN H5EasyTests
+
+
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
 
