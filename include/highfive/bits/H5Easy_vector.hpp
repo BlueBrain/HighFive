@@ -53,6 +53,23 @@ struct overwrite_impl
         return dataset;
     }
 };
+    
+// load "std::vector<std::vector>" from DataSet
+template <class T>
+struct load_impl<std::vector<std::vector<T>>>
+{
+    static std::vector<std::vector<T>> run(const File& file, const std::string& path)
+    {
+        DataSet dataset = file.getDataSet(path);
+        std::vector<size_t> dims = dataset.getDimensions();
+        if (dims.size() != 2) {
+            throw detail::error(file, path, "H5Easy::load: Field not rank 2");
+        }
+        std::vector<std::vector<T>> data;
+        dataset.read(data);
+        return data;
+    }
+};
 
 }  // namespace vector
 
