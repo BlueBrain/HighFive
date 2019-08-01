@@ -9,9 +9,12 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
 
 include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
-include(CheckCXX11Portability)
-
+include(CheckCXXStandardSupport)
 include(BlueGenePortability)
+
+if(NOT COMPILER_SUPPORTS_CXX11)
+    message(FATAL_ERROR "C++ compiler does not support standard c++11.")
+endif()
 
 option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
@@ -20,14 +23,14 @@ option(USE_XTENSOR "enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
+
 if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
-
 find_package(HDF5 REQUIRED)
 
-set(Boost_NO_BOOST_CMAKE TRUE)
 
+set(Boost_NO_BOOST_CMAKE TRUE)
 if(USE_BOOST)
   set(BOOST_REQ_COMPONENTS system)
   if(HIGHFIVE_UNIT_TESTS)
@@ -37,6 +40,7 @@ if(USE_BOOST)
   add_definitions(-DH5_USE_BOOST)
   include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
+
 
 if(USE_EIGEN)
     find_package(Eigen3 NO_MODULE)
@@ -48,12 +52,6 @@ if(USE_EIGEN)
         add_definitions(-DH5_USE_EIGEN)
         include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
     endif()
-endif()
-
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
 if(USE_XTENSOR)
