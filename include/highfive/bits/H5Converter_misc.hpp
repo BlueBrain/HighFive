@@ -73,17 +73,17 @@ inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
     buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
 }
 
-template <typename T>
+template <typename T, typename U = typename type_of_array<T>::type>
 inline void
 vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
-                         const std::vector<size_t>& dims, size_t current_dim,
-                         std::vector<typename type_of_array<T>::type>& buffer) {
+                         const std::vector<size_t>& dims,
+                         size_t current_dim,
+                         std::vector<U>& buffer) {
 
     check_dimensions_vector(vec_multi_dim.size(), dims[current_dim],
                             current_dim);
-    for (typename std::vector<T>::const_iterator it = vec_multi_dim.begin();
-         it < vec_multi_dim.end(); ++it) {
-        vectors_to_single_buffer(*it, dims, current_dim + 1, buffer);
+    for (const auto& it : vec_multi_dim) {
+        vectors_to_single_buffer(it, dims, current_dim + 1, buffer);
     }
 }
 
