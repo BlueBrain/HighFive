@@ -17,7 +17,7 @@ if(NOT COMPILER_SUPPORTS_CXX11)
 endif()
 
 option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
-option(USE_BOOST "enable Boost Support" TRUE)
+option(USE_BOOST "enable Boost Support" FALSE)
 option(USE_EIGEN "enable Eigen testing" FALSE)
 option(USE_XTENSOR "enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)

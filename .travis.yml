@@ -130,6 +130,7 @@ script:
   - mkdir -p build && pushd build
   - >
     cmake --warn-uninitialized
+    -DUSE_BOOST=TRUE
     -DUSE_EIGEN:BOOL=ON
     -DEigen3_DIR=/usr/lib/cmake/eigen3
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}

@@ -13,6 +13,7 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Design
+
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
 - Zero overhead
@@ -20,9 +21,9 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Dependencies
-- libhdf5
-- (optional) boost >= 1.41
 
+- libhdf5
+- boost >= 1.41 (optional, enable CMake option `USE_BOOST`)
 
 ### CMake integration
 
@@ -162,6 +163,7 @@ make test
 
 
 ### Contributors
+
 - Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
 - Ali Can Demiralp <demiralpali@gmail.com> -
 - Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
@@ -171,4 +173,5 @@ make test
 - Tom de Geus <tom@geus.me> - EPFL
 
 ### License
+
 Boost Software License 1.0
