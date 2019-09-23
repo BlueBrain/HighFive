@@ -66,7 +66,7 @@ enum class DumpMode
 /// \param path path of the DataSet
 ///
 /// \return size the size of the DataSet
-size_t getSize(const File& file, const std::string& path);
+inline size_t getSize(const File& file, const std::string& path);
 
 ///
 /// \brief Get the shape of an existing DataSet in an open HDF5 file.
