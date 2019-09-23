@@ -132,7 +132,7 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
     const ssize_t maxLength = 1023;
-    char buffer[maxLength + 1];
+    char buffer[static_cast<size_t>(maxLength) + 1];
     ssize_t length = H5Lget_name_by_idx(
         static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME,
         H5_ITER_INC, index, buffer, maxLength, H5P_DEFAULT);
