@@ -23,7 +23,7 @@ namespace xtensor {
 
 // return the shape of the xtensor-object as "std::vector<size_t>"
 template <class T>
-std::vector<size_t> shape(const T& data)
+inline std::vector<size_t> shape(const T& data)
 {
     return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
 }
