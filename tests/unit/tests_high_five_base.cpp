@@ -47,6 +47,39 @@ typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
                          char, float, double>
     dataset_test_types;
 
+
+template <typename T, typename Func>
+void fill(std::vector<std::vector<T>>& v, std::vector<size_t> dims, const Func& f) {
+    v.resize(dims[0]);
+    dims.erase(dims.begin());
+    for (auto& subvec : v) {
+        fill(subvec, dims, f);
+    }
+}
+
+template <typename T, typename Func>
+void fill(std::vector<T>& v, std::vector<size_t> dims, const Func& f) {
+    v.resize(dims[0]);
+    std::generate(v.begin(), v.end(), f);
+}
+
+
+template <typename T>
+bool checkLength(const std::vector<T>& v, std::vector<size_t> dims) {
+    return (v.size() == dims[0]);
+}
+
+template <typename T>
+bool checkLength(const std::vector<std::vector<T>>& v, std::vector<size_t> dims) {
+    size_t dim0 = dims[0];
+    dims.erase(dims.begin());
+    if (v.size() != dim0) {
+        return false;
+    }
+    return checkLength(v[0], dims);
+}
+
+
 template <typename T, typename Func>
 void generate2D(T* table, size_t x, size_t y, Func& func) {
     for (size_t i = 0; i < x; i++) {
@@ -989,6 +1022,48 @@ void readWriteVector2DTest() {
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
     readWriteVector2DTest<T>();
 }
+
+
+template <typename T>
+void readWriteVector3DTest() {
+    using namespace HighFive;
+
+    std::ostringstream filename;
+    filename << "h5_rw_vec_3d_" << typeid(T).name() << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+    const std::vector<size_t> dims = {2,3,4};
+
+    using data_t = std::vector<std::vector<std::vector<T>>>;
+
+    data_t vec;
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::Truncate);
+
+    fill(vec, dims, ContentGenerate<T>());
+
+    // Create a dataset with type T points
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
+
+    dataset.write(vec);
+
+    data_t result;
+    dataset.read(result);
+
+    BOOST_CHECK(checkLength(result, dims));
+}
+
+//BOOST_AUTO_TEST_CASE_TEMPLATE(readWrite3DVector, T, numerical_test_types) {
+//    std::cout << "running readWriteVector3DTest<" << typeid(T).name() << ">" << std::endl;
+//    readWriteVector3DTest<T>();
+//}
+
+BOOST_AUTO_TEST_CASE(readWrite3DVector) {
+    readWriteVector3DTest<int>();
+    //readWriteVector3DTest<unsigned long>();
+}
+
 
 BOOST_AUTO_TEST_CASE(datasetOffset) {
     std::string filename = "datasetOffset.h5";
