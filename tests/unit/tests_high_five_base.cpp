@@ -44,7 +44,7 @@ typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
                          complex>
     numerical_test_types;
 typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
-                         char, float, double, std::string>
+                         char, float, double>
     dataset_test_types;
 
 template <typename T, typename Func>
@@ -681,9 +681,23 @@ BOOST_AUTO_TEST_CASE(ChunkingConstructorsTest) {
 }
 
 template <typename T>
+std::string typeNameHelper() {
+#if defined(WIN32)
+    std::string name = typeid(T).name(); //Replace illegal windows file path characters
+    std::replace(std::begin(name), std::end(name), ' ', '_');
+    std::replace(std::begin(name), std::end(name), '<', '_');
+    std::replace(std::begin(name), std::end(name), '>', '_');
+    std::replace(std::begin(name), std::end(name), ':', '_');
+    return name;
+#else
+    return typeid(T).name();
+#endif
+}
+
+template <typename T>
 void readWrite2DArrayTest() {
     std::ostringstream filename;
-    filename << "h5_rw_2d_array_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_2d_array_" << typeNameHelper<T>() << "_test.h5";
     const std::string DATASET_NAME("dset");
     const size_t x_size = 100;
     const size_t y_size = 10;
@@ -775,7 +789,7 @@ void readWriteVectorTest() {
     using namespace HighFive;
 
     std::ostringstream filename;
-    filename << "h5_rw_vec_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_vec_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
@@ -811,7 +825,7 @@ void readWriteArrayTest() {
     using namespace HighFive;
 
     std::ostringstream filename;
-    filename << "h5_rw_arr_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_arr_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t x_size = 800;
     const std::string DATASET_NAME("dset");
@@ -846,7 +860,7 @@ void readWriteAttributeVectorTest() {
     using namespace HighFive;
 
     std::ostringstream filename;
-    filename << "h5_rw_attribute_vec_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_attribute_vec_" << typeNameHelper<T>() << "_test.h5";
 
     std::srand((unsigned)std::time(0));
     const size_t x_size = 25;
@@ -922,6 +936,9 @@ void readWriteAttributeVectorTest() {
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
     }
 }
+BOOST_AUTO_TEST_CASE(ReadWriteAttributeVectorString) {
+    readWriteAttributeVectorTest<std::string>();
+}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteAttributeVector, T, dataset_test_types) {
     readWriteAttributeVectorTest<T>();
@@ -932,7 +949,7 @@ void readWriteVector2DTest() {
     using namespace HighFive;
 
     std::ostringstream filename;
-    filename << "h5_rw_vec_2d_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_vec_2d_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t x_size = 10;
     const size_t y_size = 10;
@@ -993,7 +1010,7 @@ void MultiArray3DTest() {
     typedef typename boost::multi_array<T, 3> MultiArray;
 
     std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
 
     const int size_x = 10, size_y = 10, size_z = 10;
     const std::string DATASET_NAME("dset");
@@ -1033,7 +1050,7 @@ void ublas_matrix_Test() {
     typedef typename boost::numeric::ublas::matrix<T> Matrix;
 
     std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t size_x = 10, size_y = 10;
     const std::string DATASET_NAME("dset");
@@ -1077,7 +1094,7 @@ void selectionArraySimpleTest() {
     typedef typename std::vector<T> Vector;
 
     std::ostringstream filename;
-    filename << "h5_rw_select_test_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_select_test_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t size_x = 10;
     const size_t offset_x = 2, count_x = 5;
@@ -1142,6 +1159,10 @@ void selectionArraySimpleTest() {
     }
 }
 
+BOOST_AUTO_TEST_CASE(selectionArraySimpleString) {
+    selectionArraySimpleTest<std::string>();
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types) {
     selectionArraySimpleTest<T>();
 }
@@ -1149,7 +1170,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types) {
 template <typename T>
 void columnSelectionTest() {
     std::ostringstream filename;
-    filename << "h5_rw_select_column_test_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_select_column_test_" << typeNameHelper<T>() << "_test.h5";
 
     const size_t x_size = 10;
     const size_t y_size = 7;
@@ -1196,10 +1217,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(columnSelection, T, numerical_test_types) {
 template <typename T>
 void attribute_scalar_rw() {
     std::ostringstream filename;
-    filename << "h5_rw_attribute_scalar_rw" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_attribute_scalar_rw" << typeNameHelper<T>() << "_test.h5";
 
     File h5file(filename.str(),
-                File::ReadWrite | File::Create | File::Truncate);
+		File::ReadWrite | File::Create | File::Truncate);
 
     ContentGenerate<T> generator;
 
@@ -1236,6 +1257,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(attribute_scalar_rw_all, T, dataset_test_types) {
     attribute_scalar_rw<T>();
 }
 
+BOOST_AUTO_TEST_CASE(attribute_scalar_rw_string) {
+    attribute_scalar_rw<std::string>();
+}
+
 // regression test https://github.com/BlueBrain/HighFive/issues/98
 BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
     std::string filename("h5_rw_reg_zero_dim_test.h5");
@@ -1265,7 +1290,7 @@ BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
 template <typename T>
 void readWriteShuffleDeflateTest() {
     std::ostringstream filename;
-    filename << "h5_rw_deflate_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_deflate_" << typeNameHelper<T>() << "_test.h5";
     const std::string DATASET_NAME("dset");
     const size_t x_size = 128;
     const size_t y_size = 32;
