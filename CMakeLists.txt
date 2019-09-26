@@ -16,7 +16,7 @@ if(NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "C++ compiler does not support standard c++11.")
 endif()
 
-option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
+option(HIGHFIVE_UNIT_TESTS "enable unit tests" FALSE)
 option(USE_BOOST "enable Boost Support" FALSE)
 option(USE_EIGEN "enable Eigen testing" FALSE)
 option(USE_XTENSOR "enable xtensor testing" FALSE)
