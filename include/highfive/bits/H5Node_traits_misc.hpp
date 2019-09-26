@@ -131,21 +131,23 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
-    const ssize_t maxLength = 1023;
+    const size_t maxLength = 255;
     char buffer[maxLength + 1];
-    ssize_t length = H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME,
-        H5_ITER_INC, index, buffer, maxLength, H5P_DEFAULT);
-    if (length < 0)
-        HDF5ErrMapper::ToException<GroupException>(
-            "Error accessing object name");
-    if (length <= maxLength)
-        return std::string(buffer, static_cast<std::size_t>(length));
-    std::vector<char> bigBuffer(static_cast<std::size_t>(length) + 1, 0);
-    H5Lget_name_by_idx(static_cast<const Derivate*>(this)->getId(), ".",
-                       H5_INDEX_NAME, H5_ITER_INC, index, bigBuffer.data(),
-                       static_cast<hsize_t>(length), H5P_DEFAULT);
-    return std::string(bigBuffer.data(), static_cast<size_t>(length));
+    ssize_t retcode = H5Lget_name_by_idx(
+        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+        index, buffer, static_cast<hsize_t>(maxLength) + 1, H5P_DEFAULT);
+    if (retcode < 0) {
+        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    }
+    const size_t length = static_cast<std::size_t>(retcode);
+    if (length <= maxLength) {
+        return std::string(buffer, length);
+    }
+    std::vector<char> bigBuffer(length + 1, 0);
+    H5Lget_name_by_idx(
+        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+        index, bigBuffer.data(), static_cast<hsize_t>(length) + 1, H5P_DEFAULT);
+    return std::string(bigBuffer.data(), length);
 }
 
 template <typename Derivate>
