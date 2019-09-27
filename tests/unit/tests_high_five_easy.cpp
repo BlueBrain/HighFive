@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_scalar)
     BOOST_CHECK_EQUAL(c == c_r, true);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_vector)
+BOOST_AUTO_TEST_CASE(H5Easy_vector1d)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -65,6 +65,58 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector)
     std::vector<size_t> a_r = H5Easy::load<std::vector<size_t>>(file, "/path/to/a");
 
     BOOST_CHECK_EQUAL(a == a_r, true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_vector2d)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    using type = std::vector<std::vector<size_t>>;
+
+    type a(3);
+    a[0].push_back(0);
+    a[0].push_back(1);
+    a[1].push_back(2);
+    a[1].push_back(3);
+    a[2].push_back(4);
+    a[2].push_back(5);
+
+    H5Easy::dump(file, "/path/to/a", a);
+
+    type a_r = H5Easy::load<type>(file, "/path/to/a");
+
+    BOOST_CHECK_EQUAL(a == a_r, true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    using type = std::vector<std::vector<std::vector<size_t>>>;
+
+    type a(3);
+    a[0].resize(2);
+    a[1].resize(2);
+    a[2].resize(2);
+
+    a[0][0].push_back( 0);
+    a[0][0].push_back( 1);
+    a[0][1].push_back( 2);
+    a[0][1].push_back( 3);
+    a[1][0].push_back( 4);
+    a[1][0].push_back( 5);
+    a[1][1].push_back( 6);
+    a[1][1].push_back( 7);
+    a[2][0].push_back( 8);
+    a[2][0].push_back( 9);
+    a[2][1].push_back(10);
+    a[2][1].push_back(11);
+
+    H5Easy::dump(file, "/path/to/a", a);
+
+    // type a_r = H5Easy::load<type>(file, "/path/to/a");
+
+    // BOOST_CHECK_EQUAL(a == a_r, true);
 }
 
 #ifdef H5_USE_XTENSOR
