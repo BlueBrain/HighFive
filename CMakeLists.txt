@@ -81,6 +81,11 @@ endif()
 # HighFive as a subproject and using the the same filename
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
 
+if(CMAKE_CXX_COMPILER_IS_ICC)
+    # ICC gets mad if we shorten ints
+    add_definitions("-wd1682")
+endif()
+
 if(HIGHFIVE_EXAMPLES)
   add_subdirectory(src/examples)
 endif()
