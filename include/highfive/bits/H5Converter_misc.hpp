@@ -94,7 +94,7 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
                          const std::vector<size_t>& dims,
                          const size_t current_dim,
                          std::vector<T>& vec_single_dim) {
-    const long n_elems = static_cast<long>(dims[current_dim]);
+    const auto n_elems = static_cast<long>(dims[current_dim]);
     const auto end_copy_iter = std::min(begin_buffer + n_elems, end_buffer);
     vec_single_dim.assign(begin_buffer, end_copy_iter);
     return end_copy_iter;

@@ -59,29 +59,6 @@ bool checkLength(const std::vector<std::vector<T>>& v, std::vector<size_t> dims)
 }
 
 
-template <typename T>
-bool vectorsEqual(const std::vector<T>& vec1,
-                  const std::vector<T>& vec2) {
-    return (vec1 == vec2);
-}
-
-template <typename T>
-bool vectorsEqual(const std::vector<std::vector<T>>& vec1,
-                  const std::vector<std::vector<T>>& vec2) {
-    if (vec1.size() != vec2.size()) {
-        return false;
-    }
-    auto iter1 = vec1.cbegin();
-    auto iter2 = vec2.cbegin();
-    for (; iter1 != vec1.cend(); ++iter1, ++iter2) {
-        if (! vectorsEqual(*iter1, *iter2)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
 template <typename T, typename Func>
 void generate2D(T* table, size_t x, size_t y, Func& func) {
     for (size_t i = 0; i < x; i++) {

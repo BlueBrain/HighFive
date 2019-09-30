@@ -35,7 +35,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
   target_link_libraries(tests_parallel_bin
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} ${HDF5_C_LIBRARIES}
     ${MPI_C_LIBRARIES})
-  add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT}
+  add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
     ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
 
 endif()

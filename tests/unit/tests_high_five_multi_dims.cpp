@@ -26,10 +26,11 @@
 using namespace HighFive;
 
 
+/// \brief Test for 2D old-style arrays (T array[x][y])
 template <typename T>
 void readWrite2DArrayTest() {
     std::ostringstream filename;
-    filename << "h5_rw_2d_array_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_2d_array_" << typeNameHelper<T>() << "_test.h5";
     const std::string DATASET_NAME("dset");
     const size_t x_size = 100;
     const size_t y_size = 10;
@@ -53,7 +54,6 @@ void readWrite2DArrayTest() {
     dataset.write(array);
 
     T result[x_size][y_size];
-
     dataset.read(result);
 
     for (size_t i = 0; i < x_size; ++i) {
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
 
 template <typename T>
 void readWriteArrayTest() {
-    const size_t x_size = 800;
+    const size_t x_size = 200;
     typename std::array<T, x_size> vec;
     ContentGenerate<T> generator;
     std::generate(vec.begin(), vec.end(), generator);
@@ -96,7 +96,7 @@ void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec,
     readWriteDataset<T>(ndvec, result, dims.size(), "vector");
 
     BOOST_CHECK(checkLength(result, dims));
-    BOOST_CHECK(vectorsEqual(ndvec, result));
+    BOOST_CHECK(ndvec == result);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(readWritSimpleVector, T, numerical_test_types) {
