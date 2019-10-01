@@ -114,9 +114,9 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
 
     H5Easy::dump(file, "/path/to/a", a);
 
-    // type a_r = H5Easy::load<type>(file, "/path/to/a");
+    type a_r = H5Easy::load<type>(file, "/path/to/a");
 
-    // BOOST_CHECK_EQUAL(a == a_r, true);
+    BOOST_CHECK_EQUAL(a == a_r, true);
 }
 
 #ifdef H5_USE_XTENSOR
