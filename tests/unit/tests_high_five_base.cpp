@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2017-2019, Blue Brain Project - EPFL
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -7,7 +7,6 @@
  *
  */
 
-#include <complex>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -26,102 +25,13 @@
 #include <highfive/H5Group.hpp>
 #include <highfive/H5Utility.hpp>
 
-#define BOOST_TEST_MAIN HighFiveTest
-
-#include <boost/mpl/list.hpp>
+#define BOOST_TEST_MAIN HighFiveTestBase
 #include <boost/test/unit_test.hpp>
 
-#ifdef H5_USE_BOOST
-#include <boost/multi_array.hpp>
-#endif
+#include "tests_high_five.hpp"
 
 using namespace HighFive;
-using complex = std::complex<double>;
 
-typedef boost::mpl::list<float, double> floating_numerics_test_types;
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
-                         char, float, double, long long, unsigned long long,
-                         complex>
-    numerical_test_types;
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char,
-                         char, float, double>
-    dataset_test_types;
-
-template <typename T, typename Func>
-void generate2D(T* table, size_t x, size_t y, Func& func) {
-    for (size_t i = 0; i < x; i++) {
-        for (size_t j = 0; j < y; j++) {
-            table[i][j] = func();
-        }
-    }
-}
-
-template <typename T, typename Func>
-void generate2D(std::vector<std::vector<T>>& vec,
-                size_t x,
-                size_t y,
-                Func& func) {
-    vec.resize(x);
-    for (size_t i = 0; i < x; i++) {
-        vec[i].resize(y);
-        for (size_t j = 0; j < y; j++) {
-            vec[i][j] = func();
-        }
-    }
-}
-
-template <typename T>
-struct ContentGenerate {
-    ContentGenerate()
-        : _init(0)
-        , _inc(T(1) + T(1) / T(10)) {}
-
-    T operator()() {
-        T ret = _init;
-        _init = static_cast<T>(_init + _inc);
-        return ret;
-    }
-
-    T _init, _inc;
-};
-
-template <>
-ContentGenerate<complex>::ContentGenerate()
-    : _init(0, 0)
-    , _inc(complex(1, 1) + complex(1, 1) / complex(10)) {}
-
-template <>
-struct ContentGenerate<char> {
-    ContentGenerate()
-        : _init('a') {}
-
-    char operator()() {
-        char ret = _init;
-        if (++_init >= ('a' + 26))
-            _init = 'a';
-        return ret;
-    }
-
-    char _init;
-};
-
-template <>
-struct ContentGenerate<std::string> {
-    ContentGenerate() {}
-
-    std::string operator()() {
-        ContentGenerate<char> gen;
-        std::string random_string;
-        std::mt19937_64 rgen;
-        rgen.seed(88);
-        std::uniform_int_distribution<unsigned> int_dist(0, 1000);
-        const size_t size_string = int_dist(rgen);
-
-        random_string.resize(size_string);
-        std::generate(random_string.begin(), random_string.end(), gen);
-        return random_string;
-    }
-};
 
 BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     const std::string FILE_NAME("h5tutr_dset.h5");
@@ -514,8 +424,6 @@ BOOST_AUTO_TEST_CASE(HighFiveSimpleListing) {
 }
 
 BOOST_AUTO_TEST_CASE(DataTypeEqualSimple) {
-    using namespace HighFive;
-
     AtomicType<double> d_var;
     AtomicType<size_t> size_var;
     AtomicType<double> d_var_test;
@@ -535,8 +443,6 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualSimple) {
 }
 
 BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
-    using namespace HighFive;
-
     const std::string FILE_NAME("h5tutr_dset.h5");
     const std::string DATASET_NAME("dset");
 
@@ -560,8 +466,6 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceTest) {
-    using namespace HighFive;
-
     const std::string FILE_NAME("h5tutr_space.h5");
     const std::string DATASET_NAME("dset");
 
@@ -587,8 +491,6 @@ BOOST_AUTO_TEST_CASE(DataSpaceTest) {
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
-    using namespace HighFive;
-
     // Create 1D shortcut dataspace
     DataSpace space(7);
 
@@ -615,8 +517,6 @@ BOOST_AUTO_TEST_CASE(DataSpaceVectorTest) {
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceVariadicTest) {
-    using namespace HighFive;
-
     // Create 1D shortcut dataspace
     DataSpace space1{7};
 
@@ -680,64 +580,8 @@ BOOST_AUTO_TEST_CASE(ChunkingConstructorsTest) {
                                   third_ans.begin(), third_ans.end());
 }
 
-template <typename T>
-std::string typeNameHelper() {
-#if defined(WIN32)
-    std::string name = typeid(T).name(); //Replace illegal windows file path characters
-    std::replace(std::begin(name), std::end(name), ' ', '_');
-    std::replace(std::begin(name), std::end(name), '<', '_');
-    std::replace(std::begin(name), std::end(name), '>', '_');
-    std::replace(std::begin(name), std::end(name), ':', '_');
-    return name;
-#else
-    return typeid(T).name();
-#endif
-}
-
-template <typename T>
-void readWrite2DArrayTest() {
-    std::ostringstream filename;
-    filename << "h5_rw_2d_array_" << typeNameHelper<T>() << "_test.h5";
-    const std::string DATASET_NAME("dset");
-    const size_t x_size = 100;
-    const size_t y_size = 10;
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    // Create the data space for the dataset.
-    std::vector<size_t> dims{x_size, y_size};
-
-    DataSpace dataspace(dims);
-
-    // Create a dataset with arbitrary type
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
-
-    T array[x_size][y_size];
-
-    ContentGenerate<T> generator;
-    generate2D(array, x_size, y_size, generator);
-
-    dataset.write(array);
-
-    T result[x_size][y_size];
-
-    dataset.read(result);
-
-    for (size_t i = 0; i < x_size; ++i) {
-        for (size_t j = 0; j < y_size; ++j) {
-            BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
-    readWrite2DArrayTest<T>();
-}
 
 BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
-    using namespace HighFive;
-
     std::ostringstream filename;
     filename << "h5_rw_vec_shortcut_test.h5";
 
@@ -784,81 +628,9 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     }
 }
 
-template <typename T>
-void readWriteVectorTest() {
-    using namespace HighFive;
-
-    std::ostringstream filename;
-    filename << "h5_rw_vec_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t x_size = 800;
-    const std::string DATASET_NAME("dset");
-    typename std::vector<T> vec;
-    vec.resize(x_size);
-    ContentGenerate<T> generator;
-    std::generate(vec.begin(), vec.end(), generator);
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    // Create a dataset with type T points
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
-
-    dataset.write(vec);
-
-    typename std::vector<T> result;
-
-    dataset.read(result);
-
-    BOOST_CHECK_EQUAL(vec.size(), x_size);
-    BOOST_CHECK_EQUAL(result.size(), x_size);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), vec.begin(),
-                                  vec.end());
-}
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector, T, numerical_test_types) {
-    readWriteVectorTest<T>();
-}
-
-template <typename T>
-void readWriteArrayTest() {
-    using namespace HighFive;
-
-    std::ostringstream filename;
-    filename << "h5_rw_arr_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t x_size = 800;
-    const std::string DATASET_NAME("dset");
-    typename std::array<T, x_size> vec;
-    ContentGenerate<T> generator;
-    std::generate(vec.begin(), vec.end(), generator);
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    // Create a dataset with type T points
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
-
-    dataset.write(vec);
-
-    typename std::array<T, x_size> result;
-
-    dataset.read(result);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), vec.begin(),
-                                  vec.end());
-
-    typename std::array<T, 1> tooSmall;
-    BOOST_CHECK_THROW(dataset.read(tooSmall), DataSpaceException);
-}
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteArray, T, numerical_test_types) {
-    readWriteArrayTest<T>();
-}
 
 template <typename T>
 void readWriteAttributeVectorTest() {
-    using namespace HighFive;
-
     std::ostringstream filename;
     filename << "h5_rw_attribute_vec_" << typeNameHelper<T>() << "_test.h5";
 
@@ -936,6 +708,7 @@ void readWriteAttributeVectorTest() {
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
     }
 }
+
 BOOST_AUTO_TEST_CASE(ReadWriteAttributeVectorString) {
     readWriteAttributeVectorTest<std::string>();
 }
@@ -944,51 +717,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteAttributeVector, T, dataset_test_types) {
     readWriteAttributeVectorTest<T>();
 }
 
-template <typename T>
-void readWriteVector2DTest() {
-    using namespace HighFive;
-
-    std::ostringstream filename;
-    filename << "h5_rw_vec_2d_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t x_size = 10;
-    const size_t y_size = 10;
-    const std::string DATASET_NAME("dset");
-    typename std::vector<std::vector<T>> vec;
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    vec.resize(x_size);
-    ContentGenerate<T> generator;
-
-    generate2D(vec, x_size, y_size, generator);
-
-    // Create a dataset with type T points
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(vec));
-
-    dataset.write(vec);
-
-    typename std::vector<std::vector<T>> result;
-
-    dataset.read(result);
-
-    BOOST_CHECK_EQUAL(vec.size(), x_size);
-    BOOST_CHECK_EQUAL(result.size(), x_size);
-
-    BOOST_CHECK_EQUAL(vec[0].size(), y_size);
-    BOOST_CHECK_EQUAL(result[0].size(), y_size);
-
-    for (size_t i = 0; i < x_size; ++i) {
-        for (size_t j = 0; i < y_size; ++i) {
-            BOOST_CHECK_EQUAL(result[i][j], vec[i][j]);
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteVector2D, T, numerical_test_types) {
-    readWriteVector2DTest<T>();
-}
 
 BOOST_AUTO_TEST_CASE(datasetOffset) {
     std::string filename = "datasetOffset.h5";
@@ -1003,91 +731,6 @@ BOOST_AUTO_TEST_CASE(datasetOffset) {
     BOOST_CHECK(ds_read.getOffset() > 0);
 }
 
-#ifdef H5_USE_BOOST
-
-template <typename T>
-void MultiArray3DTest() {
-    typedef typename boost::multi_array<T, 3> MultiArray;
-
-    std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
-
-    const int size_x = 10, size_y = 10, size_z = 10;
-    const std::string DATASET_NAME("dset");
-    MultiArray array(boost::extents[size_x][size_y][size_z]);
-
-    ContentGenerate<T> generator;
-    std::generate(array.data(), array.data() + array.num_elements(), generator);
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME,
-                                            DataSpace::From(array));
-
-    dataset.write(array);
-
-    // read it back
-    MultiArray result;
-
-    dataset.read(result);
-
-    for (long i = 0; i < size_x; ++i) {
-        for (long j = 0; j < size_y; ++j) {
-            for (long k = 0; k < size_z; ++k) {
-                BOOST_CHECK_EQUAL(array[i][j][k], result[i][j][k]);
-            }
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(MultiArray3D, T, numerical_test_types) {
-    MultiArray3DTest<T>();
-}
-
-template <typename T>
-void ublas_matrix_Test() {
-    typedef typename boost::numeric::ublas::matrix<T> Matrix;
-
-    std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t size_x = 10, size_y = 10;
-    const std::string DATASET_NAME("dset");
-
-    Matrix mat(size_x, size_y);
-
-    ContentGenerate<T> generator;
-    for (std::size_t i = 0; i < mat.size1(); ++i) {
-        for (std::size_t j = 0; j < mat.size2(); ++j) {
-            mat(i, j) = generator();
-        }
-    }
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
-
-    dataset.write(mat);
-
-    // read it back
-    Matrix result;
-
-    dataset.read(result);
-
-    for (size_t i = 0; i < size_x; ++i) {
-        for (size_t j = 0; j < size_y; ++j) {
-            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_matrix, T, numerical_test_types) {
-    ublas_matrix_Test<T>();
-}
-
-#endif
 
 template <typename T>
 void selectionArraySimpleTest() {
@@ -1349,9 +992,7 @@ void readWriteShuffleDeflateTest() {
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate,
-                              T,
-                              numerical_test_types) {
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) {
     readWriteShuffleDeflateTest<T>();
 }
 

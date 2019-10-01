@@ -68,8 +68,7 @@ inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
                                      const size_t current_dim,
                                      std::vector<T>& buffer) {
 
-    check_dimensions_vector(vec_single_dim.size(), dims[current_dim],
-                            current_dim);
+    check_dimensions_vector(vec_single_dim.size(), dims[current_dim], current_dim);
     buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
 }
 
@@ -80,8 +79,7 @@ vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
                          size_t current_dim,
                          std::vector<U>& buffer) {
 
-    check_dimensions_vector(vec_multi_dim.size(), dims[current_dim],
-                            current_dim);
+    check_dimensions_vector(vec_multi_dim.size(), dims[current_dim], current_dim);
     for (const auto& it : vec_multi_dim) {
         vectors_to_single_buffer(it, dims, current_dim + 1, buffer);
     }
@@ -96,28 +94,25 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
                          const std::vector<size_t>& dims,
                          const size_t current_dim,
                          std::vector<T>& vec_single_dim) {
-    const size_t n_elems = dims[current_dim];
-    typename std::vector<T>::iterator end_copy_iter =
-        std::min(begin_buffer + static_cast<long>(n_elems), end_buffer);
+    const auto n_elems = static_cast<long>(dims[current_dim]);
+    const auto end_copy_iter = std::min(begin_buffer + n_elems, end_buffer);
     vec_single_dim.assign(begin_buffer, end_copy_iter);
     return end_copy_iter;
 }
 
-template <typename T, typename U>
-inline typename std::vector<T>::iterator
-single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
-                         typename std::vector<T>::iterator end_buffer,
+template <typename T, typename U = typename type_of_array<T>::type>
+inline typename std::vector<U>::iterator
+single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
+                         typename std::vector<U>::iterator end_buffer,
                          const std::vector<size_t>& dims,
                          const size_t current_dim,
-                         std::vector<U>& vec_multi_dim) {
-
+                         std::vector<std::vector<T>>& vec_multi_dim) {
     const size_t n_elems = dims[current_dim];
     vec_multi_dim.resize(n_elems);
 
-    for (typename std::vector<U>::iterator it = vec_multi_dim.begin();
-         it < vec_multi_dim.end(); ++it) {
-        begin_buffer = single_buffer_to_vectors(begin_buffer, end_buffer, dims,
-                                                current_dim + 1, *it);
+    for (auto& subvec : vec_multi_dim) {
+        begin_buffer = single_buffer_to_vectors(
+            begin_buffer, end_buffer, dims, current_dim + 1, subvec);
     }
     return begin_buffer;
 }
@@ -297,7 +292,7 @@ struct data_converter<std::vector<T>,
     }
 
     inline void process_result(std::vector<T>& vec) {
-        single_buffer_to_vectors<typename type_of_array<T>::type, T>(
+        single_buffer_to_vectors(
             _vec_align.begin(), _vec_align.end(), _dims, 0, vec);
     }
 
