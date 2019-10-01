@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
+ *  Copyright (c), 2017-2019, Blue Brain Project - EPFL
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,68 +18,24 @@
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5Group.hpp>
 
-#define BOOST_TEST_MAIN HighFiveTest
-#include <boost/mpl/list.hpp>
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MAIN HighFiveTestParallel
+#include <boost/test/unit_test.hpp>
+
+#include "tests_high_five.hpp"
 
 using namespace HighFive;
+
 
 int argc = boost::unit_test::framework::master_test_suite().argc;
 char** argv = boost::unit_test::framework::master_test_suite().argv;
 
 struct MpiFixture {
     MpiFixture() { MPI_Init(&argc, &argv); }
-
     ~MpiFixture() { MPI_Finalize(); }
 };
 
-BOOST_GLOBAL_FIXTURE(MpiFixture);
+BOOST_GLOBAL_FIXTURE(MpiFixture)
 
-typedef boost::mpl::list<int, unsigned, long, unsigned long, unsigned char,
-                         char, float, double, long long, unsigned long long>
-    numerical_test_types;
-
-template <typename T>
-struct ContentGenerate {
-    ContentGenerate(T init_val = T(0), T inc_val = T(1) + T(1) / T(10))
-        : _init(init_val), _inc(inc_val) {}
-
-    T operator()() {
-        T ret = _init;
-        _init += _inc;
-        return ret;
-    }
-
-    T _init, _inc;
-};
-
-template <>
-struct ContentGenerate<char> {
-    ContentGenerate() : _init('a') {}
-
-    char operator()() {
-        char ret = _init;
-        if (++_init >= ('a' + 26))
-            _init = 'a';
-        return ret;
-    }
-
-    char _init;
-};
-
-template <>
-struct ContentGenerate<std::string> {
-    ContentGenerate() {}
-
-    std::string operator()() {
-        ContentGenerate<char> gen;
-        std::string random_string;
-        const size_t size_string = std::rand() % 1000;
-        random_string.resize(size_string);
-        std::generate(random_string.begin(), random_string.end(), gen);
-        return random_string;
-    }
-};
 
 template <typename T>
 void selectionArraySimpleTestParallel() {
@@ -91,10 +47,11 @@ void selectionArraySimpleTestParallel() {
     typedef typename std::vector<T> Vector;
 
     std::ostringstream filename;
-    filename << "h5_rw_select_parallel_test_" << typeid(T).name() << "_test.h5";
+    filename << "h5_rw_select_parallel_test_" << typeNameHelper<T>() << "_test.h5";
 
-    const size_t size_x = mpi_size;
-    const size_t offset_x = mpi_rank, count_x = mpi_size - mpi_rank;
+    const size_t size_x = static_cast<size_t>(mpi_size);
+    const size_t offset_x = static_cast<size_t>(mpi_rank);
+    const size_t count_x = static_cast<size_t>(mpi_size - mpi_rank);
 
     const std::string DATASET_NAME("dset");
 
