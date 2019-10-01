@@ -19,14 +19,18 @@ namespace detail {
 
 namespace vector {
 
+using HighFive::details::type_of_array;
+using HighFive::details::get_dim_vector;
+
 // create DataSet and write data
 template <class T, class E = void>
 struct dump_impl
 {
     static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
     {
+        using type_name = typename type_of_array<T>::type;
         detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
+        DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
         dataset.write(data);
         file.flush();
         return dataset;
@@ -40,12 +44,8 @@ struct overwrite_impl
     static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
     {
         DataSet dataset = file.getDataSet(path);
-        std::vector<size_t> dims = dataset.getDimensions();
-        if (dims.size() > 1) {
-            throw detail::error(file, path,
-                "H5Easy::dump: Can only overwrite 1-d vectors");
-        }
-        if (dims[0] != data.size()) {
+        if (get_dim_vector(data) != dataset.getDimensions())
+        {
             throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
         }
         dataset.write(data);
@@ -55,23 +55,6 @@ struct overwrite_impl
 };
 
 }  // namespace vector
-
-// load "std::vector" from DataSet
-template <class T>
-struct load_impl<std::vector<T>>
-{
-    static std::vector<T> run(const File& file, const std::string& path)
-    {
-        DataSet dataset = file.getDataSet(path);
-        std::vector<size_t> dims = dataset.getDimensions();
-        if (dims.size() != 1) {
-            throw detail::error(file, path, "H5Easy::load: Field not rank 1");
-        }
-        std::vector<T> data;
-        dataset.read(data);
-        return data;
-    }
-};
 
 }  // namespace detail
 

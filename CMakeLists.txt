@@ -13,8 +13,9 @@ include(CheckCXXStandardSupport)
 include(BlueGenePortability)
 
 if(NOT COMPILER_SUPPORTS_CXX11)
-    message(FATAL_ERROR "C++ compiler does not support standard c++11.")
+    message(FATAL_ERROR "HighFive version >=2.0 requires c++ standard >= c++11")
 endif()
+
 
 option(HIGHFIVE_UNIT_TESTS "enable unit tests" TRUE)
 option(USE_BOOST "enable Boost Support" TRUE)
@@ -23,6 +24,8 @@ option(USE_XTENSOR "enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
+
+# Pre-requisites
 
 if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
@@ -70,16 +73,16 @@ endif()
 
 
 if(HIGHFIVE_PARALLEL_HDF5)
-  find_package(MPI)
+  find_package(MPI REQUIRED)
+  include_directories("${MPI_C_HEADER_DIR}")
+  add_definitions("-DMPI_NO_CPPBIND")
 endif()
 
-if(NOT COMPILER_SUPPORTS_CXX11)
-    message(FATAL "HighFive version >=2.0 requires c++ standard >= c++11")
-endif()
 
-# Absolute include used to avoid interaction with downstream projects including
 # HighFive as a subproject and using the the same filename
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
+select_recent_cxx_standard_available()
+
 
 if(CMAKE_CXX_COMPILER_IS_ICC)
     # ICC gets mad if we shorten ints
