@@ -76,7 +76,7 @@ inline void Attribute::read(T& array) const {
     const AtomicType<typename details::type_of_array<type_no_const>::type>
         array_datatype;
 
-    // Apply pre read convertions
+    // Apply pre read conversions
     details::data_converter<type_no_const> converter(nocv_array, mem_space);
 
     if (H5Aread(getId(), array_datatype.getId(),
@@ -110,7 +110,7 @@ inline void Attribute::write(const T& buffer) {
     const AtomicType<typename details::type_of_array<type_no_const>::type>
         array_datatype;
 
-    // Apply pre write convertions
+    // Apply pre write conversions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
     if (H5Awrite(getId(), array_datatype.getId(),
