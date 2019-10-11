@@ -19,6 +19,9 @@ class Group;
 class DataSpace;
 class DataType;
 
+enum class LinkType;
+
+
 template <typename Derivate>
 class NodeTraits {
   public:
@@ -114,12 +117,31 @@ class NodeTraits {
     /// false
     bool exist(const std::string& node_name) const;
 
+    /// \brief Returns the kind of link of the given name (soft, hard...)
+    LinkType getLinkType(const std::string& node_name) const;
+
+    /// \brief A shorthand to get the kind of object pointed to (group, dataset, type...)
+    inline ObjectType getObjectType(const std::string& node_name) const;
+
+
   private:
     typedef Derivate derivate_type;
 
     // A wrapper over the low-level H5Lexist
     bool _exist(const std::string& node_name) const;
+
+    // Opens an arbitrary object to obtain info
+    Object _open(const std::string& node_name,
+                 const DataSetAccessProps& accessProps=DataSetAccessProps()) const;
 };
+
+
+enum class LinkType {
+    Hard,
+    Soft,
+    External
+};
+
 
 }  // namespace HighFive
 

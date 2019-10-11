@@ -10,6 +10,8 @@
 #define H5OBJECT_HPP
 
 #include <H5Ipublic.h>
+#include <H5Opublic.h>
+#include <ctime>
 
 namespace HighFive {
 
@@ -19,6 +21,18 @@ class NodeTraits;
 
 template <typename Derivate>
 class AnnotateTraits;
+
+class ObjectInfo;
+
+enum class ObjectType {
+    Invalid = -1,
+    File,
+    Group,
+    UserDataType,
+    DataSpace,
+    Dataset,
+    Attribute
+};
 
 
 class Object {
@@ -39,6 +53,17 @@ class Object {
     ///
     hid_t getId() const;
 
+    ///
+    /// \brief getInfo
+    /// \return Obtains several infos about the object
+    ///
+    ObjectInfo getInfo() const;
+
+    ///
+    /// \brief Gets the fundamental type of the object (dataset, group,...)
+    ///
+    ObjectType getType() const;
+
   protected:
     // empty constructor
     Object();
@@ -51,12 +76,33 @@ class Object {
     hid_t _hid;
 
   private:
+    // Init with an low-level object id
+    Object(hid_t);
+
     template <typename Derivate>
     friend class NodeTraits;
     template <typename Derivate>
     friend class AnnotateTraits;
 };
-}
+
+
+class ObjectInfo  {
+  public:
+    haddr_t getAddress() const noexcept;
+
+    size_t referenceCount() const noexcept;
+
+    std::time_t creationTime() const noexcept;
+
+    std::time_t modificationTime() const noexcept;
+
+  protected:
+    H5O_info_t raw_info;
+
+    friend class Object;
+};
+
+}  // namespace HighFive
 
 #include "bits/H5Object_misc.hpp"
 
