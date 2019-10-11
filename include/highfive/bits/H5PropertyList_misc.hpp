@@ -71,7 +71,7 @@ inline PropertyList<T>::PropertyList(PropertyList<T>&& other)
 
 template <PropertyType T>
 inline PropertyList<T>& PropertyList<T>::operator=(PropertyList<T>&& other) {
-    // This code handles self-assigment without ifs
+    // This code handles self-assignment without ifs
     const auto hid = other._hid;
     other._hid = H5P_DEFAULT;
     _hid = hid;

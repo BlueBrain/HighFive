@@ -337,7 +337,7 @@ struct data_converter<std::string, void> {
     DataSpace& _space;
 };
 
-// apply conversion for vectors of string (derefence)
+// apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
     inline data_converter(std::vector<std::string>& vec, DataSpace& space)

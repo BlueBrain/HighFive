@@ -51,7 +51,7 @@ class DataSpace : public Object {
     explicit DataSpace(const std::vector<size_t>& dims);
 
     /// Make sure that DataSpace({1,2,3}) works on GCC. This is
-    /// the shortcut form of the vector initalizer, but one some compilers (gcc)
+    /// the shortcut form of the vector initializer, but one some compilers (gcc)
     /// this does not resolve correctly without this constructor.
     explicit DataSpace(std::initializer_list<size_t> items);
 

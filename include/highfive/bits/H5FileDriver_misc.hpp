@@ -34,7 +34,7 @@ public:
   void apply(const hid_t list) const {
     if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
         HDF5ErrMapper::ToException<FileException>(
-            "Unable to setup MPIO Driver configuration");
+            "Unable to set-up MPIO Driver configuration");
     }
   }
 private:

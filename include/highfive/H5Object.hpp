@@ -34,7 +34,7 @@ class Object {
 
     ///
     /// \brief getId
-    /// \return iternal HDF5 id to the object
+    /// \return internal HDF5 id to the object
     ///  provided for C API compatibility
     ///
     hid_t getId() const;
