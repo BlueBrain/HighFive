@@ -13,7 +13,8 @@ foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_fiv
   add_executable(${test_name} "${test_name}.cpp")
   target_link_libraries(${test_name}
                         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
-                        ${HDF5_C_LIBRARIES})
+                        ${HDF5_C_LIBRARIES}
+                        HighFive)
   if(HIGHFIVE_PARALLEL_HDF5)
     target_link_libraries(${test_name} ${MPI_C_LIBRARIES})
   endif()

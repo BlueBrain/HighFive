@@ -19,11 +19,7 @@
 
 #include <stdio.h>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
-#include <highfive/H5Utility.hpp>
+#include <highfive/H5.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTestBase
 #include <boost/test/unit_test.hpp>
