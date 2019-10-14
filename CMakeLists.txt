@@ -31,7 +31,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 find_package(HDF5 REQUIRED)
-add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+add_definitions(${HDF5_DEFINITIONS})
 
 
 set(Boost_NO_BOOST_CMAKE TRUE)
