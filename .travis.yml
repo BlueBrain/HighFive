@@ -123,9 +123,7 @@ install:
   - conda update -q conda
   - conda install -c conda-forge xtl xsimd xtensor
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      conda install -c conda-forge boost hdf5 pkgconfig;
-      conda install -c ccordoba12 eigen3;
-      export PKG_CONFIG_PATH=C:/Tools/miniconda3/pkgs/eigen3-3.2.5-1/Library/lib/pkgconfig;
+      conda install -c conda-forge boost hdf5 eigen;
     fi
 
 before_script:
@@ -148,3 +146,4 @@ script:
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
 
+ 
