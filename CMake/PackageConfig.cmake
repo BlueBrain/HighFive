@@ -1,5 +1,5 @@
 add_library(HighFive INTERFACE)
-target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
+target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES} Boost::serialization)
 target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
