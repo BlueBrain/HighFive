@@ -1087,6 +1087,8 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     g.createDataSet(DS_NAME, some_data);
 
     BOOST_CHECK(file.getLinkType(GROUP_1) == LinkType::Hard);
+    BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+
     BOOST_CHECK(file.getObjectType(GROUP_1) == ObjectType::Group);
     BOOST_CHECK(file.getObjectType(GROUP_1 + "/" + DS_NAME) == ObjectType::Dataset);
     BOOST_CHECK(g.getObjectType(DS_NAME) == ObjectType::Dataset);

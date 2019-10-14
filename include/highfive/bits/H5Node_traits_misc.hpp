@@ -218,11 +218,9 @@ static inline LinkType _convert_link_type(const H5L_type_t& ltype) {
 template <typename Derivate>
 inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) const {
     H5L_info_t linkinfo;
-    H5Lget_info(static_cast<const Derivate*>(this)->getId(),
-                node_name.c_str(),
-                &linkinfo,
-                H5P_DEFAULT);
-    if (linkinfo.type == H5L_TYPE_ERROR) {
+    if (H5Lget_info(static_cast<const Derivate*>(this)->getId(),
+                    node_name.c_str(), &linkinfo, H5P_DEFAULT) < 0
+            || linkinfo.type == H5L_TYPE_ERROR) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to obtain info for link ") + node_name);
     }
