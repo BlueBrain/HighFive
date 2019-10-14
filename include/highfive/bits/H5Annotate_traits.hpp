@@ -24,7 +24,9 @@ class AnnotateTraits {
   public:
     ///
     /// \brief create a new attribute with the name attribute_name
-    /// \param attribute_name
+    /// \param attribute_name identifier of the attribute
+    /// \param space Associated \ref DataSpace
+    /// \param type
     /// \return the attribute object
     ///
     Attribute createAttribute(const std::string& attribute_name,
@@ -33,8 +35,8 @@ class AnnotateTraits {
     ///
     /// \brief createAttribute create a new attribute on the current dataset with
     /// size specified by space
-    /// \param dataset_name identifier of the attribute
-    /// \param space Associated DataSpace, see \ref DataSpace for more
+    /// \param attribute_name identifier of the attribute
+    /// \param space Associated DataSpace
     /// informations
     /// \return Attribute Object
     ///
