@@ -1086,17 +1086,22 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     std::vector<double> some_data{5.0, 6.0, 7.0};
     g.createDataSet(DS_NAME, some_data);
 
-    BOOST_CHECK(file.getLinkType("group1") == LinkType::Hard);
-    BOOST_CHECK(file.getObjectType("group1") == ObjectType::Group);
-    BOOST_CHECK(file.getObjectType("group1/ds") == ObjectType::Dataset);
-    BOOST_CHECK(g.getObjectType("ds") == ObjectType::Dataset);
+    BOOST_CHECK(file.getLinkType(GROUP_1) == LinkType::Hard);
+    BOOST_CHECK(file.getObjectType(GROUP_1) == ObjectType::Group);
+    BOOST_CHECK(file.getObjectType(GROUP_1 + "/" + DS_NAME) == ObjectType::Dataset);
+    BOOST_CHECK(g.getObjectType(DS_NAME) == ObjectType::Dataset);
 
-    BOOST_CHECK_THROW(file.getObjectType("ds"), HighFive::GroupException);
+    BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
 
     // Data type
-    auto dt = g.getDataSet("ds").getDataType();
+    auto ds = g.getDataSet(DS_NAME);
+    auto dt = ds.getDataType();
     BOOST_CHECK(dt.getClass() == DataTypeClass::Float);
     BOOST_CHECK(dt.getSize() == 8);
     BOOST_CHECK(dt.string() == "Float64");
+
+    // meta
+    BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
+    BOOST_CHECK(ds.getInfo().referenceCount() == 1);
 
 }

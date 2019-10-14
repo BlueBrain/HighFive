@@ -24,6 +24,10 @@ class AnnotateTraits;
 
 class ObjectInfo;
 
+
+///
+/// \bried Enum of the types of objects (H5O api)
+///
 enum class ObjectType {
     Invalid = -1,
     File,
@@ -54,13 +58,12 @@ class Object {
     hid_t getId() const;
 
     ///
-    /// \brief getInfo
-    /// \return Obtains several infos about the object
+    /// \brief Retrieve several infos about the current object (address, dates, etc)
     ///
     ObjectInfo getInfo() const;
 
     ///
-    /// \brief Gets the fundamental type of the object (dataset, group,...)
+    /// \brief Gets the fundamental type of the object (dataset, group, etc)
     ///
     ObjectType getType() const;
 
@@ -86,15 +89,22 @@ class Object {
 };
 
 
+///
+/// \brief A class for accessing hdf5 objects info
+///
 class ObjectInfo  {
   public:
+    /// \brief Retrieve the address of the object (within its file)
     haddr_t getAddress() const noexcept;
 
+    /// \brief Retrieve the number of references to this object
     size_t referenceCount() const noexcept;
 
-    std::time_t creationTime() const noexcept;
+    /// \brief Retrieve the object's creation time
+    time_t creationTime() const noexcept;
 
-    std::time_t modificationTime() const noexcept;
+    /// \brief Retrieve the object's last modification time
+    time_t modificationTime() const noexcept;
 
   protected:
     H5O_info_t raw_info;

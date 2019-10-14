@@ -15,7 +15,8 @@ namespace HighFive {
 
 
 ///
-/// \brief Fundamental Type classes
+/// \brief Enum of Fundamental data classes
+///
 enum class DataTypeClass {
     Time,
     Integer,
@@ -54,11 +55,10 @@ class DataType : public Object {
     /// Notice that the size of variable length sequences may have limited applicability
     ///   given that it refers to the size of the control structure. For info see
     ///   https://support.hdfgroup.org/HDF5/doc/RM/RM_H5T.html#Datatype-GetSize
-    ///
     size_t getSize() const;
 
     ///
-    /// \brief string() returns a friendly description of the type (e.g. Float32)
+    /// \brief Returns a friendly description of the type (e.g. Float32)
     ///
     std::string string() const;
 
