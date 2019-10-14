@@ -213,7 +213,7 @@ inline std::string type_class_string(DataTypeClass tclass) {
             return "Varlen";
         case DataTypeClass::Array:
             return "Array";
-        case DataTypeClass::Invalid:
+        default:
             return "(Invalid)";
     }
 }
