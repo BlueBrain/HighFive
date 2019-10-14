@@ -1,5 +1,5 @@
 add_library(HighFive INTERFACE)
-target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES} Boost::serialization)
+target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
 target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
@@ -8,6 +8,7 @@ target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
 if(USE_BOOST)
   target_include_directories(HighFive SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
   target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
+  target_link_libraries(HighFive INTERFACE Boost::serialization)
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
