@@ -144,7 +144,8 @@ class NodeTraits {
 enum class LinkType {
     Hard,
     Soft,
-    External
+    External,
+    Other  // Reserved or User-defined
 };
 
 

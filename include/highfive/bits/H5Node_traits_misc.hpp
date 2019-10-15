@@ -202,16 +202,20 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
 }
 
 
-static inline LinkType _convert_link_type(const H5L_type_t& ltype) {
+// convert internal link types to enum class.
+// This function is internal, so H5L_TYPE_ERROR shall be handled in the calling context
+static inline LinkType _convert_link_type(const H5L_type_t& ltype) noexcept {
     switch (ltype) {
         case H5L_TYPE_HARD:
             return LinkType::Hard;
         case H5L_TYPE_SOFT:
-            return LinkType::Hard;
+            return LinkType::Soft;
         case H5L_TYPE_EXTERNAL:
-            return LinkType::Hard;
+            return LinkType::External;
         default:
-            throw std::invalid_argument("Invalid Link type ");
+            // Other link types are possible but are considered strange to HighFive.
+            // see https://support.hdfgroup.org/HDF5/doc/RM/H5L/H5Lregister.htm
+            return LinkType::Other;
     }
 }
 

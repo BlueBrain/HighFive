@@ -1104,6 +1104,6 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
 
     // meta
     BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
-    BOOST_CHECK(ds.getInfo().referenceCount() == 1);
+    BOOST_CHECK(ds.getInfo().getRefCount() == 1);
 
 }

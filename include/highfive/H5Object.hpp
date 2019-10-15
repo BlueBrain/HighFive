@@ -29,13 +29,13 @@ class ObjectInfo;
 /// \bried Enum of the types of objects (H5O api)
 ///
 enum class ObjectType {
-    Invalid = -1,
     File,
     Group,
     UserDataType,
     DataSpace,
     Dataset,
-    Attribute
+    Attribute,
+    Other  // Internal/custom object type
 };
 
 
@@ -64,6 +64,8 @@ class Object {
 
     ///
     /// \brief Gets the fundamental type of the object (dataset, group, etc)
+    /// \except throws ObjectException when the _hid is negative or the type
+    ///     is custom and not registered yet
     ///
     ObjectType getType() const;
 
@@ -98,13 +100,13 @@ class ObjectInfo  {
     haddr_t getAddress() const noexcept;
 
     /// \brief Retrieve the number of references to this object
-    size_t referenceCount() const noexcept;
+    size_t getRefCount() const noexcept;
 
     /// \brief Retrieve the object's creation time
-    time_t creationTime() const noexcept;
+    time_t getCreationTime() const noexcept;
 
     /// \brief Retrieve the object's last modification time
-    time_t modificationTime() const noexcept;
+    time_t getModificationTime() const noexcept;
 
   protected:
     H5O_info_t raw_info;

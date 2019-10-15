@@ -52,7 +52,7 @@ inline bool Object::isValid() const {
 
 inline hid_t Object::getId() const { return _hid; }
 
-static ObjectType _convert_object_type(const H5I_type_t& h5type) {
+static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
     switch (h5type) {
         case H5I_FILE:
             return ObjectType::File;
@@ -67,16 +67,20 @@ static ObjectType _convert_object_type(const H5I_type_t& h5type) {
         case H5I_ATTR:
             return ObjectType::Attribute;
         default:
-            return ObjectType::Invalid;
+            return ObjectType::Other;
     }
 }
 
 inline ObjectType Object::getType() const {
-    return _convert_object_type(H5Iget_type(_hid));
+    // H5Iget_type is a very lightweight func which extracts the type from the id
+    H5I_type_t h5type;
+    if ((h5type = H5Iget_type(_hid)) == H5I_BADID) {
+        HDF5ErrMapper::ToException<ObjectException>("Invalid hid or object type");
+    }
+    return _convert_object_type(h5type);
 }
 
-
-ObjectInfo Object::getInfo() const {
+inline ObjectInfo Object::getInfo() const {
     ObjectInfo info;
     if (H5Oget_info(_hid, &info.raw_info) < 0) {
         HDF5ErrMapper::ToException<ObjectException>("Unable to obtain info for object");
@@ -84,16 +88,16 @@ ObjectInfo Object::getInfo() const {
     return info;
 }
 
-haddr_t ObjectInfo::getAddress() const noexcept {
+inline haddr_t ObjectInfo::getAddress() const noexcept {
     return raw_info.addr;
 }
-size_t ObjectInfo::referenceCount() const noexcept {
+inline size_t ObjectInfo::getRefCount() const noexcept {
     return raw_info.rc;
 }
-time_t ObjectInfo::creationTime() const noexcept {
+inline time_t ObjectInfo::getCreationTime() const noexcept {
     return raw_info.btime;
 }
-time_t ObjectInfo::modificationTime() const noexcept {
+inline time_t ObjectInfo::getModificationTime() const noexcept {
     return raw_info.mtime;
 }
 
