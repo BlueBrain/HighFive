@@ -91,7 +91,6 @@ matrix:
           - eigen
           - ninja
     - os: windows
-      env: USE_XTENSOR=False
 
 env:
   global:
