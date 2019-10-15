@@ -80,7 +80,7 @@ class Object {
 
   private:
     // Init with an low-level object id
-    Object(hid_t);
+    explicit Object(hid_t);
 
     template <typename Derivate>
     friend class NodeTraits;

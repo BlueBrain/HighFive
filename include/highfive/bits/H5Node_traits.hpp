@@ -113,7 +113,7 @@ class NodeTraits {
     ///
     /// \brief check a dataset or group exists in the current node / group
     /// \param dataset/group name to check
-    /// \return true if a dataset/group with the associated name exist, or false
+    /// \return true if a dataset/group with the associated name exists, or false
     bool exist(const std::string& node_name) const;
 
     ///
