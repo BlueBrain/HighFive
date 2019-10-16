@@ -10,6 +10,8 @@
 #define H5OBJECT_HPP
 
 #include <H5Ipublic.h>
+#include <H5Opublic.h>
+#include <ctime>
 
 namespace HighFive {
 
@@ -19,6 +21,22 @@ class NodeTraits;
 
 template <typename Derivate>
 class AnnotateTraits;
+
+class ObjectInfo;
+
+
+///
+/// \bried Enum of the types of objects (H5O api)
+///
+enum class ObjectType {
+    File,
+    Group,
+    UserDataType,
+    DataSpace,
+    Dataset,
+    Attribute,
+    Other  // Internal/custom object type
+};
 
 
 class Object {
@@ -39,6 +57,18 @@ class Object {
     ///
     hid_t getId() const;
 
+    ///
+    /// \brief Retrieve several infos about the current object (address, dates, etc)
+    ///
+    ObjectInfo getInfo() const;
+
+    ///
+    /// \brief Gets the fundamental type of the object (dataset, group, etc)
+    /// \except throws ObjectException when the _hid is negative or the type
+    ///     is custom and not registered yet
+    ///
+    ObjectType getType() const;
+
   protected:
     // empty constructor
     Object();
@@ -51,12 +81,40 @@ class Object {
     hid_t _hid;
 
   private:
+    // Init with an low-level object id
+    explicit Object(hid_t);
+
     template <typename Derivate>
     friend class NodeTraits;
     template <typename Derivate>
     friend class AnnotateTraits;
 };
-}
+
+
+///
+/// \brief A class for accessing hdf5 objects info
+///
+class ObjectInfo  {
+  public:
+    /// \brief Retrieve the address of the object (within its file)
+    haddr_t getAddress() const noexcept;
+
+    /// \brief Retrieve the number of references to this object
+    size_t getRefCount() const noexcept;
+
+    /// \brief Retrieve the object's creation time
+    time_t getCreationTime() const noexcept;
+
+    /// \brief Retrieve the object's last modification time
+    time_t getModificationTime() const noexcept;
+
+  protected:
+    H5O_info_t raw_info;
+
+    friend class Object;
+};
+
+}  // namespace HighFive
 
 #include "bits/H5Object_misc.hpp"
 

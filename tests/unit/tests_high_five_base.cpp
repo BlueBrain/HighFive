@@ -1072,3 +1072,38 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     // Using root slash
     BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
 }
+
+
+BOOST_AUTO_TEST_CASE(HighFiveInspect) {
+    const std::string FILE_NAME("group_info.h5");
+    const std::string GROUP_1("group1");
+    const std::string DS_NAME = "ds";
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    Group g = file.createGroup(GROUP_1);
+
+    std::vector<double> some_data{5.0, 6.0, 7.0};
+    g.createDataSet(DS_NAME, some_data);
+
+    BOOST_CHECK(file.getLinkType(GROUP_1) == LinkType::Hard);
+    BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+
+    BOOST_CHECK(file.getObjectType(GROUP_1) == ObjectType::Group);
+    BOOST_CHECK(file.getObjectType(GROUP_1 + "/" + DS_NAME) == ObjectType::Dataset);
+    BOOST_CHECK(g.getObjectType(DS_NAME) == ObjectType::Dataset);
+
+    BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
+
+    // Data type
+    auto ds = g.getDataSet(DS_NAME);
+    auto dt = ds.getDataType();
+    BOOST_CHECK(dt.getClass() == DataTypeClass::Float);
+    BOOST_CHECK(dt.getSize() == 8);
+    BOOST_CHECK(dt.string() == "Float64");
+
+    // meta
+    BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
+    BOOST_CHECK(ds.getInfo().getRefCount() == 1);
+
+}
