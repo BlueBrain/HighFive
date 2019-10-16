@@ -30,7 +30,10 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
+
+
 namespace HighFive {
+
 
 template <typename Derivate>
 inline DataSet
@@ -197,6 +200,59 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
     }
     return _exist(group_path);
 }
+
+
+// convert internal link types to enum class.
+// This function is internal, so H5L_TYPE_ERROR shall be handled in the calling context
+static inline LinkType _convert_link_type(const H5L_type_t& ltype) noexcept {
+    switch (ltype) {
+        case H5L_TYPE_HARD:
+            return LinkType::Hard;
+        case H5L_TYPE_SOFT:
+            return LinkType::Soft;
+        case H5L_TYPE_EXTERNAL:
+            return LinkType::External;
+        default:
+            // Other link types are possible but are considered strange to HighFive.
+            // see https://support.hdfgroup.org/HDF5/doc/RM/H5L/H5Lregister.htm
+            return LinkType::Other;
+    }
+}
+
+template <typename Derivate>
+inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) const {
+    H5L_info_t linkinfo;
+    if (H5Lget_info(static_cast<const Derivate*>(this)->getId(),
+                    node_name.c_str(), &linkinfo, H5P_DEFAULT) < 0
+            || linkinfo.type == H5L_TYPE_ERROR) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to obtain info for link ") + node_name);
+    }
+    return _convert_link_type(linkinfo.type);
+}
+
+template <typename Derivate>
+inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_name) const {
+    return _open(node_name).getType();
+}
+
+
+template <typename Derivate>
+inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
+                                          const DataSetAccessProps& accessProps) const {
+    hid_t id = H5Oopen(static_cast<const Derivate*>(this)->getId(),
+                       node_name.c_str(),
+                       accessProps.getId());
+    if (id < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to open \"") + node_name + "\":");
+    }
+    return Object(id);
+}
+
+
+
+
 
 }  // namespace HighFive
 
