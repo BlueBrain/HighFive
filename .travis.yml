@@ -114,12 +114,11 @@ install:
       export CMAKE_GENERATOR="Ninja" ;
       export TESTS_TARGET="test";
       wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
-      bash miniconda.sh -b -p $HOME/miniconda;
+      bash miniconda.sh -b -p $HOME/miniconda ;
       source $HOME/miniconda/bin/activate;
       hash -r ;
     fi
   - conda config --set always_yes yes --set changeps1 no
-  - pip uninstall -y setuptools; conda install setuptools  # Workaround for https://github.com/conda/conda/issues/9337
   - conda update -q conda
   - conda install -c conda-forge xtl xsimd xtensor
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
