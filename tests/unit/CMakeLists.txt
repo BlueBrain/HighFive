@@ -15,6 +15,10 @@ foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_fiv
                         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES}
                         HighFive)
 
+  if(HIGHFIVE_PARALLEL_HDF5)
+    target_link_libraries(${test_name} ${MPI_C_LIBRARIES})
+  endif()
+
   target_compile_options(${test_name} PRIVATE "${HIGHFIVE_CPP_STD_FLAG}")
 
   add_test(NAME ${test_name} COMMAND ${test_name})

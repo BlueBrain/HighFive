@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include <highfive/H5.hpp>
+#include <HighFive.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTestBase
 #include <boost/test/unit_test.hpp>

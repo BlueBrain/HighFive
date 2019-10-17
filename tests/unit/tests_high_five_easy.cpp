@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-#include <highfive/H5Easy.hpp>
+#include <HighFive.hpp>
 
 #ifdef H5_USE_XTENSOR
 #include <xtensor/xrandom.hpp>
