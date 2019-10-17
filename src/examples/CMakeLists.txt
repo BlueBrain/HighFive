@@ -26,10 +26,7 @@ function(compile_example exemple_source)
     endif()
 
     add_executable(${example_name} ${exemple_source})
-    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES} HighFive)
-    if(HIGHFIVE_PARALLEL_HDF5)
-        target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
-    endif()
+    target_link_libraries(${example_name} HighFive)
     target_compile_options(${example_name} PUBLIC ${HIGHFIVE_CPP_STD_FLAG})
 
 endfunction()
