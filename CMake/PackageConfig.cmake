@@ -15,8 +15,9 @@ endif()
 
 # BOOST
 if(USE_BOOST)
-  target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
   target_include_directories(HighFive SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
+  target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
+  target_link_libraries(HighFive INTERFACE ${Boost_SERIALIZATION_LIBRARIES})
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
