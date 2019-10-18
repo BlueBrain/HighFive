@@ -5,8 +5,6 @@ function(compile_example exemple_source)
     get_filename_component(example_filename ${exemple_source} NAME)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
-    set(require_cpp11 FALSE)
-
     if(${example_filename} MATCHES ".*boost.*")
         if(NOT USE_BOOST)
             return()
@@ -19,18 +17,11 @@ function(compile_example exemple_source)
         endif()
     endif()
 
-    if(require_cpp11)
-        if(NOT COMPILER_SUPPORTS_CXX11)
-            return()
-	    endif()
-    endif()
-
     add_executable(${example_name} ${exemple_source})
-    target_link_libraries(${example_name} ${HDF5_C_LIBRARIES} HighFive)
+    target_link_libraries(${example_name} HighFive ${HDF5_C_LIBRARIES})
     if(HIGHFIVE_PARALLEL_HDF5)
         target_link_libraries(${example_name} ${MPI_C_LIBRARIES})
     endif()
-    target_compile_options(${example_name} PUBLIC ${HIGHFIVE_CPP_STD_FLAG})
 
 endfunction()
 
