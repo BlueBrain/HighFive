@@ -12,9 +12,7 @@ target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
 if(HIGHFIVE_PARALLEL_HDF5)
   target_include_directories(HighFive SYSTEM INTERFACE ${MPI_C_INCLUDE_PATH})
   target_link_libraries(HighFive INTERFACE ${MPI_C_LIBRARIES})
-  if(CMAKE_VERSION VERSION_GREATER 3.13)
-    target_link_options(HighFive INTERFACE ${MPI_C_LINK_FLAGS})
-  endif()
+  set_target_properties(HighFive PROPERTIES LINK_FLAGS ${MPI_C_LINK_FLAGS})
 endif()
 
 # BOOST
