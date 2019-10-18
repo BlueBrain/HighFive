@@ -13,7 +13,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/packages
   ${PROJECT_SOURCE_DIR}/CMake/config)
 
-include(DefineInstallationPaths)
+include(CompilerFlagsHelpers)
 include(ReleaseDebugAutoFlags)
 include(CheckCXXStandardSupport)
 include(BlueGenePortability)
@@ -67,13 +67,11 @@ if(USE_XTENSOR)
     if(NOT COMPILER_SUPPORTS_CXX14)
         message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
     else()
-        set(HIGHFIVE_CPP_STD_FLAG "${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" CACHE STRING "flag to use to enforce c++ standard (default:c++11)")
+        set(CMAKE_CXX_STANDARD 14)
         find_package(xtensor REQUIRED)
         include_directories(SYSTEM $<TARGET_PROPERTY:xtensor,INTERFACE_INCLUDE_DIRECTORIES>)
         add_definitions(-DH5_USE_XTENSOR)
     endif()
-else()
-   set(HIGHFIVE_CPP_STD_FLAG "${CMAKE_CXX11_STANDARD_COMPILE_OPTION}" CACHE STRING "flag to use to enforce c++ standard (default: c++11)")
 endif()
 
 
@@ -85,13 +83,15 @@ endif()
 
 # HighFive as a subproject and using the the same filename
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
-select_recent_cxx_standard_available()
 
+# Some compilers default to old C++. If not chosen, select C++ 14 or 11 as available
+select_recent_cxx_standard_available()
 
 if(CMAKE_CXX_COMPILER_IS_ICC)
     # ICC gets mad if we shorten ints
     add_definitions("-wd1682")
 endif()
+
 
 if(HIGHFIVE_EXAMPLES)
   add_subdirectory(src/examples)

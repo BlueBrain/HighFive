@@ -3,10 +3,7 @@ add_library(HighFive INTERFACE)
 # Public headers
 target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-  "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
-  "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>")
-
-# HDF5
+  "$<INSTALL_INTERFACE:include>")
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
 target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
 target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
@@ -20,17 +17,15 @@ endif()
 if(USE_BOOST)
   target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
   target_include_directories(HighFive SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
-  target_link_libraries(HighFive INTERFACE Boost::serialization)
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
-  DESTINATION ${INCLUDE_INSTALL_DIR})
+  DESTINATION "include")
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
   ${PROJECT_BINARY_DIR}/HighFiveConfig.cmake
-  INSTALL_DESTINATION share/${PROJECT_NAME}/CMake
-  )
+  INSTALL_DESTINATION share/${PROJECT_NAME}/CMake)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
