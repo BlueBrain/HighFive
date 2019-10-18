@@ -2,7 +2,7 @@ if(NOT HIGHFIVE_UNIT_TESTS OR NOT USE_BOOST)
   return()
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/include ${HDF5_INCLUDE_DIRS})
+include_directories(${HDF5_INCLUDE_DIRS})
 
 if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
