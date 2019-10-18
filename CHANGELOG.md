@@ -1,7 +1,17 @@
 ## master
-    - Support for chunk cache configuration at data set create/open
-    - Support for std::array (unnested)
+### API:
+    - DataType class gained getClass(), getSize() and string()
+    - Object gained getInfo() and getType()
+    - Node_Traits gained getLinkType() and getObjectType()
+    - Node_Traits::createGroup() gained the parents argument to specify if intermediates groups should be created too
     - Added AnnotateTraits::createAttribute and NodeTraits::createDataset overloads to create and initialize the data in a single call
+    - Add the new H5Easy high level API.
+
+
+### FEATURE:
+    - Add a lot of new platform supported on travis (xcode, windows, clang, ...)
+    - DataSet now accept std::array and std::complex type
+    - Support for chunk cache configuration at data set create/open
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
