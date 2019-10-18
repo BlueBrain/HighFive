@@ -4,7 +4,6 @@ project(HighFive VERSION 2.0)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
-  ${PROJECT_SOURCE_DIR}/CMake/packages
   ${PROJECT_SOURCE_DIR}/CMake/config)
 
 include(DefineInstallationPaths)
