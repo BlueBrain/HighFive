@@ -175,6 +175,11 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name) const {
+    // The root path always exists, but H5Lexists return 0 or 1
+    // depending of the version of HDF5, so always return true for it
+    if (node_name == "/")
+        return true;
+
     htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                            node_name.c_str(), H5P_DEFAULT);
     if (val < 0) {
