@@ -82,7 +82,7 @@ matrix:
     # osx
     - env: USE_XTENSOR=True
       os: osx
-      osx_image: xcode10.2
+      osx_image: xcode10.3
       addons:
         homebrew:
           packages:
