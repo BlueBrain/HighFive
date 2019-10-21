@@ -1,4 +1,4 @@
-## master
+## Version 2.1 - 2019/10/XX
 ### API:
     - DataType class gained getClass(), getSize() and string()
     - Object gained getInfo() and getType()
@@ -6,7 +6,6 @@
     - Node_Traits::createGroup() gained the parents argument to specify if intermediates groups should be created too
     - Added AnnotateTraits::createAttribute and NodeTraits::createDataset overloads to create and initialize the data in a single call
     - Add the new H5Easy high level API.
-
 
 ### FEATURE:
     - Add a lot of new platform supported on travis (xcode, windows, clang, ...)
@@ -39,7 +38,6 @@
     - Introduce SilenceHDF5 for HDF5 error report
     - Fix a unit test issue with SilenceHDF5
 
-
 ## Version 1.3 - 2017/06/21
     - Minor fixes
 
@@ -55,7 +53,6 @@
     - Support for Attributes
     - Improve documentation
     - Add example for boost.Ublas matrix support
-
 
 ## Version 1.0 - Init
 	- Initial release

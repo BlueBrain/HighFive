@@ -5,7 +5,7 @@ else()
     cmake_policy(VERSION 3.13)
 endif()
 
-project(HighFive VERSION 2.0)
+project(HighFive VERSION 2.1)
 
 add_subdirectory("./deps/hpc-coding-conventions/cpp/")
 
