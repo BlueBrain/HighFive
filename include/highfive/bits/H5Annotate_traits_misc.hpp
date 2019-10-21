@@ -9,14 +9,13 @@
 #ifndef H5ANNOTATE_TRAITS_MISC_HPP
 #define H5ANNOTATE_TRAITS_MISC_HPP
 
-#include "H5Annotate_traits.hpp"
-#include "H5Iterables_misc.hpp"
-
 #include <string>
 #include <vector>
 
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
+
+#include "H5Iterables_misc.hpp"
 
 namespace HighFive {
 

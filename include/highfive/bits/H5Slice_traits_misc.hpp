@@ -9,8 +9,6 @@
 #ifndef H5SLICE_TRAITS_MISC_HPP
 #define H5SLICE_TRAITS_MISC_HPP
 
-#include "H5Slice_traits.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <functional>

@@ -11,9 +11,9 @@
 
 #include <vector>
 
-#include "H5Object.hpp"
 #include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
+#include "H5Object.hpp"
 #include "bits/H5Annotate_traits.hpp"
 
 namespace HighFive {

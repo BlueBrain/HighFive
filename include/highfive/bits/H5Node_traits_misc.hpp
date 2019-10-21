@@ -19,11 +19,10 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
+#include "H5Iterables_misc.hpp"
 #include "../H5DataSet.hpp"
 #include "../H5Selection.hpp"
 #include "../H5Utility.hpp"
-
-#include "H5Iterables_misc.hpp"
 
 namespace HighFive {
 

@@ -9,9 +9,9 @@
 #ifndef H5DATASPACE_MISC_HPP
 #define H5DATASPACE_MISC_HPP
 
-#include <vector>
 #include <array>
 #include <initializer_list>
+#include <vector>
 
 #include <H5Spublic.h>
 

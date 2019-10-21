@@ -10,6 +10,7 @@
 #define H5FILE_MISC_HPP
 
 #include <string>
+
 #include <H5Fpublic.h>
 
 #include "../H5Utility.hpp"

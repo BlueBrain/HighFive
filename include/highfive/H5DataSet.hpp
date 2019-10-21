@@ -11,9 +11,9 @@
 
 #include <vector>
 
-#include "H5Object.hpp"
-#include "H5DataType.hpp"
 #include "H5DataSpace.hpp"
+#include "H5DataType.hpp"
+#include "H5Object.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Slice_traits.hpp"
 
@@ -96,8 +96,9 @@ class DataSet : public Object,
 
 #include "bits/H5DataSet_misc.hpp"
 
-// To avoid loops, we bring the direct client
-#include "H5Selection.hpp"  // bring SliceTraits
-#include "H5Attribute.hpp"  // bring AnnotateTraits
+// To avoid loops, we must bring the respective top-level header
+// Only the headers representing a trait can include directly their implementation
+#include "H5Attribute.hpp"  // top-level header of AnnotateTraits
+#include "H5Selection.hpp"  // top-level header of SliceTraits
 
 #endif // H5DATASET_HPP

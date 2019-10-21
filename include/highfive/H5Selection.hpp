@@ -9,8 +9,8 @@
 #ifndef H5SELECTION_HPP
 #define H5SELECTION_HPP
 
-#include "H5DataSpace.hpp"
 #include "H5DataSet.hpp"
+#include "H5DataSpace.hpp"
 #include "bits/H5Slice_traits.hpp"
 
 namespace HighFive {

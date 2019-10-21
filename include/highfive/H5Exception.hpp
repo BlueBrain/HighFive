@@ -12,9 +12,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "bits/H5Utils.hpp"
+#include <H5Ipublic.h>
 
-#include <H5Ipublic.h>  // for hid_t
+#include "bits/H5Utils.hpp"
 
 namespace HighFive {
 

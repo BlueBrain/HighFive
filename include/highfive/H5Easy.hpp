@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "H5File.hpp"
-
 // optionally enable plug-in xtensor and load the library
 #ifdef XTENSOR_VERSION_MAJOR
 #ifndef H5_USE_XTENSOR
@@ -36,6 +34,8 @@
 #ifdef H5_USE_EIGEN
 #include <Eigen/Eigen>
 #endif
+
+#include "H5File.hpp"
 
 namespace H5Easy {
 

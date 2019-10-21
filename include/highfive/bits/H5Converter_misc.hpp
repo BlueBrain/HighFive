@@ -18,7 +18,6 @@
 #include <array>
 
 #ifdef H5_USE_BOOST
-
 // starting Boost 1.64, serialization header must come before ublas
 #include <boost/serialization/vector.hpp>
 #include <boost/multi_array.hpp>
