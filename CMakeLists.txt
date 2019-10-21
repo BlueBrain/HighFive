@@ -37,7 +37,6 @@ if(HIGHFIVE_PARALLEL_HDF5)
     set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 find_package(HDF5 REQUIRED)
-add_definitions(${HDF5_DEFINITIONS})
 
 
 set(Boost_NO_BOOST_CMAKE TRUE)
@@ -48,7 +47,6 @@ if(USE_BOOST)
   endif()
   find_package(Boost REQUIRED COMPONENTS ${BOOST_REQ_COMPONENTS})
   add_definitions(-DH5_USE_BOOST)
-  include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 endif()
 
 
@@ -79,7 +77,6 @@ endif()
 
 if(HIGHFIVE_PARALLEL_HDF5)
   find_package(MPI REQUIRED)
-  include_directories("${MPI_C_HEADER_DIR}")
   add_definitions("-DMPI_NO_CPPBIND")
 endif()
 
