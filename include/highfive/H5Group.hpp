@@ -22,13 +22,10 @@ class File;
 class Group : public Object,
               public NodeTraits<Group>,
               public AnnotateTraits<Group> {
-  private:
+  public:
     Group();
 
     friend class File;
-
-    template <typename>
-    friend class NodeTraits;
 };
 }
 
