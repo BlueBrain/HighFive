@@ -10,8 +10,6 @@
 #ifndef H5FILEDRIVER_MISC_HPP
 #define H5FILEDRIVER_MISC_HPP
 
-#include "../H5FileDriver.hpp"
-
 #include <H5Ppublic.h>
 
 #ifdef H5_HAVE_PARALLEL

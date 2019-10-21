@@ -22,10 +22,6 @@
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
-#include "../H5Attribute.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-
 #include "H5Converter_misc.hpp"
 #include "H5Utils.hpp"
 

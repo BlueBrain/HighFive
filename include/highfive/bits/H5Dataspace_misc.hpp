@@ -15,9 +15,6 @@
 
 #include <H5Spublic.h>
 
-#include "../H5DataSpace.hpp"
-#include "../H5Exception.hpp"
-
 #include "H5Utils.hpp"
 
 namespace HighFive {

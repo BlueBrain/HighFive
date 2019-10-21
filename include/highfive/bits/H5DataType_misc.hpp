@@ -12,9 +12,6 @@
 #include <string>
 #include <complex>
 
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-
 #include <H5Tpublic.h>
 
 

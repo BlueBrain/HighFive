@@ -12,9 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "H5DataSet.hpp"
-#include "H5DataSpace.hpp"
-#include "H5DataType.hpp"
 #include "H5File.hpp"
 
 // optionally enable plug-in xtensor and load the library
@@ -213,10 +210,10 @@ inline T load(const File& file, const std::string& path);
 
 }  // namespace H5Easy
 
-#include "bits/H5Easy_misc.hpp"
-#include "bits/H5Easy_scalar.hpp"
-#include "bits/H5Easy_vector.hpp"
-#include "bits/H5Easy_Eigen.hpp"
-#include "bits/H5Easy_xtensor.hpp"
+#include "h5easy_bits/H5Easy_misc.hpp"
+#include "h5easy_bits/H5Easy_scalar.hpp"
+#include "h5easy_bits/H5Easy_vector.hpp"
+#include "h5easy_bits/H5Easy_Eigen.hpp"
+#include "h5easy_bits/H5Easy_xtensor.hpp"
 
 #endif  // H5EASY_HPP

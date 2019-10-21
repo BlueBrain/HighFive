@@ -9,15 +9,11 @@
 #ifndef H5SELECTION_HPP
 #define H5SELECTION_HPP
 
+#include "H5DataSpace.hpp"
 #include "H5DataSet.hpp"
-#include "H5Object.hpp"
-
 #include "bits/H5Slice_traits.hpp"
 
 namespace HighFive {
-
-template <typename Derivate>
-class SliceTraits;
 
 ///
 /// \brief Selection: represent a view on a slice/part of a dataset
@@ -59,6 +55,7 @@ class Selection : public SliceTraits<Selection> {
 };
 }
 
+#include "bits/H5Slice_traits_misc.hpp"
 #include "bits/H5Selection_misc.hpp"
 
 #endif // H5SELECTION_HPP

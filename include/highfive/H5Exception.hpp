@@ -14,6 +14,8 @@
 
 #include "bits/H5Utils.hpp"
 
+#include <H5Ipublic.h>  // for hid_t
+
 namespace HighFive {
 
 ///

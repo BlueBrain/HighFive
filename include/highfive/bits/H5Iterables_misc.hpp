@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include "../H5Exception.hpp"
-
 #include <H5Ipublic.h>
 
 namespace HighFive {

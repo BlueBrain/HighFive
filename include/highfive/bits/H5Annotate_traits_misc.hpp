@@ -15,12 +15,8 @@
 #include <string>
 #include <vector>
 
-#include "../H5Attribute.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-
 #include <H5Apublic.h>
+#include <H5Ppublic.h>
 
 namespace HighFive {
 

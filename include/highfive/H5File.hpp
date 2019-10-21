@@ -11,9 +11,8 @@
 
 #include <string>
 
-#include "H5FileDriver.hpp"
 #include "H5Object.hpp"
-
+#include "H5FileDriver.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Node_traits.hpp"
 
@@ -72,6 +71,8 @@ class File : public Object,
 }  // namespace HighFive
 
 #include "bits/H5File_misc.hpp"
+#include "H5Attribute.hpp"  // for AnnotateTraits
+#include "H5Group.hpp"      // for Node
 
 #endif  // H5FILE_HPP
 

@@ -9,9 +9,6 @@
 #ifndef H5OBJECT_MISC_HPP
 #define H5OBJECT_MISC_HPP
 
-#include "../H5Exception.hpp"
-#include "../H5Object.hpp"
-
 #include <iostream>
 
 namespace HighFive {

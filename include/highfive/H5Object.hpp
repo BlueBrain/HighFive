@@ -9,6 +9,8 @@
 #ifndef H5OBJECT_HPP
 #define H5OBJECT_HPP
 
+#include "H5Exception.hpp"
+
 #include <H5Ipublic.h>
 #include <H5Opublic.h>
 #include <ctime>

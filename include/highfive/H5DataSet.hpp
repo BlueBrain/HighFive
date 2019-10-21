@@ -12,6 +12,8 @@
 #include <vector>
 
 #include "H5Object.hpp"
+#include "H5DataType.hpp"
+#include "H5DataSpace.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Slice_traits.hpp"
 
@@ -19,11 +21,10 @@ namespace HighFive {
 
 template <typename Derivate>
 class NodeTraits;
-template <typename Derivate>
-class SliceTraits;
-class DataType;
-class DataSpace;
 
+///
+/// \brief Class representing a dataset.
+///
 class DataSet : public Object,
                 public SliceTraits<DataSet>,
                 public AnnotateTraits<DataSet> {
@@ -94,5 +95,9 @@ class DataSet : public Object,
 }  // namespace HighFive
 
 #include "bits/H5DataSet_misc.hpp"
+
+// To avoid loops, we bring the direct client
+#include "H5Selection.hpp"  // bring SliceTraits
+#include "H5Attribute.hpp"  // bring AnnotateTraits
 
 #endif // H5DATASET_HPP
