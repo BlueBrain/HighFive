@@ -82,16 +82,9 @@ matrix:
     # osx
     - env:
       - USE_XTENSOR=True
-      - HOMEBREW_NO_AUTO_UPDATE=1
       os: osx
       osx_image: xcode10.3
-      addons:
-        homebrew:
-          packages:
-          - boost
-          - hdf5
-          - eigen
-          - ninja
+
     - os: windows
 
 env:
@@ -104,6 +97,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       MINCONDA_OS=$MINCONDA_LINUX;
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      HOMEBREW_NO_AUTO_UPDATE=1 brew install boost hdf5 eigen ninja;
       MINCONDA_OS=$MINCONDA_OSX;
     fi
 
@@ -141,6 +135,7 @@ script:
   - mkdir -p build && pushd build
   - >
     cmake --warn-uninitialized --debug-output
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     -DHIGHFIVE_TEST_SINGLE_INCLUDES:BOOL=ON
     -DUSE_EIGEN:BOOL=ON
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
