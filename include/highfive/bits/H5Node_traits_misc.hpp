@@ -177,10 +177,17 @@ template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name) const {
     htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                            node_name.c_str(), H5P_DEFAULT);
+
     if (val < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Invalid link for exist() "));
     }
+
+    // The root path always exists, but H5Lexists return 0 or 1
+    // depending of the version of HDF5, so always return true for it
+    // We should call H5Lexists anyway to check that no error is returned
+    if (node_name == "/")
+        return true;
 
     return (val > 0);
 }
