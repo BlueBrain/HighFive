@@ -80,7 +80,9 @@ matrix:
       addons: *clang7
 
     # osx
-    - env: USE_XTENSOR=True
+    - env:
+      - USE_XTENSOR=True
+      - HOMEBREW_NO_AUTO_UPDATE=1
       os: osx
       osx_image: xcode10.3
       addons:
