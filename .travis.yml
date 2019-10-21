@@ -139,10 +139,10 @@ script:
   - mkdir -p build && pushd build
   - >
     cmake --warn-uninitialized --debug-output
+    -DHIGHFIVE_SINGLE_INCLUDE_TESTS=ON
     -DUSE_EIGEN:BOOL=ON
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
 
- 

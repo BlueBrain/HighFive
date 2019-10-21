@@ -41,9 +41,9 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 
 
-option(HIGHFIVE_SINGE_INCLUDE_TESTS "Enable testing single includes" FALSE)
+option(HIGHFIVE_SINGLE_INCLUDE_TESTS "Enable testing single includes" FALSE)
 
-if(HIGHFIVE_SINGE_INCLUDE_TESTS)
+if(HIGHFIVE_SINGLE_INCLUDE_TESTS)
     file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
     foreach(PUBLIC_HEADER ${public_headers})
         get_filename_component(CLASS_NAME ${PUBLIC_HEADER} NAME_WE)
