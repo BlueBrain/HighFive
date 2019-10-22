@@ -7,6 +7,7 @@ endif()
 
 project(HighFive VERSION 2.0)
 
+add_subdirectory("./deps/hpc-coding-conventions/cpp/")
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
