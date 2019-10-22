@@ -9,13 +9,16 @@
 #ifndef H5PROPERTY_LIST_HPP
 #define H5PROPERTY_LIST_HPP
 
-#include "H5Object.hpp"
-
 #include <H5Ppublic.h>
+
+#include "H5Exception.hpp"
+#include "H5Object.hpp"
 
 namespace HighFive {
 
-
+///
+/// \brief Types of property lists
+///
 enum class PropertyType : int {
     OBJECT_CREATE,
     FILE_CREATE,

@@ -11,13 +11,13 @@
 
 // internal utilities functions
 #include <algorithm>
+#include <array>
 #include <cstddef> // __GLIBCXX__
 #include <exception>
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <array>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>

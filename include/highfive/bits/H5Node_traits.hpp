@@ -11,13 +11,16 @@
 
 #include <string>
 
+#include "../H5PropertyList.hpp"
+
 namespace HighFive {
 
 class Attribute;
 class DataSet;
-class Group;
 class DataSpace;
 class DataType;
+class Group;
+
 
 enum class LinkType;
 
@@ -151,6 +154,5 @@ enum class LinkType {
 
 }  // namespace HighFive
 
-#include "H5Node_traits_misc.hpp"
 
 #endif  // H5NODE_TRAITS_HPP

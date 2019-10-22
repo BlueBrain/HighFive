@@ -31,3 +31,15 @@ if(HIGHFIVE_PARALLEL_HDF5)
 
 endif()
 
+
+option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
+
+if(HIGHFIVE_TEST_SINGLE_INCLUDES)
+    file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
+    foreach(PUBLIC_HEADER ${public_headers})
+        get_filename_component(CLASS_NAME ${PUBLIC_HEADER} NAME_WE)
+        configure_file(tests_import_public_headers.cpp "tests_${CLASS_NAME}.cpp" @ONLY)
+        add_executable("tests_include_${CLASS_NAME}" "${CMAKE_CURRENT_BINARY_DIR}/tests_${CLASS_NAME}.cpp")
+        target_link_libraries("tests_include_${CLASS_NAME}" HighFive)
+    endforeach()
+endif()

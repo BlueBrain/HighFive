@@ -9,19 +9,8 @@
 #ifndef H5NODE_TRAITS_MISC_HPP
 #define H5NODE_TRAITS_MISC_HPP
 
-#include "H5Iterables_misc.hpp"
-#include "H5Node_traits.hpp"
-
 #include <string>
 #include <vector>
-
-#include "../H5Attribute.hpp"
-#include "../H5DataSet.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-#include "../H5Group.hpp"
-#include "../H5Utility.hpp"
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
@@ -30,7 +19,10 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
-
+#include "H5Iterables_misc.hpp"
+#include "../H5DataSet.hpp"
+#include "../H5Selection.hpp"
+#include "../H5Utility.hpp"
 
 namespace HighFive {
 
@@ -256,8 +248,6 @@ inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
     }
     return Object(id);
 }
-
-
 
 
 

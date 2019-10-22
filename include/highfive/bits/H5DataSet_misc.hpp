@@ -22,11 +22,6 @@
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
-#include "../H5DataSet.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-
-#include "H5Slice_traits_misc.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive {

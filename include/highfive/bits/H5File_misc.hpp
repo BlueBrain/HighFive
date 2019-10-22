@@ -10,11 +10,10 @@
 #define H5FILE_MISC_HPP
 
 #include <string>
-#include "../H5Exception.hpp"
-#include "../H5File.hpp"
-#include "../H5Utility.hpp"
 
 #include <H5Fpublic.h>
+
+#include "../H5Utility.hpp"
 
 namespace HighFive {
 

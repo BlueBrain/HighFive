@@ -9,8 +9,6 @@
 #ifndef H5SLICE_TRAITS_MISC_HPP
 #define H5SLICE_TRAITS_MISC_HPP
 
-#include "H5Slice_traits.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <functional>
@@ -19,19 +17,14 @@
 #include <string>
 
 #ifdef H5_USE_BOOST
-// In some versions of Boost (starting with 1.64), you have to include the serialization header before ublas
+// starting Boost 1.64, serialization header must come before ublas
 #include <boost/serialization/vector.hpp>
-
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
-
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-#include "../H5Selection.hpp"
 
 #include "H5Converter_misc.hpp"
 

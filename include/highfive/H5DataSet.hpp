@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include "H5DataSpace.hpp"
+#include "H5DataType.hpp"
 #include "H5Object.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Slice_traits.hpp"
@@ -19,11 +21,10 @@ namespace HighFive {
 
 template <typename Derivate>
 class NodeTraits;
-template <typename Derivate>
-class SliceTraits;
-class DataType;
-class DataSpace;
 
+///
+/// \brief Class representing a dataset.
+///
 class DataSet : public Object,
                 public SliceTraits<DataSet>,
                 public AnnotateTraits<DataSet> {
@@ -94,5 +95,10 @@ class DataSet : public Object,
 }  // namespace HighFive
 
 #include "bits/H5DataSet_misc.hpp"
+
+// To avoid loops, we must bring the respective top-level header
+// Only the headers representing a trait can include directly their implementation
+#include "H5Attribute.hpp"  // top-level header of AnnotateTraits
+#include "H5Selection.hpp"  // top-level header of SliceTraits
 
 #endif // H5DATASET_HPP

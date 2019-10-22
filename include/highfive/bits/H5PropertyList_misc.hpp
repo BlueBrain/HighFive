@@ -11,8 +11,6 @@
 
 #include <H5Ppublic.h>
 
-#include "../H5PropertyList.hpp"
-
 namespace HighFive {
 
 namespace {
