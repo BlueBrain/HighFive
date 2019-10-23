@@ -14,7 +14,9 @@
 
 namespace HighFive {
 
+///
 /// \brief Utility class to disable HDF5 stack printing inside a scope.
+///
 class SilenceHDF5 {
 public:
     inline SilenceHDF5()

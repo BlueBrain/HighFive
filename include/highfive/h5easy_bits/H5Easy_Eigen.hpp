@@ -23,7 +23,7 @@ namespace eigen {
 
 // return the shape of the "Eigen::Matrix" as size 1 or 2 "std::vector<size_t>"
 template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-std::vector<size_t> shape(const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
+inline std::vector<size_t> shape(const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
 {
     if (Rows == 1) {
         return {static_cast<size_t>(data.cols())};
@@ -38,10 +38,10 @@ std::vector<size_t> shape(const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCol
 }
 
 // get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
-std::vector<Eigen::Index> shape(const File& file,
-                                const std::string& path,
-                                const DataSet& dataset,
-                                int RowsAtCompileTime)
+inline std::vector<Eigen::Index> shape(const File& file,
+                                       const std::string& path,
+                                       const DataSet& dataset,
+                                       int RowsAtCompileTime)
 {
     std::vector<size_t> dims = dataset.getDimensions();
 
@@ -66,8 +66,8 @@ std::vector<Eigen::Index> shape(const File& file,
 // write to open DataSet of the correct size
 // (use Eigen::Ref to convert to RowMajor; no action if no conversion is needed)
 template <class C, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-void write(DataSet& dataset,
-           const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
+inline void write(DataSet& dataset,
+                  const Eigen::Matrix<C,Rows,Cols,Options,MaxRows,MaxCols>& data)
 {
     Eigen::Ref<
         const Eigen::Matrix<

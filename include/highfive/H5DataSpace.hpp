@@ -16,10 +16,8 @@
 #include <initializer_list>
 
 #ifdef H5_USE_BOOST
-
-// In some versions of Boost (starting with 1.64), you have to include the serialization header before ublas
+// starting Boost 1.64, serialization header must come before ublas
 #include <boost/serialization/vector.hpp>
-
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
@@ -31,6 +29,9 @@ namespace HighFive {
 class File;
 class DataSet;
 
+///
+/// \brief Class representing the space (dimensions) of a dataset
+///
 class DataSpace : public Object {
   public:
 
@@ -51,7 +52,7 @@ class DataSpace : public Object {
     explicit DataSpace(const std::vector<size_t>& dims);
 
     /// Make sure that DataSpace({1,2,3}) works on GCC. This is
-    /// the shortcut form of the vector initalizer, but one some compilers (gcc)
+    /// the shortcut form of the vector initializer, but one some compilers (gcc)
     /// this does not resolve correctly without this constructor.
     explicit DataSpace(std::initializer_list<size_t> items);
 

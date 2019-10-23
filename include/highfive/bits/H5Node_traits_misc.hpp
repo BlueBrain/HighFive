@@ -9,19 +9,8 @@
 #ifndef H5NODE_TRAITS_MISC_HPP
 #define H5NODE_TRAITS_MISC_HPP
 
-#include "H5Iterables_misc.hpp"
-#include "H5Node_traits.hpp"
-
 #include <string>
 #include <vector>
-
-#include "../H5Attribute.hpp"
-#include "../H5DataSet.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-#include "../H5Group.hpp"
-#include "../H5Utility.hpp"
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
@@ -30,7 +19,13 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
+#include "H5Iterables_misc.hpp"
+#include "../H5DataSet.hpp"
+#include "../H5Selection.hpp"
+#include "../H5Utility.hpp"
+
 namespace HighFive {
+
 
 template <typename Derivate>
 inline DataSet
@@ -131,21 +126,23 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
-    const ssize_t maxLength = 1023;
+    const size_t maxLength = 255;
     char buffer[maxLength + 1];
-    ssize_t length = H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME,
-        H5_ITER_INC, index, buffer, maxLength, H5P_DEFAULT);
-    if (length < 0)
-        HDF5ErrMapper::ToException<GroupException>(
-            "Error accessing object name");
-    if (length <= maxLength)
-        return std::string(buffer, static_cast<std::size_t>(length));
-    std::vector<char> bigBuffer(static_cast<std::size_t>(length) + 1, 0);
-    H5Lget_name_by_idx(static_cast<const Derivate*>(this)->getId(), ".",
-                       H5_INDEX_NAME, H5_ITER_INC, index, bigBuffer.data(),
-                       static_cast<hsize_t>(length), H5P_DEFAULT);
-    return std::string(bigBuffer.data(), static_cast<size_t>(length));
+    ssize_t retcode = H5Lget_name_by_idx(
+        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+        index, buffer, static_cast<hsize_t>(maxLength) + 1, H5P_DEFAULT);
+    if (retcode < 0) {
+        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    }
+    const size_t length = static_cast<std::size_t>(retcode);
+    if (length <= maxLength) {
+        return std::string(buffer, length);
+    }
+    std::vector<char> bigBuffer(length + 1, 0);
+    H5Lget_name_by_idx(
+        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+        index, bigBuffer.data(), static_cast<hsize_t>(length) + 1, H5P_DEFAULT);
+    return std::string(bigBuffer.data(), length);
 }
 
 template <typename Derivate>
@@ -172,10 +169,17 @@ template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name) const {
     htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                            node_name.c_str(), H5P_DEFAULT);
+
     if (val < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Invalid link for exist() "));
     }
+
+    // The root path always exists, but H5Lexists return 0 or 1
+    // depending of the version of HDF5, so always return true for it
+    // We should call H5Lexists anyway to check that no error is returned
+    if (node_name == "/")
+        return true;
 
     return (val > 0);
 }
@@ -195,6 +199,57 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
     }
     return _exist(group_path);
 }
+
+
+// convert internal link types to enum class.
+// This function is internal, so H5L_TYPE_ERROR shall be handled in the calling context
+static inline LinkType _convert_link_type(const H5L_type_t& ltype) noexcept {
+    switch (ltype) {
+        case H5L_TYPE_HARD:
+            return LinkType::Hard;
+        case H5L_TYPE_SOFT:
+            return LinkType::Soft;
+        case H5L_TYPE_EXTERNAL:
+            return LinkType::External;
+        default:
+            // Other link types are possible but are considered strange to HighFive.
+            // see https://support.hdfgroup.org/HDF5/doc/RM/H5L/H5Lregister.htm
+            return LinkType::Other;
+    }
+}
+
+template <typename Derivate>
+inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) const {
+    H5L_info_t linkinfo;
+    if (H5Lget_info(static_cast<const Derivate*>(this)->getId(),
+                    node_name.c_str(), &linkinfo, H5P_DEFAULT) < 0
+            || linkinfo.type == H5L_TYPE_ERROR) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to obtain info for link ") + node_name);
+    }
+    return _convert_link_type(linkinfo.type);
+}
+
+template <typename Derivate>
+inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_name) const {
+    return _open(node_name).getType();
+}
+
+
+template <typename Derivate>
+inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
+                                          const DataSetAccessProps& accessProps) const {
+    hid_t id = H5Oopen(static_cast<const Derivate*>(this)->getId(),
+                       node_name.c_str(),
+                       accessProps.getId());
+    if (id < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to open \"") + node_name + "\":");
+    }
+    return Object(id);
+}
+
+
 
 }  // namespace HighFive
 

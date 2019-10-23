@@ -11,15 +11,16 @@
 
 #include <vector>
 
+#include "H5DataSpace.hpp"
+#include "H5DataType.hpp"
 #include "H5Object.hpp"
+#include "bits/H5Annotate_traits.hpp"
 
 namespace HighFive {
 
-template <typename Derivate>
-class AnnotateTraits;
-class DataType;
-class DataSpace;
-
+///
+/// \brief Class representing an attribute of a dataset or group
+///
 class Attribute : public Object {
   public:
     size_t getStorageSize() const;
@@ -70,6 +71,7 @@ class Attribute : public Object {
 };
 }
 
+#include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5Attribute_misc.hpp"
 
 #endif // H5ATTRIBUTE_HPP

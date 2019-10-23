@@ -11,13 +11,13 @@
 
 // internal utilities functions
 #include <algorithm>
+#include <array>
 #include <cstddef> // __GLIBCXX__
 #include <exception>
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <array>
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
@@ -165,7 +165,7 @@ struct is_c_array<T[N]> {
 
 
 
-// convertor function for hsize_t -> size_t when hsize_t != size_t
+// converter function for hsize_t -> size_t when hsize_t != size_t
 template<typename Size>
 inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
     static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
@@ -174,7 +174,7 @@ inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
     return res;
 }
 
-// convertor function for hsize_t -> size_t when size_t == hsize_t
+// converter function for hsize_t -> size_t when size_t == hsize_t
 inline std::vector<std::size_t> to_vector_size_t(std::vector<std::size_t> vec){
     return vec;
 }

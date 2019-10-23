@@ -13,7 +13,6 @@
 
 #include "H5FileDriver.hpp"
 #include "H5Object.hpp"
-
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Node_traits.hpp"
 
@@ -41,7 +40,7 @@ class File : public Object,
         Create = 0x10u,
         /// Derived open flag: common write mode (=ReadWrite|Create|Truncate)
         Overwrite = Truncate,
-        /// Derived open flag: Opens RW or exclusivelly creates
+        /// Derived open flag: Opens RW or exclusively creates
         OpenOrCreate = ReadWrite | Create
     };
 
@@ -72,6 +71,8 @@ class File : public Object,
 }  // namespace HighFive
 
 #include "bits/H5File_misc.hpp"
+#include "H5Attribute.hpp"  // for AnnotateTraits
+#include "H5Group.hpp"      // for Node
 
 #endif  // H5FILE_HPP
 

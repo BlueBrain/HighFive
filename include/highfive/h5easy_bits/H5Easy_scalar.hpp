@@ -114,16 +114,13 @@ struct load_impl
 
 }  // namespace scalar
 
-// load "scalar" from DataSet
+// load from DataSet
 template <class T, class E = void>
 struct load_impl
 {
     static T run(const File& file, const std::string& path)
     {
         DataSet dataset = file.getDataSet(path);
-        if (dataset.getElementCount() != 1) {
-            throw detail::error(file, path, "H5Easy::load: Field not a scalar");
-        }
         T data;
         dataset.read(data);
         return data;

@@ -12,14 +12,26 @@
 #include <string>
 #include <complex>
 
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-
 #include <H5Tpublic.h>
+
 
 namespace HighFive {
 
+namespace {  // unnamed
+inline DataTypeClass convert_type_class(const H5T_class_t& tclass);
+inline std::string type_class_string(DataTypeClass);
+}
+
+
 inline DataType::DataType() {}
+
+inline DataTypeClass DataType::getClass() const {
+    return convert_type_class(H5Tget_class(_hid));
+}
+
+inline size_t DataType::getSize() const {
+    return H5Tget_size(_hid);
+}
 
 inline bool DataType::operator==(const DataType& other) const {
     return (H5Tequal(_hid, other._hid) > 0);
@@ -28,6 +40,11 @@ inline bool DataType::operator==(const DataType& other) const {
 inline bool DataType::operator!=(const DataType& other) const {
     return !(*this == other);
 }
+
+inline std::string DataType::string() const {
+    return type_class_string(getClass()) + std::to_string(getSize() * 8);
+}
+
 
 // char mapping
 template <>
@@ -134,8 +151,74 @@ inline AtomicType<std::complex<double> >::AtomicType()
     _hid = H5Tcopy(complexType.getId());
 }
 
+
+namespace {
+
+inline DataTypeClass convert_type_class(const H5T_class_t& tclass) {
+    switch(tclass) {
+        case H5T_TIME:
+            return DataTypeClass::Time;
+        case H5T_INTEGER:
+            return DataTypeClass::Integer;
+        case H5T_FLOAT:
+            return DataTypeClass::Float;
+        case H5T_STRING:
+            return DataTypeClass::String;
+        case H5T_BITFIELD:
+            return DataTypeClass::BitField;
+        case H5T_OPAQUE:
+            return DataTypeClass::Opaque;
+        case H5T_COMPOUND:
+            return DataTypeClass::Compound;
+        case H5T_REFERENCE:
+            return DataTypeClass::Reference;
+        case H5T_ENUM:
+            return DataTypeClass::Enum;
+        case H5T_VLEN:
+            return DataTypeClass::VarLen;
+        case H5T_ARRAY:
+            return DataTypeClass::Array;
+        case H5T_NO_CLASS:
+        case H5T_NCLASSES:
+        default:
+            return DataTypeClass::Invalid;
+    }
 }
 
+
+inline std::string type_class_string(DataTypeClass tclass) {
+    switch(tclass) {
+        case DataTypeClass::Time:
+            return "Time";
+        case DataTypeClass::Integer:
+            return "Integer";
+        case DataTypeClass::Float:
+            return "Float";
+        case DataTypeClass::String:
+            return "String";
+        case DataTypeClass::BitField:
+            return "BitField";
+        case DataTypeClass::Opaque:
+            return "Opaque";
+        case DataTypeClass::Compound:
+            return "Compound";
+        case DataTypeClass::Reference:
+            return "Reference";
+        case DataTypeClass::Enum:
+            return "Enum";
+        case DataTypeClass::VarLen:
+            return "Varlen";
+        case DataTypeClass::Array:
+            return "Array";
+        default:
+            return "(Invalid)";
+    }
+}
+
+}  // namespace
+
+
+}  // namespace HighFive
 
 
 

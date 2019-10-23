@@ -12,11 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "H5DataSet.hpp"
-#include "H5DataSpace.hpp"
-#include "H5DataType.hpp"
-#include "H5File.hpp"
-
 // optionally enable plug-in xtensor and load the library
 #ifdef XTENSOR_VERSION_MAJOR
 #ifndef H5_USE_XTENSOR
@@ -39,6 +34,8 @@
 #ifdef H5_USE_EIGEN
 #include <Eigen/Eigen>
 #endif
+
+#include "H5File.hpp"
 
 namespace H5Easy {
 
@@ -66,7 +63,7 @@ enum class DumpMode
 /// \param path path of the DataSet
 ///
 /// \return size the size of the DataSet
-size_t getSize(const File& file, const std::string& path);
+inline size_t getSize(const File& file, const std::string& path);
 
 ///
 /// \brief Get the shape of an existing DataSet in an open HDF5 file.
@@ -213,10 +210,10 @@ inline T load(const File& file, const std::string& path);
 
 }  // namespace H5Easy
 
-#include "bits/H5Easy_misc.hpp"
-#include "bits/H5Easy_scalar.hpp"
-#include "bits/H5Easy_vector.hpp"
-#include "bits/H5Easy_Eigen.hpp"
-#include "bits/H5Easy_xtensor.hpp"
+#include "h5easy_bits/H5Easy_misc.hpp"
+#include "h5easy_bits/H5Easy_scalar.hpp"
+#include "h5easy_bits/H5Easy_vector.hpp"
+#include "h5easy_bits/H5Easy_Eigen.hpp"
+#include "h5easy_bits/H5Easy_xtensor.hpp"
 
 #endif  // H5EASY_HPP

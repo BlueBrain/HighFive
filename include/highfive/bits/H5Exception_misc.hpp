@@ -9,10 +9,9 @@
 #ifndef H5EXCEPTION_MISC_HPP
 #define H5EXCEPTION_MISC_HPP
 
-#include "../H5Exception.hpp"
+#include <cstdlib>
 
 #include <H5Epublic.h>
-#include <cstdlib>
 
 namespace HighFive {
 
