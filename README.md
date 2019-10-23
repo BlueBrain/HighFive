@@ -23,7 +23,7 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 ### Dependencies
 
 - libhdf5
-- boost >= 1.41 (optional, enable CMake option `USE_BOOST`)
+- boost >= 1.41 (optional, disable in CMake using `-DUSE_BOOST=FALSE`)
 
 ### CMake integration
 
