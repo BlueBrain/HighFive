@@ -29,11 +29,8 @@ option(USE_XTENSOR "Enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
-if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  set(HIGHFIVE_UNIT_TESTS FALSE)
-endif()
-
-if (NOT USE_BOOST)
+# Disable test if Boost will not be loaded, or if HighFive is a sub-project
+if (NOT USE_BOOST OR CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
 
