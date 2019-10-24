@@ -1,4 +1,3 @@
-[submodule "deps/git-cmake-format"]
-	path = deps/git-cmake-format
-	url = https://github.com/tristan0x/git-cmake-format.git
-	branch = bbp
+[submodule "deps/hpc-coding-conventions"]
+	path = deps/hpc-coding-conventions
+	url = https://github.com/BlueBrain/hpc-coding-conventions.git
