@@ -1,17 +1,22 @@
 ## Version 2.1 - 2019/10/XX
-### API:
-    - DataType class gained getClass(), getSize() and string()
-    - Object gained getInfo() and getType()
-    - Node_Traits gained getLinkType() and getObjectType()
-    - Node_Traits::createGroup() gained the parents argument to specify if intermediates groups should be created too
-    - Added AnnotateTraits::createAttribute and NodeTraits::createDataset overloads to create and initialize the data in a single call
-    - Add the new H5Easy high level API.
+### New Features:
+    - Inspection: API to get the type of links/objects and datasets data-types (#221)
+    - H5Easy: API for simple import/export to Eigen and xtensor (#141)
+    - Support for chunk and deflate configuration at dataset creation/open (#125). Added generic RawPropertyLists. (#157)
+    - Recursive `createGroup` and `exist` (#152)
+    - Shortcut syntax: ability to create a filled dataset in a single line (#130)
+    - DataSet now accepts std::complex and std::array's (#128, #129)
 
-### FEATURE:
-    - Add a lot of new platform supported on travis (xcode, windows, clang, ...)
-    - DataSet now accept std::array and std::complex type
-    - Support for chunk cache configuration at data set create/open
-    - Add doc target to cmake and publish doc on: https://bluebrain.github.io/HighFive/
+### Improvements
+    - Improved compat with MSVC and ICC compilers
+    - Cmake build system: modernized, create exported targets, better messages, etc.
+    - Building and publishing documentation: https://bluebrain.github.io/HighFive/
+    - Several other. See #231
+
+### Bug Fixes:
+    - Fixed header dependencies. They should all be include-able (#225)
+    - Fixed read/write of N-Dimensional data as nested vectors (#191)
+    - Fixed data broadcasting for reading (#136)
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
