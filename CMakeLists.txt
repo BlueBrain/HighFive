@@ -7,8 +7,6 @@ endif()
 
 project(HighFive VERSION 2.0)
 
-add_subdirectory("./deps/hpc-coding-conventions/cpp/")
-
 list(APPEND CMAKE_MODULE_PATH
   ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
@@ -31,9 +29,11 @@ option(USE_XTENSOR "Enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
-get_directory_property(hasParent PARENT_DIRECTORY)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(HIGHFIVE_UNIT_TESTS FALSE)
+endif()
 
-if (NOT USE_BOOST OR hasParent)
+if (NOT USE_BOOST)
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
 
