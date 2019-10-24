@@ -29,6 +29,7 @@ option(USE_EIGEN "enable Eigen testing" FALSE)
 option(USE_XTENSOR "enable xtensor testing" FALSE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
+option(HIGHFIVE_DOC "Enable build of documentation" FALSE)
 
 
 # Pre-requisites
@@ -105,4 +106,6 @@ if(HIGHFIVE_UNIT_TESTS)
   add_subdirectory(tests/unit)
 endif()
 
-add_subdirectory(doc)
+if(HIGHFIVE_DOC)
+  add_subdirectory(doc)
+endif()
