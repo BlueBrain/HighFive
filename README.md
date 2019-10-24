@@ -13,6 +13,7 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Design
+
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
 - Zero overhead
@@ -161,6 +162,7 @@ make test
 
 
 ### Contributors
+
 - Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
 - Ali Can Demiralp <demiralpali@gmail.com> -
 - Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
@@ -171,4 +173,5 @@ make test
 - Nicolas Cornu <nicolas.cornu@epfl.ch> - Blue Brain Project
 
 ### License
+
 Boost Software License 1.0
