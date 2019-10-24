@@ -36,7 +36,7 @@ class NodeTraits {
     /// informations
     /// \param type Type of Data
     /// \param createProps A property list with data set creation properties
-    /// \param createProps A property list with data set access properties
+    /// \param accessProps A property list with data set access properties
     /// \return DataSet Object
     DataSet
     createDataSet(const std::string& dataset_name,
@@ -52,6 +52,7 @@ class NodeTraits {
     /// \param space Associated DataSpace, see \ref DataSpace for more
     /// information
     /// \param createProps A property list with data set creation properties
+    /// \param accessProps A property list with data set access properties
     /// \return DataSet Object
     template <typename Type>
     DataSet
@@ -67,6 +68,7 @@ class NodeTraits {
     /// \param data Associated data, must support DataSpace::From, see
     /// \ref DataSpace for more information
     /// \param createProps A property list with data set creation properties
+    /// \param accessProps A property list with data set access properties
     /// \return DataSet Object
     template <typename T>
     DataSet
@@ -87,7 +89,7 @@ class NodeTraits {
     ///
     /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
-    /// \param recursive Whether it shall create intermediate groups if
+    /// \param parents Whether it shall create intermediate groups if
     ///      necessary. Default: true
     /// \return the group object
     Group createGroup(const std::string& group_name, bool parents = true);
@@ -115,7 +117,7 @@ class NodeTraits {
 
     ///
     /// \brief check a dataset or group exists in the current node / group
-    /// \param dataset/group name to check
+    /// \param node_name dataset/group name to check
     /// \return true if a dataset/group with the associated name exists, or false
     bool exist(const std::string& node_name) const;
 

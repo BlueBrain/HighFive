@@ -48,6 +48,7 @@ class File : public Object,
     /// \brief File
     /// \param filename: filepath of the HDF5 file
     /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
+    /// \param fileAccessProps: the file access properties
     ///
     /// Open or create a new HDF5 file
     explicit File(const std::string& filename, unsigned openFlags = ReadOnly,

@@ -184,7 +184,7 @@ inline DataSet dump(File& file,
                     const std::vector<size_t>& idx);
 
 ///
-/// brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
+/// \brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
 ///
 /// \param file opened File (has to be writeable)
 /// \param idx the indices to load
@@ -198,7 +198,7 @@ inline T load(const File& file,
               const std::vector<size_t>& idx);
 
 ///
-/// brief Load a DataSet in an open HDF5 file to an object (templated).
+/// \brief Load a DataSet in an open HDF5 file to an object (templated).
 ///
 /// \param file opened File (has to be writeable)
 /// \param path path of the DataSet

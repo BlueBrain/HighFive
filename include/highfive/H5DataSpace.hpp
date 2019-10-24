@@ -69,8 +69,8 @@ class DataSpace : public Object {
               const IT end);
 
     /// \brief Create a resizable N-dimensional dataspace
-    /// \params dims Initial size of dataspace
-    /// \params maxdims Maximum size of the dataspace
+    /// \param dims Initial size of dataspace
+    /// \param maxdims Maximum size of the dataspace
     explicit DataSpace(const std::vector<size_t>& dims,
                        const std::vector<size_t>& maxdims);
 

@@ -11,7 +11,6 @@ add_subdirectory("./deps/hpc-coding-conventions/cpp/")
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
-  ${PROJECT_SOURCE_DIR}/CMake/packages
   ${PROJECT_SOURCE_DIR}/CMake/config)
 
 include(CompilerFlagsHelpers)
