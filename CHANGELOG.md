@@ -11,6 +11,7 @@
     - Add a lot of new platform supported on travis (xcode, windows, clang, ...)
     - DataSet now accept std::array and std::complex type
     - Support for chunk cache configuration at data set create/open
+    - Add doc target to cmake and publish doc on: https://bluebrain.github.io/HighFive/
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
