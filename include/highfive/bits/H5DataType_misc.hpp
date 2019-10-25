@@ -299,9 +299,6 @@ inline std::string type_class_string(DataTypeClass tclass) {
 }  // namespace
 
 
-}  // namespace HighFive
-
-
 /// \brief Create a DataType instance representing type T
 template <typename T>
 inline DataType create_datatype() {
@@ -328,7 +325,7 @@ inline DataType create_and_check_datatype() {
     return t;
 }
 
-}
+}  // namespace HighFive
 
 
 #endif // H5DATATYPE_MISC_HPP
