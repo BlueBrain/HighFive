@@ -30,7 +30,7 @@ template <> inline DataType create_datatype<csl>() {
 
     return v_aligned;
 }
-};
+}
 
 int main(void) {
 
