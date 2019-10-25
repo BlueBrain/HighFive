@@ -10,11 +10,10 @@
 #define H5FILE_MISC_HPP
 
 #include <string>
-#include "../H5Exception.hpp"
-#include "../H5File.hpp"
-#include "../H5Utility.hpp"
 
 #include <H5Fpublic.h>
+
+#include "../H5Utility.hpp"
 
 namespace HighFive {
 
@@ -22,8 +21,8 @@ namespace {
 
 // libhdf5 uses a preprocessor trick on their oflags
 // we can not declare them constant without a mapper
-inline int convert_open_flag(int openFlags) {
-    int res_open = 0;
+inline unsigned convert_open_flag(unsigned openFlags) {
+    unsigned res_open = 0;
     if (openFlags & File::ReadOnly)
         res_open |= H5F_ACC_RDONLY;
     if (openFlags & File::ReadWrite)
@@ -38,14 +37,14 @@ inline int convert_open_flag(int openFlags) {
 }
 }  // namespace
 
-inline File::File(const std::string& filename, int openFlags,
-                  const Properties& fileAccessProps)
+inline File::File(const std::string& filename, unsigned openFlags,
+                  const FileAccessProps& fileAccessProps)
     : _filename(filename) {
 
     openFlags = convert_open_flag(openFlags);
 
-    int createMode = openFlags & (H5F_ACC_TRUNC | H5F_ACC_EXCL);
-    int openMode = openFlags & (H5F_ACC_RDWR | H5F_ACC_RDONLY);
+    unsigned createMode = openFlags & (H5F_ACC_TRUNC | H5F_ACC_EXCL);
+    unsigned openMode = openFlags & (H5F_ACC_RDWR | H5F_ACC_RDONLY);
     bool mustCreate = createMode > 0;
     bool openOrCreate = (openFlags & H5F_ACC_CREAT) > 0;
 

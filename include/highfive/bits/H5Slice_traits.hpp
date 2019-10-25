@@ -16,13 +16,9 @@
 
 namespace HighFive {
 
-class DataSet;
-class Group;
-class DataSpace;
-class DataType;
 class Selection;
 
-template <typename Derivate>
+template <typename>
 class SliceTraits;
 
 class ElementSet {

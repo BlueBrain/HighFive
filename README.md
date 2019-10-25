@@ -13,6 +13,7 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Design
+
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
 - Zero overhead
@@ -20,9 +21,30 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Dependencies
-- libhdf5
-- (optional) boost >= 1.41
 
+- libhdf5
+- boost >= 1.41 (optional, disable in CMake using `-DUSE_BOOST=FALSE`)
+
+### CMake integration
+
+HighFive can easily be used by other C++ CMake projects.
+Below is a very simple *foo* project creating a *bar* C++ program
+using HighFive library:
+
+```cmake
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+project(foo)
+set(CMAKE_CXX_STANDARD 11)
+
+find_package(HighFive 2.0 REQUIRED)
+add_executable(bar bar.cpp)
+target_include_directories(
+  bar
+  PUBLIC $<TARGET_PROPERTY:HighFive,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(
+  bar
+  PUBLIC $<TARGET_PROPERTY:HighFive,INTERFACE_LINK_LIBRARIES>)
+```
 
 ### Usage
 
@@ -35,7 +57,7 @@ File file("/tmp/new_file.h5", File::ReadWrite | File::Create | File::Truncate);
 
 std::vector<int> data(50, 1);
 
-// let's create a dataset of native interger with the size of the vector 'data'
+// let's create a dataset of native integer with the size of the vector 'data'
 DataSet dataset = file.createDataSet<int>("/dataset_one",  DataSpace::From(data));
 
 // let's write our vector of int to the HDF5 dataset
@@ -72,7 +94,7 @@ See [create_attribute_string_integer.cpp](src/examples/create_attribute_string_i
 
 #### And others
 
-See [src/examples/](src/examples/)  sub-directory for more infos
+See [src/examples/](src/examples/) subdirectory for more info.
 
 ### Compile with HighFive
 
@@ -80,6 +102,44 @@ See [src/examples/](src/examples/)  sub-directory for more infos
 c++ -o program -I/path/to/highfive/include source.cpp  -lhdf5
 ```
 
+#### H5Easy
+
+For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Easy.hpp) interface is available. It allows:
+
+*   Reading/writing in a single line of:
+
+    -   scalars (to/from an extendible DataSet),
+    -   strings,
+    -   vectors (of standard types),
+    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `USE_EIGEN`),
+    -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
+        (optional, enable CMake option `USE_XTENSOR`).
+
+*   Getting in a single line:
+
+     -   the size of a DataSet,
+     -   the shape of a DataSet.
+
+The general idea is to 
+
+```cpp
+#include <HighFive/H5Easy.hpp>
+
+int main()
+{
+    H5Easy::File file("example.h5", H5Easy::File::Overwrite);
+
+    int A = ...;
+
+    H5Easy::dump(file, "/path/to/A", A);
+
+    A = H5Easy::load<int>(file, "/path/to/A");
+}
+```
+
+whereby the `int` type of this example can be replaced by any of the above types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more details.
+
+> Note that classes such as `H5Easy::File` are just short for the regular `HighFive` classes (in this case `HighFive::File`). They can thus be used interchangeably.
 
 ### Test Compilation
 Remember: Compilation is not required. Used only for unit test and examples
@@ -95,24 +155,23 @@ make test
 
 - create/read/write file,  dataset, group, dataspace.
 - automatic memory management / ref counting
-- automatic convertion of  std::vector and nested std::vector from/to any dataset with basic types
-- automatic convertion of std::string to/from variable length string dataset
+- automatic conversion of `std::vector` and nested `std::vector` from/to any dataset with basic types
+- automatic conversion of `std::string` to/from variable length string dataset
 - selection() / slice support
 - parallel Read/Write operations from several nodes with Parallel HDF5
 - support HDF5 attributes
 
 
 ### Contributors
+
 - Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
 - Ali Can Demiralp <demiralpali@gmail.com> -
 - Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
 - Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project
 - Tristan Carel <tristan.carel@epfl.ch> - Blue Brain Project
 - Wolf Vollprecht <w.vollprecht@gmail.com> - QuantStack
+- Tom de Geus <tom@geus.me> - EPFL
 
 ### License
+
 Boost Software License 1.0
-
-
-
-

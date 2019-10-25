@@ -1,16 +1,145 @@
+# Adapted from various sources, including:
+# - Louis Dionne's Hana: https://github.com/ldionne/hana
+# - Paul Fultz II's FIT: https://github.com/pfultz2/Fit
+# - Eric Niebler's range-v3: https://github.com/ericniebler/range-v3
+# - Gabi Melman spdlog: https://github.com/gabime/spdlog
+
+sudo: required
 language: cpp
 
+addons: &gcc7
+  apt:
+    packages:
+      - g++-7
+      - libboost-all-dev
+      - libhdf5-serial-dev
+      - libeigen3-dev
+      - ninja-build
+    sources:
+      - ubuntu-toolchain-r-test
+
+addons: &clang6
+  apt:
+    packages:
+      - clang-6.0
+      - libboost-all-dev
+      - libhdf5-serial-dev
+      - libeigen3-dev
+      - ninja-build
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-xenial-6.0
+
+addons: &clang7
+  apt:
+    packages:
+      - clang-7
+      - libboost-all-dev
+      - libhdf5-serial-dev
+      - libeigen3-dev
+      - ninja-build
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-xenial-7
+
 matrix:
-    include:
-        - os: linux
-          sudo: required
+  include:
+    # Test default gcc on Ubuntu trusty
+    - env:
+      - USE_XTENSOR=False
+      os: linux
+      dist: trusty
+      addons:
+        apt:
+          packages:
+          - libboost-all-dev
+          - libeigen3-dev
+          - libhdf5-serial-dev
+          - ninja-build
+    # Test gcc-7
+    - env:
+      - GCC_VERSION=7
+      - USE_XTENSOR=True
+      os: linux
+      dist: xenial
+      addons: *gcc7
+
+    # Test clang-6.0
+    - env:
+      - CLANG_VERSION=6.0
+      os: linux
+      dist: xenial
+      addons: *clang6
+
+    # Test clang-7
+    - env:
+      - CLANG_VERSION=7
+      - USE_XTENSOR=True
+      os: linux
+      dist: xenial
+      addons: *clang7
+
+    # osx
+    - env:
+      - USE_XTENSOR=True
+      os: osx
+      osx_image: xcode10.3
+
+    - os: windows
+
+env:
+  global:
+    - MINCONDA_VERSION="latest"
+    - MINCONDA_LINUX="Linux-x86_64"
+    - MINCONDA_OSX="MacOSX-x86_64"
 
 install:
- - ./ci/travis/install.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      MINCONDA_OS=$MINCONDA_LINUX;
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      HOMEBREW_NO_AUTO_UPDATE=1 brew install boost hdf5 eigen ninja;
+      MINCONDA_OS=$MINCONDA_OSX;
+    fi
+
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      export CMAKE_GENERATOR="Visual Studio 15 2017 Win64" ;
+      export TESTS_TARGET="RUN_TESTS";
+      choco install --yes miniconda3 ;
+      source C:/Tools/miniconda3/Scripts/activate ;
+    else
+      export CMAKE_GENERATOR="Ninja" ;
+      export TESTS_TARGET="test";
+      wget "http://repo.continuum.io/miniconda/Miniconda3-$MINCONDA_VERSION-$MINCONDA_OS.sh" -O miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda ;
+      source $HOME/miniconda/bin/activate;
+      hash -r ;
+    fi
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda install -c conda-forge xtl xsimd xtensor
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      conda install -c conda-forge boost hdf5 eigen;
+    fi
+
+before_script:
+  - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ -n "$CLANG_VERSION" ]; then export CXX="clang++-${CLANG_VERSION}" CC="clang-${CLANG_VERSION}"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="clang++" CC="clang"; fi
+  - which $CXX
+  - which $CC
+  - $CXX --version
+  - cmake --version
 
 script:
- - mkdir -p build && pushd build
- - cmake -G Ninja ../
- - ninja -v
- - ninja test
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir -p build && pushd build
+  - >
+    cmake --warn-uninitialized --debug-output
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+    -DHIGHFIVE_TEST_SINGLE_INCLUDES:BOOL=ON
+    -DUSE_EIGEN:BOOL=ON
+    -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
+    -G "${CMAKE_GENERATOR}" ../
+  - cmake --build .
+  - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
 

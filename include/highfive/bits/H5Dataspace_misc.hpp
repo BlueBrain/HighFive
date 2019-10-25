@@ -9,14 +9,12 @@
 #ifndef H5DATASPACE_MISC_HPP
 #define H5DATASPACE_MISC_HPP
 
-#include <vector>
 #include <array>
 #include <initializer_list>
+#include <vector>
+#include <numeric>
 
 #include <H5Spublic.h>
-
-#include "../H5DataSpace.hpp"
-#include "../H5Exception.hpp"
 
 #include "H5Utils.hpp"
 
@@ -102,7 +100,6 @@ inline size_t DataSpace::getNumberDimensions() const {
 }
 
 inline std::vector<size_t> DataSpace::getDimensions() const {
-
     std::vector<hsize_t> dims(getNumberDimensions());
     if (dims.size() > 0) {
         if (H5Sget_simple_extent_dims(_hid, dims.data(), NULL) < 0) {
@@ -113,6 +110,12 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
     return details::to_vector_size_t(std::move(dims));
 }
 
+inline size_t DataSpace::getElementCount() const {
+    std::vector<size_t> dims = getDimensions();
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u},
+                           std::multiplies<size_t>());
+}
+
 inline std::vector<size_t> DataSpace::getMaxDimensions() const {
     std::vector<hsize_t> maxdims(getNumberDimensions());
     if (H5Sget_simple_extent_dims(_hid, NULL, maxdims.data()) < 0) {
@@ -120,10 +123,9 @@ inline std::vector<size_t> DataSpace::getMaxDimensions() const {
             "Unable to get dataspace dimensions");
     }
 
-    std::vector<size_t> res(maxdims.begin(), maxdims.end());
-    std::replace(maxdims.begin(), maxdims.end(),
-                 static_cast<size_t>(H5S_UNLIMITED), DataSpace::UNLIMITED);
-    return res;
+    std::replace(maxdims.begin(), maxdims.end(), H5S_UNLIMITED,
+                 static_cast<hsize_t>(DataSpace::UNLIMITED));
+    return details::to_vector_size_t(maxdims);
 }
 
 template <typename ScalarValue>
@@ -135,7 +137,7 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
          std::is_enum<ScalarValue>::value ||
          std::is_same<std::string, ScalarValue>::value),
         "Only the following types are supported by DataSpace::From: \n"
-        "  signed_arithmetic_types = int |  long | float |  double \n"
+        "  signed_arithmetic_types = int | long | float | double \n"
         "  unsigned_arithmetic_types = unsigned signed_arithmetic_types \n"
         "  string_types = std::string \n"
         "  all_basic_types = string_types | unsigned_arithmetic_types | "

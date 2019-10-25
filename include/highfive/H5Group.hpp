@@ -17,6 +17,8 @@ namespace HighFive {
 
 class File;
 
+///
+/// \brief Represents an hdf5 group
 class Group : public Object,
               public NodeTraits<Group>,
               public AnnotateTraits<Group> {
@@ -27,6 +29,8 @@ class Group : public Object,
 };
 }
 
+#include "bits/H5Node_traits_misc.hpp"
 #include "bits/H5Group_misc.hpp"
+#include "H5Attribute.hpp"  // for AnnotateTraits
 
 #endif // HIGHFIVE_H5GROUP_HPP

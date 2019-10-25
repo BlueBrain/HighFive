@@ -9,18 +9,13 @@
 #ifndef H5ANNOTATE_TRAITS_MISC_HPP
 #define H5ANNOTATE_TRAITS_MISC_HPP
 
-#include "H5Annotate_traits.hpp"
-#include "H5Iterables_misc.hpp"
-
 #include <string>
 #include <vector>
 
-#include "../H5Attribute.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-#include "../H5Exception.hpp"
-
 #include <H5Apublic.h>
+#include <H5Ppublic.h>
+
+#include "H5Iterables_misc.hpp"
 
 namespace HighFive {
 
@@ -80,7 +75,7 @@ inline size_t AnnotateTraits<Derivate>::getNumberAttributes() const {
         HDF5ErrMapper::ToException<AttributeException>(std::string(
             "Unable to count attributes in existing group or file"));
     }
-    return res;
+    return static_cast<size_t>(res);
 }
 
 template <typename Derivate>

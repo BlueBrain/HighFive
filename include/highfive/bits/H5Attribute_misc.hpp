@@ -22,10 +22,6 @@
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
-#include "../H5Attribute.hpp"
-#include "../H5DataSpace.hpp"
-#include "../H5DataType.hpp"
-
 #include "H5Converter_misc.hpp"
 #include "H5Utils.hpp"
 
@@ -34,7 +30,7 @@ namespace HighFive {
 inline Attribute::Attribute() {}
 
 inline size_t Attribute::getStorageSize() const {
-    return H5Aget_storage_size(_hid);
+    return static_cast<size_t>(H5Aget_storage_size(_hid));
 }
 
 inline DataType Attribute::getDataType() const {
@@ -76,7 +72,7 @@ inline void Attribute::read(T& array) const {
     const AtomicType<typename details::type_of_array<type_no_const>::type>
         array_datatype;
 
-    // Apply pre read convertions
+    // Apply pre read conversions
     details::data_converter<type_no_const> converter(nocv_array, mem_space);
 
     if (H5Aread(getId(), array_datatype.getId(),
@@ -110,7 +106,7 @@ inline void Attribute::write(const T& buffer) {
     const AtomicType<typename details::type_of_array<type_no_const>::type>
         array_datatype;
 
-    // Apply pre write convertions
+    // Apply pre write conversions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
     if (H5Awrite(getId(), array_datatype.getId(),

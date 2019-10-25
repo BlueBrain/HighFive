@@ -13,7 +13,25 @@
 
 namespace HighFive {
 
-struct TypeMapper;
+
+///
+/// \brief Enum of Fundamental data classes
+///
+enum class DataTypeClass {
+    Time,
+    Integer,
+    Float,
+    String,
+    BitField,
+    Opaque,
+    Compound,
+    Reference,
+    Enum,
+    VarLen,
+    Array,
+    Invalid
+};
+
 
 ///
 /// \brief HDF5 Data Type
@@ -27,18 +45,29 @@ class DataType : public Object {
     bool operator!=(const DataType& other) const;
 
     ///
-    /// \brief Get the size of the datatype in bytes
-    ///
-    /// The datatype must already have been created or an exception will be
-    /// thrown
-    size_t getSize() const;
-
-    ///
     /// \brief Test if the type is a variable length string
     ///
     /// The datatype must already have been created or an exception will be
     /// thrown
     bool isVariableStr() const;
+
+    ///
+    /// \brief Return the fundamental type.
+    ///
+    DataTypeClass getClass() const;
+
+    ///
+    /// \brief Returns the length (in bytes) of this type elements
+    ///
+    /// Notice that the size of variable length sequences may have limited applicability
+    ///   given that it refers to the size of the control structure. For info see
+    ///   https://support.hdfgroup.org/HDF5/doc/RM/RM_H5T.html#Datatype-GetSize
+    size_t getSize() const;
+
+    ///
+    /// \brief Returns a friendly description of the type (e.g. Float32)
+    ///
+    std::string string() const;
 
   protected:
     friend class Attribute;

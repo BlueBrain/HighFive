@@ -9,10 +9,9 @@
 #ifndef H5EXCEPTION_MISC_HPP
 #define H5EXCEPTION_MISC_HPP
 
-#include "../H5Exception.hpp"
+#include <cstdlib>
 
 #include <H5Epublic.h>
-#include <cstdlib>
 
 namespace HighFive {
 
@@ -44,7 +43,7 @@ struct HDF5ErrMapper {
     }
 
     template <typename ExceptionType>
-    static inline void ToException(const std::string& prefix_msg) {
+    [[noreturn]] static inline void ToException(const std::string& prefix_msg) {
 
         hid_t err_stack = H5Eget_current_stack();
         if (err_stack >= 0) {
