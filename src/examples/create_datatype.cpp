@@ -28,7 +28,7 @@ template <> inline DataType create_datatype<csl>() {
     v_aligned.addMember("u3", H5T_NATIVE_ULLONG);
     v_aligned.autoCreate();
 
-    return v_aligned;
+    return std::move(v_aligned);
 }
 }
 
