@@ -104,7 +104,7 @@ c++ -o program -I/path/to/highfive/include source.cpp  -lhdf5
 
 #### H5Easy
 
-For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Easy.hpp) interface is available. It allows:
+For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Easy.hpp) interface is available. It allows:
 
 *   Reading/writing in a single line of:
 
@@ -123,7 +123,7 @@ For several 'standard' use cases the [HighFive/H5Easy.hpp](include/HighFive/H5Ea
 The general idea is to 
 
 ```cpp
-#include <HighFive/H5Easy.hpp>
+#include <highfive/H5Easy.hpp>
 
 int main()
 {
