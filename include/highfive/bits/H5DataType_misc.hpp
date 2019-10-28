@@ -13,6 +13,7 @@
 #include <complex>
 
 #include <H5Tpublic.h>
+#include <H5Ppublic.h>
 
 
 namespace HighFive {
@@ -166,71 +167,60 @@ inline AtomicType<std::complex<double> >::AtomicType()
 // Calculate the padding required to align an element of a struct
 #define _STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
 
-inline void CompoundType::addMember(const std::string& name, hid_t base_type, size_t offset=0) {
-    member_def t = {name, base_type, offset};
-    member_list.push_back(t);
+inline CompoundType& CompoundType::addMember(const std::string& name, hid_t base_type, size_t offset) {
+    member_list.emplace_back<member_def>({name, base_type, offset});
+    return *this;
 }
 
-inline void CompoundType::addMember(const std::string& name, HighFive::DataType base_type, size_t offset=0) {
+inline CompoundType& CompoundType::addMember(const std::string& name, HighFive::DataType base_type, size_t offset) {
     addMember(name, base_type.getId(), offset);
+    return *this;
 }
 
 inline void CompoundType::autoCreate() {
 
-    size_t current_size = 0, total_size = 0, max_type_size = 0;
-    std::vector<member_def>::iterator it;
+    size_t current_size = 0, max_type_size = 0;
 
     // Do a first pass to find the total size of the compound datatype
-    for (it = member_list.begin(); it != member_list.end(); it++) {
-        size_t member_size;
-
-        member_size = H5Tget_size(it->base_type);
+    for (auto& member: member_list) {
+        size_t member_size = H5Tget_size(member.base_type);
 
         // Set the offset of this member within the struct according to the
         // standard alignment rules
-        it->offset = current_size + _STRUCT_PADDING(current_size, member_size);
+        member.offset = current_size + _STRUCT_PADDING(current_size, member_size);
 
         // Set the current size to the end of the new member
-        current_size = it->offset + member_size;
+        current_size = member.offset + member_size;
 
         max_type_size = std::max(max_type_size, member_size);
     }
 
-    total_size = current_size + _STRUCT_PADDING(current_size, max_type_size);
+    size_t total_size = current_size + _STRUCT_PADDING(current_size, max_type_size);
 
     manualCreate(total_size);
 }
 
 inline void CompoundType::manualCreate(size_t total_size) {
-
-    hid_t compound_hid;
-    std::vector<member_def>::iterator it;
-
     // Create the HDF5 type
-    if((compound_hid = H5Tcreate(H5T_COMPOUND, total_size)) < 0) {
+    if((_hid = H5Tcreate(H5T_COMPOUND, total_size)) < 0) {
         HDF5ErrMapper::ToException<DataTypeException>(
-            "Could not create new compound datatype")
-        ;
+            "Could not create new compound datatype");
     }
 
     // Loop over all the members and insert them into the datatype
-    for (it = member_list.begin(); it != member_list.end(); it++) {
-
-        if(H5Tinsert(compound_hid, it->name.c_str(), it->offset, it->base_type) < 0) {
+    for (const auto& member: member_list) {
+        if(H5Tinsert(_hid, member.name.c_str(), member.offset, member.base_type) < 0) {
             HDF5ErrMapper::ToException<DataTypeException>(
                 "Could not add new member to datatype"
             );
         }
     }
 
-    _hid = H5Tcopy(compound_hid);
-
+    member_list.clear();
 }
 
 inline void CompoundType::commit(const Object& object, const std::string& name) {
-
-    H5Tcommit1(object.getId(), name.c_str(), getId());
-
+    H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 }
 
 namespace {

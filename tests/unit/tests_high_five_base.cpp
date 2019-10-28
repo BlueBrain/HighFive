@@ -1105,5 +1105,103 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     // meta
     BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
+}
 
+typedef struct {
+    int m1;
+    int m2;
+    int m3;
+} CSL1;
+
+typedef struct {
+    CSL1 csl1;
+} CSL2;
+
+namespace HighFive {
+    template<> inline DataType create_datatype<CSL1>() {
+        auto t2 = AtomicType<int>();
+        CompoundType t1;
+        t1.addMember("m1", H5T_NATIVE_INT)
+          .addMember("m2", AtomicType<int>())
+          .addMember("m3", t2);
+        t1.autoCreate();
+
+        return std::move(t1);
+    }
+
+    template<> inline DataType create_datatype<CSL2>() {
+        auto t3 = AtomicType<int>();
+        CompoundType t1;
+        t1.addMember("m1", H5T_NATIVE_INT)
+          .addMember("m2", AtomicType<int>())
+          .addMember("m3", t3);
+        t1.autoCreate();
+
+        CompoundType t2;
+        t2.addMember("csl1", t1);
+        t2.autoCreate();
+
+        return std::move(t2);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
+    const std::string FILE_NAME("compounds_test.h5");
+    const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    auto t3 = AtomicType<int>();
+    CompoundType t1;
+    t1.addMember("m1", H5T_NATIVE_INT)
+      .addMember("m2", AtomicType<int>())
+      .addMember("m3", t3);
+    t1.autoCreate();
+    t1.commit(file, "my_type");
+
+    CompoundType t2;
+    t2.addMember("csl1", t1);
+    t2.autoCreate();
+    t2.commit(file, "my_type2");
+
+
+    {   // Not nested
+        auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(2), t1);
+
+        std::vector<CSL1> csl = {{1,1,1}, {2,3,4}};
+        dataset.write(csl);
+
+        file.flush();
+
+        std::vector<CSL1> result;
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].m1, 1);
+        BOOST_CHECK_EQUAL(result[0].m2, 1);
+        BOOST_CHECK_EQUAL(result[0].m3, 1);
+        BOOST_CHECK_EQUAL(result[1].m1, 2);
+        BOOST_CHECK_EQUAL(result[1].m2, 3);
+        BOOST_CHECK_EQUAL(result[1].m3, 4);
+    }
+
+    {   // Nested
+        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(2), t2);
+
+        std::vector<CSL2> csl = {{{1,1,1}, {2,3,4}}};
+        dataset.write(csl);
+
+        file.flush();
+        std::vector<CSL2> result = {{{1,1,1}, {2,3,4}}};
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].csl1.m1, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m2, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m3, 1);
+        BOOST_CHECK_EQUAL(result[1].csl1.m1, 2);
+        BOOST_CHECK_EQUAL(result[1].csl1.m2, 3);
+        BOOST_CHECK_EQUAL(result[1].csl1.m3, 4);
+    }
 }

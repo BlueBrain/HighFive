@@ -98,14 +98,14 @@ public:
     /// \param name Name of the member
     /// \param base_type HDF5 registered data type of the member
     /// \param offset Position of this member inside the type (optional when using autoCreate)
-    void addMember(const std::string& name, hid_t base_type, size_t padding);
+    CompoundType& addMember(const std::string& name, hid_t base_type, size_t offset = 0);
 
     ///
     /// \brief Add a new member into the data type
     /// \param name Name of the member
     /// \param base_type DataType of the member
     /// \param offset Position of this member inside the type (optional when using autoCreate)
-    void addMember(const std::string& name, HighFive::DataType base_type, size_t padding);
+    CompoundType& addMember(const std::string& name, HighFive::DataType base_type, size_t offset = 0);
 
     ///
     /// \brief Automatically create the type from the set of members
@@ -128,6 +128,23 @@ public:
 private:
 
     struct member_def {
+        member_def(const std::string& _name, hid_t _base_type, size_t _offset)
+        : name(_name), base_type(_base_type), offset(_offset)
+        {
+            H5Iinc_ref(base_type);
+        }
+
+        member_def(const member_def& other)
+        : member_def(other.name, other.base_type, other.offset)
+        {}
+
+        member_def& operator=(const member_def&) = default;
+
+        ~member_def()
+        {
+            H5Idec_ref(base_type);
+        }
+
         std::string name;
         hid_t base_type;
         size_t offset;
