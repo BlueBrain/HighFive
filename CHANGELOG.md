@@ -5,16 +5,16 @@
     - Support for chunk and deflate configuration at dataset creation/open (#125). Added generic RawPropertyLists. (#157)
     - Recursive `createGroup` and `exist` (#152)
     - Shortcut syntax: ability to create a filled dataset in a single line (#130)
-    - DataSet now accepts std::complex and std::array's (#128, #129)
+    - DataSet now accepts `std::complex` and `std::array`'s (#128, #129)
 
 ### Improvements
     - Improved compat with MSVC and ICC compilers
-    - Cmake build system: modernized, create exported targets, better messages, etc.
+    - CMake build system: modernized, create exported targets, better messages, etc.
     - Building and publishing documentation: https://bluebrain.github.io/HighFive/
     - Several other. See #231
 
 ### Bug Fixes:
-    - Fixed header dependencies. They should all be include-able (#225)
+    - Fixed header dependencies. They are now all include-able (#225)
     - Fixed read/write of N-Dimensional data as nested vectors (#191)
     - Fixed data broadcasting for reading (#136)
 
