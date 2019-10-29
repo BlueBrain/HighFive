@@ -55,6 +55,15 @@ AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
     return att;
 }
 
+template<typename Derivate>
+inline void
+AnnotateTraits<Derivate>::deleteAttribute(const std::string& attribute_name) {
+    if (H5Adelete(static_cast<const Derivate*>(this)->getId(), attribute_name.c_str()) < 0) {
+        HDF5ErrMapper::ToException<AttributeException>(
+                std::string("Unable to delete attribute \"") + attribute_name + "\":");
+    }
+}
+
 template <typename Derivate>
 inline Attribute AnnotateTraits<Derivate>::getAttribute(
     const std::string& attribute_name) const {
