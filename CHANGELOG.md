@@ -1,7 +1,22 @@
-## master
-    - Support for chunk cache configuration at data set create/open
-    - Support for std::array (unnested)
-    - Added AnnotateTraits::createAttribute and NodeTraits::createDataset overloads to create and initialize the data in a single call
+## Version 2.1 - 2019/10/XX
+### New Features:
+    - Inspection: API to get the type of links/objects and datasets data-types (#221)
+    - H5Easy: API for simple import/export to Eigen and xtensor (#141)
+    - Support for chunk and deflate configuration at dataset creation/open (#125). Added generic RawPropertyLists. (#157)
+    - Recursive `createGroup` and `exist` (#152)
+    - Shortcut syntax: ability to create a filled dataset in a single line (#130)
+    - DataSet now accepts `std::complex` and `std::array`'s (#128, #129)
+
+### Improvements
+    - Improved compat with MSVC and ICC compilers
+    - CMake build system: modernized, create exported targets, better messages, etc.
+    - Building and publishing documentation: https://bluebrain.github.io/HighFive/
+    - Several other. See #231
+
+### Bug Fixes:
+    - Fixed header dependencies. They are now all include-able (#225)
+    - Fixed read/write of N-Dimensional data as nested vectors (#191)
+    - Fixed data broadcasting for reading (#136)
 
 ## Version 2.0 - 2018/07/19
     - First version with C++11 enforcement
@@ -29,7 +44,6 @@
     - Introduce SilenceHDF5 for HDF5 error report
     - Fix a unit test issue with SilenceHDF5
 
-
 ## Version 1.3 - 2017/06/21
     - Minor fixes
 
@@ -45,7 +59,6 @@
     - Support for Attributes
     - Improve documentation
     - Add example for boost.Ublas matrix support
-
 
 ## Version 1.0 - Init
 	- Initial release
