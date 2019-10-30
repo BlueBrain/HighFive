@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HighFive
-   &#160;<span id="projectnumber">3.0</span>
+   &#160;<span id="projectnumber">2.1</span>
    </div>
    <div id="projectbrief">HighFive - Header-only C++ HDF5 interface</div>
   </td>
@@ -89,35 +89,39 @@ $(document).ready(function(){initNavTree('_h5_data_set_8hpp.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;vector&gt;</code><br />
+<code>#include &quot;<a class="el" href="_h5_data_space_8hpp_source.html">H5DataSpace.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="_h5_data_type_8hpp_source.html">H5DataType.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="_h5_object_8hpp_source.html">H5Object.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="_h5_annotate__traits_8hpp_source.html">bits/H5Annotate_traits.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="_h5_slice__traits_8hpp_source.html">bits/H5Slice_traits.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="_h5_data_set__misc_8hpp_source.html">bits/H5DataSet_misc.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="_h5_attribute_8hpp_source.html">H5Attribute.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="_h5_selection_8hpp_source.html">H5Selection.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for H5DataSet.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="_h5_data_set_8hpp__incl.png" border="0" usemap="#_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hpp" alt=""/></div>
 <map name="_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hpp" id="_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hpp">
-<area shape="rect" id="node3" href="_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="682,543,785,569"/>
-<area shape="rect" id="node21" href="_h5_annotate__traits_8hpp.html" title="bits/H5Annotate_traits.hpp" alt="" coords="478,95,655,121"/>
-<area shape="rect" id="node43" href="_h5_slice__traits_8hpp.html" title="bits/H5Slice_traits.hpp" alt="" coords="452,543,607,569"/>
-<area shape="rect" id="node44" href="_h5_data_set__misc_8hpp.html" title="bits/H5DataSet_misc.hpp" alt="" coords="1647,244,1819,271"/>
-<area shape="rect" id="node5" href="_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="681,617,844,644"/>
-<area shape="rect" id="node6" href="_h5_exception_8hpp.html" title="../H5Exception.hpp" alt="" coords="707,692,842,719"/>
-<area shape="rect" id="node9" href="_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="1610,767,1726,793"/>
-<area shape="rect" id="node17" href="_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="558,767,741,793"/>
-<area shape="rect" id="node22" href="_h5_annotate__traits__misc_8hpp.html" title="H5Annotate_traits_misc.hpp" alt="" coords="473,169,660,196"/>
-<area shape="rect" id="node23" href="_h5_iterables__misc_8hpp.html" title="H5Iterables_misc.hpp" alt="" coords="397,617,547,644"/>
-<area shape="rect" id="node24" href="_h5_attribute_8hpp.html" title="../H5Attribute.hpp" alt="" coords="673,244,799,271"/>
-<area shape="rect" id="node31" href="_h5_data_space_8hpp.html" title="../H5DataSpace.hpp" alt="" coords="1435,468,1576,495"/>
-<area shape="rect" id="node36" href="_h5_data_type_8hpp.html" title="../H5DataType.hpp" alt="" coords="1181,468,1315,495"/>
-<area shape="rect" id="node25" href="_h5_attribute__misc_8hpp.html" title="bits/H5Attribute_misc.hpp" alt="" coords="1472,319,1645,345"/>
-<area shape="rect" id="node40" href="_h5_converter__misc_8hpp.html" title="H5Converter_misc.hpp" alt="" coords="1993,393,2149,420"/>
-<area shape="rect" id="node34" href="_h5_dataspace__misc_8hpp.html" title="bits/H5Dataspace_misc.hpp" alt="" coords="1536,617,1723,644"/>
-<area shape="rect" id="node37" href="_h5_data_type__misc_8hpp.html" title="bits/H5DataType_misc.hpp" alt="" coords="1148,543,1329,569"/>
-<area shape="rect" id="node45" href="_h5_slice__traits__misc_8hpp.html" title="H5Slice_traits_misc.hpp" alt="" coords="1771,319,1935,345"/>
-<area shape="rect" id="node46" href="_h5_selection_8hpp.html" title="../H5Selection.hpp" alt="" coords="875,393,1005,420"/>
-<area shape="rect" id="node47" href="_h5_selection__misc_8hpp.html" title="bits/H5Selection_misc.hpp" alt="" coords="877,468,1056,495"/>
+<area shape="rect" id="node3" href="_h5_data_space_8hpp.html" title="H5DataSpace.hpp" alt="" coords="1376,169,1505,196"/>
+<area shape="rect" id="node8" href="_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="690,251,793,278"/>
+<area shape="rect" id="node29" href="_h5_data_type_8hpp.html" title="H5DataType.hpp" alt="" coords="681,169,802,196"/>
+<area shape="rect" id="node33" href="_h5_annotate__traits_8hpp.html" title="bits/H5Annotate_traits.hpp" alt="" coords="1122,169,1300,196"/>
+<area shape="rect" id="node34" href="_h5_slice__traits_8hpp.html" title="bits/H5Slice_traits.hpp" alt="" coords="942,341,1096,367"/>
+<area shape="rect" id="node35" href="_h5_data_set__misc_8hpp.html" title="bits/H5DataSet_misc.hpp" alt="" coords="2237,341,2409,367"/>
+<area shape="rect" id="node40" href="_h5_attribute_8hpp.html" title="H5Attribute.hpp" alt="" coords="1029,95,1142,121"/>
+<area shape="rect" id="node47" href="_h5_selection_8hpp.html" title="H5Selection.hpp" alt="" coords="1293,95,1412,121"/>
+<area shape="rect" id="node26" href="_h5_dataspace__misc_8hpp.html" title="bits/H5Dataspace_misc.hpp" alt="" coords="1624,341,1811,367"/>
+<area shape="rect" id="node12" href="_h5_exception_8hpp.html" title="H5Exception.hpp" alt="" coords="495,341,618,367"/>
+<area shape="rect" id="node24" href="_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="308,341,471,367"/>
+<area shape="rect" id="node15" href="_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="1892,423,2008,449"/>
+<area shape="rect" id="node21" href="_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="340,423,522,449"/>
+<area shape="rect" id="node30" href="_h5_data_type__misc_8hpp.html" title="bits/H5DataType_misc.hpp" alt="" coords="302,251,483,278"/>
+<area shape="rect" id="node41" href="_h5_annotate__traits__misc_8hpp.html" title="bits/H5Annotate_traits\l_misc.hpp" alt="" coords="1171,333,1323,375"/>
+<area shape="rect" id="node44" href="_h5_attribute__misc_8hpp.html" title="bits/H5Attribute_misc.hpp" alt="" coords="2034,251,2207,278"/>
+<area shape="rect" id="node43" href="_h5_iterables__misc_8hpp.html" title="H5Iterables_misc.hpp" alt="" coords="955,423,1104,449"/>
+<area shape="rect" id="node45" href="_h5_converter__misc_8hpp.html" title="H5Converter_misc.hpp" alt="" coords="2586,341,2742,367"/>
+<area shape="rect" id="node48" href="_h5_slice__traits__misc_8hpp.html" title="bits/H5Slice_traits\l_misc.hpp" alt="" coords="2541,244,2670,285"/>
+<area shape="rect" id="node49" href="_h5_selection__misc_8hpp.html" title="bits/H5Selection_misc.hpp" alt="" coords="1580,169,1759,196"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -125,22 +129,16 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="_h5_data_set_8hpp__dep__incl.png" border="0" usemap="#_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hppdep" alt=""/></div>
 <map name="_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hppdep" id="_2home_2cornu_2_high_five_2include_2highfive_2_h5_data_set_8hppdep">
-<area shape="rect" id="node2" href="_h5_data_set__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5DataSet_misc.hpp" alt="" coords="5,303,156,359"/>
-<area shape="rect" id="node3" href="_h5_selection_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Selection.hpp" alt="" coords="183,102,399,143"/>
-<area shape="rect" id="node6" href="_h5_easy_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Easy.hpp" alt="" coords="318,414,510,455"/>
-<area shape="rect" id="node12" href="_h5_node__traits__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits_misc.hpp" alt="" coords="530,95,701,151"/>
-<area shape="rect" id="node4" href="_h5_slice__traits__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Slice_traits_misc.hpp" alt="" coords="130,199,298,255"/>
-<area shape="rect" id="node5" href="_h5_selection__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Selection_misc.hpp" alt="" coords="242,303,399,359"/>
-<area shape="rect" id="node7" href="_h5_easy___eigen_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Easy_Eigen.hpp" alt="" coords="93,719,244,775"/>
-<area shape="rect" id="node8" href="_h5_easy__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Easy_misc.hpp" alt="" coords="213,511,364,567"/>
-<area shape="rect" id="node9" href="_h5_easy__scalar_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Easy_scalar.hpp" alt="" coords="276,615,427,671"/>
-<area shape="rect" id="node10" href="_h5_easy__vector_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Easy_vector.hpp" alt="" coords="293,719,444,775"/>
-<area shape="rect" id="node11" href="_h5_easy__xtensor_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Easy_xtensor.hpp" alt="" coords="505,719,656,775"/>
-<area shape="rect" id="node13" href="_h5_node__traits_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits.hpp" alt="" coords="540,199,691,255"/>
-<area shape="rect" id="node14" href="_h5_file_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5File.hpp" alt="" coords="499,310,681,351"/>
-<area shape="rect" id="node16" href="_h5_group_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Group.hpp" alt="" coords="706,310,903,351"/>
-<area shape="rect" id="node15" href="_h5_file__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5File_misc.hpp" alt="" coords="535,407,685,463"/>
-<area shape="rect" id="node17" href="_h5_group__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Group_misc.hpp" alt="" coords="729,407,880,463"/>
+<area shape="rect" id="node2" href="_h5_node__traits__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits_misc.hpp" alt="" coords="270,184,441,240"/>
+<area shape="rect" id="node11" href="_h5_selection_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Selection.hpp" alt="" coords="321,95,537,136"/>
+<area shape="rect" id="node3" href="_h5_group_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Group.hpp" alt="" coords="257,288,454,329"/>
+<area shape="rect" id="node4" href="_h5_file_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5File.hpp" alt="" coords="264,377,447,419"/>
+<area shape="rect" id="node5" href="_h5_easy_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Easy.hpp" alt="" coords="259,467,451,508"/>
+<area shape="rect" id="node6" href="_h5_easy__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_misc.hpp" alt="" coords="143,556,306,612"/>
+<area shape="rect" id="node7" href="_h5_easy__scalar_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_scalar.hpp" alt="" coords="203,660,371,716"/>
+<area shape="rect" id="node8" href="_h5_easy__vector_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_vector.hpp" alt="" coords="5,764,175,820"/>
+<area shape="rect" id="node9" href="_h5_easy___eigen_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_Eigen.hpp" alt="" coords="220,764,387,820"/>
+<area shape="rect" id="node10" href="_h5_easy__xtensor_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_xtensor.hpp" alt="" coords="442,764,618,820"/>
 </map>
 </div>
 </div>
@@ -150,9 +148,8 @@ This graph shows which files directly or indirectly include this file:</div>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html">HighFive::NodeTraits&lt; Derivate &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_slice_traits.html">HighFive::SliceTraits&lt; Derivate &gt;</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_data_set.html">HighFive::DataSet</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class representing a dataset.  <a href="class_high_five_1_1_data_set.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>

@@ -4,6 +4,8 @@ var class_high_five_1_1_object =
     [ "Object", "class_high_five_1_1_object.html#a6bae41d04f273d04d2914406ab79da32", null ],
     [ "Object", "class_high_five_1_1_object.html#ab87ee7d5e2beee6a50d60dec20d3dfe5", null ],
     [ "getId", "class_high_five_1_1_object.html#a337bebd35f8a547162c2ee81df03b632", null ],
+    [ "getInfo", "class_high_five_1_1_object.html#a134549df53c4c0a04f728db983b2f947", null ],
+    [ "getType", "class_high_five_1_1_object.html#a60a33f44d524aae5936131770811bd58", null ],
     [ "isValid", "class_high_five_1_1_object.html#a391e79f6bf60f0e9eb7d3c7c09ffee1f", null ],
     [ "operator=", "class_high_five_1_1_object.html#acbdb7087cba8bb804f7ec82c56c28ace", null ],
     [ "AnnotateTraits", "class_high_five_1_1_object.html#aae888e213cfdf6bdcfd7812ceea76d19", null ],

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['readonly',['ReadOnly',['../class_high_five_1_1_file.html#a66225bf5898f9e14f84c02529ca19431a78386c6fc7eb6b7975e1b68198925594',1,'HighFive::File']]],
-  ['readwrite',['ReadWrite',['../class_high_five_1_1_file.html#a66225bf5898f9e14f84c02529ca19431aaf0dbab200a1ff2d914ee1c9e69a189e',1,'HighFive::File']]]
+  ['integer',['Integer',['../namespace_high_five.html#ad43e509d198c83c5484c796babdd847baa0faef0851b4294c06f2b94bb1cb2044',1,'HighFive']]],
+  ['invalid',['Invalid',['../namespace_high_five.html#ad43e509d198c83c5484c796babdd847ba4bbb8f967da6d1a610596d7257179c2b',1,'HighFive']]]
 ];

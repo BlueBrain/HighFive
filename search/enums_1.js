@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['propertytype',['PropertyType',['../namespace_high_five.html#a097a358bdda37ff6e6b48d9f43664ad4',1,'HighFive']]]
+  ['linktype',['LinkType',['../namespace_high_five.html#abe5895b8113887accd6bff2392b24c40',1,'HighFive']]]
 ];

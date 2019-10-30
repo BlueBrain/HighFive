@@ -67,8 +67,9 @@ var hierarchy =
       [ "HighFive::File", "class_high_five_1_1_file.html", null ],
       [ "HighFive::Group", "class_high_five_1_1_group.html", null ]
     ] ],
-    [ "H5Easy::detail::scalar::overwrite_impl< T, E >", "struct_h5_easy_1_1detail_1_1scalar_1_1overwrite__impl.html", null ],
+    [ "HighFive::ObjectInfo", "class_high_five_1_1_object_info.html", null ],
     [ "H5Easy::detail::vector::overwrite_impl< T, E >", "struct_h5_easy_1_1detail_1_1vector_1_1overwrite__impl.html", null ],
+    [ "H5Easy::detail::scalar::overwrite_impl< T, E >", "struct_h5_easy_1_1detail_1_1scalar_1_1overwrite__impl.html", null ],
     [ "HighFive::PropertyList< T >", "class_high_five_1_1_property_list.html", [
       [ "HighFive::FileDriver", "class_high_five_1_1_file_driver.html", [
         [ "HighFive::MPIOFileDriver", "class_high_five_1_1_m_p_i_o_file_driver.html", null ]

@@ -9,6 +9,8 @@ var searchData=
   ['slicetraits',['SliceTraits',['../class_high_five_1_1_slice_traits.html',1,'HighFive::SliceTraits&lt; Derivate &gt;'],['../class_high_five_1_1_element_set.html#addb06cbd22277a5199483352358a5e4f',1,'HighFive::ElementSet::SliceTraits()']]],
   ['slicetraits_3c_20dataset_20_3e',['SliceTraits&lt; DataSet &gt;',['../class_high_five_1_1_slice_traits.html',1,'HighFive']]],
   ['slicetraits_3c_20selection_20_3e',['SliceTraits&lt; Selection &gt;',['../class_high_five_1_1_slice_traits.html',1,'HighFive']]],
+  ['soft',['Soft',['../namespace_high_five.html#abe5895b8113887accd6bff2392b24c40a682160fc6ad12f783f70608a9b46b9b9',1,'HighFive']]],
   ['stackwalk',['stackWalk',['../struct_high_five_1_1_h_d_f5_err_mapper.html#a6b5c9457c40015e9c57896e68cf86069',1,'HighFive::HDF5ErrMapper']]],
+  ['string',['string',['../class_high_five_1_1_data_type.html#a957ea4848ba76cab82d7b4cff7210c87',1,'HighFive::DataType::string()'],['../namespace_high_five.html#ad43e509d198c83c5484c796babdd847ba27118326006d3829667a400ad23d5d98',1,'HighFive::String()']]],
   ['string_5fcreate',['STRING_CREATE',['../namespace_high_five.html#a097a358bdda37ff6e6b48d9f43664ad4a8c7bdf2b95146589251f8ecff10ca084',1,'HighFive']]]
 ];

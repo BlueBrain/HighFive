@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HighFive
-   &#160;<span id="projectnumber">3.0</span>
+   &#160;<span id="projectnumber">2.1</span>
    </div>
    <div id="projectbrief">HighFive - Header-only C++ HDF5 interface</div>
   </td>
@@ -102,7 +102,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:afcfe17bbe1a0be726ed5a2f987a4b240"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d177a1b532c93797502ce0be7ff18d0"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a3d177a1b532c93797502ce0be7ff18d0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html#a3d177a1b532c93797502ce0be7ff18d0">createDataSet</a> (const std::string &amp;dataset_name, const T &amp;data, const <a class="el" href="namespace_high_five.html#a7f63486ab3b1e3cf43263860aca43c29">DataSetCreateProps</a> &amp;createProps=<a class="el" href="namespace_high_five.html#a7f63486ab3b1e3cf43263860aca43c29">DataSetCreateProps</a>(), const <a class="el" href="namespace_high_five.html#a6b914d333d1d32032720ac3ab8f2b62f">DataSetAccessProps</a> &amp;accessProps=<a class="el" href="namespace_high_five.html#a6b914d333d1d32032720ac3ab8f2b62f">DataSetAccessProps</a>())</td></tr>
-<tr class="memdesc:a3d177a1b532c93797502ce0be7ff18d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">createDataSet create a new dataset in the current file and write to it, inferring the <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> from the data.  <a href="#a3d177a1b532c93797502ce0be7ff18d0">More...</a><br /></td></tr>
+<tr class="memdesc:a3d177a1b532c93797502ce0be7ff18d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">createDataSet create a new dataset in the current file and write to it, inferring the <a class="el" href="class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. ">DataSpace</a> from the data.  <a href="#a3d177a1b532c93797502ce0be7ff18d0">More...</a><br /></td></tr>
 <tr class="separator:a3d177a1b532c93797502ce0be7ff18d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47359f2349138c2931e2dab225ca1073"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html#a47359f2349138c2931e2dab225ca1073">getDataSet</a> (const std::string &amp;dataset_name, const <a class="el" href="namespace_high_five.html#a6b914d333d1d32032720ac3ab8f2b62f">DataSetAccessProps</a> &amp;accessProps=<a class="el" href="namespace_high_five.html#a6b914d333d1d32032720ac3ab8f2b62f">DataSetAccessProps</a>()) const</td></tr>
 <tr class="memdesc:a47359f2349138c2931e2dab225ca1073"><td class="mdescLeft">&#160;</td><td class="mdescRight">get an existing dataset in the current file  <a href="#a47359f2349138c2931e2dab225ca1073">More...</a><br /></td></tr>
@@ -125,6 +125,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa3c8c4e09ebba6d997768ad72bc3bf82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html#aa3c8c4e09ebba6d997768ad72bc3bf82">exist</a> (const std::string &amp;node_name) const</td></tr>
 <tr class="memdesc:aa3c8c4e09ebba6d997768ad72bc3bf82"><td class="mdescLeft">&#160;</td><td class="mdescRight">check a dataset or group exists in the current node / group  <a href="#aa3c8c4e09ebba6d997768ad72bc3bf82">More...</a><br /></td></tr>
 <tr class="separator:aa3c8c4e09ebba6d997768ad72bc3bf82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeab19b9f1fef90db036e1ea6238ef4eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_high_five.html#abe5895b8113887accd6bff2392b24c40">LinkType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html#aeab19b9f1fef90db036e1ea6238ef4eb">getLinkType</a> (const std::string &amp;node_name) const</td></tr>
+<tr class="memdesc:aeab19b9f1fef90db036e1ea6238ef4eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the kind of link of the given name (soft, hard...)  <a href="#aeab19b9f1fef90db036e1ea6238ef4eb">More...</a><br /></td></tr>
+<tr class="separator:aeab19b9f1fef90db036e1ea6238ef4eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2c385a18e2caaae71366139b57d8f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_high_five.html#ad8790d0a626a7355392c05dc69a1d474">ObjectType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_node_traits.html#abc2c385a18e2caaae71366139b57d8f2">getObjectType</a> (const std::string &amp;node_name) const</td></tr>
+<tr class="memdesc:abc2c385a18e2caaae71366139b57d8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A shorthand to get the kind of object pointed to (group, dataset, type...)  <a href="#abc2c385a18e2caaae71366139b57d8f2">More...</a><br /></td></tr>
+<tr class="separator:abc2c385a18e2caaae71366139b57d8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a3b53779774bd69b8794a0e913b6be516"></a>
@@ -185,14 +191,14 @@ template&lt;typename Derivate &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dataset_name</td><td>identifier of the dataset </td></tr>
-    <tr><td class="paramname">space</td><td>Associated <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a>, see <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> for more informations </td></tr>
+    <tr><td class="paramname">space</td><td>Associated <a class="el" href="class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. ">DataSpace</a>, see <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> for more informations </td></tr>
     <tr><td class="paramname">type</td><td>Type of Data </td></tr>
     <tr><td class="paramname">createProps</td><td>A property list with data set creation properties </td></tr>
     <tr><td class="paramname">accessProps</td><td>A property list with data set access properties </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
 
 </div>
 </div>
@@ -250,13 +256,13 @@ template&lt;typename Type &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dataset_name</td><td>identifier of the dataset </td></tr>
-    <tr><td class="paramname">space</td><td>Associated <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a>, see <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> for more information </td></tr>
+    <tr><td class="paramname">space</td><td>Associated <a class="el" href="class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. ">DataSpace</a>, see <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> for more information </td></tr>
     <tr><td class="paramname">createProps</td><td>A property list with data set creation properties </td></tr>
     <tr><td class="paramname">accessProps</td><td>A property list with data set access properties </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
 
 </div>
 </div>
@@ -310,7 +316,7 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>createDataSet create a new dataset in the current file and write to it, inferring the <a class="el" href="class_high_five_1_1_data_space.html">DataSpace</a> from the data. </p>
+<p>createDataSet create a new dataset in the current file and write to it, inferring the <a class="el" href="class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. ">DataSpace</a> from the data. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dataset_name</td><td>identifier of the dataset </td></tr>
@@ -320,7 +326,7 @@ template&lt;typename T &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a> <a class="el" href="class_high_five_1_1_object.html">Object</a> </dd></dl>
 
 </div>
 </div>
@@ -364,7 +370,7 @@ template&lt;typename Derivate &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">group_name</td><td></td></tr>
-    <tr><td class="paramname">parents</td><td>Whether it shall create intermediate groups if </td></tr>
+    <tr><td class="paramname">parents</td><td>Whether it shall create intermediate groups if necessary. Default: true </td></tr>
   </table>
   </dd>
 </dl>
@@ -405,7 +411,7 @@ template&lt;typename Derivate &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true if a dataset/group with the associated name exist, or false </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if a dataset/group with the associated name exists, or false </dd></dl>
 
 </div>
 </div>
@@ -494,6 +500,42 @@ template&lt;typename Derivate &gt; </div>
 
 </div>
 </div>
+<a id="aeab19b9f1fef90db036e1ea6238ef4eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeab19b9f1fef90db036e1ea6238ef4eb">&#9670;&nbsp;</a></span>getLinkType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Derivate &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespace_high_five.html#abe5895b8113887accd6bff2392b24c40">LinkType</a> <a class="el" href="class_high_five_1_1_node_traits.html">HighFive::NodeTraits</a>&lt; Derivate &gt;::getLinkType </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>node_name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the kind of link of the given name (soft, hard...) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_name</td><td>The entry to check, path relative to the current group </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ad90f036b55bd3e155c73ece61233210e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad90f036b55bd3e155c73ece61233210e">&#9670;&nbsp;</a></span>getNumberObjects()</h2>
 
@@ -552,6 +594,42 @@ template&lt;typename Derivate &gt; </div>
 
 <p>return the name of the object with the given index </p>
 <dl class="section return"><dt>Returns</dt><dd>the name of the object </dd></dl>
+
+</div>
+</div>
+<a id="abc2c385a18e2caaae71366139b57d8f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc2c385a18e2caaae71366139b57d8f2">&#9670;&nbsp;</a></span>getObjectType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Derivate &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespace_high_five.html#ad8790d0a626a7355392c05dc69a1d474">ObjectType</a> <a class="el" href="class_high_five_1_1_node_traits.html">HighFive::NodeTraits</a>&lt; Derivate &gt;::getObjectType </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>node_name</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A shorthand to get the kind of object pointed to (group, dataset, type...) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">node_name</td><td>The entry to check, path relative to the current group </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

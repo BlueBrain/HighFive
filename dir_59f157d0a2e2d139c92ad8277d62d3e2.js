@@ -1,22 +1,18 @@
 var dir_59f157d0a2e2d139c92ad8277d62d3e2 =
 [
     [ "bits", "dir_1d6aeb27bb4ae09e14bf6b9e21ff19e0.html", "dir_1d6aeb27bb4ae09e14bf6b9e21ff19e0" ],
+    [ "h5easy_bits", "dir_eced565d6e1e1da7c55d194ee737dc53.html", "dir_eced565d6e1e1da7c55d194ee737dc53" ],
     [ "H5Attribute.hpp", "_h5_attribute_8hpp.html", [
-      [ "AnnotateTraits", "class_high_five_1_1_annotate_traits.html", "class_high_five_1_1_annotate_traits" ],
       [ "Attribute", "class_high_five_1_1_attribute.html", "class_high_five_1_1_attribute" ]
     ] ],
     [ "H5DataSet.hpp", "_h5_data_set_8hpp.html", [
       [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
-      [ "SliceTraits", "class_high_five_1_1_slice_traits.html", "class_high_five_1_1_slice_traits" ],
       [ "DataSet", "class_high_five_1_1_data_set.html", "class_high_five_1_1_data_set" ]
     ] ],
     [ "H5DataSpace.hpp", "_h5_data_space_8hpp.html", [
       [ "DataSpace", "class_high_five_1_1_data_space.html", "class_high_five_1_1_data_space" ]
     ] ],
-    [ "H5DataType.hpp", "_h5_data_type_8hpp.html", [
-      [ "DataType", "class_high_five_1_1_data_type.html", "class_high_five_1_1_data_type" ],
-      [ "AtomicType", "class_high_five_1_1_atomic_type.html", "class_high_five_1_1_atomic_type" ]
-    ] ],
+    [ "H5DataType.hpp", "_h5_data_type_8hpp.html", "_h5_data_type_8hpp" ],
     [ "H5Easy.hpp", "_h5_easy_8hpp.html", "_h5_easy_8hpp" ],
     [ "H5Exception.hpp", "_h5_exception_8hpp.html", [
       [ "Exception", "class_high_five_1_1_exception.html", "class_high_five_1_1_exception" ],
@@ -39,14 +35,9 @@ var dir_59f157d0a2e2d139c92ad8277d62d3e2 =
     [ "H5Group.hpp", "_h5_group_8hpp.html", [
       [ "Group", "class_high_five_1_1_group.html", "class_high_five_1_1_group" ]
     ] ],
-    [ "H5Object.hpp", "_h5_object_8hpp.html", [
-      [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
-      [ "AnnotateTraits", "class_high_five_1_1_annotate_traits.html", "class_high_five_1_1_annotate_traits" ],
-      [ "Object", "class_high_five_1_1_object.html", "class_high_five_1_1_object" ]
-    ] ],
+    [ "H5Object.hpp", "_h5_object_8hpp.html", "_h5_object_8hpp" ],
     [ "H5PropertyList.hpp", "_h5_property_list_8hpp.html", "_h5_property_list_8hpp" ],
     [ "H5Selection.hpp", "_h5_selection_8hpp.html", [
-      [ "SliceTraits", "class_high_five_1_1_slice_traits.html", "class_high_five_1_1_slice_traits" ],
       [ "Selection", "class_high_five_1_1_selection.html", "class_high_five_1_1_selection" ]
     ] ],
     [ "H5Utility.hpp", "_h5_utility_8hpp.html", [

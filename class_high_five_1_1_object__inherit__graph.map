@@ -1,9 +1,9 @@
 <map id="HighFive::Object" name="HighFive::Object">
-<area shape="rect" id="node2" href="$class_high_five_1_1_attribute.html" title="HighFive::Attribute" alt="" coords="181,5,312,32"/>
-<area shape="rect" id="node3" href="$class_high_five_1_1_data_set.html" title="HighFive::DataSet" alt="" coords="181,56,312,83"/>
-<area shape="rect" id="node4" href="$class_high_five_1_1_data_space.html" title="HighFive::DataSpace" alt="" coords="173,107,320,133"/>
+<area shape="rect" id="node2" href="$class_high_five_1_1_attribute.html" title="Class representing an attribute of a dataset or group. " alt="" coords="181,5,312,32"/>
+<area shape="rect" id="node3" href="$class_high_five_1_1_data_set.html" title="Class representing a dataset. " alt="" coords="181,56,312,83"/>
+<area shape="rect" id="node4" href="$class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. " alt="" coords="173,107,320,133"/>
 <area shape="rect" id="node5" href="$class_high_five_1_1_data_type.html" title="HDF5 Data Type. " alt="" coords="177,157,316,184"/>
 <area shape="rect" id="node7" href="$class_high_five_1_1_file.html" title="File class. " alt="" coords="195,208,298,235"/>
-<area shape="rect" id="node8" href="$class_high_five_1_1_group.html" title="HighFive::Group" alt="" coords="188,259,305,285"/>
+<area shape="rect" id="node8" href="$class_high_five_1_1_group.html" title="Represents an hdf5 group. " alt="" coords="188,259,305,285"/>
 <area shape="rect" id="node6" href="$class_high_five_1_1_atomic_type.html" title="create an HDF5 DataType from a C++ type " alt="" coords="368,157,552,184"/>
 </map>

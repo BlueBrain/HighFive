@@ -1,25 +1,9 @@
 <map id="/home/cornu/HighFive/include/highfive/bits/H5Node_traits.hpp" name="/home/cornu/HighFive/include/highfive/bits/H5Node_traits.hpp">
-<area shape="rect" id="node3" href="$_h5_node__traits__misc_8hpp.html" title="H5Node_traits_misc.hpp" alt="" coords="1054,109,1221,136"/>
-<area shape="rect" id="node4" href="$_h5_iterables__misc_8hpp.html" title="H5Iterables_misc.hpp" alt="" coords="928,781,1077,808"/>
-<area shape="rect" id="node7" href="$_h5_exception_8hpp.html" title="../H5Exception.hpp" alt="" coords="1467,856,1602,883"/>
-<area shape="rect" id="node20" href="$_h5_attribute_8hpp.html" title="../H5Attribute.hpp" alt="" coords="683,408,808,435"/>
-<area shape="rect" id="node29" href="$_h5_data_space_8hpp.html" title="../H5DataSpace.hpp" alt="" coords="435,632,576,659"/>
-<area shape="rect" id="node34" href="$_h5_data_type_8hpp.html" title="../H5DataType.hpp" alt="" coords="1541,632,1675,659"/>
-<area shape="rect" id="node40" href="$_h5_data_set_8hpp.html" title="../H5DataSet.hpp" alt="" coords="826,184,950,211"/>
-<area shape="rect" id="node46" href="$_h5_group_8hpp.html" title="../H5Group.hpp" alt="" coords="142,184,253,211"/>
-<area shape="rect" id="node49" href="$_h5_utility_8hpp.html" title="../H5Utility.hpp" alt="" coords="3091,259,3202,285"/>
-<area shape="rect" id="node9" href="$_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="1123,931,1239,957"/>
-<area shape="rect" id="node16" href="$_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="1571,931,1754,957"/>
-<area shape="rect" id="node21" href="$_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="742,707,845,733"/>
-<area shape="rect" id="node23" href="$_h5_attribute__misc_8hpp.html" title="bits/H5Attribute_misc.hpp" alt="" coords="1445,483,1619,509"/>
-<area shape="rect" id="node22" href="$_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="1101,781,1264,808"/>
-<area shape="rect" id="node38" href="$_h5_converter__misc_8hpp.html" title="H5Converter_misc.hpp" alt="" coords="1998,557,2154,584"/>
-<area shape="rect" id="node32" href="$_h5_dataspace__misc_8hpp.html" title="bits/H5Dataspace_misc.hpp" alt="" coords="489,781,676,808"/>
-<area shape="rect" id="node35" href="$_h5_data_type__misc_8hpp.html" title="bits/H5DataType_misc.hpp" alt="" coords="1829,707,2011,733"/>
-<area shape="rect" id="node41" href="$_h5_annotate__traits_8hpp.html" title="bits/H5Annotate_traits.hpp" alt="" coords="799,259,977,285"/>
-<area shape="rect" id="node43" href="$_h5_slice__traits_8hpp.html" title="bits/H5Slice_traits.hpp" alt="" coords="1136,856,1291,883"/>
-<area shape="rect" id="node44" href="$_h5_data_set__misc_8hpp.html" title="bits/H5DataSet_misc.hpp" alt="" coords="1823,408,1995,435"/>
-<area shape="rect" id="node42" href="$_h5_annotate__traits__misc_8hpp.html" title="H5Annotate_traits_misc.hpp" alt="" coords="795,333,981,360"/>
-<area shape="rect" id="node45" href="$_h5_slice__traits__misc_8hpp.html" title="H5Slice_traits_misc.hpp" alt="" coords="2067,483,2231,509"/>
-<area shape="rect" id="node47" href="$_h5_group__misc_8hpp.html" title="bits/H5Group_misc.hpp" alt="" coords="94,259,253,285"/>
+<area shape="rect" id="node3" href="$_h5_property_list_8hpp.html" title="../H5PropertyList.hpp" alt="" coords="211,109,358,136"/>
+<area shape="rect" id="node5" href="$_h5_exception_8hpp.html" title="H5Exception.hpp" alt="" coords="329,273,451,300"/>
+<area shape="rect" id="node20" href="$_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="480,191,583,218"/>
+<area shape="rect" id="node25" href="$_h5_property_list__misc_8hpp.html" title="bits/H5PropertyList\l_misc.hpp" alt="" coords="217,184,352,225"/>
+<area shape="rect" id="node8" href="$_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="329,348,445,375"/>
+<area shape="rect" id="node17" href="$_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="469,348,652,375"/>
+<area shape="rect" id="node23" href="$_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="741,273,903,300"/>
 </map>

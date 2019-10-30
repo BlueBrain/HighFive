@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HighFive
-   &#160;<span id="projectnumber">3.0</span>
+   &#160;<span id="projectnumber">2.1</span>
    </div>
    <div id="projectbrief">HighFive - Header-only C++ HDF5 interface</div>
   </td>
@@ -98,12 +98,12 @@ Inheritance diagram for HighFive::Object:</div>
 <div class="dyncontent">
 <div class="center"><img src="class_high_five_1_1_object__inherit__graph.png" border="0" usemap="#_high_five_1_1_object_inherit__map" alt="Inheritance graph"/></div>
 <map name="_high_five_1_1_object_inherit__map" id="_high_five_1_1_object_inherit__map">
-<area shape="rect" id="node2" href="class_high_five_1_1_attribute.html" title="HighFive::Attribute" alt="" coords="181,5,312,32"/>
-<area shape="rect" id="node3" href="class_high_five_1_1_data_set.html" title="HighFive::DataSet" alt="" coords="181,56,312,83"/>
-<area shape="rect" id="node4" href="class_high_five_1_1_data_space.html" title="HighFive::DataSpace" alt="" coords="173,107,320,133"/>
+<area shape="rect" id="node2" href="class_high_five_1_1_attribute.html" title="Class representing an attribute of a dataset or group. " alt="" coords="181,5,312,32"/>
+<area shape="rect" id="node3" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. " alt="" coords="181,56,312,83"/>
+<area shape="rect" id="node4" href="class_high_five_1_1_data_space.html" title="Class representing the space (dimensions) of a dataset. " alt="" coords="173,107,320,133"/>
 <area shape="rect" id="node5" href="class_high_five_1_1_data_type.html" title="HDF5 Data Type. " alt="" coords="177,157,316,184"/>
 <area shape="rect" id="node7" href="class_high_five_1_1_file.html" title="File class. " alt="" coords="195,208,298,235"/>
-<area shape="rect" id="node8" href="class_high_five_1_1_group.html" title="HighFive::Group" alt="" coords="188,259,305,285"/>
+<area shape="rect" id="node8" href="class_high_five_1_1_group.html" title="Represents an hdf5 group. " alt="" coords="188,259,305,285"/>
 <area shape="rect" id="node6" href="class_high_five_1_1_atomic_type.html" title="create an HDF5 DataType from a C++ type " alt="" coords="368,157,552,184"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
@@ -118,6 +118,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a337bebd35f8a547162c2ee81df03b632"><td class="memItemLeft" align="right" valign="top">hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a337bebd35f8a547162c2ee81df03b632">getId</a> () const</td></tr>
 <tr class="memdesc:a337bebd35f8a547162c2ee81df03b632"><td class="mdescLeft">&#160;</td><td class="mdescRight">getId  <a href="#a337bebd35f8a547162c2ee81df03b632">More...</a><br /></td></tr>
 <tr class="separator:a337bebd35f8a547162c2ee81df03b632"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a134549df53c4c0a04f728db983b2f947"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_object_info.html">ObjectInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a134549df53c4c0a04f728db983b2f947">getInfo</a> () const</td></tr>
+<tr class="memdesc:a134549df53c4c0a04f728db983b2f947"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve several infos about the current object (address, dates, etc)  <a href="#a134549df53c4c0a04f728db983b2f947">More...</a><br /></td></tr>
+<tr class="separator:a134549df53c4c0a04f728db983b2f947"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60a33f44d524aae5936131770811bd58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_high_five.html#ad8790d0a626a7355392c05dc69a1d474">ObjectType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a60a33f44d524aae5936131770811bd58">getType</a> () const</td></tr>
+<tr class="memdesc:a60a33f44d524aae5936131770811bd58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the fundamental type of the object (dataset, group, etc)  <a href="#a60a33f44d524aae5936131770811bd58">More...</a><br /></td></tr>
+<tr class="separator:a60a33f44d524aae5936131770811bd58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -245,6 +251,66 @@ Friends</h2></td></tr>
 
 <p>getId </p>
 <dl class="section return"><dt>Returns</dt><dd>internal HDF5 id to the object provided for C API compatibility </dd></dl>
+
+</div>
+</div>
+<a id="a134549df53c4c0a04f728db983b2f947"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a134549df53c4c0a04f728db983b2f947">&#9670;&nbsp;</a></span>getInfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_high_five_1_1_object_info.html">ObjectInfo</a> HighFive::Object::getInfo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieve several infos about the current object (address, dates, etc) </p>
+
+</div>
+</div>
+<a id="a60a33f44d524aae5936131770811bd58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60a33f44d524aae5936131770811bd58">&#9670;&nbsp;</a></span>getType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespace_high_five.html#ad8790d0a626a7355392c05dc69a1d474">ObjectType</a> HighFive::Object::getType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Gets the fundamental type of the object (dataset, group, etc) </p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="class_high_five_1_1_object_exception.html" title="Exception specific to HighFive Object interface. ">ObjectException</a></td><td>when the _hid is negative or the type is custom and not registered yet </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

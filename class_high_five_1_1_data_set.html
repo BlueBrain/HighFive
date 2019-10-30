@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HighFive
-   &#160;<span id="projectnumber">3.0</span>
+   &#160;<span id="projectnumber">2.1</span>
    </div>
    <div id="projectbrief">HighFive - Header-only C++ HDF5 interface</div>
   </td>
@@ -90,6 +90,9 @@ $(document).ready(function(){initNavTree('class_high_five_1_1_data_set.html','')
 </div><!--header-->
 <div class="contents">
 
+<p>Class representing a dataset.  
+ <a href="class_high_five_1_1_data_set.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="_h5_data_set_8hpp_source.html">H5DataSet.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for HighFive::DataSet:</div>
@@ -133,7 +136,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a516b2f8f1e4ecca470d8c351749807e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the size of the dataset.  <a href="#a516b2f8f1e4ecca470d8c351749807e9">More...</a><br /></td></tr>
 <tr class="separator:a516b2f8f1e4ecca470d8c351749807e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae692cd6f0476cd9f3e5dbae1141eab18"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_data_set.html#ae692cd6f0476cd9f3e5dbae1141eab18">getDimensions</a> () const</td></tr>
-<tr class="memdesc:ae692cd6f0476cd9f3e5dbae1141eab18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the dimensions of the whole <a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.<a class="el" href="class_high_five_1_1_data_set.html#ae692cd6f0476cd9f3e5dbae1141eab18" title="Get the dimensions of the whole DataSet. This is a shorthand for getSpace().getDimensions() ...">getDimensions()</a>  <a href="#ae692cd6f0476cd9f3e5dbae1141eab18">More...</a><br /></td></tr>
+<tr class="memdesc:ae692cd6f0476cd9f3e5dbae1141eab18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the dimensions of the whole <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a>. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.<a class="el" href="class_high_five_1_1_data_set.html#ae692cd6f0476cd9f3e5dbae1141eab18" title="Get the dimensions of the whole DataSet. This is a shorthand for getSpace().getDimensions() ...">getDimensions()</a>  <a href="#ae692cd6f0476cd9f3e5dbae1141eab18">More...</a><br /></td></tr>
 <tr class="separator:ae692cd6f0476cd9f3e5dbae1141eab18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd786ba50bb11b92c9d760f7f77e4ca7"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_data_set.html#abd786ba50bb11b92c9d760f7f77e4ca7">getElementCount</a> () const</td></tr>
 <tr class="memdesc:abd786ba50bb11b92c9d760f7f77e4ca7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the total number of elements in the current dataset. E.g. 2x2x2 matrix has size 8. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.getTotalCount()  <a href="#abd786ba50bb11b92c9d760f7f77e4ca7">More...</a><br /></td></tr>
@@ -147,6 +150,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a337bebd35f8a547162c2ee81df03b632 inherit pub_methods_class_high_five_1_1_object"><td class="memItemLeft" align="right" valign="top">hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a337bebd35f8a547162c2ee81df03b632">getId</a> () const</td></tr>
 <tr class="memdesc:a337bebd35f8a547162c2ee81df03b632 inherit pub_methods_class_high_five_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">getId  <a href="class_high_five_1_1_object.html#a337bebd35f8a547162c2ee81df03b632">More...</a><br /></td></tr>
 <tr class="separator:a337bebd35f8a547162c2ee81df03b632 inherit pub_methods_class_high_five_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a134549df53c4c0a04f728db983b2f947 inherit pub_methods_class_high_five_1_1_object"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_object_info.html">ObjectInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a134549df53c4c0a04f728db983b2f947">getInfo</a> () const</td></tr>
+<tr class="memdesc:a134549df53c4c0a04f728db983b2f947 inherit pub_methods_class_high_five_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve several infos about the current object (address, dates, etc)  <a href="class_high_five_1_1_object.html#a134549df53c4c0a04f728db983b2f947">More...</a><br /></td></tr>
+<tr class="separator:a134549df53c4c0a04f728db983b2f947 inherit pub_methods_class_high_five_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60a33f44d524aae5936131770811bd58 inherit pub_methods_class_high_five_1_1_object"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_high_five.html#ad8790d0a626a7355392c05dc69a1d474">ObjectType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a60a33f44d524aae5936131770811bd58">getType</a> () const</td></tr>
+<tr class="memdesc:a60a33f44d524aae5936131770811bd58 inherit pub_methods_class_high_five_1_1_object"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the fundamental type of the object (dataset, group, etc)  <a href="class_high_five_1_1_object.html#a60a33f44d524aae5936131770811bd58">More...</a><br /></td></tr>
+<tr class="separator:a60a33f44d524aae5936131770811bd58 inherit pub_methods_class_high_five_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_high_five_1_1_slice_traits"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_high_five_1_1_slice_traits')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_high_five_1_1_slice_traits.html">HighFive::SliceTraits&lt; DataSet &gt;</a></td></tr>
 <tr class="memitem:a45f550dc65aca3a53e29bd9bb9160f4c inherit pub_methods_class_high_five_1_1_slice_traits"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_selection.html">Selection</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_slice_traits.html#a45f550dc65aca3a53e29bd9bb9160f4c">select</a> (const std::vector&lt; size_t &gt; &amp;offset, const std::vector&lt; size_t &gt; &amp;count, const std::vector&lt; size_t &gt; &amp;stride=std::vector&lt; size_t &gt;()) const</td></tr>
 <tr class="separator:a45f550dc65aca3a53e29bd9bb9160f4c inherit pub_methods_class_high_five_1_1_slice_traits"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,7 +213,9 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:a8e28f684d63a33646aa107a41d9cf521 inherit pro_attribs_class_high_five_1_1_object"><td class="memItemLeft" align="right" valign="top">hid_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_high_five_1_1_object.html#a8e28f684d63a33646aa107a41d9cf521">_hid</a></td></tr>
 <tr class="separator:a8e28f684d63a33646aa107a41d9cf521 inherit pro_attribs_class_high_five_1_1_object"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Class representing a dataset. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a52b7938b1c7e48f7600fbc3be4a0f24e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a52b7938b1c7e48f7600fbc3be4a0f24e">&#9670;&nbsp;</a></span>getDataType()</h2>
 
@@ -256,8 +267,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Get the dimensions of the whole <a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.<a class="el" href="class_high_five_1_1_data_set.html#ae692cd6f0476cd9f3e5dbae1141eab18" title="Get the dimensions of the whole DataSet. This is a shorthand for getSpace().getDimensions() ...">getDimensions()</a> </p>
-<dl class="section return"><dt>Returns</dt><dd>The shape of the current <a class="el" href="class_high_five_1_1_data_set.html">HighFive::DataSet</a> </dd></dl>
+<p>Get the dimensions of the whole <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a>. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.<a class="el" href="class_high_five_1_1_data_set.html#ae692cd6f0476cd9f3e5dbae1141eab18" title="Get the dimensions of the whole DataSet. This is a shorthand for getSpace().getDimensions() ...">getDimensions()</a> </p>
+<dl class="section return"><dt>Returns</dt><dd>The shape of the current <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">HighFive::DataSet</a> </dd></dl>
 
 </div>
 </div>
@@ -285,7 +296,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get the total number of elements in the current dataset. E.g. 2x2x2 matrix has size 8. This is a shorthand for <a class="el" href="class_high_five_1_1_data_set.html#aa9405c8f1bdb72d28e971c8645fb47aa" title="getSpace ">getSpace()</a>.getTotalCount() </p>
-<dl class="section return"><dt>Returns</dt><dd>The shape of the current <a class="el" href="class_high_five_1_1_data_set.html">HighFive::DataSet</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The shape of the current <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">HighFive::DataSet</a> </dd></dl>
 
 </div>
 </div>
@@ -313,7 +324,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>getMemSpace </p>
-<dl class="section return"><dt>Returns</dt><dd>same than getSpace for <a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>, compatibility with <a class="el" href="class_high_five_1_1_selection.html" title="Selection: represent a view on a slice/part of a dataset. ">Selection</a> class </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>same than getSpace for <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a>, compatibility with <a class="el" href="class_high_five_1_1_selection.html" title="Selection: represent a view on a slice/part of a dataset. ">Selection</a> class </dd></dl>
 
 </div>
 </div>
@@ -341,7 +352,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>getOffset </p>
-<dl class="section return"><dt>Returns</dt><dd>returns <a class="el" href="class_high_five_1_1_data_set.html">DataSet</a> address in file </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>returns <a class="el" href="class_high_five_1_1_data_set.html" title="Class representing a dataset. ">DataSet</a> address in file </dd></dl>
 
 </div>
 </div>

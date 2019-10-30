@@ -1,10 +1,10 @@
 <map id="/home/cornu/HighFive/include/highfive/H5FileDriver.hpp" name="/home/cornu/HighFive/include/highfive/H5FileDriver.hpp">
-<area shape="rect" id="node2" href="$_h5_property_list_8hpp.html" title="H5PropertyList.hpp" alt="" coords="577,95,712,121"/>
-<area shape="rect" id="node24" href="$_h5_file_driver__misc_8hpp.html" title="bits/H5FileDriver_misc.hpp" alt="" coords="736,95,916,121"/>
-<area shape="rect" id="node3" href="$_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="475,177,577,203"/>
-<area shape="rect" id="node23" href="$_h5_property_list__misc_8hpp.html" title="bits/H5PropertyList\l_misc.hpp" alt="" coords="653,169,788,211"/>
-<area shape="rect" id="node5" href="$_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="445,259,607,285"/>
-<area shape="rect" id="node6" href="$_h5_exception_8hpp.html" title="../H5Exception.hpp" alt="" coords="395,333,529,360"/>
-<area shape="rect" id="node9" href="$_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="404,408,520,435"/>
-<area shape="rect" id="node18" href="$_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="672,408,855,435"/>
+<area shape="rect" id="node2" href="$_h5_property_list_8hpp.html" title="H5PropertyList.hpp" alt="" coords="455,95,589,121"/>
+<area shape="rect" id="node26" href="$_h5_file_driver__misc_8hpp.html" title="bits/H5FileDriver_misc.hpp" alt="" coords="236,95,416,121"/>
+<area shape="rect" id="node4" href="$_h5_exception_8hpp.html" title="H5Exception.hpp" alt="" coords="499,259,622,285"/>
+<area shape="rect" id="node20" href="$_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="643,177,745,203"/>
+<area shape="rect" id="node25" href="$_h5_property_list__misc_8hpp.html" title="bits/H5PropertyList\l_misc.hpp" alt="" coords="349,169,484,211"/>
+<area shape="rect" id="node8" href="$_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="405,333,521,360"/>
+<area shape="rect" id="node17" href="$_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="545,333,728,360"/>
+<area shape="rect" id="node23" href="$_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="895,259,1058,285"/>
 </map>

@@ -29,7 +29,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">HighFive
-   &#160;<span id="projectnumber">3.0</span>
+   &#160;<span id="projectnumber">2.1</span>
    </div>
    <div id="projectbrief">HighFive - Header-only C++ HDF5 interface</div>
   </td>
@@ -110,6 +110,10 @@ Functions</h2></td></tr>
 <tr class="memitem:aa178d03fd7b8d435b5b41f613c1eaa8b"><td class="memItemLeft" align="right" valign="top">std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_h5_easy.html#aa178d03fd7b8d435b5b41f613c1eaa8b">getShape</a> (const <a class="el" href="class_high_five_1_1_file.html">File</a> &amp;file, const std::string &amp;path)</td></tr>
 <tr class="memdesc:aa178d03fd7b8d435b5b41f613c1eaa8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the shape of an existing DataSet in an open HDF5 file.  <a href="#aa178d03fd7b8d435b5b41f613c1eaa8b">More...</a><br /></td></tr>
 <tr class="separator:aa178d03fd7b8d435b5b41f613c1eaa8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespace_h5_easy.html#ae3800e73ea90fa7b84737f7882cdf35c">dump</a> (<a class="el" href="class_high_five_1_1_file.html">File</a> &amp;file, const std::string &amp;path, const std::vector&lt; T &gt; &amp;data, <a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0">DumpMode</a> mode=<a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0a686e697538050e4664636337cc3b834f">DumpMode::Create</a>)</td></tr>
+<tr class="memdesc:ae3800e73ea90fa7b84737f7882cdf35c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write "Eigen::Matrix&lt;T,Rows,Cols,Options&gt;" to a new DataSet in an open HDF5 file.  <a href="#ae3800e73ea90fa7b84737f7882cdf35c">More...</a><br /></td></tr>
+<tr class="separator:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d74bc6b96493dbef4fb3b4e237cff88"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:a3d74bc6b96493dbef4fb3b4e237cff88"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespace_h5_easy.html#a3d74bc6b96493dbef4fb3b4e237cff88">dump</a> (<a class="el" href="class_high_five_1_1_file.html">File</a> &amp;file, const std::string &amp;path, const T &amp;data, <a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0">DumpMode</a> mode=<a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0a686e697538050e4664636337cc3b834f">DumpMode::Create</a>)</td></tr>
 <tr class="memdesc:a3d74bc6b96493dbef4fb3b4e237cff88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write scalar/string to a new DataSet in an open HDF5 file.  <a href="#a3d74bc6b96493dbef4fb3b4e237cff88">More...</a><br /></td></tr>
@@ -126,10 +130,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a35bd0e824fe3dca2e2d9f9b5e42a18aa"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespace_h5_easy.html#a35bd0e824fe3dca2e2d9f9b5e42a18aa">load</a> (const <a class="el" href="class_high_five_1_1_file.html">File</a> &amp;file, const std::string &amp;path)</td></tr>
 <tr class="memdesc:a35bd0e824fe3dca2e2d9f9b5e42a18aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a DataSet in an open HDF5 file to an object (templated).  <a href="#a35bd0e824fe3dca2e2d9f9b5e42a18aa">More...</a><br /></td></tr>
 <tr class="separator:a35bd0e824fe3dca2e2d9f9b5e42a18aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
-<tr class="memitem:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="class_high_five_1_1_data_set.html">DataSet</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespace_h5_easy.html#ae3800e73ea90fa7b84737f7882cdf35c">dump</a> (<a class="el" href="class_high_five_1_1_file.html">File</a> &amp;file, const std::string &amp;path, const std::vector&lt; T &gt; &amp;data, <a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0">DumpMode</a> mode=<a class="el" href="namespace_h5_easy.html#a6d10754b7f2ada9e3296560032dd81a0a686e697538050e4664636337cc3b834f">DumpMode::Create</a>)</td></tr>
-<tr class="memdesc:ae3800e73ea90fa7b84737f7882cdf35c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write "Eigen::Matrix&lt;T,Rows,Cols,Options&gt;" to a new DataSet in an open HDF5 file.  <a href="#ae3800e73ea90fa7b84737f7882cdf35c">More...</a><br /></td></tr>
-<tr class="separator:ae3800e73ea90fa7b84737f7882cdf35c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="a6d10754b7f2ada9e3296560032dd81a0"></a>

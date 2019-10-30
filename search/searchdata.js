@@ -5,11 +5,11 @@ var indexSectionsWithContent =
   2: "h",
   3: "hm",
   4: "_acdefghilmnoprstvw~",
-  5: "_enuv",
+  5: "_enruv",
   6: "bdft",
-  7: "dp",
-  8: "acdefglorst",
-  9: ":adfhns",
+  7: "dlop",
+  8: "abcdefghilorstuv",
+  9: ":adfhnos",
   10: "h",
   11: "h"
 };

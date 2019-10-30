@@ -26,6 +26,7 @@ var namespace_high_five =
     [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
     [ "Object", "class_high_five_1_1_object.html", "class_high_five_1_1_object" ],
     [ "ObjectException", "class_high_five_1_1_object_exception.html", "class_high_five_1_1_object_exception" ],
+    [ "ObjectInfo", "class_high_five_1_1_object_info.html", "class_high_five_1_1_object_info" ],
     [ "PropertyException", "class_high_five_1_1_property_exception.html", "class_high_five_1_1_property_exception" ],
     [ "PropertyList", "class_high_five_1_1_property_list.html", "class_high_five_1_1_property_list" ],
     [ "RawPropertyList", "class_high_five_1_1_raw_property_list.html", "class_high_five_1_1_raw_property_list" ],

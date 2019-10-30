@@ -5,5 +5,6 @@ var searchData=
   ['shuffle',['Shuffle',['../class_high_five_1_1_shuffle.html#af6e131d6631cd6e9a9256364d42ba398',1,'HighFive::Shuffle']]],
   ['silencehdf5',['SilenceHDF5',['../class_high_five_1_1_silence_h_d_f5.html#ad0143dbcccd0437b51dbc491128d8d2d',1,'HighFive::SilenceHDF5']]],
   ['single_5fbuffer_5fto_5fvectors',['single_buffer_to_vectors',['../namespace_high_five_1_1details.html#a02029170cd265031b7627d7b97f203ae',1,'HighFive::details::single_buffer_to_vectors(typename std::vector&lt; T &gt;::iterator begin_buffer, typename std::vector&lt; T &gt;::iterator end_buffer, const std::vector&lt; size_t &gt; &amp;dims, const size_t current_dim, std::vector&lt; T &gt; &amp;vec_single_dim)'],['../namespace_high_five_1_1details.html#ad0bd942f7ad33830763e728a0314445e',1,'HighFive::details::single_buffer_to_vectors(typename std::vector&lt; U &gt;::iterator begin_buffer, typename std::vector&lt; U &gt;::iterator end_buffer, const std::vector&lt; size_t &gt; &amp;dims, const size_t current_dim, std::vector&lt; std::vector&lt; T &gt;&gt; &amp;vec_multi_dim)']]],
-  ['stackwalk',['stackWalk',['../struct_high_five_1_1_h_d_f5_err_mapper.html#a6b5c9457c40015e9c57896e68cf86069',1,'HighFive::HDF5ErrMapper']]]
+  ['stackwalk',['stackWalk',['../struct_high_five_1_1_h_d_f5_err_mapper.html#a6b5c9457c40015e9c57896e68cf86069',1,'HighFive::HDF5ErrMapper']]],
+  ['string',['string',['../class_high_five_1_1_data_type.html#a957ea4848ba76cab82d7b4cff7210c87',1,'HighFive::DataType']]]
 ];

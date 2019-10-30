@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['slicetraits',['SliceTraits',['../class_high_five_1_1_element_set.html#addb06cbd22277a5199483352358a5e4f',1,'HighFive::ElementSet']]]
+  ['object',['Object',['../class_high_five_1_1_object_info.html#a0720b5f434e636e22a3ed34f847eec57',1,'HighFive::ObjectInfo']]]
 ];

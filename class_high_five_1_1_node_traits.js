@@ -7,7 +7,9 @@ var class_high_five_1_1_node_traits =
     [ "exist", "class_high_five_1_1_node_traits.html#aa3c8c4e09ebba6d997768ad72bc3bf82", null ],
     [ "getDataSet", "class_high_five_1_1_node_traits.html#a47359f2349138c2931e2dab225ca1073", null ],
     [ "getGroup", "class_high_five_1_1_node_traits.html#a286d9f9c2232c25abc5876bdc9d66edd", null ],
+    [ "getLinkType", "class_high_five_1_1_node_traits.html#aeab19b9f1fef90db036e1ea6238ef4eb", null ],
     [ "getNumberObjects", "class_high_five_1_1_node_traits.html#ad90f036b55bd3e155c73ece61233210e", null ],
     [ "getObjectName", "class_high_five_1_1_node_traits.html#ae10cb4bd9e20c651c136b284f3d8cd46", null ],
+    [ "getObjectType", "class_high_five_1_1_node_traits.html#abc2c385a18e2caaae71366139b57d8f2", null ],
     [ "listObjectNames", "class_high_five_1_1_node_traits.html#ab5053a0150b348aadfa4bd81b1f1a551", null ]
 ];

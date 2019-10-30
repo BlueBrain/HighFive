@@ -1,11 +1,3 @@
 <map id="/home/cornu/HighFive/include/highfive/bits/H5Converter_misc.hpp" name="/home/cornu/HighFive/include/highfive/bits/H5Converter_misc.hpp">
-<area shape="rect" id="node11" href="$_h5_data_space_8hpp.html" title="../H5DataSpace.hpp" alt="" coords="473,109,615,136"/>
-<area shape="rect" id="node21" href="$_h5_utils_8hpp.html" title="bits/H5Utils.hpp" alt="" coords="727,408,843,435"/>
-<area shape="rect" id="node32" href="$_h5_data_type_8hpp.html" title="../H5DataType.hpp" alt="" coords="1160,109,1293,136"/>
-<area shape="rect" id="node16" href="$_h5_object_8hpp.html" title="H5Object.hpp" alt="" coords="1069,184,1171,211"/>
-<area shape="rect" id="node30" href="$_h5_dataspace__misc_8hpp.html" title="bits/H5Dataspace_misc.hpp" alt="" coords="601,259,788,285"/>
-<area shape="rect" id="node18" href="$_h5_object__misc_8hpp.html" title="bits/H5Object_misc.hpp" alt="" coords="1039,259,1201,285"/>
-<area shape="rect" id="node19" href="$_h5_exception_8hpp.html" title="../H5Exception.hpp" alt="" coords="1129,333,1263,360"/>
-<area shape="rect" id="node26" href="$_h5_exception__misc_8hpp.html" title="bits/H5Exception_misc.hpp" alt="" coords="1105,408,1287,435"/>
-<area shape="rect" id="node33" href="$_h5_data_type__misc_8hpp.html" title="bits/H5DataType_misc.hpp" alt="" coords="1220,184,1401,211"/>
+<area shape="rect" id="node11" href="$_h5_utils_8hpp.html" title="H5Utils.hpp" alt="" coords="252,109,343,136"/>
 </map>
