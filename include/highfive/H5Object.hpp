@@ -29,7 +29,7 @@ class ObjectInfo;
 
 
 ///
-/// \bried Enum of the types of objects (H5O api)
+/// \brief Enum of the types of objects (H5O api)
 ///
 enum class ObjectType {
     File,
@@ -67,7 +67,7 @@ class Object {
 
     ///
     /// \brief Gets the fundamental type of the object (dataset, group, etc)
-    /// \except throws ObjectException when the _hid is negative or the type
+    /// \exception ObjectException when the _hid is negative or the type
     ///     is custom and not registered yet
     ///
     ObjectType getType() const;
