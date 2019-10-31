@@ -23,7 +23,7 @@ addons: &clang6
     packages:
       - clang-6.0
       - libboost-all-dev
-      - libhdf5-mpich-dev
+      - libhdf5-openmpi-dev
       - libeigen3-dev
       - ninja-build
     sources:
