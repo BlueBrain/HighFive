@@ -12,7 +12,7 @@ addons: &gcc7
     packages:
       - g++-7
       - libboost-all-dev
-      - libhdf5-serial-dev
+      - libhdf5-openmpi-dev
       - libeigen3-dev
       - ninja-build
     sources:
@@ -23,7 +23,7 @@ addons: &clang6
     packages:
       - clang-6.0
       - libboost-all-dev
-      - libhdf5-serial-dev
+      - libhdf5-openmpi-dev
       - libeigen3-dev
       - ninja-build
     sources:
@@ -35,7 +35,7 @@ addons: &clang7
     packages:
       - clang-7
       - libboost-all-dev
-      - libhdf5-serial-dev
+      - libhdf5-openmpi-dev
       - libeigen3-dev
       - ninja-build
     sources:
@@ -47,6 +47,7 @@ matrix:
     # Test default gcc on Ubuntu trusty
     - env:
       - USE_XTENSOR=False
+      - HIGHFIVE_PARALLEL_HDF5=True
       os: linux
       dist: trusty
       addons:
@@ -54,12 +55,13 @@ matrix:
           packages:
           - libboost-all-dev
           - libeigen3-dev
-          - libhdf5-serial-dev
+          - libhdf5-openmpi-dev
           - ninja-build
     # Test gcc-7
     - env:
       - GCC_VERSION=7
       - USE_XTENSOR=True
+      - HIGHFIVE_PARALLEL_HDF5=True
       os: linux
       dist: xenial
       addons: *gcc7
@@ -67,6 +69,7 @@ matrix:
     # Test clang-6.0
     - env:
       - CLANG_VERSION=6.0
+      - HIGHFIVE_PARALLEL_HDF5=True
       os: linux
       dist: xenial
       addons: *clang6
@@ -75,6 +78,7 @@ matrix:
     - env:
       - CLANG_VERSION=7
       - USE_XTENSOR=True
+      - HIGHFIVE_PARALLEL_HDF5=True
       os: linux
       dist: xenial
       addons: *clang7
@@ -82,10 +86,14 @@ matrix:
     # osx
     - env:
       - USE_XTENSOR=True
+      - HIGHFIVE_PARALLEL_HDF5=False
       os: osx
       osx_image: xcode10.3
 
-    - os: windows
+    - env:
+      - USE_XTENSOR=True
+      - HIGHFIVE_PARALLEL_HDF5=False
+      os: windows
 
 env:
   global:
@@ -137,6 +145,7 @@ script:
     cmake --warn-uninitialized --debug-output
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     -DHIGHFIVE_TEST_SINGLE_INCLUDES:BOOL=ON
+    -DHIGHFIVE_PARALLEL_HDF5:BOOL=${HIGHFIVE_PARALLEL_HDF5}
     -DUSE_EIGEN:BOOL=ON
     -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
     -G "${CMAKE_GENERATOR}" ../
