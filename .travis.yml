@@ -44,56 +44,62 @@ addons: &clang7
 
 matrix:
   include:
-    # Test default gcc on Ubuntu trusty
-    - env:
-      - USE_XTENSOR=False
-      - HIGHFIVE_PARALLEL_HDF5=True
-      os: linux
+    # Older linux (trusty) with default gcc
+    # Install serial hdf5 + build serial
+    - os: linux
       dist: trusty
+      env:
+        - USE_XTENSOR=False
+        - HIGHFIVE_PARALLEL_HDF5=False
       addons:
         apt:
           packages:
-          - libboost-all-dev
-          - libeigen3-dev
-          - libhdf5-openmpi-dev
-          - ninja-build
-    # Test gcc-7
-    - env:
-      - GCC_VERSION=7
-      - USE_XTENSOR=True
-      - HIGHFIVE_PARALLEL_HDF5=True
-      os: linux
+            - libboost-all-dev
+            - libeigen3-dev
+            - libhdf5-serial-dev
+            - ninja-build
+
+    # Linux gcc-7
+    # Install parallel hdf5 + build parallel
+    - os: linux
       dist: xenial
+      env:
+        - GCC_VERSION=7
+        - USE_XTENSOR=True
+        - HIGHFIVE_PARALLEL_HDF5=True
       addons: *gcc7
 
-    # Test clang-6.0
-    - env:
-      - CLANG_VERSION=6.0
-      - HIGHFIVE_PARALLEL_HDF5=True
-      os: linux
+    # Linux clang-6.0
+    # Install parallel hdf5 + build serial
+    - os: linux
       dist: xenial
+      env:
+        - CLANG_VERSION=6.0
+        - HIGHFIVE_PARALLEL_HDF5=False
       addons: *clang6
 
-    # Test clang-7
-    - env:
-      - CLANG_VERSION=7
-      - USE_XTENSOR=True
-      - HIGHFIVE_PARALLEL_HDF5=True
-      os: linux
+    # Linux clang-7
+    # Install parallel hdf5, build parallel
+    - os: linux
       dist: xenial
+      env:
+        - CLANG_VERSION=7
+        - USE_XTENSOR=True
+        - HIGHFIVE_PARALLEL_HDF5=True
       addons: *clang7
 
-    # osx
-    - env:
-      - USE_XTENSOR=True
-      - HIGHFIVE_PARALLEL_HDF5=False
-      os: osx
+    # Mac OSX
+    - os: osx
       osx_image: xcode10.3
+      env:
+        - USE_XTENSOR=True
+        - HIGHFIVE_PARALLEL_HDF5=False
 
-    - env:
-      - USE_XTENSOR=True
-      - HIGHFIVE_PARALLEL_HDF5=False
-      os: windows
+    # Windows
+    - os: windows
+      env:
+        - USE_XTENSOR=True
+        - HIGHFIVE_PARALLEL_HDF5=False
 
 env:
   global:
