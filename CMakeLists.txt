@@ -78,7 +78,7 @@ if(USE_XTENSOR)
   endif()
 endif()
 
-if(HIGHFIVE_PARALLEL_HDF5)
+if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
   find_package(MPI REQUIRED)
   add_definitions("-DMPI_NO_CPPBIND")
 endif()
