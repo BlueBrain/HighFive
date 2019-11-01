@@ -9,13 +9,13 @@ target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
 target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
 
 # MPI
-if(HIGHFIVE_PARALLEL_HDF5)
-  target_include_directories(HighFive SYSTEM INTERFACE ${MPI_C_INCLUDE_PATH})
-  target_link_libraries(HighFive INTERFACE ${MPI_C_LIBRARIES})
+if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
+  target_include_directories(HighFive SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
+  target_link_libraries(HighFive INTERFACE ${MPI_CXX_LIBRARIES})
   if(CMAKE_VERSION VERSION_LESS 3.13)
-    target_link_libraries(HighFive INTERFACE ${MPI_C_LINK_FLAGS})
+    target_link_libraries(HighFive INTERFACE ${MPI_CXX_LINK_FLAGS})
   else()
-    target_link_options(HighFive INTERFACE ${MPI_C_LINK_FLAGS})
+    target_link_options(HighFive INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
   endif()
 endif()
 
