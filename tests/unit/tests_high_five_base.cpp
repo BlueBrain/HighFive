@@ -1118,30 +1118,35 @@ typedef struct {
 } CSL2;
 
 namespace HighFive {
-    template<> inline DataType create_datatype<CSL1>() {
+    CompoundType create_compound_csl1() {
         auto t2 = AtomicType<int>();
         CompoundType t1;
-        t1.addMember("m1", H5T_NATIVE_INT)
-          .addMember("m2", AtomicType<int>())
+        t1.addMember("m1", AtomicType<int>{})
+          .addMember("m2", AtomicType<int>{})
           .addMember("m3", t2);
         t1.autoCreate();
 
-        return std::move(t1);
+        return t1;
     }
 
-    template<> inline DataType create_datatype<CSL2>() {
-        auto t3 = AtomicType<int>();
-        CompoundType t1;
-        t1.addMember("m1", H5T_NATIVE_INT)
-          .addMember("m2", AtomicType<int>())
-          .addMember("m3", t3);
-        t1.autoCreate();
+    CompoundType create_compound_csl2() {
+        CompoundType t1 = create_compound_csl1();
 
         CompoundType t2;
         t2.addMember("csl1", t1);
         t2.autoCreate();
 
-        return std::move(t2);
+        return t2;
+    }
+
+    template<>
+    DataType create_datatype<CSL1>() {
+        return std::move(create_compound_csl1());
+    }
+
+    template<>
+    DataType create_datatype<CSL2>() {
+        return std::move(create_compound_csl2());
     }
 }
 
@@ -1153,16 +1158,10 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     auto t3 = AtomicType<int>();
-    CompoundType t1;
-    t1.addMember("m1", H5T_NATIVE_INT)
-      .addMember("m2", AtomicType<int>())
-      .addMember("m3", t3);
-    t1.autoCreate();
+    CompoundType t1 = create_compound_csl1();
     t1.commit(file, "my_type");
 
-    CompoundType t2;
-    t2.addMember("csl1", t1);
-    t2.autoCreate();
+    CompoundType t2 = create_compound_csl2();
     t2.commit(file, "my_type2");
 
 

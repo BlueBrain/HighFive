@@ -167,13 +167,8 @@ inline AtomicType<std::complex<double> >::AtomicType()
 // Calculate the padding required to align an element of a struct
 #define _STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
 
-inline CompoundType& CompoundType::addMember(const std::string& name, hid_t base_type, size_t offset) {
+inline CompoundType& CompoundType::addMember(const std::string& name, const DataType& base_type, size_t offset) {
     member_list.emplace_back<member_def>({name, base_type, offset});
-    return *this;
-}
-
-inline CompoundType& CompoundType::addMember(const std::string& name, HighFive::DataType base_type, size_t offset) {
-    addMember(name, base_type.getId(), offset);
     return *this;
 }
 
@@ -183,7 +178,7 @@ inline void CompoundType::autoCreate() {
 
     // Do a first pass to find the total size of the compound datatype
     for (auto& member: member_list) {
-        size_t member_size = H5Tget_size(member.base_type);
+        size_t member_size = H5Tget_size(member.base_type.getId());
 
         // Set the offset of this member within the struct according to the
         // standard alignment rules
@@ -209,7 +204,7 @@ inline void CompoundType::manualCreate(size_t total_size) {
 
     // Loop over all the members and insert them into the datatype
     for (const auto& member: member_list) {
-        if(H5Tinsert(_hid, member.name.c_str(), member.offset, member.base_type) < 0) {
+        if(H5Tinsert(_hid, member.name.c_str(), member.offset, member.base_type.getId()) < 0) {
             HDF5ErrMapper::ToException<DataTypeException>(
                 "Could not add new member to datatype"
             );

@@ -23,9 +23,9 @@ typedef struct {
 namespace HighFive {
 template <> inline DataType create_datatype<csl>() {
     CompoundType v_aligned;
-    v_aligned.addMember("u1", H5T_NATIVE_UCHAR);
-    v_aligned.addMember("u2", H5T_NATIVE_SHORT);
-    v_aligned.addMember("u3", H5T_NATIVE_ULLONG);
+    v_aligned.addMember("u1", AtomicType<unsigned char>{});
+    v_aligned.addMember("u2", AtomicType<short>{});
+    v_aligned.addMember("u3", AtomicType<unsigned long long>{});
     v_aligned.autoCreate();
 
     return std::move(v_aligned);
@@ -41,8 +41,8 @@ int main(void) {
         // Create a simple compound type with automatic alignment of the
         // members. For this the type alignment is trivial.
         CompoundType t;
-        t.addMember("real", H5T_NATIVE_INT);
-        t.addMember("imag", H5T_NATIVE_INT);
+        t.addMember("real", AtomicType<int>{});
+        t.addMember("imag", AtomicType<int>{});
         t.autoCreate();
         t.commit(file, "new_type1");
 
@@ -50,16 +50,16 @@ int main(void) {
         CompoundType u;
         u.addMember("u1", t, 0);
         u.addMember("u2", t, 9);
-        u.addMember("u3", H5T_NATIVE_INT, 20);
+        u.addMember("u3", AtomicType<int>{}, 20);
         u.manualCreate(26);
         u.commit(file, "new_type3");
 
         // Create a more complex type with automatic alignment. For this the
         // type alignment is more complex.
         CompoundType v_aligned;
-        v_aligned.addMember("u1", H5T_NATIVE_UCHAR);
-        v_aligned.addMember("u2", H5T_NATIVE_SHORT);
-        v_aligned.addMember("u3", H5T_NATIVE_ULLONG);
+        v_aligned.addMember("u1", AtomicType<unsigned char>{});
+        v_aligned.addMember("u2", AtomicType<short>{});
+        v_aligned.addMember("u3", AtomicType<unsigned long long>{});
         v_aligned.autoCreate();
         v_aligned.commit(file, "new_type2_aligned");
 
@@ -67,9 +67,9 @@ int main(void) {
         // equivalent type is created with a standard struct alignment in the
         // implementation of HighFive::create_datatype above
         CompoundType v_packed;
-        v_packed.addMember("u1", H5T_NATIVE_UCHAR, 0);
-        v_packed.addMember("u2", H5T_NATIVE_SHORT, 1);
-        v_packed.addMember("u3", H5T_NATIVE_ULLONG, 3);
+        v_packed.addMember("u1", AtomicType<unsigned char>{}, 0);
+        v_packed.addMember("u2", AtomicType<short>{}, 1);
+        v_packed.addMember("u3", AtomicType<unsigned long long>{}, 3);
         v_packed.manualCreate(11);
         v_packed.commit(file, "new_type2_packed");
 
