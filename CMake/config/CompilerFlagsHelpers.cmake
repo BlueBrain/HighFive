@@ -88,7 +88,7 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 			" -Wformat=2 -Wconversion -Wsign-conversion"
 		    " -Wno-error=conversion -Wno-error=sign-conversion")  # Too common to be considered errors
 		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_ICC)
-			string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL "-Wcast-align -Wpedantic -Wdouble-promotion")
+			string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wcast-align -Wpedantic -Wdouble-promotion")
 		endif()
 
 		set(CMAKE_${COMPILER_LANGUAGE}_DEBUGINFO_FLAGS "-g")
