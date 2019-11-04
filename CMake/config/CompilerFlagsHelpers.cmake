@@ -86,7 +86,7 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 		string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL
 			" -Wall -Wextra -Werror -Wshadow -Wnon-virtual-dtor -Wunused -Woverloaded-virtual"
 			" -Wformat=2 -Wconversion -Wsign-conversion"
-		    " -Wno-error=conversion -Wno-error=sign-conversion")  # Too common to be considered errors
+		        " -Wno-error=conversion -Wno-error=sign-conversion")  # Too common to be considered errors
 		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_ICC)
 			string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wcast-align -Wpedantic -Wdouble-promotion")
 		endif()
