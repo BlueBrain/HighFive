@@ -83,7 +83,10 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 
 	## GCC, CLANG, rest of the world
 	else()
-		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL "-Wall -Wextra -Werror -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual -Wpedantic -Wdouble-promotion -Wformat=2 -Wconversion -Wsign-conversion")
+		string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL
+			" -Wall -Wextra -Werror -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual"
+			" -Wpedantic -Wdouble-promotion -Wformat=2 -Wconversion -Wsign-conversion"
+		    " -Wno-error=conversion -Wno-error=sign-conversion")  # Too common to be considered errors
 
 		set(CMAKE_${COMPILER_LANGUAGE}_DEBUGINFO_FLAGS "-g")
 
