@@ -45,6 +45,8 @@ class PropertyList {
   public:
     ~PropertyList();
 
+    PropertyList(const PropertyList<T>&) = delete;
+    PropertyList& operator=(const PropertyList<T>&) = delete;
     PropertyList(PropertyList&& other);
     PropertyList& operator=(PropertyList&& other);
     constexpr PropertyType getType() const { return T; }
@@ -68,10 +70,6 @@ class PropertyList {
     void _initializeIfNeeded();
 
     hid_t _hid;
-
-  private:
-    PropertyList(const PropertyList<T>&) = delete;
-    PropertyList& operator=(const PropertyList<T>&) = delete;
 };
 
 typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
