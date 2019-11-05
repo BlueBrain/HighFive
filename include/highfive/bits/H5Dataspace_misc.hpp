@@ -131,7 +131,6 @@ inline std::vector<size_t> DataSpace::getMaxDimensions() const {
 template <typename ScalarValue>
 inline DataSpace DataSpace::From(const ScalarValue& scalar) {
     (void)scalar;
-#if H5_USE_CXX11
     static_assert(
         (std::is_arithmetic<ScalarValue>::value ||
          std::is_enum<ScalarValue>::value ||
@@ -148,7 +147,6 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
         "boost::multi_array<all_basic_types> \n"
         "  all_supported_types = all_basic_types | stl_container_types | "
         "boost_container_types");
-#endif
     return DataSpace(DataSpace::datascape_scalar);
 }
 

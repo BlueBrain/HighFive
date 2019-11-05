@@ -45,10 +45,8 @@ class PropertyList {
   public:
     ~PropertyList();
 
-#ifdef H5_USE_CXX11
     PropertyList(PropertyList&& other);
     PropertyList& operator=(PropertyList&& other);
-#endif
     constexpr PropertyType getType() const { return T; }
 
     hid_t getId() const { return _hid; }
@@ -72,13 +70,8 @@ class PropertyList {
     hid_t _hid;
 
   private:
-#ifdef H5_USE_CXX11
     PropertyList(const PropertyList<T>&) = delete;
     PropertyList& operator=(const PropertyList<T>&) = delete;
-#else
-    PropertyList(const PropertyList<T>&);
-    PropertyList& operator=(const PropertyList<T>&);
-#endif
 };
 
 typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;

@@ -26,14 +26,6 @@
 
 #include <H5public.h>
 
-#ifndef H5_USE_CXX11
-#if ___cplusplus >= 201103L
-#define H5_USE_CXX11 1
-#else
-#define H5_USE_CXX11 0
-#endif
-#endif
-
 namespace HighFive {
 
 namespace details {
