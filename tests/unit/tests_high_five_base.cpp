@@ -810,6 +810,37 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(selectionArraySimple, T, dataset_test_types) {
     selectionArraySimpleTest<T>();
 }
 
+BOOST_AUTO_TEST_CASE(selectionByElementMultiDim) {
+    const std::string FILE_NAME("h5_test_selection_multi_dim.h5");
+    // Create a 2-dim dataset
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    std::vector<size_t> dims{3,3};
+
+    auto set = file.createDataSet("test", DataSpace(dims), AtomicType<int>());
+    int values[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+    set.write(values);
+
+    {
+        int value;
+        set.select(ElementSet{{1,1}}).read(value);
+        BOOST_CHECK_EQUAL(value, 5);
+    }
+
+    {
+        int value[2];
+        set.select(ElementSet{0,0,2,2}).read(value);
+        BOOST_CHECK_EQUAL(value[0], 1);
+        BOOST_CHECK_EQUAL(value[1], 9);
+    }
+
+    {
+        int value[2];
+        set.select(ElementSet{{0,1},{1,2}}).read(value);
+        BOOST_CHECK_EQUAL(value[0], 2);
+        BOOST_CHECK_EQUAL(value[1], 6);
+    }
+}
+
 template <typename T>
 void columnSelectionTest() {
     std::ostringstream filename;
