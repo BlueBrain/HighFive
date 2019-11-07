@@ -131,6 +131,11 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
     const hsize_t* data = NULL;
     DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
     const std::size_t length = elements._ids.size();
+    if (length % space.getNumberDimensions() != 0) {
+        throw DataSpaceException("Number of coordinates in elements picking "
+                "should be a multiple of the dimensions.");
+    }
+
     const std::size_t num_elements = length / space.getNumberDimensions();
     std::vector<hsize_t> raw_elements;
 

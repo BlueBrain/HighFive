@@ -839,6 +839,10 @@ BOOST_AUTO_TEST_CASE(selectionByElementMultiDim) {
         BOOST_CHECK_EQUAL(value[0], 2);
         BOOST_CHECK_EQUAL(value[1], 6);
     }
+
+    {
+        BOOST_CHECK_THROW(set.select(ElementSet{0, 1, 2}), DataSpaceException);
+    }
 }
 
 template <typename T>
