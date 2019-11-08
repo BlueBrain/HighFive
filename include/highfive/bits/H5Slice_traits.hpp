@@ -23,7 +23,28 @@ class SliceTraits;
 
 class ElementSet {
   public:
+    ///
+    /// \brief Create a list of points of N-dimension for selection.
+    ///
+    /// \param list List of continuous coordinates (eg.: in 2 dimensions space `ElementSet{1, 2, 3 ,4}` create points
+    /// `(1, 2)` and `(3, 4)`).
+    explicit ElementSet(std::initializer_list<std::size_t> list);
+    ///
+    /// \brief Create a list of points of N-dimension for selection.
+    ///
+    /// \param list List of N-dim points.
+    explicit ElementSet(std::initializer_list<std::vector<std::size_t>> list);
+    ///
+    /// \brief Create a list of points of N-dimension for selection.
+    ///
+    /// \param element_ids List of continuous coordinates (eg.: in 2 dimensions space `ElementSet{1, 2, 3 ,4}` create points
+    /// `(1, 2)` and `(3, 4)`).
     explicit ElementSet(const std::vector<std::size_t>& element_ids);
+    ///
+    /// \brief Create a list of points of N-dimension for selection.
+    ///
+    /// \param element_ids List of N-dim points.
+    explicit ElementSet(const std::vector<std::vector<std::size_t>>& element_ids);
 
   private:
     std::vector<std::size_t> _ids;
@@ -36,9 +57,10 @@ template <typename Derivate>
 class SliceTraits {
   public:
     ///
-    /// select a region in the current Slice/Dataset of 'count' points at
-    /// 'offset' separated by 'stride'. If strides are not provided they will
+    /// \brief Select a region in the current Slice/Dataset of \p count points at
+    /// \p offset separated by \p stride. If strides are not provided they will
     /// default to 1 in all dimensions.
+    ///
     /// vector offset and count have to be from the same dimension
     ///
     Selection select(const std::vector<size_t>& offset,
@@ -47,20 +69,21 @@ class SliceTraits {
         const;
 
     ///
-    /// select a set of columns in the last dimension of this dataset.
+    /// \brief Select a set of columns in the last dimension of this dataset.
+    ///
     /// The column indices must be smaller than the dimension size.
     ///
     Selection select(const std::vector<size_t>& columns) const;
 
     ///
-    /// select a region in the current Slice/Dataset out of a list of elements
+    /// \brief Select a region in the current Slice/Dataset out of a list of elements.
     ///
     Selection select(const ElementSet& elements) const;
 
     ///
     /// Read the entire dataset into a buffer
     /// An exception is raised is if the numbers of dimension of the buffer and
-    /// of the dataset are different
+    /// of the dataset are different.
     ///
     /// The array type can be a N-pointer or a N-vector. For plain pointers
     /// not dimensionality checking will be performed, it is the user's
