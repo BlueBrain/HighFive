@@ -60,7 +60,6 @@ template <PropertyType T>
 inline PropertyList<T>::PropertyList()
     : _hid(H5P_DEFAULT) {}
 
-#ifdef H5_USE_CXX11
 template <PropertyType T>
 inline PropertyList<T>::PropertyList(PropertyList<T>&& other)
     : _hid(other._hid) {
@@ -75,7 +74,6 @@ inline PropertyList<T>& PropertyList<T>::operator=(PropertyList<T>&& other) {
     _hid = hid;
     return *this;
 }
-#endif
 
 template <PropertyType T>
 inline PropertyList<T>::~PropertyList() {
