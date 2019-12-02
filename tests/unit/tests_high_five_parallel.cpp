@@ -36,7 +36,7 @@ struct MpiFixture {
 
 BOOST_GLOBAL_FIXTURE(MpiFixture)
 #if BOOST_VERSION >= 105900
-#then ;
+;
 #endif
 
 template <typename T>
