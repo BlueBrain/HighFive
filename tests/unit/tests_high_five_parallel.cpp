@@ -34,7 +34,7 @@ struct MpiFixture {
     ~MpiFixture() { MPI_Finalize(); }
 };
 
-BOOST_GLOBAL_FIXTURE(MpiFixture)
+BOOST_GLOBAL_FIXTURE(MpiFixture);
 
 
 template <typename T>
