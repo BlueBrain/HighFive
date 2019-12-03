@@ -5,10 +5,10 @@ target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
 
-if(HDF5_USE_STATIC_LIBRARIES)
-    set(HDF5_C_LINK_LIB ${HDF5_C_SHARED_LIBRARY})
-else()
-    set(HDF5_C_LINK_LIB ${HDF5_C_STATIC_LIBRARY})
+# With recent HDF5 a package-config is provided and target names must be translated
+set(HDF5_C_LINK_LIB ${HDF5_C_LIBRARIES})
+if(TARGET "${HDF5_C_LIBRARIES}")
+    get_target_property(HDF5_C_LINK_LIB ${HDF5_C_LIBRARIES} LOCATION)
 endif()
 
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
