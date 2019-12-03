@@ -5,8 +5,14 @@ target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
 
+if(HDF5_USE_STATIC_LIBRARIES)
+    set(HDF5_C_LINK_LIB ${HDF5_C_SHARED_LIBRARY})
+else()
+    set(HDF5_C_LINK_LIB ${HDF5_C_STATIC_LIBRARY})
+endif()
+
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-target_link_libraries(HighFive INTERFACE ${HDF5_C_LIBRARIES})
+target_link_libraries(HighFive INTERFACE ${HDF5_C_LINK_LIB})
 target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
 
 # MPI
