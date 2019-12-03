@@ -4,8 +4,9 @@ add_library(HighFive INTERFACE)
 target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
+
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-target_link_libraries(HighFive INTERFACE ${HDF5_LIBRARIES})
+target_link_libraries(HighFive INTERFACE ${HDF5_C_LIBRARIES})
 target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
 
 # MPI
