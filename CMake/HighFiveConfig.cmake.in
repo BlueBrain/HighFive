@@ -1,3 +1,18 @@
+# Transitive dependencies
+if(NOT "${HDF5_C_LIBRARIES}")
+  if(DEFINED HIGHFIVE_PARALLEL_HDF5)
+    set(HDF5_PREFER_PARALLEL ${HIGHFIVE_PARALLEL_HDF5})
+  else()
+    option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" @HIGHFIVE_PARALLEL_HDF5@)
+    set(HDF5_PREFER_PARALLEL @HIGHFIVE_PARALLEL_HDF5@)
+  endif()
+  find_package(HDF5 REQUIRED)
+endif()
+
+if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
+  message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
+endif()
+
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
   include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 endif()

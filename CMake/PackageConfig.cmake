@@ -5,14 +5,8 @@ target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
 
-# With recent HDF5 a package-config is provided and target names must be translated
-set(HDF5_C_LINK_LIB ${HDF5_C_LIBRARIES})
-if(TARGET "${HDF5_C_LIBRARIES}")
-    get_target_property(HDF5_C_LINK_LIB ${HDF5_C_LIBRARIES} LOCATION)
-endif()
-
 target_include_directories(HighFive SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-target_link_libraries(HighFive INTERFACE ${HDF5_C_LINK_LIB})
+target_link_libraries(HighFive INTERFACE ${HDF5_C_LIBRARIES})
 target_compile_definitions(HighFive INTERFACE ${HDF5_DEFINITIONS})
 
 # MPI
@@ -33,7 +27,7 @@ if(USE_BOOST)
   target_link_libraries(HighFive INTERFACE ${Boost_SERIALIZATION_LIBRARIES})
 endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive
+install(DIRECTORY include/
   DESTINATION "include")
 
 include(CMakePackageConfigHelpers)
@@ -51,14 +45,24 @@ install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
   ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION share/${PROJECT_NAME}/CMake)
 
-# Generate ${PROJECT_NAME}Targets.cmake; is written after the CMake run
-# succeeds. Provides IMPORTED targets when using this project from the install
-# tree.
-install(EXPORT HighFiveTargets FILE ${PROJECT_NAME}Targets.cmake
-  DESTINATION share/${PROJECT_NAME}/CMake)
 
-install(TARGETS HighFive EXPORT ${PROJECT_NAME}Targets
-  INCLUDES DESTINATION include)
+# Generate ${PROJECT_NAME}Targets.cmake;
+# Provides IMPORTED targets when using this project from build/install trees.
 
+# NOTE: the export file is ${PROJECT_NAME}Targets to support when HighFive
+# is built within a 3rd-party project (X). Other projects can find and import
+# X-Targets.cmake containing the HighFive target
+
+# Specify targets to include in the HighFive Export
+install(TARGETS HighFive
+        EXPORT HighFiveTargets
+        INCLUDES DESTINATION include)
+
+# Generate & install the Export for the INSTALL_INTERFACE
+install(EXPORT HighFiveTargets
+        FILE ${PROJECT_NAME}Targets.cmake
+        DESTINATION share/${PROJECT_NAME}/CMake)
+
+# Generate the Export for the BUILD_INTERACE
 export(EXPORT HighFiveTargets
-  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+       FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
