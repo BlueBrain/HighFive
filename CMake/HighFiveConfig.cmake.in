@@ -13,6 +13,10 @@ if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
   message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
 endif()
 
+if(USE_BOOST AND NOT TARGET Boost::serialization)
+  find_package(Boost COMPONENTS system serialization)
+endif()
+
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
   include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 endif()

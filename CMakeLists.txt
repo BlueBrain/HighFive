@@ -40,6 +40,10 @@ if(HIGHFIVE_PARALLEL_HDF5)
 endif()
 find_package(HDF5 REQUIRED)
 
+if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
+  message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
+endif()
+
 set(Boost_NO_BOOST_CMAKE TRUE)
 if(USE_BOOST)
   set(BOOST_REQ_COMPONENTS system serialization)
@@ -52,7 +56,6 @@ if(USE_BOOST)
       Boost not found which is required for efficient multi-dimension and tests.\n\
       To disable support please use cmake .. -DUSE_BOOST=OFF.")
   endif()
-  add_definitions(-DH5_USE_BOOST)
 endif()
 
 if(USE_EIGEN)
@@ -84,7 +87,21 @@ if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
 endif()
 
 # HighFive as a sub-project and using the the same filename
+# Define the HighFive INTERFACE target
 include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
+
+# Update the target with MPI if we are building the final thing
+# If HighFive is being imported it is that project responsability to link with MPI
+if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
+  target_include_directories(HighFive SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
+  target_link_libraries(HighFive INTERFACE ${MPI_CXX_LIBRARIES})
+  if(CMAKE_VERSION VERSION_LESS 3.13)
+    target_link_libraries(HighFive INTERFACE ${MPI_CXX_LINK_FLAGS})
+  else()
+    target_link_options(HighFive INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
+  endif()
+endif()
+
 
 # Some compilers default to old C++. If not chosen, select C++ 14 or 11 as available
 select_recent_cxx_standard_available()
@@ -104,3 +121,9 @@ if(HIGHFIVE_UNIT_TESTS)
 endif()
 
 add_subdirectory(doc)
+
+
+# INSTALL
+# -------
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+  DESTINATION "include")
