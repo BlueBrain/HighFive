@@ -44,7 +44,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
 
     target_include_directories(tests_parallel_bin PRIVATE ${MPI_CXX_INCLUDE_PATH})
 
-    add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
+    add_test(NAME tests_parallel COMMAND "${MPIEXEC}" -n 2
         ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
 
 endif()
