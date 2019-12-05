@@ -40,7 +40,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
         Boost::serialization
         Boost::unit_test_framework)
 
-    target_compile_definitions(tests_parallel_bin "MPI_NO_CPPBIND")
+    target_compile_definitions(tests_parallel_bin PRIVATE "MPI_NO_CPPBIND")
 
     target_include_directories(tests_parallel_bin ${MPI_CXX_INCLUDE_PATH})
 
