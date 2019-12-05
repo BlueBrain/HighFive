@@ -1,11 +1,17 @@
 cmake_minimum_required(VERSION 3.1)
 
 project(HighFive)
-project(HighFive::libs)
 
-find_package(Boost QUIET)
-find_package(xtensor QUIET)
+# find_package(Boost QUIET)
+# find_package(xtensor QUIET)
 find_package(HDF5 REQUIRED)
+
+add_library(HighFive::HDF5 INTERFACE IMPORTED)
+# target_link_libraries(HighFive::HDF5 INTERFACE Boost::boost)
+set_target_properties(HighFive::HDF5 PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}")
+
 
 add_library(HighFive INTERFACE)
 
@@ -16,8 +22,7 @@ target_include_directories(HighFive INTERFACE
 target_compile_features(HighFive INTERFACE cxx_std_11)
 
 target_link_libraries(HighFive INTERFACE
-    $<\${Boost_FOUND}>:Boost::boost
-    $<\${xtensor_FOUND}>:xtensor)
+    HighFive::HDF5)
 
 include(GNUInstallDirs)
 # include(CMakePackageConfigHelpers)
