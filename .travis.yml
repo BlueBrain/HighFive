@@ -150,10 +150,7 @@ script:
   - >
     cmake --warn-uninitialized --debug-output
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
-    -DHIGHFIVE_TEST_SINGLE_INCLUDES:BOOL=ON
     -DHIGHFIVE_PARALLEL_HDF5:BOOL=${HIGHFIVE_PARALLEL_HDF5}
-    -DUSE_EIGEN:BOOL=ON
-    -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
