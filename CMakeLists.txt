@@ -1,52 +1,30 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+# ----------------------
+# Basic project settings
+# ----------------------
+
 project(HighFive)
 
-find_package(Boost QUIET)
-find_package(xtensor QUIET)
-find_package(Eigen3 QUIET)
-find_package(HDF5 REQUIRED)
+option(HIGHFIVE_UNIT_TESTS "Enable unit tests" TRUE)
+option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
+option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5" FALSE)
+option(HIGHFIVE_NO_BOOST "Disable Boost" FALSE)
+option(HIGHFIVE_NO_EIGEN "Disable Eigen" FALSE)
+option(HIGHFIVE_NO_XTENSOR "Disable xtensor" FALSE)
 
-add_library(HighFive::HDF5 INTERFACE IMPORTED)
-add_library(HighFive::Boost INTERFACE IMPORTED)
-add_library(HighFive::xtensor INTERFACE IMPORTED)
-add_library(HighFive::Eigen INTERFACE IMPORTED)
+set(HIGHFIVE_NO_TARGET TRUE)
 
-# ---------------------------
-# Set target "HighFive::HDF5"
-# ---------------------------
+# --------------
+# Find libraries
+# --------------
 
-set_target_properties(HighFive::HDF5 PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${HDF5_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${HDF5_LIBRARIES}")
-
-# ----------------------------
-# Set target "HighFive::Boost"
-# ----------------------------
-
-if(Boost_FOUND)
-    target_link_libraries(HighFive::Boost INTERFACE Boost::boost)
-    target_compile_definitions(HighFive::Boost INTERFACE "H5_USE_BOOST")
+if(HIGHFIVE_PARALLEL_HDF5)
+  set(HDF5_PREFER_PARALLEL TRUE)
 endif()
 
-# ------------------------------
-# Set target "HighFive::xtensor"
-# ------------------------------
-
-if(xtensor_FOUND)
-    target_link_libraries(HighFive::xtensor INTERFACE xtensor)
-    target_compile_definitions(HighFive::xtensor INTERFACE "H5_USE_XTENSOR")
-endif()
-
-# ----------------------------
-# Set target "HighFive::Eigen"
-# ----------------------------
-
-if(Eigen3_FOUND)
-    set_target_properties(HighFive::Eigen PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIR}")
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/HighFiveConfig.cmake)
 
 # ---------------------
 # Set target "HighFive"
@@ -66,11 +44,11 @@ target_link_libraries(HighFive INTERFACE
     HighFive::xtensor
     HighFive::Eigen)
 
-# ------------------------------------------------
-# Export target "HighFive" -> "HighFive::HighFive"
-# Install headers
-# Install CMake support
-# ------------------------------------------------
+# ----------------------------
+# Export target "HighFive"
+# Install headers in include/
+# Install HighFiveConfig.cmake
+# ----------------------------
 
 include(GNUInstallDirs)
 
@@ -91,3 +69,18 @@ install(
         HighFiveConfig.cmake
     DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake/HighFive)
+
+# -------------------------
+# Examples, Tests, and Docs
+# -------------------------
+
+if(HIGHFIVE_EXAMPLES)
+  add_subdirectory(src/examples)
+endif()
+
+if(HIGHFIVE_UNIT_TESTS)
+  enable_testing()
+  add_subdirectory(tests/unit)
+endif()
+
+add_subdirectory(doc)

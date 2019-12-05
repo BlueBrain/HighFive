@@ -1,4 +1,3 @@
-include_directories(${HDF5_INCLUDE_DIRS})
 
 function(compile_example exemple_source)
 
@@ -6,9 +5,15 @@ function(compile_example exemple_source)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
     if(${example_filename} MATCHES ".*boost.*")
-        if(NOT USE_BOOST)
-            return()
+        if(Boost_FOUND)
+            add_executable(${example_name} ${exemple_source})
+            target_link_libraries(${example_name}
+                HighFive
+                Boost::boost
+                Boost::system
+                Boost::serialization)
         endif()
+        return()
     endif()
 
     if(${example_filename} MATCHES ".*parallel_hdf5.*")
@@ -25,6 +30,9 @@ endfunction()
 
 file(GLOB list_example "*.cpp")
 
+
 foreach(example_src ${list_example})
+
     compile_example(${example_src})
+
 endforeach()
