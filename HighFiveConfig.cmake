@@ -42,6 +42,6 @@ if(NOT TARGET HighFive::Eigen)
 endif()
 
 
-if(NOT TARGET HighFive::HighFive)
+if(NOT TARGET HighFive)
     include("${HighFive_CMAKE_DIR}/HighFiveTargets.cmake")
 endif()

@@ -81,8 +81,6 @@ install(TARGETS HighFive EXPORT HighFive-targets)
 install(EXPORT HighFive-targets
     FILE
         HighFiveTargets.cmake
-    NAMESPACE
-        HighFive::
     DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake/HighFive)
 
