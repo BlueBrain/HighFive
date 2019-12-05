@@ -24,25 +24,30 @@ foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_fiv
 endforeach()
 
 
-# if(HIGHFIVE_PARALLEL_HDF5)
+if(HIGHFIVE_PARALLEL_HDF5)
 
-#     include(TestHelpers)
+    file(GLOB tests_parallel_src "*parallel.cpp")
 
-#     file(GLOB tests_parallel_src "*parallel.cpp")
+    find_package(MPI REQUIRED)
 
-#     add_executable(tests_parallel_bin ${tests_parallel_src})
+    add_executable(tests_parallel_bin ${tests_parallel_src})
 
-#     target_link_libraries(tests_parallel_bin
-#         HighFive
-#         Boost::boost
-#         Boost::system
-#         Boost::serialization
-#         Boost::unit_test_framework)
+    target_link_libraries(tests_parallel_bin
+        ${MPI_CXX_LIBRARIES}
+        HighFive
+        Boost::boost
+        Boost::system
+        Boost::serialization
+        Boost::unit_test_framework)
 
-#     add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
-#         ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
+    target_compile_definitions(tests_parallel_bin "MPI_NO_CPPBIND")
 
-# endif()
+    target_include_directories(tests_parallel_bin ${MPI_CXX_INCLUDE_PATH})
+
+    add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
+        ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
+
+endif()
 
 
 option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
