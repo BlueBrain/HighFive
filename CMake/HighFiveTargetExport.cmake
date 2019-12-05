@@ -1,23 +1,10 @@
 add_library(HighFive INTERFACE)
+add_library(highfive_deps INTERFACE)
 
 # Public headers
 target_include_directories(HighFive INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
-
-# HDF5
-foreach(target_name "${HDF5_C_TARGET}" "${HDF5_C_TARGET}-shared" "${HDF5_C_TARGET}-static")
-  if(TARGET "${target_name}")
-    target_link_libraries(HighFive INTERFACE "${target_name}")
-    break()
-  endif()
-endforeach()
-
-# BOOST
-if(USE_BOOST)
-  target_link_libraries(HighFive INTERFACE Boost::boost Boost::serialization)
-  target_compile_definitions(HighFive INTERFACE -DH5_USE_BOOST)
-endif()
 
 
 # Generate ${PROJECT_NAME}Config.cmake
@@ -33,6 +20,7 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion)
 
 install(FILES
+    CMake/HighFiveTargetDeps.cmake
     ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
   DESTINATION share/${PROJECT_NAME}/CMake)
@@ -46,7 +34,7 @@ install(FILES
 # X-Targets.cmake containing the HighFive target
 
 # Specify targets to include in the HighFive Export
-install(TARGETS HighFive
+install(TARGETS HighFive highfive_deps
         EXPORT HighFiveTargets
         INCLUDES DESTINATION include)
 

@@ -21,36 +21,37 @@ if(NOT COMPILER_SUPPORTS_CXX11)
   message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
 endif()
 
-option(HIGHFIVE_UNIT_TESTS "Enable unit tests" TRUE)
 option(USE_BOOST "Enable Boost Support" TRUE)
 option(USE_EIGEN "Enable Eigen testing" FALSE)
 option(USE_XTENSOR "Enable xtensor testing" FALSE)
+option(HIGHFIVE_UNIT_TESTS "Enable unit tests" TRUE)
 option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
 
-# Disable test if Boost will not be loaded, or if HighFive is a sub-project
+
+# HighFive as a sub-project and using the the same filename
+# Define the HighFive INTERFACE target
+include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
+
+# Search main dependencies (hdf5, boost, mpi) and link them to the HighFive INTERFACE target
+include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
+
+# Installation of headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+  DESTINATION "include")
+
+
+# Preparing local building (tests, examples)
+# ------------------------------------------
+
+# Disable test if Boost was expressly disabled, or if HighFive is a sub-project
 if (NOT USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
 
-# Pre-requisites
-
-if(HIGHFIVE_PARALLEL_HDF5)
-  set(HDF5_PREFER_PARALLEL TRUE)
-endif()
-find_package(HDF5 REQUIRED)
-
-if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
-  message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
-endif()
-
-set(Boost_NO_BOOST_CMAKE TRUE)
-if(USE_BOOST)
-  set(BOOST_REQ_COMPONENTS system serialization)
-  if(HIGHFIVE_UNIT_TESTS)
-    list(APPEND BOOST_REQ_COMPONENTS unit_test_framework)
-  endif()
-  find_package(Boost COMPONENTS ${BOOST_REQ_COMPONENTS})
+if(HIGHFIVE_UNIT_TESTS)
+  find_package(Boost COMPONENTS unit_test_framework)
+  target_link_libraries(highfive_deps INTERFACE Boost::unit_test_framework)
   if (NOT Boost_FOUND)
     message(FATAL_ERROR "\
       Boost not found which is required for efficient multi-dimension and tests.\n\
@@ -81,27 +82,6 @@ if(USE_XTENSOR)
   endif()
 endif()
 
-if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
-  find_package(MPI REQUIRED)
-  add_definitions("-DMPI_NO_CPPBIND")
-endif()
-
-# HighFive as a sub-project and using the the same filename
-# Define the HighFive INTERFACE target
-include(${PROJECT_SOURCE_DIR}/CMake/PackageConfig.cmake)
-
-# Update the target with MPI if we are building the final thing
-# If HighFive is being imported it is that project responsability to link with MPI
-if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
-  target_include_directories(HighFive SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
-  target_link_libraries(HighFive INTERFACE ${MPI_CXX_LIBRARIES})
-  if(CMAKE_VERSION VERSION_LESS 3.13)
-    target_link_libraries(HighFive INTERFACE ${MPI_CXX_LINK_FLAGS})
-  else()
-    target_link_options(HighFive INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
-  endif()
-endif()
-
 
 # Some compilers default to old C++. If not chosen, select C++ 14 or 11 as available
 select_recent_cxx_standard_available()
@@ -122,8 +102,3 @@ endif()
 
 add_subdirectory(doc)
 
-
-# INSTALL
-# -------
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION "include")
