@@ -5,8 +5,12 @@ if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 endif()
 
 # Options when used from external projects. Keep defaults
-option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" @HIGHFIVE_PARALLEL_HDF5@)
-option(USE_BOOST "Enable Boost Support" @USE_BOOST@)
+if(NOT DEFINED HIGHFIVE_PARALLEL_HDF5)
+  option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" @HIGHFIVE_PARALLEL_HDF5@)
+endif()
+if(NOT DEFINED USE_BOOST)
+  option(USE_BOOST "Enable Boost Support" @USE_BOOST@)
+endif()
 
 # Pass on dependencies in target project build
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
