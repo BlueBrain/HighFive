@@ -59,3 +59,12 @@ target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
 if(USE_BOOST)
   target_compile_definitions(HighFive INTERFACE H5_USE_BOOST)
 endif()
+
+# Ensure we activate at least C++11
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  if(CMAKE_VERSION VERSION_LESS "3.1")
+    message(WARNING "HighFive requires at least c++11. You may need to set CMAKE_CXX_STANDARD.")
+  else()
+    target_compile_features(HighFive INTERFACE cxx_std_11)
+  endif()
+endif()
