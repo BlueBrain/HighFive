@@ -38,6 +38,7 @@ if(USE_BOOST)
   find_package(Boost REQUIRED COMPONENTS system serialization)
   # Dont use imported targets yet, not avail before cmake 3.5
   target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
+  target_compile_definitions(highfive_deps INTERFACE BOOST_ALL_NO_LIB)  # Disable windows auto link
 endif()
 
 # MPI

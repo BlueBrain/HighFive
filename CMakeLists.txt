@@ -53,7 +53,8 @@ if (NOT USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 endif()
 
 if(HIGHFIVE_UNIT_TESTS)
-  find_package(Boost COMPONENTS unit_test_framework)
+  set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
+  find_package(Boost COMPONENTS system serialization unit_test_framework)
   if (NOT Boost_FOUND)
     message(FATAL_ERROR "\
       Boost not found which is required for efficient multi-dimension and tests.\n\
