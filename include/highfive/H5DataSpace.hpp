@@ -131,6 +131,11 @@ class DataSpace : public Object {
     static DataSpace From(const boost::numeric::ublas::matrix<Value>& mat);
 #endif
 
+#ifdef H5_USE_EIGEN
+    template <typename Value, int M, int N>
+    static DataSpace From(const Eigen::Matrix<Value, M, N>& mat);
+#endif
+
   protected:
     explicit DataSpace();
 

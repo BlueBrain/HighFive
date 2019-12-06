@@ -24,6 +24,10 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#ifdef H5_USE_EIGEN
+#include <Eigen/Eigen>
+#endif
+
 #include <H5public.h>
 
 namespace HighFive {
@@ -69,6 +73,13 @@ struct array_dims<boost::numeric::ublas::matrix<T> > {
 };
 #endif
 
+#ifdef H5_USE_EIGEN
+template<typename T, int M, int N>
+struct array_dims<Eigen::Matrix<T, M, N>> {
+    static constexpr size_t value = M * N;
+};
+#endif
+
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
 void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
@@ -96,24 +107,31 @@ struct type_of_array {
 };
 
 template <typename T>
-struct type_of_array<std::vector<T> > {
+struct type_of_array<std::vector<T>> {
     typedef typename type_of_array<T>::type type;
 };
 
 template <typename T, std::size_t N>
-struct type_of_array<std::array<T, N> > {
+struct type_of_array<std::array<T, N>> {
     typedef typename type_of_array<T>::type type;
 };
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
-struct type_of_array<boost::multi_array<T, Dims> > {
+struct type_of_array<boost::multi_array<T, Dims>> {
     typedef typename type_of_array<T>::type type;
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T> > {
+struct type_of_array<boost::numeric::ublas::matrix<T>> {
     typedef typename type_of_array<T>::type type;
+};
+#endif
+
+#ifdef H5_USE_EIGEN
+template<typename T, int M, int N>
+struct type_of_array<Eigen::Matrix<T, M, N>> {
+    typedef T type;
 };
 #endif
 
