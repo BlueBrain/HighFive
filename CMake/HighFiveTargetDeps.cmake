@@ -38,7 +38,7 @@ if(USE_BOOST)
   find_package(Boost REQUIRED COMPONENTS system serialization)
   # Dont use imported targets yet, not avail before cmake 3.5
   target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
-  target_compile_definitions(highfive_deps INTERFACE BOOST_ALL_NO_LIB)  # Disable windows auto link
+  target_compile_definitions(highfive_deps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
 endif()
 
 # MPI
@@ -56,9 +56,6 @@ endif()
 # Propagate to HighFive
 target_link_libraries(HighFive INTERFACE highfive_deps)
 target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
-if(USE_BOOST)
-  target_compile_definitions(HighFive INTERFACE H5_USE_BOOST)
-endif()
 
 # Ensure we activate at least C++11
 if(NOT DEFINED CMAKE_CXX_STANDARD)
