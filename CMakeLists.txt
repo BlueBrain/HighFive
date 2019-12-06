@@ -46,12 +46,14 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 # Disable test if Boost was expressly disabled, or if HighFive is a sub-project
 if (NOT USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  if(HIGHFIVE_UNIT_TESTS)
+    message(WARNING "Unit tests have been DISABLED. (USE_BOOST: ${USE_BOOST})")
+  endif()
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
 
 if(HIGHFIVE_UNIT_TESTS)
   find_package(Boost COMPONENTS unit_test_framework)
-  target_link_libraries(highfive_deps INTERFACE Boost::unit_test_framework)
   if (NOT Boost_FOUND)
     message(FATAL_ERROR "\
       Boost not found which is required for efficient multi-dimension and tests.\n\

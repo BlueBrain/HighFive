@@ -19,6 +19,7 @@ endif()
 
 # HDF5
 if(NOT DEFINED HDF5_C_LIBRARIES)
+  set(HDF5_NO_FIND_PACKAGE_CONFIG_FILE TRUE)  # Consistency
   set(HDF5_PREFER_PARALLEL ${HIGHFIVE_PARALLEL_HDF5})
   find_package(HDF5 REQUIRED)
 endif()
@@ -33,9 +34,10 @@ target_compile_definitions(highfive_deps INTERFACE ${HDF5_DEFINITIONS})
 
 # Boost
 if(USE_BOOST)
+  set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
   find_package(Boost REQUIRED COMPONENTS system serialization)
-  target_link_libraries(highfive_deps INTERFACE Boost::boost Boost::serialization)
-  target_include_directories(highfive_deps INTERFACE ${Boost_INCLUDE_DIR})
+  # Dont use imported targets yet, not avail before cmake 3.5
+  target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
 endif()
 
 # MPI
