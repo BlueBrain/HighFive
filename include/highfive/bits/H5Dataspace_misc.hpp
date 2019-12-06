@@ -187,7 +187,7 @@ DataSpace::From(const boost::numeric::ublas::matrix<Value>& mat) {
 #ifdef H5_USE_EIGEN
 template <typename Value, int M, int N>
 inline DataSpace
-DataSpace::From(const Eigen::Matrix<Value, M, N>& container) {
+DataSpace::From(const Eigen::Matrix<Value, M, N>& /* mat */) {
     std::vector<size_t> dims{M, N};
     return DataSpace(dims);
 }
