@@ -1140,5 +1140,20 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     // meta
     BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
-
 }
+
+#ifdef H5_USE_EIGEN
+BOOST_AUTO_TEST_CASE(HighFiveEigen) {
+    const std::string FILE_NAME("test_eigen.h5");
+    const std::string DS_NAME = "ds";
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    std::vector<Eigen::Vector3d> vec{{5.0, 6.0, 7.0}};
+    file.createDataSet(DS_NAME, vec).write(vec);
+
+    std::vector<Eigen::Vector3d> vec2;
+    file.getDataSet(DS_NAME).read(vec2);
+}
+#endif

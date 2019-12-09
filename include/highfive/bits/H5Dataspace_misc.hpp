@@ -146,7 +146,8 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
         "boost::numeric::ublas::matrix<all_basic_types> | "
         "boost::multi_array<all_basic_types> \n"
         "  all_supported_types = all_basic_types | stl_container_types | "
-        "boost_container_types");
+        "boost_container_types"
+        "  eigen_matrix_type = Eigen::Matrix<signed_arithmetic_type> | Eigen::VectorXX");
     return DataSpace(DataSpace::datascape_scalar);
 }
 

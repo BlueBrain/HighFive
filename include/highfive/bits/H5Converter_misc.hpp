@@ -266,6 +266,35 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
 };
 #endif
 
+#ifdef H5_USE_EIGEN
+// apply conversion to eigen matrix
+template <typename T, int M, int N>
+struct data_converter<Eigen::Matrix<T, M, N>, void> {
+
+    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
+
+    inline data_converter(MatrixTMN&, DataSpace& space)
+        : _dims(space.getDimensions()) {
+        assert(_dims.size() == 2);
+    }
+
+    inline typename type_of_array<T>::type* transform_read(MatrixTMN& array) {
+        if (_dims[0] != M || _dims[1] != N) {
+            array.resize(_dims[0], _dims[1]);
+        }
+        return array.data;
+    }
+
+    inline typename type_of_array<T>::type* transform_write(MatrixTMN& array) {
+        return array.data;
+    }
+
+    inline void process_result(MatrixTMN&) {}
+
+    std::vector<size_t> _dims;
+};
+#endif
+
 // apply conversion for vectors nested vectors
 template <typename T>
 struct data_converter<std::vector<T>,
