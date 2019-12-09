@@ -34,6 +34,9 @@ option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 
+# In deplomyents we probably don't want/cant have dynamic dependencies
+option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
+mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 
 # HighFive as a sub-project and using the the same filename
 # Define the HighFive INTERFACE target

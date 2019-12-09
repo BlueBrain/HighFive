@@ -6,7 +6,8 @@ endif()
 
 # If the user sets this flag, all dependencies are preserved.
 # Useful in central deployments where dependencies are not prepared later
-if(DEFINED HIGHFIVE_USE_INSTALL_DEPS)
+option(HIGHFIVE_USE_INSTALL_DEPS "Use original Highfive dependencies" @HIGHFIVE_USE_INSTALL_DEPS@)
+if(HIGHFIVE_USE_INSTALL_DEPS)
   return()
 endif()
 
