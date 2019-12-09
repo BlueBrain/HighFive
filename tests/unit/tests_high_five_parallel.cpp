@@ -35,9 +35,7 @@ struct MpiFixture {
 };
 
 BOOST_GLOBAL_FIXTURE(MpiFixture)
-#if BOOST_VERSION >= 105900
-;
-#endif
+BOOST_GLOBAL_FIXTURE_END
 
 template <typename T>
 void selectionArraySimpleTestParallel() {
