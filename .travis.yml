@@ -49,7 +49,7 @@ matrix:
     - os: linux
       dist: trusty
       env:
-        - USE_XTENSOR=False
+        - HIGHFIVE_USE_XTENSOR=False
         - HIGHFIVE_PARALLEL_HDF5=False
       addons:
         apt:
@@ -65,7 +65,7 @@ matrix:
       dist: xenial
       env:
         - GCC_VERSION=7
-        - USE_XTENSOR=True
+        - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *gcc7
 
@@ -84,7 +84,7 @@ matrix:
       dist: xenial
       env:
         - CLANG_VERSION=7
-        - USE_XTENSOR=True
+        - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *clang7
 
@@ -92,13 +92,13 @@ matrix:
     - os: osx
       osx_image: xcode10.3
       env:
-        - USE_XTENSOR=True
+        - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=False
 
     # Windows
     - os: windows
       env:
-        - USE_XTENSOR=True
+        - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=False
 
 env:
@@ -152,8 +152,8 @@ script:
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
     -DHIGHFIVE_TEST_SINGLE_INCLUDES:BOOL=ON
     -DHIGHFIVE_PARALLEL_HDF5:BOOL=${HIGHFIVE_PARALLEL_HDF5}
-    -DUSE_EIGEN:BOOL=ON
-    -DUSE_XTENSOR:BOOL=${USE_XTENSOR}
+    -DHIGHFIVE_USE_EIGEN:BOOL=ON
+    -DHIGHFIVE_USE_XTENSOR:BOOL=${HIGHFIVE_USE_XTENSOR}
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}

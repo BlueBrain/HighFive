@@ -21,12 +21,18 @@ if(NOT COMPILER_SUPPORTS_CXX11)
   message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
 endif()
 
-option(USE_BOOST "Enable Boost Support" TRUE)
-option(USE_EIGEN "Enable Eigen testing" FALSE)
-option(USE_XTENSOR "Enable xtensor testing" FALSE)
-option(HIGHFIVE_UNIT_TESTS "Enable unit tests" TRUE)
-option(HIGHFIVE_EXAMPLES "Compile examples" TRUE)
-option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" FALSE)
+# Compat within Highfive 2.x series
+set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
+set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
+set(USE_XTENSOR OFF CACHE BOOL "Enable xtensor testing")
+mark_as_advanced(USE_BOOST USE_EIGEN USE_XTENSOR)
+
+option(HIGHFIVE_USE_BOOST "Enable Boost Support" ${USE_BOOST})
+option(HIGHFIVE_USE_EIGEN "Enable Eigen testing" ${USE_EIGEN})
+option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" ${USE_XTENSOR})
+option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
+option(HIGHFIVE_EXAMPLES "Compile examples" ON)
+option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 
 
 # HighFive as a sub-project and using the the same filename
@@ -45,9 +51,9 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 # ------------------------------------------
 
 # Disable test if Boost was expressly disabled, or if HighFive is a sub-project
-if (NOT USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+if (NOT HIGHFIVE_USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   if(HIGHFIVE_UNIT_TESTS)
-    message(WARNING "Unit tests have been DISABLED. (USE_BOOST: ${USE_BOOST})")
+    message(WARNING "Unit tests have been DISABLED. (HIGHFIVE_USE_BOOST: ${HIGHFIVE_USE_BOOST})")
   endif()
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
@@ -58,11 +64,11 @@ if(HIGHFIVE_UNIT_TESTS)
   if (NOT Boost_FOUND)
     message(FATAL_ERROR "\
       Boost not found which is required for efficient multi-dimension and tests.\n\
-      To disable support please use cmake .. -DUSE_BOOST=OFF.")
+      To disable support please use cmake .. -DHIGHFIVE_USE_BOOST=OFF.")
   endif()
 endif()
 
-if(USE_EIGEN)
+if(HIGHFIVE_USE_EIGEN)
   find_package(Eigen3 NO_MODULE)
   if(NOT Eigen3_FOUND)
     find_package(PkgConfig)
@@ -74,7 +80,7 @@ if(USE_EIGEN)
   endif()
 endif()
 
-if(USE_XTENSOR)
+if(HIGHFIVE_USE_XTENSOR)
   if(NOT COMPILER_SUPPORTS_CXX14)
     message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
   else()

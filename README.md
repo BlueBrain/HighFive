@@ -21,11 +21,11 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 
 
 ### Dependencies
-- libhdf5
-- (optional, opt-in with *HIGHFIVE_PARALLEL_HDF5*) libhdf5-mpi
-- (optional, opt-out with *USE_BOOST*) boost >= 1.41
-- (optional, opt-in with *USE_EIGEN*) eigen3
-- (optional, opt-in with *USE_XTENSOR*) xtensor
+- hdf5 (dev)
+- hdf5-mpi (optional, opt-in with -D*DHIGHFIVE_PARALLEL_HDF5*=ON)
+- boost >= 1.41 (recommended, opt-out with -D*DHIGHFIVE_USE_BOOST*=OFF)
+- eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
+- xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
 
 
 ### CMake integration
@@ -109,9 +109,9 @@ For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Ea
     -   scalars (to/from an extendible DataSet),
     -   strings,
     -   vectors (of standard types),
-    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `USE_EIGEN`),
+    -   [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `HIGHFIVE_USE_EIGEN`),
     -   [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
-        (optional, enable CMake option `USE_XTENSOR`).
+        (optional, enable CMake option `HIGHFIVE_USE_XTENSOR`).
 
 *   Getting in a single line:
 

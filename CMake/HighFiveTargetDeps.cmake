@@ -33,7 +33,7 @@ target_link_libraries(highfive_deps INTERFACE ${HDF5_C_LIBRARIES})
 target_compile_definitions(highfive_deps INTERFACE ${HDF5_DEFINITIONS})
 
 # Boost
-if(USE_BOOST)
+if(HIGHFIVE_USE_BOOST)
   set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
   find_package(Boost REQUIRED COMPONENTS system serialization)
   # Dont use imported targets yet, not avail before cmake 3.5
