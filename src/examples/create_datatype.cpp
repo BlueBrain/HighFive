@@ -6,8 +6,8 @@
 
 using namespace HighFive;
 
-const std::string FILE_NAME("create_datatype_example.h5");
-const std::string DATASET_NAME("test_dataset");
+static const std::string FILE_NAME("create_datatype_example.h5");
+static const std::string DATASET_NAME("test_dataset");
 
 
 // Struct representation of custom type (type v below)
@@ -97,7 +97,7 @@ int main(void) {
         }
 
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }

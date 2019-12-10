@@ -12,8 +12,8 @@
 #include <string>
 #include <complex>
 
-#include <H5Tpublic.h>
 #include <H5Ppublic.h>
+#include <H5Tpublic.h>
 
 
 namespace HighFive {
@@ -165,7 +165,7 @@ inline AtomicType<std::complex<double> >::AtomicType()
 
 
 // Calculate the padding required to align an element of a struct
-#define _STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
+#define _H5_STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
 
 inline CompoundType& CompoundType::addMember(const std::string& name, const DataType& base_type, size_t offset) {
     member_list.emplace_back<member_def>({name, base_type, offset});
@@ -182,7 +182,7 @@ inline void CompoundType::autoCreate() {
 
         // Set the offset of this member within the struct according to the
         // standard alignment rules
-        member.offset = current_size + _STRUCT_PADDING(current_size, member_size);
+        member.offset = current_size + _H5_STRUCT_PADDING(current_size, member_size);
 
         // Set the current size to the end of the new member
         current_size = member.offset + member_size;
@@ -190,10 +190,12 @@ inline void CompoundType::autoCreate() {
         max_type_size = std::max(max_type_size, member_size);
     }
 
-    size_t total_size = current_size + _STRUCT_PADDING(current_size, max_type_size);
+    size_t total_size = current_size + _H5_STRUCT_PADDING(current_size, max_type_size);
 
     manualCreate(total_size);
 }
+
+#undef _H5_STRUCT_PADDING
 
 inline void CompoundType::manualCreate(size_t total_size) {
     // Create the HDF5 type

@@ -104,7 +104,7 @@ public:
     ///
     /// \brief Add new members into the compound
     /// \param init initializer_list of member_def
-    CompoundType& addMembers(std::initializer_list<member_def> init)
+    CompoundType& addMembers(const std::initializer_list<member_def>& init)
     {
         member_list = init;
         return *this;

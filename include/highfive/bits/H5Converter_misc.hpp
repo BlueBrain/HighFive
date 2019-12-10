@@ -115,7 +115,7 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
-    inline data_converter(Scalar&, DataSpace&) {
+    inline data_converter(const Scalar&, const DataSpace&) {
 
         static_assert((std::is_arithmetic<Scalar>::value ||
                        std::is_enum<Scalar>::value ||
@@ -136,7 +136,7 @@ struct data_converter {
 template <typename CArray>
 struct data_converter<CArray,
                       typename std::enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(CArray&, DataSpace&) {}
+    inline data_converter(const CArray&, const DataSpace&) {}
 
     inline CArray& transform_read(CArray& datamem) { return datamem; }
 
@@ -151,7 +151,7 @@ struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::vector<T>&, DataSpace& space)
+    inline data_converter(const std::vector<T>&, const DataSpace& space)
         : _space(space) {
         assert(is_1D(_space.getDimensions()));
     }
@@ -169,7 +169,7 @@ struct data_converter<
 
     inline void process_result(std::vector<T>&) {}
 
-    DataSpace& _space;
+    const DataSpace& _space;
 };
 
 // apply conversion to std::array
@@ -178,7 +178,7 @@ struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::array<T, S>&, DataSpace& space) {
+    inline data_converter(const std::array<T, S>&, const DataSpace& space) {
         const std::vector<size_t> dims = space.getDimensions();
         if (!is_1D(dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
