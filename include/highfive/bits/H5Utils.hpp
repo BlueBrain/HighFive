@@ -166,8 +166,8 @@ struct is_c_array<T[N]> {
 
 
 // converter function for hsize_t -> size_t when hsize_t != size_t
-template<typename Size>
-inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
+template <typename Size>
+inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
     static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
     std::vector<size_t> res(vec.size());
     std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
@@ -175,17 +175,17 @@ inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
 }
 
 // converter function for hsize_t -> size_t when size_t == hsize_t
-inline std::vector<std::size_t> to_vector_size_t(std::vector<std::size_t> vec){
+inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>& vec) {
     return vec;
 }
 
 // shared ptr portability
 // was used pre-C++11, kept for compatibility
 namespace Mem {
-    using namespace std;
-} // end Mem
+using namespace std;
+}  // namespace Mem
 
-} // end details
-}
+}  // namespace details
+}  // namespace HighFive
 
 #endif // H5UTILS_HPP

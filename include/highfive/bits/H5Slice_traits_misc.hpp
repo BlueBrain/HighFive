@@ -245,7 +245,6 @@ inline void SliceTraits<Derivate>::write(const T* buffer) {
     }
 }
 
-
-}
+}  // namespace HighFive
 
 #endif // H5SLICE_TRAITS_MISC_HPP

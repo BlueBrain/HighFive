@@ -46,17 +46,17 @@ class PropertyList {
     ~PropertyList();
 
 #ifdef H5_USE_CXX11
-    PropertyList(PropertyList&& other);
-    PropertyList& operator=(PropertyList&& other);
+    PropertyList(PropertyList&& other) noexcept;
+    PropertyList& operator=(PropertyList&& other) noexcept;
 #endif
     constexpr PropertyType getType() const { return T; }
 
     hid_t getId() const { return _hid; }
 
-    PropertyList();
+    PropertyList() noexcept;
 
     template <typename P>
-    PropertyList(std::initializer_list<P>);
+    PropertyList(const std::initializer_list<P>&);
 
     ///
     /// Add a property to this property list.
@@ -101,17 +101,19 @@ class RawPropertyList : public PropertyList<T> {
 
 class Chunking {
   public:
-    Chunking(const std::vector<hsize_t>& dims)
+    explicit Chunking(const std::vector<hsize_t>& dims)
         : _dims(dims) {}
 
-    Chunking(std::initializer_list<hsize_t> items)
+    Chunking(const std::initializer_list<hsize_t>& items)
         : Chunking(std::vector<hsize_t>{items}) {}
 
     template <typename... Args>
-    Chunking(hsize_t item, Args... args)
+    explicit Chunking(hsize_t item, Args... args)
         : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
 
-    const std::vector<hsize_t>& getDimensions() const { return _dims; }
+    const std::vector<hsize_t>& getDimensions() const noexcept {
+        return _dims;
+    }
 
   private:
     friend DataSetCreateProps;
@@ -121,7 +123,7 @@ class Chunking {
 
 class Deflate {
   public:
-    Deflate(unsigned level)
+    explicit Deflate(unsigned level)
         : _level(level) {}
 
   private:
@@ -132,7 +134,7 @@ class Deflate {
 
 class Shuffle {
   public:
-    Shuffle() {}
+    Shuffle() = default;
 
   private:
     friend DataSetCreateProps;

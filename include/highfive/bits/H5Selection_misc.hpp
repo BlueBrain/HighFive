@@ -17,21 +17,22 @@ inline Selection::Selection(const DataSpace& memspace,
     , _file_space(file_space)
     , _set(set) {}
 
-inline DataSpace Selection::getSpace() const {
+inline DataSpace Selection::getSpace() const noexcept {
     return _file_space;
 }
 
-inline DataSpace Selection::getMemSpace() const {
+inline DataSpace Selection::getMemSpace() const noexcept {
     return _mem_space;
 }
 
-inline DataSet& Selection::getDataset() {
+inline DataSet& Selection::getDataset() noexcept {
     return _set;
 }
 
-inline const DataSet& Selection::getDataset() const {
+inline const DataSet& Selection::getDataset() const noexcept {
     return _set;
 }
-}
+
+}  // namespace HighFive
 
 #endif // H5SELECTION_MISC_HPP
