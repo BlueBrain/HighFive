@@ -1141,12 +1141,12 @@ namespace HighFive {
 
     template<>
     DataType create_datatype<CSL1>() {
-        return std::move(create_compound_csl1());
+        return create_compound_csl1();
     }
 
     template<>
     DataType create_datatype<CSL2>() {
-        return std::move(create_compound_csl2());
+        return create_compound_csl2();
     }
 }
 
