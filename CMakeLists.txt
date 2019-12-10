@@ -5,7 +5,7 @@ else()
   cmake_policy(VERSION 3.13)
 endif()
 
-project(HighFive VERSION 2.0)
+project(HighFive VERSION 2.1)
 
 list(APPEND CMAKE_MODULE_PATH
   ${PROJECT_SOURCE_DIR}/CMake
@@ -78,7 +78,7 @@ if(USE_XTENSOR)
   endif()
 endif()
 
-if(HIGHFIVE_PARALLEL_HDF5)
+if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
   find_package(MPI REQUIRED)
   add_definitions("-DMPI_NO_CPPBIND")
 endif()
