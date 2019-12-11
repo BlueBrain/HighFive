@@ -1,48 +1,100 @@
 add_library(HighFive INTERFACE)
-add_library(highfive_deps INTERFACE)
 
 # Public headers
+
 target_include_directories(HighFive INTERFACE
-  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include>")
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>")
 
+# Add dependencies to "HighFive" target
 
-# Generate ${PROJECT_NAME}Config.cmake
+target_link_libraries(HighFive INTERFACE highfive_deps)
+target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
+
+# Ensure we activate at least C++11
+
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    if(CMAKE_VERSION VERSION_LESS "3.1")
+        message(WARNING "HighFive requires at least c++11. You may need to set CMAKE_CXX_STANDARD.")
+    else()
+        target_compile_features(HighFive INTERFACE cxx_std_11)
+    endif()
+endif()
+
+# Generate HighFiveConfig.cmake
 
 include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
-  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  INSTALL_DESTINATION share/${PROJECT_NAME}/CMake)
+
+configure_package_config_file(
+        ${CMAKE_CURRENT_LIST_DIR}/HighFiveConfig.cmake.in
+        ${PROJECT_BINARY_DIR}/HighFiveConfig.cmake
+    INSTALL_DESTINATION
+        share/HighFive/CMake)
 
 write_basic_package_version_file(
-    ${PROJECT_NAME}ConfigVersion.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+        HighFiveConfigVersion.cmake
+    VERSION
+        ${PROJECT_VERSION}
+    COMPATIBILITY
+        AnyNewerVersion)
 
-install(FILES
-    CMake/HighFiveTargetDeps.cmake
-    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  DESTINATION share/${PROJECT_NAME}/CMake)
+install(
+    FILES
+        CMake/HighFiveTargetDeps.cmake
+        ${PROJECT_BINARY_DIR}/HighFiveConfig.cmake
+        ${PROJECT_BINARY_DIR}/HighFiveConfigVersion.cmake
+    DESTINATION
+        share/HighFive/CMake)
 
+# Generate HighFiveTargets.cmake
 
-# Generate ${PROJECT_NAME}Targets.cmake;
-# Provides IMPORTED targets when using this project from build/install trees.
+install(
+    TARGETS
+        HighFive
+    EXPORT
+        HighFiveTargets
+    INCLUDES DESTINATION
+        include)
 
-# NOTE: the export file is ${PROJECT_NAME}Targets to support when HighFive
-# is built within a 3rd-party project (X). Other projects can find and import
-# X-Targets.cmake containing the HighFive target
+install(
+    EXPORT
+        HighFiveTargets
+    FILE
+        HighFiveTargets.cmake
+    DESTINATION
+        share/HighFive/CMake)
 
-# Specify targets to include in the HighFive Export
-install(TARGETS HighFive highfive_deps
-        EXPORT HighFiveTargets
-        INCLUDES DESTINATION include)
+export(
+    EXPORT
+        HighFiveTargets
+    FILE
+        "${PROJECT_BINARY_DIR}/HighFiveTargets.cmake")
 
-# Generate & install the Export for the INSTALL_INTERFACE
-install(EXPORT HighFiveTargets
-        FILE ${PROJECT_NAME}Targets.cmake
-        DESTINATION share/${PROJECT_NAME}/CMake)
+# Install static target "highfive_deps" if requested
+# If not installed it is constructed when the user calls "find_package(HighFive)"
 
-# Generate the Export for the BUILD_INTERACE (hardly used)
-export(EXPORT HighFiveTargets
-       FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+if (HIGHFIVE_USE_INSTALL_DEPS)
+
+    install(
+        TARGETS
+            highfive_deps
+        EXPORT
+            HighFiveStaticTargets
+        INCLUDES DESTINATION
+            include)
+
+    install(
+        EXPORT
+            HighFiveStaticTargets
+        FILE
+            HighFiveStaticTargets.cmake
+        DESTINATION
+            share/HighFive/CMake)
+
+    export(
+        EXPORT
+            HighFiveStaticTargets
+        FILE
+            "${PROJECT_BINARY_DIR}/HighFiveStaticTargets.cmake")
+
+endif()

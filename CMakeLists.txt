@@ -34,21 +34,23 @@ option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 
-# In deplomyents we probably don't want/cant have dynamic dependencies
+# In deployments we my not want to have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
+
+# Search main dependencies (hdf5, boost, mpi) and link them to the HighFive INTERFACE target
+include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 
 # HighFive as a sub-project and using the the same filename
 # Define the HighFive INTERFACE target
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
-# Search main dependencies (hdf5, boost, mpi) and link them to the HighFive INTERFACE target
-include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
-
 # Installation of headers
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION "include")
-
+install(
+    DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION
+        include)
 
 # Preparing local building (tests, examples)
 # ------------------------------------------
@@ -93,7 +95,6 @@ if(HIGHFIVE_USE_XTENSOR)
     add_definitions(-DH5_USE_XTENSOR)
   endif()
 endif()
-
 
 # Some compilers default to old C++. If not chosen, select C++ 14 or 11 as available
 select_recent_cxx_standard_available()
