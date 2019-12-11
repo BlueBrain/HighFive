@@ -51,6 +51,7 @@ matrix:
       env:
         - HIGHFIVE_USE_XTENSOR=False
         - HIGHFIVE_PARALLEL_HDF5=False
+        - HIGHFIVE_USE_INSTALL_DEPS=True
       addons:
         apt:
           packages:
@@ -67,6 +68,7 @@ matrix:
         - GCC_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=True
+        - HIGHFIVE_USE_INSTALL_DEPS=False
       addons: *gcc7
 
     # Linux clang-6.0
@@ -86,6 +88,7 @@ matrix:
         - CLANG_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=True
+        - HIGHFIVE_USE_INSTALL_DEPS=False
       addons: *clang7
 
     # Mac OSX
@@ -94,12 +97,14 @@ matrix:
       env:
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=False
+        - HIGHFIVE_USE_INSTALL_DEPS=False
 
     # Windows
     - os: windows
       env:
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=False
+        - HIGHFIVE_USE_INSTALL_DEPS=False
 
 env:
   global:
@@ -154,6 +159,7 @@ script:
     -DHIGHFIVE_PARALLEL_HDF5:BOOL=${HIGHFIVE_PARALLEL_HDF5}
     -DHIGHFIVE_USE_EIGEN:BOOL=ON
     -DHIGHFIVE_USE_XTENSOR:BOOL=${HIGHFIVE_USE_XTENSOR}
+    -DHIGHFIVE_USE_INSTALL_DEPS:BOOL=${HIGHFIVE_USE_INSTALL_DEPS}
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
