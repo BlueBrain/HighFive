@@ -1,11 +1,5 @@
 
-if(TARGET highfive_deps)
-  return()
-endif()
-
-if (HIGHFIVE_USE_INSTALL_DEPS)
-  add_library(highfive_deps INTERFACE)
-else()
+if (NOT TARGET highfive_deps)
   add_library(highfive_deps INTERFACE IMPORTED)
 endif()
 

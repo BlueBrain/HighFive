@@ -1,3 +1,4 @@
+
 add_library(HighFive INTERFACE)
 
 # Public headers
