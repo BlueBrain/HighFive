@@ -13,6 +13,13 @@
 #include <vector>
 #include <boost/mpl/list.hpp>
 
+// Since, 1.59: semicolon has been removed from the end of the BOOST_GLOBAL_FIXTURE
+// https://github.com/boostorg/test/commit/3f7216db3db2e11a768d8d0c8bb18632f106c466
+#if BOOST_VERSION >= 105900
+#define BOOST_GLOBAL_FIXTURE_END ;
+#else
+#define BOOST_GLOBAL_FIXTURE_END
+#endif
 
 using complex = std::complex<double>;
 

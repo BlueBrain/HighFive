@@ -35,7 +35,7 @@ struct MpiFixture {
 };
 
 BOOST_GLOBAL_FIXTURE(MpiFixture)
-
+BOOST_GLOBAL_FIXTURE_END
 
 template <typename T>
 void selectionArraySimpleTestParallel() {
