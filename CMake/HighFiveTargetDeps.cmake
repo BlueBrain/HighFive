@@ -24,11 +24,7 @@ target_compile_definitions(highfive_deps INTERFACE ${HDF5_DEFINITIONS})
 if(HIGHFIVE_USE_BOOST)
   set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
   find_package(Boost REQUIRED COMPONENTS system serialization)
-  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.5)
-    target_link_libraries(highfive_deps INTERFACE Boost::boost Boost::system Boost::serialization)
-  else()
-    target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
-  endif()
+  target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
   target_compile_definitions(highfive_deps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
 endif()
 

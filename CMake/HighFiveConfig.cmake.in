@@ -13,6 +13,7 @@ endif()
 
 if (NOT TARGET highfive_deps)
   if (HIGHFIVE_USE_INSTALL_DEPS)
+    message(WARNING "HIGHFIVE_USE_INSTALL_DEPS will be deprecated in the future.")
     include("${CMAKE_CURRENT_LIST_DIR}/HighFiveStaticTargets.cmake")
   else()
     include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")

@@ -33,11 +33,19 @@ option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" ${USE_XTENSOR})
 option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
-option(HIGHFIVE_INSTALL_STATIC "Install static target with dependencies" ON)
+option(HIGHFIVE_INSTALL_STATIC "Install static target with dependencies" OFF)
 
 # In deployments we may not want to have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
+
+if (HIGHFIVE_USE_INSTALL_DEPS)
+  set(HIGHFIVE_INSTALL_STATIC 1)
+endif()
+
+if (HIGHFIVE_INSTALL_STATIC)
+  message(WARNING "Static targets will be deprecated in the future.")
+endif()
 
 # Create target if needed
 if (HIGHFIVE_INSTALL_STATIC)
