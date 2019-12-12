@@ -34,9 +34,13 @@ option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 
-# In deployments we my not want to have dynamic dependencies
+# In deployments we may not want to have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
+
+# Allow switching-off build of a static target 'HighFiveStaticTargets.cmake'
+option(HIGHFIVE_INSTALL_STATIC "Install target with library dependencies at install time" ON)
+mark_as_advanced(HIGHFIVE_INSTALL_STATIC)
 
 # Search main dependencies (hdf5, boost, mpi) and link them to the HighFive INTERFACE target
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
@@ -47,10 +51,10 @@ include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
 # Installation of headers
 install(
-    DIRECTORY
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION
-        include)
+  DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  DESTINATION
+    include)
 
 # Preparing local building (tests, examples)
 # ------------------------------------------

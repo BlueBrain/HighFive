@@ -1,22 +1,26 @@
 
 # Set default options
+
 if(NOT DEFINED HIGHFIVE_PARALLEL_HDF5)
-    set(HIGHFIVE_PARALLEL_HDF5 @HIGHFIVE_PARALLEL_HDF5@)
+  set(HIGHFIVE_PARALLEL_HDF5 @HIGHFIVE_PARALLEL_HDF5@)
 endif()
+
 if(NOT DEFINED HIGHFIVE_USE_BOOST)
-    set(HIGHFIVE_USE_BOOST @HIGHFIVE_USE_BOOST@)
+  set(HIGHFIVE_USE_BOOST @HIGHFIVE_USE_BOOST@)
 endif()
 
-# Get highfive_deps target
+# Get "highfive_deps" target
+
 if (NOT TARGET highfive_deps)
-    if (HIGHFIVE_USE_INSTALL_DEPS)
-        include("${CMAKE_CURRENT_LIST_DIR}/HighFiveStaticTargets.cmake")
-    else()
-        include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
-    endif()
+  if (HIGHFIVE_USE_INSTALL_DEPS)
+    include("${CMAKE_CURRENT_LIST_DIR}/HighFiveStaticTargets.cmake")
+  else()
+    include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
+  endif()
 endif()
 
-# Get HighFive target
+# Get "HighFive" target
+
 if(NOT TARGET HighFive)
-    include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 endif()
