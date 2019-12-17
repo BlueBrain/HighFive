@@ -134,6 +134,9 @@ class DataSpace : public Object {
 #ifdef H5_USE_EIGEN
     template <typename Value, int M, int N>
     static DataSpace From(const Eigen::Matrix<Value, M, N>& mat);
+
+    template <typename Value, int M, int N>
+    static DataSpace From(const std::vector<Eigen::Matrix<Value, M, N>>& vec);
 #endif
 
   protected:

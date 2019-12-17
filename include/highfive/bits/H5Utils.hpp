@@ -76,7 +76,12 @@ struct array_dims<boost::numeric::ublas::matrix<T> > {
 #ifdef H5_USE_EIGEN
 template<typename T, int M, int N>
 struct array_dims<Eigen::Matrix<T, M, N>> {
-    static constexpr size_t value = M * N;
+    static constexpr size_t value = 2;
+};
+
+template<typename T, int M, int N>
+struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
+    static constexpr size_t value = 2;
 };
 #endif
 
