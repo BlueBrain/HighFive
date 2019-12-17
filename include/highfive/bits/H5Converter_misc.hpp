@@ -278,16 +278,18 @@ inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix)
 template <typename T, int M, int N>
 inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
 {
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
-                           [](size_t so_far, const auto& v){return so_far + (size_t)v.rows() * (size_t)v.cols(); });
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
+        return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
+    });
 }
 
 //compute total row size for std::vector of Eigens
 template <typename T, int M, int N>
 inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
 {
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
-                           [](size_t so_far, const auto& v){return so_far + (size_t)v.rows(); });
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
+        return so_far + static_cast<size_t>(v.rows());
+    });
 }
 
 
@@ -298,14 +300,14 @@ struct data_converter<Eigen::Matrix<T, M, N>, void> {
     typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
 
     inline data_converter(MatrixTMN&, DataSpace& space)
-        : _dims(space.getDimensions()) {    
+        : _dims(space.getDimensions()) {
         assert(_dims.size() == 2);
     }
 
     inline typename type_of_array<T>::type* transform_read(MatrixTMN& array) {
-
-        if (_dims[0] != (size_t)array.rows() || _dims[1] != (size_t)array.cols()) {
-            array.resize((Eigen::Index)_dims[0], (Eigen::Index)_dims[1]);
+        if (_dims[0] != static_cast<size_t>(array.rows()) ||
+            _dims[1] != static_cast<size_t>(array.cols())) {
+            array.resize(static_cast<Eigen::Index>(_dims[0]), static_cast<Eigen::Index>(_dims[1]));
         }
         return array.data();
     }
@@ -366,13 +368,14 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
         else {
             if(M == -1 || N == -1) {
                 std::ostringstream ss;
-                ss << "Dynamic size (-1) used without pre-defined data layout for vector elements.\n";
-                ss << "Initiliaze vector elements using Zero, i.e. vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
+                ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
+                   << "Initiliaze vector elements using Zero, i.e.:\n"
+                   << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
                 throw DataSetException(ss.str());
             }
             else
             {
-                for (size_t i = 0; i < _dims[0] / (size_t)M; ++i) {
+                for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
                     vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
                     start += M * N;
                 }
