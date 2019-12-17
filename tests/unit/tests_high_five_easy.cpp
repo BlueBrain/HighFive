@@ -212,9 +212,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
     BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
-#endif
 
-#ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -231,9 +229,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
     BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
-#endif
 
-#ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixXRowMajor)
 {
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
@@ -253,9 +249,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixXRowMajor)
     BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
-#endif
 
-#ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorXRowMajor)
 {
     typedef Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor> VectorXd;

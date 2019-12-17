@@ -146,7 +146,8 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
         "boost::numeric::ublas::matrix<all_basic_types> | "
         "boost::multi_array<all_basic_types> \n"
         "  all_supported_types = all_basic_types | stl_container_types | "
-        "boost_container_types");
+        "boost_container_types"
+        "  eigen_matrix_type = Eigen::Matrix<signed_arithmetic_type> | Eigen::VectorXX");
     return DataSpace(DataSpace::datascape_scalar);
 }
 
@@ -180,6 +181,28 @@ DataSpace::From(const boost::numeric::ublas::matrix<Value>& mat) {
     std::vector<size_t> dims(2);
     dims[0] = mat.size1();
     dims[1] = mat.size2();
+    return DataSpace(dims);
+}
+#endif
+
+#ifdef H5_USE_EIGEN
+template <typename Value, int M, int N>
+inline DataSpace
+DataSpace::From(const Eigen::Matrix<Value, M, N>&  mat ) {
+    std::vector<size_t> dims{static_cast<size_t>(mat.rows()), static_cast<size_t>(mat.cols())};
+    return DataSpace(dims);
+}
+
+template <typename Value, int M, int N>
+inline DataSpace
+DataSpace::From(const std::vector<Eigen::Matrix<Value, M, N>>& vec) {
+    std::vector<size_t> dims{std::accumulate(vec.begin(),
+                                             vec.end(),
+                                             size_t{0u},
+                                             [](size_t so_far, const auto& v) {
+                                                 return so_far + static_cast<size_t>(v.rows());
+                                             }),
+                             static_cast<size_t>(vec[0].cols())};
     return DataSpace(dims);
 }
 

@@ -266,6 +266,132 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
 };
 #endif
 
+#ifdef H5_USE_EIGEN
+//compute size for single Eigen Matrix
+template <typename T, int M, int N>
+inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix)
+{
+    return matrix.rows() * matrix.cols();
+}
+
+//compute size for  std::vector of Eigens
+template <typename T, int M, int N>
+inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
+{
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
+        return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
+    });
+}
+
+//compute total row size for std::vector of Eigens
+template <typename T, int M, int N>
+inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
+{
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
+        return so_far + static_cast<size_t>(v.rows());
+    });
+}
+
+
+// apply conversion to eigen matrix
+template <typename T, int M, int N>
+struct data_converter<Eigen::Matrix<T, M, N>, void> {
+
+    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
+
+    inline data_converter(MatrixTMN&, DataSpace& space)
+        : _dims(space.getDimensions()) {
+        assert(_dims.size() == 2);
+    }
+
+    inline typename type_of_array<T>::type* transform_read(MatrixTMN& array) {
+        if (_dims[0] != static_cast<size_t>(array.rows()) ||
+            _dims[1] != static_cast<size_t>(array.cols())) {
+            array.resize(static_cast<Eigen::Index>(_dims[0]), static_cast<Eigen::Index>(_dims[1]));
+        }
+        return array.data();
+    }
+
+    inline typename type_of_array<T>::type* transform_write(MatrixTMN& array) {
+        return array.data();
+    }
+
+    inline void process_result(MatrixTMN&) {}
+
+    std::vector<size_t> _dims;
+};
+
+template <typename T, int M, int N>
+inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T,M,N>>& vec,
+                                     const std::vector<size_t>& dims,
+                                     const size_t current_dim,
+                                     std::vector<T>& buffer) {
+
+    check_dimensions_vector(compute_total_row_size(vec), dims[current_dim], current_dim);
+    for (const auto& k : vec) {
+        std::copy(k.data(), k.data()+k.size(), std::back_inserter(buffer));
+    }
+}
+
+// apply conversion to std::vector of eigen matrix
+template <typename T, int M, int N>
+struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
+
+    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
+
+    inline data_converter(const std::vector<MatrixTMN>& , DataSpace& space)
+        : _dims(space.getDimensions()), _space(space) {
+        assert(_dims.size() == 2);
+    }
+
+    inline typename type_of_array<T>::type*
+    transform_read(std::vector<MatrixTMN>& /* vec */) {
+        _vec_align.resize(compute_total_size(_space.getDimensions()));
+        return _vec_align.data();
+    }
+
+    inline typename type_of_array<T>::type*
+    transform_write(std::vector<MatrixTMN>& vec) {
+        _vec_align.reserve(compute_total_size(vec));
+        vectors_to_single_buffer<T, M, N>(vec, _dims, 0, _vec_align);
+        return _vec_align.data();
+    }
+
+    inline void process_result(std::vector<MatrixTMN>& vec) {
+        T* start = _vec_align.data();
+        if(vec.size() > 0) {
+            for(auto& v : vec){
+                v = Eigen::Map<MatrixTMN>(start, v.rows(), v.cols());
+                start += v.rows()*v.cols();
+            }
+        }
+        else {
+            if(M == -1 || N == -1) {
+                std::ostringstream ss;
+                ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
+                   << "Initiliaze vector elements using Zero, i.e.:\n"
+                   << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
+                throw DataSetException(ss.str());
+            }
+            else
+            {
+                for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
+                    vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
+                    start += M * N;
+                }
+            }
+        }
+    }
+
+    std::vector<size_t> _dims;
+    std::vector<typename type_of_array<T>::type> _vec_align;
+    DataSpace& _space;
+};
+
+
+
+#endif
+
 // apply conversion for vectors nested vectors
 template <typename T>
 struct data_converter<std::vector<T>,
