@@ -283,6 +283,20 @@ inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
     });
 }
 
+#ifdef H5_USE_BOOST
+// compute size for  boost::multi_array of Eigens
+template <typename T, size_t Dims>
+inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
+    return std::accumulate(vec.origin(),
+                           vec.origin() + vec.num_elements(),
+                           size_t{0u},
+                           [](size_t so_far, const auto& v) {
+                               return so_far +
+                                      static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
+                           });
+}
+#endif
+
 //compute total row size for std::vector of Eigens
 template <typename T, int M, int N>
 inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
@@ -388,7 +402,59 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
     DataSpace& _space;
 };
 
+#ifdef H5_USE_BOOST
+template <typename T, int M, int N, std::size_t Dims>
+struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
+    typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
 
+    inline data_converter(MultiArrayEigen&, DataSpace& space)
+        : _dims(space.getDimensions())
+        , _space(space) {
+        assert(_dims.size() == Dims);
+    }
+
+    inline typename type_of_array<T>::type* transform_read(MultiArrayEigen& /*array*/) {
+        _vec_align.resize(compute_total_size(_space.getDimensions()));
+        return _vec_align.data();
+    }
+
+    inline typename type_of_array<T>::type* transform_write(MultiArrayEigen& array) {
+        _vec_align.reserve(compute_total_size(array));
+        for (auto e = array.origin(); e < array.origin() + array.num_elements(); ++e) {
+            std::copy(e->data(), e->data() + e->size(), std::back_inserter(_vec_align));
+        }
+        return _vec_align.data();
+    }
+
+    inline void process_result(MultiArrayEigen& vec) {
+        T* start = _vec_align.data();
+        if (M != -1 && N != -1) {
+            for (auto v = vec.origin(); v < vec.origin() + vec.num_elements(); ++v) {
+                *v = Eigen::Map<Eigen::Matrix<T, M, N>>(start, v->rows(), v->cols());
+                start += v->rows() * v->cols();
+            }
+        } else {
+            if (vec.origin()->rows() > 0 && vec.origin()->cols() > 0) {
+                const auto VEC_M = vec.origin()->rows(), VEC_N = vec.origin()->cols();
+                for (auto v = vec.origin(); v < vec.origin() + vec.num_elements(); ++v) {
+                    assert(v->rows() == VEC_M && v->cols() == VEC_N);
+                    *v = Eigen::Map<Eigen::Matrix<T, M, N>>(start, VEC_M, VEC_N);
+                    start += VEC_M * VEC_N;
+                }
+            } else {
+                std::ostringstream ss;
+                ss << "Dynamic size(-1) used without pre-defined multi_array data layout.\n"
+                   << "Initiliaze vector elements using  MatrixXd::Zero";
+                throw DataSetException(ss.str());
+            }
+        }
+    }
+
+    std::vector<size_t> _dims;
+    DataSpace& _space;
+    std::vector<typename type_of_array<T>::type> _vec_align;
+};
+#endif
 
 #endif
 

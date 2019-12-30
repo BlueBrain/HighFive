@@ -1153,6 +1153,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
     auto test = [&DS_NAME, &file](const std::string& test_flavor, const auto& vec_input, auto& vec_output){
         file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
         file.getDataSet(DS_NAME + test_flavor).read(vec_output);
+        BOOST_CHECK(vec_input == vec_output);
     };
 
     std::string DS_NAME_FLAVOR;
@@ -1231,6 +1232,68 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception), HighFive::DataSetException);
     }
 
+#ifdef H5_USE_BOOST
+    // boost::multi_array<of EigenVector3f>
+    {
+        DS_NAME_FLAVOR = "BMultiEigenVector3f";
 
+        boost::multi_array<Eigen::Vector3f, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::Vector3f::Random(3);
+                }
+            }
+        }
+        boost::multi_array<Eigen::Vector3f, 3> vec_out(boost::extents[3][2][2]);
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+
+    // boost::multi_array<of EigenMatrixXd>
+    {
+        DS_NAME_FLAVOR = "BMultiEigenMatrixXd";
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::MatrixXd::Random(3, 3);
+                }
+            }
+        }
+        boost::multi_array<Eigen::MatrixXd, 3> vec_out(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_out[i][j][k] = Eigen::MatrixXd::Zero(3, 3);
+                }
+            }
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // boost::mulit_array<of EigenMatrixXd> - exception
+    {
+        DS_NAME_FLAVOR = "BMultiEigenMatrixXdExc";
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::MatrixXd::Random(3, 3);
+                }
+            }
+        }
+
+        file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
+
+        BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
+                          HighFive::DataSetException);
+    }
+
+#endif
 }
 #endif
