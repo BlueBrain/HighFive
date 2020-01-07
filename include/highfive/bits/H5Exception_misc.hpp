@@ -10,6 +10,7 @@
 #define H5EXCEPTION_MISC_HPP
 
 #include <cstdlib>
+#include <sstream>
 
 #include <H5Epublic.h>
 
@@ -20,21 +21,16 @@ struct HDF5ErrMapper {
     template <typename ExceptionType>
     static inline herr_t stackWalk(unsigned n, const H5E_error2_t* err_desc,
                                    void* client_data) {
-        ExceptionType** e_iter = static_cast<ExceptionType**>(client_data);
+        auto** e_iter = static_cast<ExceptionType**>(client_data);
         (void)n;
 
-        char* major_err = H5Eget_major(err_desc->maj_num);
-        char* minor_err = H5Eget_minor(err_desc->min_num);
+        const char* major_err = H5Eget_major(err_desc->maj_num);
+        const char* minor_err = H5Eget_minor(err_desc->min_num);
 
-        std::string err_string("(");
-        err_string += major_err;
-        err_string += ") ";
-        err_string += minor_err;
+        std::ostringstream oss;
+        oss << '(' << major_err << ") " << minor_err;
 
-        free(major_err);
-        free(minor_err);
-
-        ExceptionType* e = new ExceptionType(err_string);
+        auto* e = new ExceptionType(oss.str());
         e->_err_major = err_desc->maj_num;
         e->_err_minor = err_desc->min_num;
         (*e_iter)->_next.reset(e);
