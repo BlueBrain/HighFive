@@ -31,7 +31,6 @@ struct HDF5ErrMapper {
         oss << '(' << major_err << ") " << minor_err;
 
         auto* e = new ExceptionType(oss.str());
-
         e->_err_major = err_desc->maj_num;
         e->_err_minor = err_desc->min_num;
         (*e_iter)->_next.reset(e);
