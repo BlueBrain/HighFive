@@ -23,16 +23,13 @@ struct HDF5ErrMapper {
         ExceptionType** e_iter = static_cast<ExceptionType**>(client_data);
         (void)n;
 
-        char* major_err = H5Eget_major(err_desc->maj_num);
-        char* minor_err = H5Eget_minor(err_desc->min_num);
+        const char* major_err = H5Eget_major(err_desc->maj_num);
+        const char* minor_err = H5Eget_minor(err_desc->min_num);
 
         std::string err_string("(");
         err_string += major_err;
         err_string += ") ";
         err_string += minor_err;
-
-        free(major_err);
-        free(minor_err);
 
         ExceptionType* e = new ExceptionType(err_string);
         e->_err_major = err_desc->maj_num;
