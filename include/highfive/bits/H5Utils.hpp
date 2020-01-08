@@ -14,7 +14,6 @@
 #include <array>
 #include <cstddef> // __GLIBCXX__
 #include <exception>
-#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -193,12 +192,6 @@ inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
 inline std::vector<std::size_t> to_vector_size_t(std::vector<std::size_t> vec){
     return vec;
 }
-
-// shared ptr portability
-// was used pre-C++11, kept for compatibility
-namespace Mem {
-    using namespace std;
-} // end Mem
 
 } // end details
 }
