@@ -407,13 +407,14 @@ template <typename T, int M, int N, std::size_t Dims>
 struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
 
-    inline data_converter(MultiArrayEigen&, DataSpace& space)
+    inline data_converter(const MultiArrayEigen&, DataSpace& space)
         : _dims(space.getDimensions())
         , _space(space) {
         assert(_dims.size() == Dims);
     }
 
-    inline typename type_of_array<T>::type* transform_read(MultiArrayEigen& /*array*/) {
+    inline typename type_of_array<T>::type*
+    transform_read(const MultiArrayEigen& /*array*/) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
@@ -442,10 +443,9 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
                     start += VEC_M * VEC_N;
                 }
             } else {
-                std::ostringstream ss;
-                ss << "Dynamic size(-1) used without pre-defined multi_array data layout.\n"
-                   << "Initiliaze vector elements using  MatrixXd::Zero";
-                throw DataSetException(ss.str());
+                throw DataSetException(
+                    "Dynamic size(-1) used without pre-defined multi_array data layout.\n"
+                    "Initialize vector elements using  MatrixXd::Zero");
             }
         }
     }
