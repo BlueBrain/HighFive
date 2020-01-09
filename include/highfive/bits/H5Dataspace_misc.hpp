@@ -168,10 +168,7 @@ inline DataSpace DataSpace::From(const std::array<Value, N>& ) {
 template <typename Value, std::size_t Dims>
 inline DataSpace
 DataSpace::From(const boost::multi_array<Value, Dims>& container) {
-    std::vector<size_t> dims(Dims);
-    for (std::size_t i = 0; i < Dims; ++i) {
-        dims[i] = container.shape()[i];
-    }
+    std::vector<size_t> dims(container.shape(), container.shape() + Dims);
     return DataSpace(dims);
 }
 
@@ -205,6 +202,15 @@ DataSpace::From(const std::vector<Eigen::Matrix<Value, M, N>>& vec) {
                              static_cast<size_t>(vec[0].cols())};
     return DataSpace(dims);
 }
+
+#ifdef H5_USE_BOOST
+template <typename Value, int M, int N, size_t Dims>
+inline DataSpace DataSpace::From(const boost::multi_array<Eigen::Matrix<Value, M, N>, Dims>& vec) {
+    std::vector<size_t> dims(vec.shape(), vec.shape() + Dims);
+    dims[Dims - 1] *= static_cast<size_t>(vec.origin()->rows() * vec.origin()->cols());
+    return DataSpace(dims);
+}
+#endif
 
 #endif
 
