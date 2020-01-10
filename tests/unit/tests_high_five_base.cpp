@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
 
     // check if the dataset exist
     bool dataset_exist = file.exist(DATASET_NAME + "_double");
-    BOOST_CHECK_EQUAL(dataset_exist, false);
+    BOOST_CHECK(!dataset_exist);
 
     // Create a dataset with double precision floating points
     DataSet dataset_double = file.createDataSet(
@@ -669,7 +669,7 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(n2, 1);
 
         has_attribute = g.hasAttribute("my_attribute");
-        BOOST_CHECK_EQUAL(has_attribute, true);
+        BOOST_CHECK(has_attribute);
 
         all_attribute_names = g.listAttributeNames();
         BOOST_CHECK_EQUAL(all_attribute_names.size(), 1);
@@ -684,9 +684,9 @@ void readWriteAttributeVectorTest() {
         a2.write(vec);
     }
 
-    typename std::vector<T> result1, result2;
-
     {
+        typename std::vector<T> result1, result2;
+
         Attribute a1_read =
             file.getGroup("dummy_group").getAttribute("my_attribute");
         a1_read.read(result1);
@@ -706,6 +706,21 @@ void readWriteAttributeVectorTest() {
 
         for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
+    }
+
+    // Delete some attributes
+    {
+        // From group
+        auto g = file.getGroup("dummy_group");
+        g.deleteAttribute("my_attribute");
+        auto n = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n, 0);
+
+        // From dataset
+        auto d = file.getDataSet("/dummy_group/dummy_dataset");
+        d.deleteAttribute("my_attribute_copy");
+        n = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n, 0);
     }
 }
 
@@ -907,7 +922,7 @@ void attribute_scalar_rw() {
     Group g = h5file.createGroup("metadata");
 
     bool family_exist = g.hasAttribute("family");
-    BOOST_CHECK_EQUAL(family_exist, false);
+    BOOST_CHECK(!family_exist);
 
     // write a scalar attribute
     {
@@ -920,7 +935,7 @@ void attribute_scalar_rw() {
 
     // test if attribute exist
     family_exist = g.hasAttribute("family");
-    BOOST_CHECK_EQUAL(family_exist, true);
+    BOOST_CHECK(family_exist);
 
     // read back a scalar attribute
     {
