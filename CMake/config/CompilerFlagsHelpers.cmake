@@ -83,12 +83,16 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 
 	## GCC, CLANG, rest of the world
 	else()
-		string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL
-			" -Wall -Wextra -Werror -Wshadow -Wnon-virtual-dtor -Wunused -Woverloaded-virtual"
+		string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wall -Wextra")
+		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG)
+		string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG
+			" -Werror -Wshadow -Wnon-virtual-dtor -Wunused -Woverloaded-virtual"
 			" -Wformat=2 -Wconversion -Wsign-conversion"
-			" -Wno-error=conversion -Wno-error=sign-conversion")  # Too common to be considered errors
+		)
 		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_ICC)
-			string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wcast-align -Wpedantic -Wdouble-promotion")
+			string(APPEND CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG
+				" -Wpedantic -Wcast-align -Wdouble-promotion"
+			)
 		endif()
 
 		set(CMAKE_${COMPILER_LANGUAGE}_DEBUGINFO_FLAGS "-g")

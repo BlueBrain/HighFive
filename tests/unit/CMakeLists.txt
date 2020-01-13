@@ -1,18 +1,16 @@
-if(NOT HIGHFIVE_UNIT_TESTS OR NOT USE_BOOST)
+if(NOT HIGHFIVE_UNIT_TESTS)
   return()
 endif()
 
-include_directories(${HDF5_INCLUDE_DIRS})
-
+# NOTE: These unit tests expect linking with boost test framework lib
 if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
 endif()
 
-
+## Base tests
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy)
   add_executable(${test_name} "${test_name}.cpp")
   target_link_libraries(${test_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} HighFive)
-
   add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
