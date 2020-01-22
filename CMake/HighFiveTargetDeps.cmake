@@ -1,21 +1,17 @@
 # Link against target system libs
 # -------------------------------
 
-# therefore making it possible to have new dependencies each build
 if(NOT TARGET highfive_deps)
   add_library(highfive_deps INTERFACE)
-else()
-# Reset if imported
-set_target_properties(highfive_deps PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS ""
-  INTERFACE_COMPILE_OPTIONS ""
-  INTERFACE_INCLUDE_DIRECTORIES ""
-  INTERFACE_LINK_LIBRARIES ""
-  INTERFACE_LINK_OPTIONS ""
-  INTERFACE_SYSTEM_INCLUDE_DIRECTORIES ""
-)
 endif()
 
+# locally keep track of target properties
+set(HF_COMPILE_DEFINITIONS "")
+set(HF_COMPILE_OPTIONS "")
+set(HF_INCLUDE_DIRECTORIES "")
+set(HF_LINK_LIBRARIES "")
+set(HF_LINK_OPTIONS "")
+set(HF_SYSTEM_INCLUDE_DIRECTORIES "")
 
 # HDF5
 if(NOT DEFINED HDF5_C_LIBRARIES)
@@ -25,33 +21,42 @@ if(NOT DEFINED HDF5_C_LIBRARIES)
 endif()
 
 if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
-  message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
+  message(WARNING "Parallel HDF5 requested but libhdf5 doesn't support it")
 endif()
 
-target_include_directories(highfive_deps SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-target_link_libraries(highfive_deps INTERFACE ${HDF5_C_LIBRARIES})
-target_compile_definitions(highfive_deps INTERFACE ${HDF5_DEFINITIONS})
+string(REPLACE "-D" "" HIGHFIVE_TMP ${HDF5_DEFINITIONS})
+set(HF_SYSTEM_INCLUDE_DIRECTORIES ${HF_SYSTEM_INCLUDE_DIRECTORIES} ${HDF5_INCLUDE_DIRS})
+set(HF_LINK_LIBRARIES ${HF_LINK_LIBRARIES} ${HDF5_C_LIBRARIES})
+set(HF_COMPILE_DEFINITIONS ${HF_COMPILE_DEFINITIONS} ${HIGHFIVE_TMP})
 
 # Boost
 if(HIGHFIVE_USE_BOOST)
   set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
   find_package(Boost REQUIRED COMPONENTS system serialization)
-  # Dont use imported targets yet, not avail before cmake 3.5
-  target_include_directories(highfive_deps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
-  target_compile_definitions(highfive_deps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
+  # Don't use imported targets yet, not available before CMake 3.5
+  set(HF_SYSTEM_INCLUDE_DIRECTORIES ${HF_SYSTEM_INCLUDE_DIRECTORIES} ${Boost_INCLUDE_DIR})
+  set(HF_COMPILE_DEFINITIONS ${HF_COMPILE_DEFINITIONS} BOOST_ALL_NO_LIB H5_USE_BOOST)
 endif()
 
 # MPI
 if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
   find_package(MPI REQUIRED)
-  target_include_directories(highfive_deps SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
-  target_link_libraries(highfive_deps INTERFACE ${MPI_CXX_LIBRARIES})
+  set(HF_SYSTEM_INCLUDE_DIRECTORIES ${HF_SYSTEM_INCLUDE_DIRECTORIES} ${MPI_CXX_INCLUDE_PATH})
+  set(HF_LINK_LIBRARIES ${HF_LINK_LIBRARIES} ${MPI_CXX_LIBRARIES})
   if(CMAKE_VERSION VERSION_LESS 3.13)
-    target_link_libraries(highfive_deps INTERFACE ${MPI_CXX_LINK_FLAGS})
+    set(HF_LINK_LIBRARIES ${HF_LINK_LIBRARIES} ${MPI_CXX_LINK_FLAGS})
   else()
-    target_link_options(highfive_deps INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
+    set(HF_LINK_OPTIONS ${HF_LINK_OPTIONS} "SHELL:${MPI_CXX_LINK_FLAGS}")
   endif()
 endif()
+
+set_property(TARGET highfive_deps PROPERTY INTERFACE_COMPILE_DEFINITIONS ${HF_COMPILE_DEFINITIONS})
+set_property(TARGET highfive_deps PROPERTY INTERFACE_COMPILE_OPTIONS ${HF_COMPILE_OPTIONS})
+set_property(TARGET highfive_deps PROPERTY INTERFACE_INCLUDE_DIRECTORIES "")
+set_property(TARGET highfive_deps PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${HF_INCLUDE_DIRECTORIES})
+set_property(TARGET highfive_deps PROPERTY INTERFACE_LINK_LIBRARIES ${HF_LINK_LIBRARIES})
+set_property(TARGET highfive_deps PROPERTY INTERFACE_LINK_OPTIONS ${HF_LINK_OPTIONS})
+set_property(TARGET highfive_deps PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES ${HF_SYSTEM_INCLUDE_DIRECTORIES})
 
 # Propagate to HighFive
 target_link_libraries(HighFive INTERFACE highfive_deps)
