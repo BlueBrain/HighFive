@@ -122,6 +122,9 @@ class DataSpace : public Object {
     template <typename Value, std::size_t N>
     static DataSpace From(const std::array<Value, N>&);
 
+    template <typename ValueT, std::size_t N>
+    static DataSpace From(const ValueT(&container)[N]);
+
 
 #ifdef H5_USE_BOOST
     template <typename Value, std::size_t Dims>
