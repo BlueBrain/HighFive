@@ -119,7 +119,7 @@ class SliceTraits {
     /// elements. For n-dimensional matrices the buffer layout follows H5
     /// default conventions.
     template <typename T>
-    void write(const T* buffer);
+    void write_raw(const T* const buffer);
 
   private:
     typedef Derivate derivate_type;

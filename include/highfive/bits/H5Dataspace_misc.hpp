@@ -160,6 +160,11 @@ inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
     return DataSpace(details::get_dim_vector(container));
 }
 
+template <std::size_t N, std::size_t Width>
+inline DataSpace DataSpace::FromCharArrayStrings(const char(&)[N][Width]) {
+    return DataSpace(N);
+}
+
 /// Currently only supports 1D std::array
 template <typename Value, std::size_t N>
 inline DataSpace DataSpace::From(const std::array<Value, N>& ) {

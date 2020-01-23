@@ -1187,7 +1187,6 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
 BOOST_AUTO_TEST_CASE(HighFiveAtomicCharArray) {
     const std::string FILE_NAME("array_atomic_types.h5");
     const std::string GROUP_1("group1");
-    const std::string DS_NAME = "ds";
 
     // Create a new file using the default property lists.
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
@@ -1196,11 +1195,27 @@ BOOST_AUTO_TEST_CASE(HighFiveAtomicCharArray) {
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
     // But char should be fine
-    auto ds = file.createDataSet<char[10]>(DS_NAME, DataSpace(2));
+    auto ds = file.createDataSet<char[10]>("ds1", DataSpace(2));
     BOOST_CHECK(ds.getDataType().getClass() == DataTypeClass::String);
 
     char raw_strings[][10] = {"abcd", "1234"};
     ds.write(raw_strings);
+
+    // char[] is, by default, int8
+    auto ds2 = file.createDataSet("ds2", raw_strings);
+    BOOST_CHECK(ds2.getDataType().getClass() == DataTypeClass::Integer);
+
+    // Truncate happens low-level if well setup
+    auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
+
+    // Write as raw elements from pointer
+    // With and without const. Before write_raw() non-const was matching wrong write(T&).
+    char (*strings_fixed)[10] = raw_strings;
+    const char (*strings_fixed2)[10] = raw_strings;
+    // With a pointer we dont know how many strings -> manual DataSpace
+    auto ds4 = file.createDataSet<char[10]>("ds4", DataSpace(2));
+    ds4.write_raw(strings_fixed);
+
 }
 
 

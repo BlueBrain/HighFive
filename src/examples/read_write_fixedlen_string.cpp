@@ -28,13 +28,16 @@ int main(void) {
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         //std::vector<std::string> strings_fixed = {"one", "two", "three", "four", "five"};
-        char strings_fixed[][4] = {"abc", "123"};
+        const char strings_fixed[][16] = {"abcabcabcabcabc", "123123123123123"};
 
         // create a dataset ready to contains strings of the size of the vector
         // string_list
         //DataSet dataset = file.createDataSet<int>(DATASET_NAME, DataSpace(10));
+
+        // This will crate an int8 dataset
         DataSet dataset = file.createDataSet(DATASET_NAME, strings_fixed);
 
+        // This shall create a string dataset
         DataSet dataset2 = file.createDataSet<char[10]>("ds2", DataSpace(2));
         dataset2.write(strings_fixed);
 

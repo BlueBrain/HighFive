@@ -220,6 +220,25 @@ inline void SliceTraits<Derivate>::read(T* array) const {
     }
 }
 
+inline static size_t
+adjust_mem_datatype(DataType&, const DataType&, const DataType&) {
+    return 0;
+}
+
+template<std::size_t N>
+inline static size_t
+adjust_mem_datatype(AtomicType<char>& out_mem_datatype,
+                    const AtomicType<char[N]>& in_mem_datatype,
+                    const DataType& ds_datatype) {
+    if(ds_datatype.getClass() != DataTypeClass::String) {
+        // Dont convert if destination didnt request string
+        return 0;
+    }
+    static_cast<DataType&>(out_mem_datatype) = static_cast<const DataType&>(in_mem_datatype);
+    return 1;
+}
+
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
@@ -228,17 +247,13 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
     typedef typename details::type_of_array_storage<type_no_const>::type type_maybe_array;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
-    const DataType ds_type = static_cast<const Derivate*>(this)->getDataType();
+    const auto& self = static_cast<const Derivate&>(*this);
+    const DataSpace space = self.getSpace();
+    DataSpace mem_space = self.getMemSpace();
 
-    // If data is char[] and destination is String, set for adjustments
-    bool chars_as_string = (std::is_same<elem_type, char>::value
-                            && details::is_c_array<type_maybe_array>::value
-                            && ds_type.getClass() == DataTypeClass::String);
-
-    const size_t dim_buffer =
-        details::array_dims<type_no_const>::value - (chars_as_string? 1 : 0);
+    AtomicType<elem_type> mem_data_type;
+    const size_t dim_buffer = details::array_dims<type_no_const>::value
+        - adjust_mem_datatype(mem_data_type, AtomicType<type_maybe_array>(), self.getDataType());
 
     if (!details::checkDimensions(mem_space, dim_buffer)) {
         std::ostringstream ss;
@@ -246,10 +261,6 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-
-    const DataType mem_data_type =
-        chars_as_string ? static_cast<DataType>(AtomicType<type_maybe_array>())
-                        : static_cast<DataType>(AtomicType<elem_type>());
 
     // Apply pre write conversions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
@@ -267,12 +278,15 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::write(const T* buffer) {
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
-    std::cout<<typeid(T).name() << std::endl;
+inline void SliceTraits<Derivate>::write_raw(const T* const buffer) {
+    const auto& self = static_cast<const Derivate&>(*this);
+    const DataSpace& space = self.getSpace();
+    DataSpace mem_space = self.getMemSpace();
 
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    adjust_mem_datatype(array_datatype,
+                        AtomicType<typename details::type_of_array_storage<T>::type>(),
+                        self.getDataType());
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
                  array_datatype.getId(),
