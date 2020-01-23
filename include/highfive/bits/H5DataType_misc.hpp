@@ -20,10 +20,15 @@ namespace HighFive {
 namespace {  // unnamed
 inline DataTypeClass convert_type_class(const H5T_class_t& tclass);
 inline std::string type_class_string(DataTypeClass);
+inline hid_t create_string(std::size_t length);
 }
 
 
 inline DataType::DataType() {}
+
+inline DataType::DataType(hid_t type_hid) { // protected
+    _hid = type_hid;
+}
 
 inline DataTypeClass DataType::getClass() const {
     return convert_type_class(H5Tget_class(_hid));
@@ -126,14 +131,18 @@ inline AtomicType<bool>::AtomicType() {
 // std string
 template <>
 inline AtomicType<std::string>::AtomicType() {
-    _hid = H5Tcopy(H5T_C_S1);
-    if (H5Tset_size(_hid, H5T_VARIABLE) < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>(
-            "Unable to define datatype size to variable");
-    }
-    // define encoding to UTF-8 by default
-    H5Tset_cset(_hid, H5T_CSET_UTF8);
+    _hid = create_string(H5T_VARIABLE);
 }
+
+// Fixed-Length strings
+// require class specialization templated for the char length
+template <size_t StrLen>
+class AtomicType<char[StrLen]> : public DataType {
+  public:
+    inline AtomicType() {
+        _hid = create_string(StrLen);
+    }
+};
 
 template <>
 inline AtomicType<std::complex<double> >::AtomicType()
@@ -151,8 +160,30 @@ inline AtomicType<std::complex<double> >::AtomicType()
     _hid = H5Tcopy(complexType.getId());
 }
 
+// Other cases not supported. Fail early with a user message
+template <typename T>
+AtomicType<T>::AtomicType() {
+    static_assert(details::array_dims<T>::value == 0,
+                  "Atomic types cant be arrays, except for char[] (fixed-len strings)");
+    static_assert(details::array_dims<T>::value > 0, "Type not supported");
+}
+
+
+// Internal
 
 namespace {
+
+inline hid_t create_string(size_t length){
+    hid_t _hid = H5Tcopy(H5T_C_S1);
+    if (H5Tset_size(_hid, length) < 0) {
+        HDF5ErrMapper::ToException<DataTypeException>(
+            "Unable to define datatype size to variable");
+    }
+    // define encoding to UTF-8 by default
+    H5Tset_cset(_hid, H5T_CSET_UTF8);
+    return _hid;
+}
+
 
 inline DataTypeClass convert_type_class(const H5T_class_t& tclass) {
     switch(tclass) {
@@ -215,7 +246,7 @@ inline std::string type_class_string(DataTypeClass tclass) {
     }
 }
 
-}  // namespace
+}  // unnamed namespace
 
 
 }  // namespace HighFive

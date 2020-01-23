@@ -28,8 +28,7 @@ inline DataSpace::DataSpace(std::initializer_list<size_t> items)
 
 template<typename... Args>
     inline DataSpace::DataSpace(size_t dim1, Args... dims)
-    : DataSpace(std::vector<size_t>{static_cast<size_t>(dim1),
-                                    static_cast<size_t>(dims)...}){}
+    : DataSpace(std::vector<size_t>{dim1, static_cast<size_t>(dims)...}){}
 
 template <class IT, typename>
 inline DataSpace::DataSpace(const IT begin, const IT end) {
@@ -164,9 +163,7 @@ inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
 /// Currently only supports 1D std::array
 template <typename Value, std::size_t N>
 inline DataSpace DataSpace::From(const std::array<Value, N>& ) {
-    std::vector<size_t> dims;
-    dims.push_back(N);
-    return DataSpace(dims);
+    return DataSpace(N);
 }
 
 #ifdef H5_USE_BOOST

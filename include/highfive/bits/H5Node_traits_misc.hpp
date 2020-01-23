@@ -66,8 +66,10 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        AtomicType<typename details::type_of_array<T>::type>(), createProps,
-        accessProps);
+        AtomicType<typename details::type_of_array<T>::type>(),
+        createProps,
+        accessProps
+    );
     ds.write(data);
     return ds;
 }

@@ -42,6 +42,11 @@ class Selection : public SliceTraits<Selection> {
     DataSet& getDataset();
     const DataSet& getDataset() const;
 
+    ///
+    /// \brief return the datatype of the selection
+    /// \return return the datatype of the selection
+    const DataType getDataType() const;
+
   private:
     Selection(const DataSpace& memspace, const DataSpace& file_space,
               const DataSet& set);
@@ -53,7 +58,8 @@ class Selection : public SliceTraits<Selection> {
     friend class ::HighFive::SliceTraits;
     // absolute namespace naming due to GCC bug 52625
 };
-}
+
+}  // namespace HighFive
 
 #include "bits/H5Slice_traits_misc.hpp"
 #include "bits/H5Selection_misc.hpp"

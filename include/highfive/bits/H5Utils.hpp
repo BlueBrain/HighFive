@@ -86,13 +86,13 @@ struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
-void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
+inline void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
     (void)dims;
     (void)vec;
 }
 
 template <typename T>
-void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
+inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
     dims.push_back(vec.size());
     get_dim_vector_rec(vec[0], dims);
 }
@@ -106,7 +106,7 @@ std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T, std::size_t N>
-void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
+inline void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
     dims.push_back(N);
     get_dim_vector_rec(vec[0], dims);
 }

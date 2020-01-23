@@ -32,6 +32,12 @@ inline DataSet& Selection::getDataset() {
 inline const DataSet& Selection::getDataset() const {
     return _set;
 }
+
+// Not only a shortcut but also for templated compat with H5Dataset
+inline const DataType Selection::getDataType() const {
+    return _set.getDataType();
 }
+
+}  // namespace HighFive
 
 #endif // H5SELECTION_MISC_HPP

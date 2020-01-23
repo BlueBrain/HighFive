@@ -112,6 +112,9 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
     return begin_buffer;
 }
 
+// DATA CONVERTERS
+// ---------------
+
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
@@ -537,7 +540,7 @@ struct data_converter<std::vector<std::string>, void> {
     inline char** transform_read(std::vector<std::string>& vec) {
         (void)vec;
         _c_vec.resize(_space.getDimensions()[0], NULL);
-        return (&_c_vec[0]);
+        return _c_vec.data();
     }
 
     static inline char* char_converter(const std::string& str) {
@@ -547,7 +550,7 @@ struct data_converter<std::vector<std::string>, void> {
     inline char** transform_write(std::vector<std::string>& vec) {
         _c_vec.resize(vec.size() + 1, NULL);
         std::transform(vec.begin(), vec.end(), _c_vec.begin(), &char_converter);
-        return (&_c_vec[0]);
+        return _c_vec.data();
     }
 
     inline void process_result(std::vector<std::string>& vec) {

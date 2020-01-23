@@ -66,6 +66,8 @@ class DataType : public Object {
     friend class Attribute;
     friend class File;
     friend class DataSet;
+
+    DataType(hid_t type_hid);
 };
 
 ///
