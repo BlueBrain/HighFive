@@ -164,6 +164,21 @@ struct type_of_array<T[N]> {
     typedef typename type_of_array<T>::type type;
 };
 
+template <typename T>
+struct type_of_array_storage {
+    typedef typename type_of_array<T>::type type;
+};
+
+template <typename T, std::size_t N>
+struct type_of_array_storage<T[N]> {
+    typedef typename type_of_array_storage<T>::type type;
+};
+
+template <std::size_t N>
+struct type_of_array_storage<char[N]> {
+    typedef char type[N];
+};
+
 // check if the type is a container ( only vector supported for now )
 template <typename>
 struct is_container {

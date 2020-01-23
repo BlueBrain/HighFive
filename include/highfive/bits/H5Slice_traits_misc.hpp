@@ -224,12 +224,21 @@ template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
     typedef typename std::remove_const<T>::type type_no_const;
+    typedef typename details::type_of_array<type_no_const>::type elem_type;
+    typedef typename details::type_of_array_storage<type_no_const>::type type_maybe_array;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
-
-    const size_t dim_buffer = details::array_dims<type_no_const>::value;
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+    const DataType ds_type = static_cast<const Derivate*>(this)->getDataType();
+
+    // If data is char[] and destination is String, set for adjustments
+    bool chars_as_string = (std::is_same<elem_type, char>::value
+                            && details::is_c_array<type_maybe_array>::value
+                            && ds_type.getClass() == DataTypeClass::String);
+
+    const size_t dim_buffer =
+        details::array_dims<type_no_const>::value - (chars_as_string? 1 : 0);
 
     if (!details::checkDimensions(mem_space, dim_buffer)) {
         std::ostringstream ss;
@@ -238,14 +247,15 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
 
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
+    const DataType mem_data_type =
+        chars_as_string ? static_cast<DataType>(AtomicType<type_maybe_array>())
+                        : static_cast<DataType>(AtomicType<elem_type>());
 
     // Apply pre write conversions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 array_datatype.getId(),
+                 mem_data_type.getId(),
                  details::get_memspace_id((static_cast<Derivate*>(this))),
                  space.getId(), H5P_DEFAULT,
                  static_cast<const void*>(
@@ -258,9 +268,9 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T* buffer) {
-
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+    std::cout<<typeid(T).name() << std::endl;
 
     const AtomicType<typename details::type_of_array<T>::type> array_datatype;
 
