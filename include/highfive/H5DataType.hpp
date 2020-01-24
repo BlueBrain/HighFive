@@ -62,6 +62,16 @@ class DataType : public Object {
     ///
     std::string string() const;
 
+    ///
+    /// \brief Returns whether the type is a variable-length string
+    ///
+    bool isVariableString() const;
+
+    ///
+    /// \brief Returns whether the type is a fixed-length string
+    ///
+    bool isFixedLengthString() const;
+
   protected:
     friend class Attribute;
     friend class File;

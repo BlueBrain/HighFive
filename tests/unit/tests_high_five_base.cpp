@@ -32,6 +32,13 @@
 
 using namespace HighFive;
 
+struct SilenceFix {
+    SilenceHDF5 silencer;
+};
+
+BOOST_GLOBAL_FIXTURE(SilenceFix)
+BOOST_GLOBAL_FIXTURE_END
+
 
 BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     const std::string FILE_NAME("h5tutr_dset.h5");
@@ -1207,15 +1214,21 @@ BOOST_AUTO_TEST_CASE(HighFiveAtomicCharArray) {
 
     // Truncate happens low-level if well setup
     auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
+    ds3.write(raw_strings);
 
-    // Write as raw elements from pointer
-    // With and without const. Before write_raw() non-const was matching wrong write(T&).
-    char (*strings_fixed)[10] = raw_strings;
-    const char (*strings_fixed2)[10] = raw_strings;
+    // Write as raw elements from pointer (with const)
+    const char (*strings_fixed)[10] = raw_strings;
     // With a pointer we dont know how many strings -> manual DataSpace
-    auto ds4 = file.createDataSet<char[10]>("ds4", DataSpace(2));
-    ds4.write_raw(strings_fixed);
+    file.createDataSet<char[10]>("ds4", DataSpace(2)).write(strings_fixed);
 
+    // To be implemented
+    // const char* buffer[] = {"abcd", "1234"};
+    // BOOST_CHECK_THROW(file.createDataSet<std::string>("ds5", DataSpace(2)).write(buffer),
+    //                   HighFive::DataSetException);
+
+    const char* buffer[] = {"abcd", "1234"};
+    BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
+                      HighFive::DataSetException);
 }
 
 

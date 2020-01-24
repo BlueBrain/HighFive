@@ -35,11 +35,12 @@ int main(void) {
         //DataSet dataset = file.createDataSet<int>(DATASET_NAME, DataSpace(10));
 
         // This will crate an int8 dataset
-        DataSet dataset = file.createDataSet(DATASET_NAME, strings_fixed);
+        const char (*strings_fixed2)[16] = strings_fixed;
+        //DataSet dataset = file.createDataSet(DATASET_NAME, strings_fixed2);
 
         // This shall create a string dataset
         DataSet dataset2 = file.createDataSet<char[10]>("ds2", DataSpace(2));
-        dataset2.write(strings_fixed);
+        dataset2.write(strings_fixed2);
 
         // // now we read it back
         // std::vector<std::string> result_string_list;

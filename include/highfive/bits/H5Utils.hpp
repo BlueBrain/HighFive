@@ -122,7 +122,7 @@ std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
 // determine at compile time recursively the basic type of the data
 template <typename T>
 struct type_of_array {
-    typedef T type;
+    typedef typename std::remove_const<T>::type type;
 };
 
 template <typename T>
@@ -164,20 +164,42 @@ struct type_of_array<T[N]> {
     typedef typename type_of_array<T>::type type;
 };
 
+
+template <typename>
+struct type_char_array {
+    typedef void type;
+};
+
+template <>
+struct type_char_array<char*> {
+    typedef char* type;
+};
+
+template <>
+struct type_char_array<const char*> {
+    typedef char* type;
+};
+
 template <typename T>
-struct type_of_array_storage {
-    typedef typename type_of_array<T>::type type;
+struct type_char_array<T*> {
+    typedef typename type_char_array<T>::type type;
 };
 
 template <typename T, std::size_t N>
-struct type_of_array_storage<T[N]> {
-    typedef typename type_of_array_storage<T>::type type;
+struct type_char_array<T[N]> {
+    typedef typename type_char_array<T>::type type;
 };
 
 template <std::size_t N>
-struct type_of_array_storage<char[N]> {
+struct type_char_array<char[N]> {
     typedef char type[N];
 };
+
+template <std::size_t N>
+struct type_char_array<const char[N]> {
+    typedef char type[N];
+};
+
 
 // check if the type is a container ( only vector supported for now )
 template <typename>

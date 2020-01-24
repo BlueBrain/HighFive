@@ -50,6 +50,18 @@ inline std::string DataType::string() const {
     return type_class_string(getClass()) + std::to_string(getSize() * 8);
 }
 
+inline bool DataType::isVariableString() const {
+    auto var_value = H5Tis_variable_str(_hid);
+    if (var_value < 0) {
+         HDF5ErrMapper::ToException<DataTypeException>(
+            "Unable to define datatype size to variable");
+    }
+    return static_cast<bool>(var_value);
+}
+
+inline bool DataType::isFixedLengthString() const {
+    return getClass() == DataTypeClass::String && !isVariableString();
+}
 
 // char mapping
 template <>

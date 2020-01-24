@@ -118,7 +118,7 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
-    inline data_converter(Scalar&, DataSpace&) {
+    inline data_converter(Scalar&, const DataSpace&) {
 
         static_assert((std::is_arithmetic<Scalar>::value ||
                        std::is_enum<Scalar>::value ||
@@ -139,7 +139,7 @@ struct data_converter {
 template <typename CArray>
 struct data_converter<CArray,
                       typename std::enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(CArray&, DataSpace&) {}
+    inline data_converter(CArray&, const DataSpace&) {}
 
     inline CArray& transform_read(CArray& datamem) { return datamem; }
 
@@ -154,7 +154,7 @@ struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::vector<T>&, DataSpace& space)
+    inline data_converter(std::vector<T>&, const DataSpace& space)
         : _space(space) {
         assert(is_1D(_space.getDimensions()));
     }
@@ -172,7 +172,7 @@ struct data_converter<
 
     inline void process_result(std::vector<T>&) {}
 
-    DataSpace& _space;
+    const DataSpace& _space;
 };
 
 // apply conversion to std::array
@@ -181,7 +181,7 @@ struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::array<T, S>&, DataSpace& space) {
+    inline data_converter(std::array<T, S>&, const DataSpace& space) {
         const std::vector<size_t> dims = space.getDimensions();
         if (!is_1D(dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
@@ -214,7 +214,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
 
     typedef typename boost::multi_array<T, Dims> MultiArray;
 
-    inline data_converter(MultiArray&, DataSpace& space)
+    inline data_converter(MultiArray&, const DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == Dims);
     }
@@ -243,7 +243,7 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
 
     typedef typename boost::numeric::ublas::matrix<T> Matrix;
 
-    inline data_converter(Matrix&, DataSpace& space)
+    inline data_converter(Matrix&, const DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == 2);
     }
@@ -356,7 +356,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
     typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
 
-    inline data_converter(const std::vector<MatrixTMN>& , DataSpace& space)
+    inline data_converter(const std::vector<MatrixTMN>&, const DataSpace& space)
         : _dims(space.getDimensions()), _space(space) {
         assert(_dims.size() == 2);
     }
@@ -402,7 +402,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
     std::vector<size_t> _dims;
     std::vector<typename type_of_array<T>::type> _vec_align;
-    DataSpace& _space;
+    const DataSpace& _space;
 };
 
 #ifdef H5_USE_BOOST
@@ -410,7 +410,7 @@ template <typename T, int M, int N, std::size_t Dims>
 struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
 
-    inline data_converter(const MultiArrayEigen&, DataSpace& space)
+    inline data_converter(const MultiArrayEigen&, const DataSpace& space)
         : _dims(space.getDimensions())
         , _space(space) {
         assert(_dims.size() == Dims);
@@ -454,7 +454,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     }
 
     std::vector<size_t> _dims;
-    DataSpace& _space;
+    const DataSpace& _space;
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
 #endif
@@ -465,7 +465,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
-    inline data_converter(std::vector<T>&, DataSpace& space)
+    inline data_converter(std::vector<T>&, const DataSpace& space)
         : _dims(space.getDimensions()) {}
 
     inline typename type_of_array<T>::type*
@@ -491,21 +491,22 @@ struct data_converter<std::vector<T>,
 };
 
 
+
+static inline char* char_converter(const std::string& str) {
+    return const_cast<char*>(str.c_str());
+}
+
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    inline data_converter(std::string& vec, DataSpace& space)
-        : _c_vec(nullptr),  _space(space) {
+    inline data_converter(std::string& vec, const DataSpace& space)
+        : _c_vec(nullptr), _space(space) {
         (void)vec;
     }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
     inline char** transform_read(std::string&) { return (&_c_vec); }
-
-    static inline char* char_converter(const std::string& str) {
-        return const_cast<char*>(str.c_str());
-    }
 
     inline char** transform_write(std::string& str) {
         _c_vec = const_cast<char*>(str.c_str());
@@ -524,13 +525,13 @@ struct data_converter<std::string, void> {
     }
 
     char* _c_vec;
-    DataSpace& _space;
+    const DataSpace& _space;
 };
 
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
-    inline data_converter(std::vector<std::string>& vec, DataSpace& space)
+    inline data_converter(std::vector<std::string>& vec, const DataSpace& space)
         : _space(space) {
         (void)vec;
     }
@@ -541,10 +542,6 @@ struct data_converter<std::vector<std::string>, void> {
         (void)vec;
         _c_vec.resize(_space.getDimensions()[0], NULL);
         return _c_vec.data();
-    }
-
-    static inline char* char_converter(const std::string& str) {
-        return const_cast<char*>(str.c_str());
     }
 
     inline char** transform_write(std::vector<std::string>& vec) {
@@ -568,7 +565,7 @@ struct data_converter<std::vector<std::string>, void> {
     }
 
     std::vector<char*> _c_vec;
-    DataSpace& _space;
+    const DataSpace& _space;
 };
 }
 }
