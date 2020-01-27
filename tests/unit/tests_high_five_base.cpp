@@ -1199,7 +1199,7 @@ BOOST_AUTO_TEST_CASE(HighFiveCharArray) {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
     char raw_strings[][10] = {"abcd", "1234"};
 
-    /// This will not compile, hits static_assert with a nice error
+    /// This will not compile - only char arrays - hits static_assert with a nice error
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
     { // But char should be fine
@@ -1233,6 +1233,11 @@ BOOST_AUTO_TEST_CASE(HighFiveCharArray) {
     { // scalar char strings
         const char buffer[] = "abcd";
         file.createDataSet<char[10]>("ds6", DataSpace(1)).write(buffer);
+    }
+
+    { // TODO: vector of char[]
+        //const std::vector<std::array<char, 10>> buffer = {"abcd", "1234"};
+        //file.createDataSet<char[10]>("ds7", DataSpace(2)).write(buffer);
     }
 }
 

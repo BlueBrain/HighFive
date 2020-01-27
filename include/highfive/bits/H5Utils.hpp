@@ -165,6 +165,7 @@ struct type_of_array<T[N]> {
 };
 
 
+// Find the type of an eventual char array, otherwise void
 template <typename>
 struct type_char_array {
     typedef void type;
@@ -201,7 +202,6 @@ struct is_container<std::vector<T> > {
 };
 
 // check if the type is a basic C-Array
-// check if the type is a container ( only vector supported for now )
 template <typename>
 struct is_c_array {
     static const bool value = false;
