@@ -260,7 +260,6 @@ inline std::string type_class_string(DataTypeClass tclass) {
 
 }  // unnamed namespace
 
-
 }  // namespace HighFive
 
 

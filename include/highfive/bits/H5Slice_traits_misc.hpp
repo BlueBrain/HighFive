@@ -26,6 +26,8 @@
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
+#include "H5ReadWrite_misc.hpp"
+
 #include "H5Converter_misc.hpp"
 
 namespace HighFive {
@@ -183,14 +185,14 @@ inline void SliceTraits<Derivate>::read(T& array) const {
         array_datatype;
 
     // Apply pre-read conversions
-    details::data_converter<type_no_const> converter(nocv_array, mem_space);
+    details::data_converter<type_no_const> converter(mem_space);
 
     if (H5Dread(
             details::get_dataset(static_cast<const Derivate*>(this)).getId(),
             array_datatype.getId(),
             details::get_memspace_id((static_cast<const Derivate*>(this))),
             space.getId(), H5P_DEFAULT,
-            static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
+            converter.transform_read(nocv_array)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Read: ");
     }
@@ -221,175 +223,33 @@ inline void SliceTraits<Derivate>::read(T* array) const {
 }
 
 
-
-template <typename SrcStrT>
-struct string_type_checker {
-    static DataType getDataType(const DataType&, bool);
-};
-
-template<>
-inline DataType
-string_type_checker<void>::getDataType(const DataType& element_type, bool) {
-    return element_type;
-}
-
-template<std::size_t FixedLen>
-struct string_type_checker<char[FixedLen]> {
-inline static DataType getDataType(const DataType& element_type, bool ds_fixed_str) {
-    return ds_fixed_str ? AtomicType<char[FixedLen]>() : element_type;
-}};
-
-template<>
-struct string_type_checker<char*> {
-inline static DataType getDataType(const DataType&, bool) {
-    return AtomicType<std::string>();
-}};
-
-
-// inline static size_t
-// adjust_mem_datatype(DataType&, const DataType&) {
-//     return 0;
-// }
-
-// size_t _check_replace_datatype(DataType& out_mem_datatype,
-//                              const DataType& in_mem_datatype,
-//                              const DataType& ds_datatype) {
-//     // Dont convert if destination didnt request string
-//     if(ds_datatype.getClass() == DataTypeClass::String) {
-//         out_mem_datatype = in_mem_datatype;
-//         return 1;
-//     }
-//     return 0;
-// }
-
-// inline static size_t
-// adjust_mem_datatype(AtomicType<char>& out_mem_datatype,
-//                     const AtomicType<char*>& in_mem_datatype,
-//                     const DataType& ds_datatype) {
-//     return _check_replace_datatype(out_mem_datatype, in_mem_datatype, ds_datatype);
-// }
-
-// template<std::size_t N>
-// inline static size_t
-// adjust_mem_datatype(AtomicType<char>& out_mem_datatype,
-//                     const AtomicType<char[N]>& in_mem_datatype,
-//                     const DataType& ds_datatype) {
-//     return _check_replace_datatype(out_mem_datatype, in_mem_datatype, ds_datatype);
-// }
-
-
-
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
-    typedef typename std::remove_const<T>::type type_no_const;
-    typedef typename details::type_of_array<type_no_const>::type elem_type;
-    typedef typename details::type_char_array<type_no_const>::type char_array_t;
-
-    std::cout << typeid(char_array_t).name() << std::endl;
-
-    type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
     const auto& self = static_cast<const Derivate&>(*this);
-    const auto& dst_type = self.getDataType();
-    const auto& mem_space = self.getMemSpace();
-    bool is_fixed_len_string = dst_type.isFixedLengthString();
-    size_t buffer_dims = details::array_dims<type_no_const>::value;
-    const auto buffer_type = string_type_checker<char_array_t>::getDataType(
-        AtomicType<elem_type>(),
-        is_fixed_len_string
-    );
+    const DataSpace& mem_space = self.getMemSpace();
+    const details::BufferInfo<T> buffer_info(self.getDataType());
 
-    std::cout  << "Fied len? " << is_fixed_len_string
-               << "is char*" << std::is_same<char_array_t, char*>::value << std::endl;
-
-    if (is_fixed_len_string) {
-        if (std::is_same<elem_type, std::string>::value
-                or std::is_same<char_array_t, char*>::value) {
-            throw DataSetException("Can't output variable-length to fixed-length strings");
+    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
+            std::ostringstream ss;
+            ss << "Impossible to write buffer of dimensions " << buffer_info.n_dimensions
+               << " into dataset of dimensions " << mem_space.getNumberDimensions();
+            throw DataSpaceException(ss.str());
         }
-        if (std::is_same<elem_type, char>::value) buffer_dims--;
-    }
-
-    if (!details::checkDimensions(mem_space, buffer_dims)) {
-        std::ostringstream ss;
-        ss << "Impossible to write buffer of dimensions " << buffer_dims
-           << " into dataset of dimensions " << mem_space.getNumberDimensions();
-        throw DataSpaceException(ss.str());
-    }
 
     // Apply pre write conversions
-    details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
+    details::data_converter<T> converter(mem_space);
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 buffer_type.getId(),
+                 buffer_info.data_type.getId(),
                  details::get_memspace_id((static_cast<Derivate*>(this))),
                  self.getSpace().getId(), H5P_DEFAULT,
-                 static_cast<const void*>(converter.transform_write(nocv_buffer))
+                 converter.transform_write(buffer)
             ) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Write: ");
     }
 }
-
-
-// template <typename Derivate>
-// template <typename T>
-// inline void SliceTraits<Derivate>::write(const T& buffer) {
-//     typedef typename std::remove_const<T>::type type_no_const;
-//     typedef typename details::type_of_array<type_no_const>::type elem_type;
-//     typedef typename details::type_of_wide_array<type_no_const>::type type_maybe_array;
-
-//     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
-//     const auto& self = static_cast<const Derivate&>(*this);
-//     DataSpace mem_space = self.getMemSpace();
-
-//     AtomicType<elem_type> mem_data_type;
-//     const size_t dim_buffer = details::array_dims<type_no_const>::value
-//         - adjust_mem_datatype(mem_data_type, AtomicType<type_maybe_array>(), self.getDataType());
-
-//     if (!details::checkDimensions(mem_space, dim_buffer)) {
-//         std::ostringstream ss;
-//         ss << "Impossible to write buffer of dimensions " << dim_buffer
-//            << " into dataset of dimensions " << mem_space.getNumberDimensions();
-//         throw DataSpaceException(ss.str());
-//     }
-
-//     // Apply pre write conversions
-//     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
-
-//     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-//                  mem_data_type.getId(),
-//                  details::get_memspace_id((static_cast<Derivate*>(this))),
-//                  self.getSpace().getId(), H5P_DEFAULT,
-//                  static_cast<const void*>(
-//                      converter.transform_write(nocv_buffer))) < 0) {
-//         HDF5ErrMapper::ToException<DataSetException>(
-//             "Error during HDF5 Write: ");
-//     }
-// }
-
-// template <typename Derivate>
-// template <typename T>
-// inline void SliceTraits<Derivate>::write_raw(const T* const buffer) {
-//     typedef std::remove_const<typename details::type_of_array<T>::type>::type elem_type;
-//     const auto& self = static_cast<const Derivate&>(*this);
-//     const DataSpace& space = self.getSpace();
-//     DataSpace mem_space = self.getMemSpace();
-
-//     AtomicType<elem_type> array_datatype;
-//     adjust_mem_datatype(array_datatype,
-//                         AtomicType<typename type_of_wide_array<T>::type>(),
-//                         self.getDataType());
-
-//     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-//                  array_datatype.getId(),
-//                  details::get_memspace_id((static_cast<Derivate*>(this))),
-//                  space.getId(), H5P_DEFAULT,
-//                  static_cast<const void*>(buffer)) < 0) {
-//         HDF5ErrMapper::ToException<DataSetException>(
-//             "Error during HDF5 Write: ");
-//     }
-// }
 
 }  // namespace HighFive
 

@@ -170,34 +170,22 @@ struct type_char_array {
     typedef void type;
 };
 
-template <>
-struct type_char_array<char*> {
-    typedef char* type;
-};
-
-template <>
-struct type_char_array<const char*> {
-    typedef char* type;
-};
-
 template <typename T>
 struct type_char_array<T*> {
-    typedef typename type_char_array<T>::type type;
+    typedef typename std::conditional<
+        std::is_same<typename std::remove_const<T>::type, char>::value,
+        char*,
+        typename type_char_array<T>::type
+    >::type type;
 };
 
 template <typename T, std::size_t N>
 struct type_char_array<T[N]> {
-    typedef typename type_char_array<T>::type type;
-};
-
-template <std::size_t N>
-struct type_char_array<char[N]> {
-    typedef char type[N];
-};
-
-template <std::size_t N>
-struct type_char_array<const char[N]> {
-    typedef char type[N];
+    typedef typename std::conditional<
+        std::is_same<typename std::remove_const<T>::type, char>::value,
+        char[N],
+        typename type_char_array<T>::type
+    >::type type;
 };
 
 

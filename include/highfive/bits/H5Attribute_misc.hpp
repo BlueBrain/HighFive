@@ -73,7 +73,7 @@ inline void Attribute::read(T& array) const {
         array_datatype;
 
     // Apply pre read conversions
-    details::data_converter<type_no_const> converter(nocv_array, mem_space);
+    details::data_converter<type_no_const> converter(mem_space);
 
     if (H5Aread(getId(), array_datatype.getId(),
                 static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
@@ -107,7 +107,7 @@ inline void Attribute::write(const T& buffer) {
         array_datatype;
 
     // Apply pre write conversions
-    details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
+    details::data_converter<type_no_const> converter(mem_space);
 
     if (H5Awrite(getId(), array_datatype.getId(),
                  static_cast<const void*>(

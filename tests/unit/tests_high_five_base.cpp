@@ -1191,44 +1191,49 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
 }
 
 
-BOOST_AUTO_TEST_CASE(HighFiveAtomicCharArray) {
+BOOST_AUTO_TEST_CASE(HighFiveCharArray) {
     const std::string FILE_NAME("array_atomic_types.h5");
     const std::string GROUP_1("group1");
 
     // Create a new file using the default property lists.
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    char raw_strings[][10] = {"abcd", "1234"};
 
     /// This will not compile, hits static_assert with a nice error
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
-    // But char should be fine
-    auto ds = file.createDataSet<char[10]>("ds1", DataSpace(2));
-    BOOST_CHECK(ds.getDataType().getClass() == DataTypeClass::String);
+    { // But char should be fine
+        auto ds = file.createDataSet<char[10]>("ds1", DataSpace(2));
+        BOOST_CHECK(ds.getDataType().getClass() == DataTypeClass::String);
+        ds.write(raw_strings);
+    }
 
-    char raw_strings[][10] = {"abcd", "1234"};
-    ds.write(raw_strings);
+    { // char[] is, by default, int8
+        auto ds2 = file.createDataSet("ds2", raw_strings);
+        BOOST_CHECK(ds2.getDataType().getClass() == DataTypeClass::Integer);
+    }
 
-    // char[] is, by default, int8
-    auto ds2 = file.createDataSet("ds2", raw_strings);
-    BOOST_CHECK(ds2.getDataType().getClass() == DataTypeClass::Integer);
+    { // String Truncate happens low-level if well setup
+        auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
+        ds3.write(raw_strings);
+    }
 
-    // Truncate happens low-level if well setup
-    auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
-    ds3.write(raw_strings);
+    { // Write as raw elements from pointer (with const)
+        const char (*strings_fixed)[10] = raw_strings;
+        // With a pointer we dont know how many strings -> manual DataSpace
+        file.createDataSet<char[10]>("ds4", DataSpace(2)).write(strings_fixed);
+    }
 
-    // Write as raw elements from pointer (with const)
-    const char (*strings_fixed)[10] = raw_strings;
-    // With a pointer we dont know how many strings -> manual DataSpace
-    file.createDataSet<char[10]>("ds4", DataSpace(2)).write(strings_fixed);
+    { // Cant convert flex-length to fixed-length
+        const char* buffer[] = {"abcd", "1234"};
+        BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
+                          HighFive::DataSetException);
+    }
 
-    // To be implemented
-    // const char* buffer[] = {"abcd", "1234"};
-    // BOOST_CHECK_THROW(file.createDataSet<std::string>("ds5", DataSpace(2)).write(buffer),
-    //                   HighFive::DataSetException);
-
-    const char* buffer[] = {"abcd", "1234"};
-    BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
-                      HighFive::DataSetException);
+    { // scalar char strings
+        const char buffer[] = "abcd";
+        file.createDataSet<char[10]>("ds6", DataSpace(1)).write(buffer);
+    }
 }
 
 

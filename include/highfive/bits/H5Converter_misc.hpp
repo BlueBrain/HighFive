@@ -118,7 +118,7 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
-    inline data_converter(Scalar&, const DataSpace&) {
+    inline data_converter(const DataSpace&) {
 
         static_assert((std::is_arithmetic<Scalar>::value ||
                        std::is_enum<Scalar>::value ||
@@ -129,7 +129,7 @@ struct data_converter {
 
     inline Scalar* transform_read(Scalar& datamem) { return &datamem; }
 
-    inline Scalar* transform_write(Scalar& datamem) { return &datamem; }
+    inline const Scalar* transform_write(const Scalar& datamem) { return &datamem; }
 
     inline void process_result(Scalar&) {}
 };
@@ -139,11 +139,11 @@ struct data_converter {
 template <typename CArray>
 struct data_converter<CArray,
                       typename std::enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(CArray&, const DataSpace&) {}
+    inline data_converter(const DataSpace&) {}
 
     inline CArray& transform_read(CArray& datamem) { return datamem; }
 
-    inline CArray& transform_write(CArray& datamem) { return datamem; }
+    inline const CArray& transform_write(const CArray& datamem) { return datamem; }
 
     inline void process_result(CArray&) {}
 };
@@ -154,19 +154,17 @@ struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::vector<T>&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _space(space) {
         assert(is_1D(_space.getDimensions()));
     }
 
-    inline typename type_of_array<T>::type*
-    transform_read(std::vector<T>& vec) {
+    inline auto* transform_read(std::vector<T>& vec) {
         vec.resize(compute_total_size(_space.getDimensions()));
         return vec.data();
     }
 
-    inline typename type_of_array<T>::type*
-    transform_write(std::vector<T>& vec) {
+    inline const auto* transform_write(const std::vector<T>& vec) {
         return vec.data();
     }
 
@@ -181,7 +179,8 @@ struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
         std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(std::array<T, S>&, const DataSpace& space) {
+
+    inline data_converter(const DataSpace& space) {
         const std::vector<size_t> dims = space.getDimensions();
         if (!is_1D(dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
@@ -194,13 +193,11 @@ struct data_converter<
         }
     }
 
-    inline typename type_of_array<T>::type*
-    transform_read(std::array<T, S>& vec) {
+    inline auto* transform_read(std::array<T, S>& vec) {
         return vec.data();
     }
 
-    inline typename type_of_array<T>::type*
-    transform_write(std::array<T, S>& vec) {
+    inline const auto* transform_write(const std::array<T, S>& vec) {
         return vec.data();
     }
 
@@ -214,12 +211,12 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
 
     typedef typename boost::multi_array<T, Dims> MultiArray;
 
-    inline data_converter(MultiArray&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == Dims);
     }
 
-    inline typename type_of_array<T>::type* transform_read(MultiArray& array) {
+    inline auto* transform_read(MultiArray& array) {
         if (std::equal(_dims.begin(), _dims.end(), array.shape()) == false) {
             boost::array<typename MultiArray::index, Dims> ext;
             std::copy(_dims.begin(), _dims.end(), ext.begin());
@@ -228,7 +225,7 @@ struct data_converter<boost::multi_array<T, Dims>, void> {
         return array.data();
     }
 
-    inline typename type_of_array<T>::type* transform_write(MultiArray& array) {
+    inline const auto* transform_write(const MultiArray& array) {
         return array.data();
     }
 
@@ -243,12 +240,12 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
 
     typedef typename boost::numeric::ublas::matrix<T> Matrix;
 
-    inline data_converter(Matrix&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == 2);
     }
 
-    inline typename type_of_array<T>::type* transform_read(Matrix& array) {
+    inline auto* transform_read(Matrix& array) {
         boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
 
         if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
@@ -259,7 +256,7 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void> {
         return &(array(0, 0));
     }
 
-    inline typename type_of_array<T>::type* transform_write(Matrix& array) {
+    inline const auto* transform_write(const Matrix& array) {
         return &(array(0, 0));
     }
 
@@ -316,12 +313,12 @@ struct data_converter<Eigen::Matrix<T, M, N>, void> {
 
     typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
 
-    inline data_converter(MatrixTMN&, DataSpace& space)
+    inline data_converter(DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == 2);
     }
 
-    inline typename type_of_array<T>::type* transform_read(MatrixTMN& array) {
+    inline auto* transform_read(MatrixTMN& array) {
         if (_dims[0] != static_cast<size_t>(array.rows()) ||
             _dims[1] != static_cast<size_t>(array.cols())) {
             array.resize(static_cast<Eigen::Index>(_dims[0]), static_cast<Eigen::Index>(_dims[1]));
@@ -329,7 +326,7 @@ struct data_converter<Eigen::Matrix<T, M, N>, void> {
         return array.data();
     }
 
-    inline typename type_of_array<T>::type* transform_write(MatrixTMN& array) {
+    inline const auto* transform_write(const MatrixTMN& array) {
         return array.data();
     }
 
@@ -356,19 +353,17 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
     typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
 
-    inline data_converter(const std::vector<MatrixTMN>&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()), _space(space) {
         assert(_dims.size() == 2);
     }
 
-    inline typename type_of_array<T>::type*
-    transform_read(std::vector<MatrixTMN>& /* vec */) {
+    inline tauto * transform_read(std::vector<MatrixTMN>& /* vec */) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
 
-    inline typename type_of_array<T>::type*
-    transform_write(std::vector<MatrixTMN>& vec) {
+    inline const auto* transform_write(const std::vector<MatrixTMN>& vec) {
         _vec_align.reserve(compute_total_size(vec));
         vectors_to_single_buffer<T, M, N>(vec, _dims, 0, _vec_align);
         return _vec_align.data();
@@ -410,19 +405,18 @@ template <typename T, int M, int N, std::size_t Dims>
 struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
 
-    inline data_converter(const MultiArrayEigen&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions())
         , _space(space) {
         assert(_dims.size() == Dims);
     }
 
-    inline typename type_of_array<T>::type*
-    transform_read(const MultiArrayEigen& /*array*/) {
+    inline auto* transform_read(const MultiArrayEigen& /*array*/) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
 
-    inline typename type_of_array<T>::type* transform_write(MultiArrayEigen& array) {
+    inline const auto* transform_write(const MultiArrayEigen& array) {
         _vec_align.reserve(compute_total_size(array));
         for (auto e = array.origin(); e < array.origin() + array.num_elements(); ++e) {
             std::copy(e->data(), e->data() + e->size(), std::back_inserter(_vec_align));
@@ -465,17 +459,15 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
-    inline data_converter(std::vector<T>&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {}
 
-    inline typename type_of_array<T>::type*
-    transform_read(std::vector<T>&) {
+    inline auto* transform_read(std::vector<T>&) {
         _vec_align.resize(compute_total_size(_dims));
         return _vec_align.data();
     }
 
-    inline typename type_of_array<T>::type*
-    transform_write(std::vector<T>& vec) {
+    inline const auto* transform_write(const std::vector<T>& vec) {
         _vec_align.reserve(compute_total_size(_dims));
         vectors_to_single_buffer<T>(vec, _dims, 0, _vec_align);
         return _vec_align.data();
@@ -492,24 +484,23 @@ struct data_converter<std::vector<T>,
 
 
 
-static inline char* char_converter(const std::string& str) {
-    return const_cast<char*>(str.c_str());
+static inline const char* char_converter(const std::string& str) {
+    return str.c_str();
 }
 
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    inline data_converter(std::string& vec, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _c_vec(nullptr), _space(space) {
-        (void)vec;
     }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline char** transform_read(std::string&) { return (&_c_vec); }
+    inline const char** transform_read(std::string&) { return &_c_vec; }
 
-    inline char** transform_write(std::string& str) {
-        _c_vec = const_cast<char*>(str.c_str());
+    inline const char** transform_write(const std::string& str) {
+        _c_vec = str.c_str();
         return &_c_vec;
     }
 
@@ -524,27 +515,26 @@ struct data_converter<std::string, void> {
         }
     }
 
-    char* _c_vec;
+    const char* _c_vec;
     const DataSpace& _space;
 };
 
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
-    inline data_converter(std::vector<std::string>& vec, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _space(space) {
-        (void)vec;
     }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline char** transform_read(std::vector<std::string>& vec) {
+    inline const char** transform_read(std::vector<std::string>& vec) {
         (void)vec;
         _c_vec.resize(_space.getDimensions()[0], NULL);
         return _c_vec.data();
     }
 
-    inline char** transform_write(std::vector<std::string>& vec) {
+    inline const char** transform_write(const std::vector<std::string>& vec) {
         _c_vec.resize(vec.size() + 1, NULL);
         std::transform(vec.begin(), vec.end(), _c_vec.begin(), &char_converter);
         return _c_vec.data();
@@ -564,7 +554,7 @@ struct data_converter<std::vector<std::string>, void> {
         }
     }
 
-    std::vector<char*> _c_vec;
+    std::vector<const char*> _c_vec;
     const DataSpace& _space;
 };
 }
