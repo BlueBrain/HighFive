@@ -1191,7 +1191,7 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
 }
 
 
-BOOST_AUTO_TEST_CASE(HighFiveCharArray) {
+BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
     const std::string FILE_NAME("array_atomic_types.h5");
     const std::string GROUP_1("group1");
 
@@ -1235,9 +1235,22 @@ BOOST_AUTO_TEST_CASE(HighFiveCharArray) {
         file.createDataSet<char[10]>("ds6", DataSpace(1)).write(buffer);
     }
 
-    { // TODO: vector of char[]
-        //const std::vector<std::array<char, 10>> buffer = {"abcd", "1234"};
-        //file.createDataSet<char[10]>("ds7", DataSpace(2)).write(buffer);
+    { // Dedicated FixedLenStringArray
+        FixedLenStringArray<10> arr{"0000000", "1111111"};
+        // For completeness, test also the other constructor
+        FixedLenStringArray<10> arrx(std::vector<std::string>{"0000", "1111"});
+
+        // More API: test inserting something
+        arr.push_back("2222");
+        auto ds = file.createDataSet("ds7", arr);  // Short syntax ok
+
+        // Recover truncating
+        FixedLenStringArray<4> array_back;
+        ds.read(array_back);
+        BOOST_CHECK(array_back.size() == 3);
+        BOOST_CHECK(array_back[0] == std::string("000"));
+        BOOST_CHECK(array_back[1] == std::string("111"));
+        BOOST_CHECK(array_back[2] == std::string("222"));
     }
 }
 

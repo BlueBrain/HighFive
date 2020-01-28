@@ -557,7 +557,35 @@ struct data_converter<std::vector<std::string>, void> {
     std::vector<const char*> _c_vec;
     const DataSpace& _space;
 };
-}
-}
+
+
+
+
+// apply conversion for fixed-string
+template <std::size_t N>
+struct data_converter<FixedLenStringArray<N>, void> {
+    inline data_converter(const DataSpace& space)
+        : _space(space) {
+        assert(is_1D(_space.getDimensions()));
+    }
+
+    inline auto* transform_read(FixedLenStringArray<N>& vec) {
+        vec.resize(_space.getDimensions()[0]);
+        return const_cast<char*>(vec.data());
+    }
+
+    inline const auto* transform_write(const FixedLenStringArray<N>& vec) {
+        return vec.data();
+    }
+
+    inline void process_result(FixedLenStringArray<N>&) {}
+
+    const DataSpace& _space;
+};
+
+
+}  // namespace details
+
+}  // namespace HighFive
 
 #endif // H5CONVERTER_MISC_HPP

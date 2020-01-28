@@ -75,6 +75,19 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
 }
 
 template <typename Derivate>
+template <std::size_t N>
+inline DataSet
+NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
+                                    const FixedLenStringArray<N>& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps) {
+    DataSet ds = createDataSet<char[N]>(
+        dataset_name, DataSpace(data.size()), createProps, accessProps);
+    ds.write(data);
+    return ds;
+}
+
+template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                  const DataSetAccessProps& accessProps) const {

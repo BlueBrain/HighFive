@@ -17,7 +17,6 @@
 using namespace HighFive;
 
 const std::string FILE_NAME("create_dataset_string_example.h5");
-const std::string DATASET_NAME("story");
 
 // create a dataset from a vector of string
 // read it back and print it
@@ -26,29 +25,24 @@ int main(void) {
     try {
         // Create a new file using the default property lists.
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-        //std::vector<std::string> strings_fixed = {"one", "two", "three", "four", "five"};
         const char strings_fixed[][16] = {"abcabcabcabcabc", "123123123123123"};
 
         // create a dataset ready to contains strings of the size of the vector
-        // string_list
-        //DataSet dataset = file.createDataSet<int>(DATASET_NAME, DataSpace(10));
+        file.createDataSet<char[10]>("ds1", DataSpace(2)).write(strings_fixed);
 
-        // This will crate an int8 dataset
-        const char (*strings_fixed2)[16] = strings_fixed;
-        //DataSet dataset = file.createDataSet(DATASET_NAME, strings_fixed2);
+        // Without specific type info this will crate an int8 dataset
+        file.createDataSet("ds2", strings_fixed);
 
-        // This shall create a string dataset
-        DataSet dataset2 = file.createDataSet<char[10]>("ds2", DataSpace(2));
-        dataset2.write(strings_fixed2);
+        // Now test the new interface type
+        //FixedLenStringArray<10> arr(std::vector<std::string>{"0000000", "1111111"});
+        FixedLenStringArray<10> arr{"0000000", "1111111"};
+        auto ds = file.createDataSet("ds3", arr);
 
-        // // now we read it back
-        // std::vector<std::string> result_string_list;
-        // dataset.read(result_string_list);
+        FixedLenStringArray<4> array_back;
+        ds.read(array_back);
+        std::cout << "First item is '" << array_back[0] << "'" << std::endl
+                  << "Second item is '" << array_back[1] << "'" << std::endl;
 
-        // for (size_t i = 0; i < result_string_list.size(); ++i) {
-        //     std::cout << ":" << i << " " << result_string_list[i] << "\n";
-        // }
 
     } catch (Exception& err) {
         // catch and print any HDF5 error

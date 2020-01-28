@@ -31,12 +31,22 @@
 
 namespace HighFive {
 
+// If ever used, recognize dimensions of FixedLenStringArray
+template <std::size_t N>
+class FixedLenStringArray;
+
+
 namespace details {
 
 // determine at compile time number of dimensions of in memory datasets
 template <typename T>
 struct array_dims {
     static constexpr size_t value = 0;
+};
+
+template <std::size_t N>
+struct array_dims<FixedLenStringArray<N>> {
+    static constexpr size_t value = 1;
 };
 
 template <typename T>

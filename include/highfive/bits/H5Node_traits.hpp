@@ -21,6 +21,8 @@ class DataSpace;
 class DataType;
 class Group;
 
+template <std::size_t N>
+class FixedLenStringArray;
 
 enum class LinkType;
 
@@ -74,6 +76,14 @@ class NodeTraits {
     DataSet
     createDataSet(const std::string& dataset_name,
                   const T& data,
+                  const DataSetCreateProps& createProps = DataSetCreateProps(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+
+
+    template <std::size_t N>
+    DataSet
+    createDataSet(const std::string& dataset_name,
+                  const FixedLenStringArray<N>& data,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
                   const DataSetAccessProps& accessProps = DataSetAccessProps());
 

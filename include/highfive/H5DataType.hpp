@@ -92,7 +92,58 @@ class AtomicType : public DataType {
 
     typedef T basic_type;
 };
-}
+
+
+///
+/// \brief A structure representing a set of fixed-length strings
+///
+/// Although fixed-len arrays can be created 'raw' without the need for
+/// this structure, to retrieve results efficiently it must be used.
+///
+template <std::size_t N>
+class FixedLenStringArray {
+  public:
+    inline FixedLenStringArray() {};
+
+    ///
+    /// \brief Create a FixedStringArray from a raw contiguous buffer
+    ///
+    FixedLenStringArray(const char array[][N], std::size_t length);
+
+    ///
+    /// \brief Create a FixedStringArray from a sequence of strings.
+    ///
+    /// Such conversion involves a copy, original vector is not modified
+    ///
+    FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end);
+
+    FixedLenStringArray(const std::vector<std::string> & vec);
+
+    FixedLenStringArray(const std::initializer_list<std::string> &);
+
+    ///
+    /// \brief Append an std::string to buffer structure
+    ///
+    void push_back(const std::string&);
+
+    ///
+    /// \brief Retrieve a string from the structure as std::string
+    ///
+    std::string operator[](std::size_t index) const;
+
+
+    // Container API
+    inline std::size_t size() const { return datavec.size(); }
+    inline const char* data() const { return datavec[0].data(); }
+    void resize(const std::size_t& new_size) { datavec.resize(new_size); }
+
+  private:
+    typedef std::vector<std::array<char, N>> vector_t;
+    vector_t datavec;
+};
+
+
+}  // namespace HighFive
 
 #include "bits/H5DataType_misc.hpp"
 
