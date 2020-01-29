@@ -25,16 +25,13 @@ using complex = std::complex<double>;
 
 typedef boost::mpl::list<float, double> floating_numerics_test_types;
 
-// typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
-//                          float, double, long long, unsigned long long, complex>
-//     numerical_test_types;
+typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
+                         float, double, long long, unsigned long long, complex>
+    numerical_test_types;
 
-// typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
-//                          float, double>
-//     dataset_test_types;
-
-typedef boost::mpl::list<int, float, char> numerical_test_types;
-typedef boost::mpl::list<int, float, char> dataset_test_types;
+typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
+                         float, double>
+    dataset_test_types;
 
 
 

@@ -22,10 +22,8 @@ function(compile_example exemple_source)
 
 endfunction()
 
-compile_example("read_write_fixedlen_string.cpp")
+file(GLOB list_example "*.cpp")
 
-# file(GLOB list_example "*.cpp")
-
-# foreach(example_src ${list_example})
-#     compile_example(${example_src})
-# endforeach()
+foreach(example_src ${list_example})
+    compile_example(${example_src})
+endforeach()

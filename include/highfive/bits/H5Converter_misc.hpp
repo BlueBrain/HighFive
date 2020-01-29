@@ -358,7 +358,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
         assert(_dims.size() == 2);
     }
 
-    inline tauto * transform_read(std::vector<MatrixTMN>& /* vec */) {
+    inline auto * transform_read(std::vector<MatrixTMN>& /* vec */) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
