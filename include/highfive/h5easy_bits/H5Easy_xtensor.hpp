@@ -38,7 +38,7 @@ struct dump_impl
         detail::createGroupsToDataSet(file, path);
         DataSet dataset =
             file.createDataSet<typename C::value_type>(path, DataSpace(shape(data)));
-        dataset.write(data.begin());
+        dataset.write_raw(data.data());
         file.flush();
         return dataset;
     }
@@ -55,7 +55,7 @@ struct overwrite_impl
         if (dataset.getDimensions() != shape(data)) {
             throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
         }
-        dataset.write(data.begin());
+        dataset.write_raw(data.data());
         file.flush();
         return dataset;
     }

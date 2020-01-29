@@ -80,7 +80,7 @@ inline void write(DataSet& dataset,
         0,
         Eigen::InnerStride<1>> row_major(data);
 
-    dataset.write(row_major.data());
+    dataset.write_raw(row_major.data());
 }
 
 // create DataSet and write data

@@ -242,6 +242,26 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
     }
 }
 
+
+template <typename Derivate>
+template <typename T>
+inline void SliceTraits<Derivate>::write_raw(const T* buffer) {
+    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
+    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+
+    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+
+    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
+                 array_datatype.getId(),
+                 details::get_memspace_id((static_cast<Derivate*>(this))),
+                 space.getId(), H5P_DEFAULT,
+                 static_cast<const void*>(buffer)) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Error during HDF5 Write: ");
+    }
+}
+
+
 }  // namespace HighFive
 
 #endif  // H5SLICE_TRAITS_MISC_HPP
