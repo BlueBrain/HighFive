@@ -103,7 +103,7 @@ class AtomicType : public DataType {
 template <std::size_t N>
 class FixedLenStringArray {
   public:
-    inline FixedLenStringArray() {};
+    FixedLenStringArray() = default;
 
     ///
     /// \brief Create a FixedStringArray from a raw contiguous buffer
@@ -117,7 +117,7 @@ class FixedLenStringArray {
     ///
     FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end);
 
-    FixedLenStringArray(const std::vector<std::string> & vec);
+    explicit FixedLenStringArray(const std::vector<std::string> & vec);
 
     FixedLenStringArray(const std::initializer_list<std::string> &);
 
@@ -133,9 +133,9 @@ class FixedLenStringArray {
 
 
     // Container API
-    inline std::size_t size() const { return datavec.size(); }
+    inline std::size_t size() const noexcept { return datavec.size(); }
     inline char* data() const { return const_cast<char*>(datavec[0].data()); }
-    void resize(const std::size_t& new_size) { datavec.resize(new_size); }
+    void resize(std::size_t new_size) { datavec.resize(new_size); }
 
   private:
     typedef std::vector<std::array<char, N>> vector_t;

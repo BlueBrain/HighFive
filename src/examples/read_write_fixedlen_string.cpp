@@ -16,7 +16,7 @@
 
 using namespace HighFive;
 
-const std::string FILE_NAME("create_dataset_string_example.h5");
+static const std::string FILE_NAME("create_dataset_string_example.h5");
 
 // create a dataset from a vector of string
 // read it back and print it
@@ -30,7 +30,7 @@ int main(void) {
         // create a dataset ready to contains strings of the size of the vector
         file.createDataSet<char[10]>("ds1", DataSpace(2)).write(strings_fixed);
 
-        // Without specific type info this will crate an int8 dataset
+        // Without specific type info this will create an int8 dataset
         file.createDataSet("ds2", strings_fixed);
 
         // Now test the new interface type
@@ -44,7 +44,7 @@ int main(void) {
                   << "Second item is '" << array_back[1] << "'" << std::endl;
 
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }
