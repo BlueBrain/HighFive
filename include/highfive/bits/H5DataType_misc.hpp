@@ -11,6 +11,7 @@
 
 #include <string>
 #include <complex>
+#include <cstring>
 
 #include <H5Tpublic.h>
 
@@ -203,7 +204,7 @@ inline FixedLenStringArray<N>
     datavec.resize(static_cast<std::size_t>(iter_end - iter_begin));
     for (auto& dst_array : datavec) {
         const char* src = (iter_begin++)->c_str();
-        const size_t length = std::min(N - 1 , strlen(src));
+        const size_t length = std::min(N - 1 , std::strlen(src));
         std::memcpy(dst_array.data(), src, length);
         dst_array[length] = 0;
     }
