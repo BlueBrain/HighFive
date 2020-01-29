@@ -21,6 +21,8 @@ if(NOT COMPILER_SUPPORTS_CXX11)
   message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
 endif()
 
+add_definitions("-ferror-limit=1")
+
 # Compat within Highfive 2.x series
 set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
 set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")

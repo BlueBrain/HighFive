@@ -32,12 +32,6 @@
 
 using namespace HighFive;
 
-struct SilenceFix {
-    SilenceHDF5 silencer;
-};
-
-BOOST_GLOBAL_FIXTURE(SilenceFix)
-BOOST_GLOBAL_FIXTURE_END
 
 
 BOOST_AUTO_TEST_CASE(HighFiveBasic) {
@@ -70,6 +64,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
         BOOST_CHECK_EQUAL(dataset_exist, true);
 
         // and also try to recreate it to the sake of exception testing
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(
             {
                 DataSet fail_duplicated = file.createDataSet(
@@ -108,6 +103,8 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     const std::string DATASET_NAME("dset");
 
     std::remove(FILE_NAME.c_str());
+
+    SilenceHDF5 silencer;
 
     // Attempt open file only ReadWrite should fail (wont create)
     BOOST_CHECK_THROW({ File file(FILE_NAME, File::ReadWrite); },
@@ -190,15 +187,18 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         DataSetCreateProps badChunking1;
         badChunking1.add(Chunking(std::vector<hsize_t>{1, 1, 1}));
 
-        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+        {
+            SilenceHDF5 silencer;
+            BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
                                              AtomicType<double>(),
                                              badChunking0),
                           DataSetException);
 
-        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+            BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
                                              AtomicType<double>(),
                                              badChunking1),
                           DataSetException);
+        }
 
         // here we use the other signature
         DataSet dataset_chunked = file.createDataSet<float>(
@@ -270,6 +270,7 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
         // Write into the new part of the dataset
         dataset.select({3, 3}, {1, 3}).write(t2);
 
+        SilenceHDF5 silencer;
         // Try resize out of bounds
         BOOST_CHECK_THROW(dataset.resize({18, 1}), DataSetException);
         // Try resize invalid dimensions
@@ -889,6 +890,7 @@ BOOST_AUTO_TEST_CASE(selectionByElementMultiDim) {
     }
 
     {
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(set.select(ElementSet{0, 1, 2}), DataSpaceException);
     }
 }
@@ -1134,7 +1136,10 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
     // Without parents creating both groups will fail
-    BOOST_CHECK_THROW(file.createGroup(DS_PATH, false), std::exception);
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.createGroup(DS_PATH, false), std::exception);
+    }
     Group g2 = file.createGroup(DS_PATH);
 
     std::vector<double> some_data{5.0, 6.0, 7.0};
@@ -1170,13 +1175,20 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     g.createDataSet(DS_NAME, some_data);
 
     BOOST_CHECK(file.getLinkType(GROUP_1) == LinkType::Hard);
-    BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+    }
 
     BOOST_CHECK(file.getObjectType(GROUP_1) == ObjectType::Group);
     BOOST_CHECK(file.getObjectType(GROUP_1 + "/" + DS_NAME) == ObjectType::Dataset);
     BOOST_CHECK(g.getObjectType(DS_NAME) == ObjectType::Dataset);
 
-    BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
+    }
 
     // Data type
     auto ds = g.getDataSet(DS_NAME);
@@ -1226,6 +1238,7 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
 
     { // Cant convert flex-length to fixed-length
         const char* buffer[] = {"abcd", "1234"};
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
                           HighFive::DataSetException);
     }
@@ -1343,6 +1356,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
 
         std::vector<Eigen::MatrixXd> vec_out_exception;
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception), HighFive::DataSetException);
     }
 
@@ -1404,6 +1418,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
 
         boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
 
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
                           HighFive::DataSetException);
     }

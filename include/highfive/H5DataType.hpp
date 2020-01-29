@@ -134,7 +134,7 @@ class FixedLenStringArray {
 
     // Container API
     inline std::size_t size() const { return datavec.size(); }
-    inline const char* data() const { return datavec[0].data(); }
+    inline char* data() const { return const_cast<char*>(datavec[0].data()); }
     void resize(const std::size_t& new_size) { datavec.resize(new_size); }
 
   private:

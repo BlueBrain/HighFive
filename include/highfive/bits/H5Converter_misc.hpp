@@ -33,14 +33,11 @@ namespace HighFive {
 
 namespace details {
 
-inline bool is_1D(const std::vector<size_t>& dims)
-{
-    return std::count_if(dims.begin(), dims.end(),
-                         [](size_t i){ return i > 1; }) < 2;
+inline bool is_1D(const std::vector<size_t>& dims) {
+    return std::count_if(dims.begin(), dims.end(), [](size_t i){ return i > 1; }) < 2;
 }
 
-inline size_t compute_total_size(const std::vector<size_t>& dims)
-{
+inline size_t compute_total_size(const std::vector<size_t>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u},
                            std::multiplies<size_t>());
 }
@@ -56,6 +53,10 @@ inline void check_dimensions_vector(size_t size_vec, size_t size_dataset,
     }
 }
 
+
+// Buffer converters
+// =================
+
 // copy multi dimensional vector in C++ in one C-style multi dimensional buffer
 template <typename T>
 inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
@@ -66,6 +67,7 @@ inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
     check_dimensions_vector(vec_single_dim.size(), dims[current_dim], current_dim);
     buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
 }
+
 
 template <typename T, typename U = typename type_of_array<T>::type>
 inline void
@@ -80,8 +82,7 @@ vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
     }
 }
 
-// copy single buffer to multi dimensional vector, following dimensions
-// specified
+// copy single buffer to multi dimensional vector, following specified dimensions
 template <typename T>
 inline typename std::vector<T>::iterator
 single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
@@ -112,8 +113,9 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
     return begin_buffer;
 }
 
+
 // DATA CONVERTERS
-// ---------------
+// ===============
 
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
@@ -134,6 +136,7 @@ struct data_converter {
     inline void process_result(Scalar&) {}
 };
 
+
 // apply conversion operations to the incoming data
 // if they are a cstyle array
 template <typename CArray>
@@ -141,11 +144,40 @@ struct data_converter<CArray,
                       typename std::enable_if<(is_c_array<CArray>::value)>::type> {
     inline data_converter(const DataSpace&) {}
 
-    inline CArray& transform_read(CArray& datamem) { return datamem; }
-
-    inline const CArray& transform_write(const CArray& datamem) { return datamem; }
-
+    inline CArray& transform_read(CArray& datamem) const noexcept {
+        return datamem;
+    }
+    inline const CArray& transform_write(const CArray& datamem) const noexcept {
+        return datamem;
+    }
     inline void process_result(CArray&) {}
+};
+
+
+// Generic container converter
+template <typename Container, typename T = typename type_of_array<Container>::type>
+struct container_converter {
+    typedef T value_type;
+
+    inline container_converter(const DataSpace& space)
+        : _space(space) {}
+
+    // Ship (pseudo)1D implementation
+    inline value_type* transform_read(Container& vec) const {
+        auto&& dims = _space.getDimensions();
+        if (!is_1D(dims))
+            throw DataSpaceException("Dataset cant be converted to 1D");
+        vec.resize(compute_total_size(dims));
+        return vec.data();
+    }
+
+    inline const value_type* transform_write(const Container& vec) const noexcept {
+        return vec.data();
+    }
+
+    inline void process_result(Container&) {}
+
+    const DataSpace& _space;
 };
 
 // apply conversion for vectors 1D
@@ -153,24 +185,10 @@ template <typename T>
 struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
-    inline data_converter(const DataSpace& space)
-        : _space(space) {
-        assert(is_1D(_space.getDimensions()));
-    }
+        std::is_same<T, typename type_of_array<T>::type>::value)>::type>
+    : public container_converter<std::vector<T>> {
 
-    inline auto* transform_read(std::vector<T>& vec) {
-        vec.resize(compute_total_size(_space.getDimensions()));
-        return vec.data();
-    }
-
-    inline const auto* transform_write(const std::vector<T>& vec) {
-        return vec.data();
-    }
-
-    inline void process_result(std::vector<T>&) {}
-
-    const DataSpace& _space;
+    using container_converter<std::vector<T>>::container_converter;
 };
 
 // apply conversion to std::array
@@ -178,10 +196,13 @@ template <typename T, std::size_t S>
 struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value)>::type> {
+        std::is_same<T, typename type_of_array<T>::type>::value)>::type>
+    : public container_converter<std::array<T, S>> {
 
-    inline data_converter(const DataSpace& space) {
-        const std::vector<size_t> dims = space.getDimensions();
+    inline data_converter(const DataSpace& space)
+        : container_converter<std::array<T, S>>(space)
+    {
+        auto&& dims = space.getDimensions();
         if (!is_1D(dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
         }
@@ -193,281 +214,73 @@ struct data_converter<
         }
     }
 
-    inline auto* transform_read(std::array<T, S>& vec) {
+    inline T* transform_read(std::array<T, S>& vec) {
         return vec.data();
     }
-
-    inline const auto* transform_write(const std::array<T, S>& vec) {
-        return vec.data();
-    }
-
-    inline void process_result(std::array<T, S>&) {}
 };
 
 #ifdef H5_USE_BOOST
 // apply conversion to boost multi array
 template <typename T, std::size_t Dims>
-struct data_converter<boost::multi_array<T, Dims>, void> {
-
+struct data_converter<boost::multi_array<T, Dims>, void>
+    : public container_converter<boost::multi_array<T, Dims>> {
     typedef typename boost::multi_array<T, Dims> MultiArray;
+    typedef typename type_of_array<T>::type value_type;
+    using container_converter<MultiArray>::container_converter;
 
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {
-        assert(_dims.size() == Dims);
-    }
-
-    inline auto* transform_read(MultiArray& array) {
-        if (std::equal(_dims.begin(), _dims.end(), array.shape()) == false) {
+    inline value_type* transform_read(MultiArray& array) {
+        auto&& dims = this->_space.getDimensions();
+        if (std::equal(dims.begin(), dims.end(), array.shape()) == false) {
             boost::array<typename MultiArray::index, Dims> ext;
-            std::copy(_dims.begin(), _dims.end(), ext.begin());
+            std::copy(dims.begin(), dims.end(), ext.begin());
             array.resize(ext);
         }
         return array.data();
     }
-
-    inline const auto* transform_write(const MultiArray& array) {
-        return array.data();
-    }
-
-    inline void process_result(MultiArray&) {}
-
-    std::vector<size_t> _dims;
 };
 
 // apply conversion to boost matrix ublas
 template <typename T>
-struct data_converter<boost::numeric::ublas::matrix<T>, void> {
-
+struct data_converter<boost::numeric::ublas::matrix<T>, void>
+    : public container_converter<boost::numeric::ublas::matrix<T>> {
     typedef typename boost::numeric::ublas::matrix<T> Matrix;
+    typedef typename type_of_array<T>::type value_type;
 
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {
-        assert(_dims.size() == 2);
+    inline data_converter(const DataSpace& space) : container_converter<Matrix>(space) {
+        assert(space.getDimensions().size() == 2);
     }
 
-    inline auto* transform_read(Matrix& array) {
+    inline value_type* transform_read(Matrix& array) {
         boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
-
+        auto&& _dims = this->_space.getDimensions();
         if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
             array.resize(_dims[0], _dims[1], false);
             array(0, 0) = 0; // force initialization
         }
-
         return &(array(0, 0));
     }
 
-    inline const auto* transform_write(const Matrix& array) {
+    inline const value_type* transform_write(const Matrix& array) const {
         return &(array(0, 0));
     }
-
-    inline void process_result(Matrix&) {}
-
-    std::vector<size_t> _dims;
 };
-#endif
-
-#ifdef H5_USE_EIGEN
-//compute size for single Eigen Matrix
-template <typename T, int M, int N>
-inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix)
-{
-    return matrix.rows() * matrix.cols();
-}
-
-//compute size for  std::vector of Eigens
-template <typename T, int M, int N>
-inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
-{
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
-        return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
-    });
-}
-
-#ifdef H5_USE_BOOST
-// compute size for  boost::multi_array of Eigens
-template <typename T, size_t Dims>
-inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
-    return std::accumulate(vec.origin(),
-                           vec.origin() + vec.num_elements(),
-                           size_t{0u},
-                           [](size_t so_far, const auto& v) {
-                               return so_far +
-                                      static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
-                           });
-}
-#endif
-
-//compute total row size for std::vector of Eigens
-template <typename T, int M, int N>
-inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
-{
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
-        return so_far + static_cast<size_t>(v.rows());
-    });
-}
-
-
-// apply conversion to eigen matrix
-template <typename T, int M, int N>
-struct data_converter<Eigen::Matrix<T, M, N>, void> {
-
-    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
-
-    inline data_converter(DataSpace& space)
-        : _dims(space.getDimensions()) {
-        assert(_dims.size() == 2);
-    }
-
-    inline auto* transform_read(MatrixTMN& array) {
-        if (_dims[0] != static_cast<size_t>(array.rows()) ||
-            _dims[1] != static_cast<size_t>(array.cols())) {
-            array.resize(static_cast<Eigen::Index>(_dims[0]), static_cast<Eigen::Index>(_dims[1]));
-        }
-        return array.data();
-    }
-
-    inline const auto* transform_write(const MatrixTMN& array) {
-        return array.data();
-    }
-
-    inline void process_result(MatrixTMN&) {}
-
-    std::vector<size_t> _dims;
-};
-
-template <typename T, int M, int N>
-inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T,M,N>>& vec,
-                                     const std::vector<size_t>& dims,
-                                     const size_t current_dim,
-                                     std::vector<T>& buffer) {
-
-    check_dimensions_vector(compute_total_row_size(vec), dims[current_dim], current_dim);
-    for (const auto& k : vec) {
-        std::copy(k.data(), k.data()+k.size(), std::back_inserter(buffer));
-    }
-}
-
-// apply conversion to std::vector of eigen matrix
-template <typename T, int M, int N>
-struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
-
-    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()), _space(space) {
-        assert(_dims.size() == 2);
-    }
-
-    inline auto * transform_read(std::vector<MatrixTMN>& /* vec */) {
-        _vec_align.resize(compute_total_size(_space.getDimensions()));
-        return _vec_align.data();
-    }
-
-    inline const auto* transform_write(const std::vector<MatrixTMN>& vec) {
-        _vec_align.reserve(compute_total_size(vec));
-        vectors_to_single_buffer<T, M, N>(vec, _dims, 0, _vec_align);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<MatrixTMN>& vec) {
-        T* start = _vec_align.data();
-        if(vec.size() > 0) {
-            for(auto& v : vec){
-                v = Eigen::Map<MatrixTMN>(start, v.rows(), v.cols());
-                start += v.rows()*v.cols();
-            }
-        }
-        else {
-            if(M == -1 || N == -1) {
-                std::ostringstream ss;
-                ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
-                   << "Initiliaze vector elements using Zero, i.e.:\n"
-                   << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
-                throw DataSetException(ss.str());
-            }
-            else
-            {
-                for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
-                    vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
-                    start += M * N;
-                }
-            }
-        }
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<typename type_of_array<T>::type> _vec_align;
-    const DataSpace& _space;
-};
-
-#ifdef H5_USE_BOOST
-template <typename T, int M, int N, std::size_t Dims>
-struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
-    typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions())
-        , _space(space) {
-        assert(_dims.size() == Dims);
-    }
-
-    inline auto* transform_read(const MultiArrayEigen& /*array*/) {
-        _vec_align.resize(compute_total_size(_space.getDimensions()));
-        return _vec_align.data();
-    }
-
-    inline const auto* transform_write(const MultiArrayEigen& array) {
-        _vec_align.reserve(compute_total_size(array));
-        for (auto e = array.origin(); e < array.origin() + array.num_elements(); ++e) {
-            std::copy(e->data(), e->data() + e->size(), std::back_inserter(_vec_align));
-        }
-        return _vec_align.data();
-    }
-
-    inline void process_result(MultiArrayEigen& vec) {
-        T* start = _vec_align.data();
-        if (M != -1 && N != -1) {
-            for (auto v = vec.origin(); v < vec.origin() + vec.num_elements(); ++v) {
-                *v = Eigen::Map<Eigen::Matrix<T, M, N>>(start, v->rows(), v->cols());
-                start += v->rows() * v->cols();
-            }
-        } else {
-            if (vec.origin()->rows() > 0 && vec.origin()->cols() > 0) {
-                const auto VEC_M = vec.origin()->rows(), VEC_N = vec.origin()->cols();
-                for (auto v = vec.origin(); v < vec.origin() + vec.num_elements(); ++v) {
-                    assert(v->rows() == VEC_M && v->cols() == VEC_N);
-                    *v = Eigen::Map<Eigen::Matrix<T, M, N>>(start, VEC_M, VEC_N);
-                    start += VEC_M * VEC_N;
-                }
-            } else {
-                throw DataSetException(
-                    "Dynamic size(-1) used without pre-defined multi_array data layout.\n"
-                    "Initialize vector elements using  MatrixXd::Zero");
-            }
-        }
-    }
-
-    std::vector<size_t> _dims;
-    const DataSpace& _space;
-    std::vector<typename type_of_array<T>::type> _vec_align;
-};
-#endif
-
 #endif
 
 // apply conversion for vectors nested vectors
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
+    typedef typename type_of_array<T>::type value_type;
+
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {}
 
-    inline auto* transform_read(std::vector<T>&) {
+    inline value_type* transform_read(std::vector<T>&) {
         _vec_align.resize(compute_total_size(_dims));
         return _vec_align.data();
     }
 
-    inline const auto* transform_write(const std::vector<T>& vec) {
+    inline const value_type* transform_write(const std::vector<T>& vec) {
         _vec_align.reserve(compute_total_size(_dims));
         vectors_to_single_buffer<T>(vec, _dims, 0, _vec_align);
         return _vec_align.data();
@@ -483,23 +296,20 @@ struct data_converter<std::vector<T>,
 };
 
 
-
-static inline const char* char_converter(const std::string& str) {
-    return str.c_str();
-}
-
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
+    typedef const char* value_type;  // char data is const, mutable pointer
+
     inline data_converter(const DataSpace& space)
         : _c_vec(nullptr), _space(space) {
     }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline const char** transform_read(std::string&) { return &_c_vec; }
+    inline value_type* transform_read(std::string&) { return &_c_vec; }
 
-    inline const char** transform_write(const std::string& str) {
+    inline const value_type* transform_write(const std::string& str) {
         _c_vec = str.c_str();
         return &_c_vec;
     }
@@ -515,28 +325,31 @@ struct data_converter<std::string, void> {
         }
     }
 
-    const char* _c_vec;
+    value_type _c_vec;
     const DataSpace& _space;
 };
 
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
+    typedef const char* value_type;
+
     inline data_converter(const DataSpace& space)
         : _space(space) {
     }
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline const char** transform_read(std::vector<std::string>& vec) {
+    inline value_type* transform_read(std::vector<std::string>& vec) {
         (void)vec;
         _c_vec.resize(_space.getDimensions()[0], NULL);
         return _c_vec.data();
     }
 
-    inline const char** transform_write(const std::vector<std::string>& vec) {
+    inline const value_type* transform_write(const std::vector<std::string>& vec) {
         _c_vec.resize(vec.size() + 1, NULL);
-        std::transform(vec.begin(), vec.end(), _c_vec.begin(), &char_converter);
+        std::transform(vec.begin(), vec.end(), _c_vec.begin(),
+                       [](const std::string& str){ return str.c_str(); });
         return _c_vec.data();
     }
 
@@ -554,38 +367,24 @@ struct data_converter<std::vector<std::string>, void> {
         }
     }
 
-    std::vector<const char*> _c_vec;
+    std::vector<value_type> _c_vec;
     const DataSpace& _space;
 };
 
 
 
-
-// apply conversion for fixed-string
+// apply conversion for fixed-string. Implements container interface
 template <std::size_t N>
-struct data_converter<FixedLenStringArray<N>, void> {
-    inline data_converter(const DataSpace& space)
-        : _space(space) {
-        assert(is_1D(_space.getDimensions()));
-    }
-
-    inline auto* transform_read(FixedLenStringArray<N>& vec) {
-        vec.resize(_space.getDimensions()[0]);
-        return const_cast<char*>(vec.data());
-    }
-
-    inline const auto* transform_write(const FixedLenStringArray<N>& vec) {
-        return vec.data();
-    }
-
-    inline void process_result(FixedLenStringArray<N>&) {}
-
-    const DataSpace& _space;
+struct data_converter<FixedLenStringArray<N>, void>
+    : public container_converter<FixedLenStringArray<N>, char> {
+    using container_converter<FixedLenStringArray<N>, char>::container_converter;
 };
 
 
 }  // namespace details
 
 }  // namespace HighFive
+
+#include "H5ConverterEigen_misc.hpp"
 
 #endif // H5CONVERTER_MISC_HPP
