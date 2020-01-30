@@ -659,33 +659,36 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
             }
         }
     }
+}
 
-    // manipulate FixedLenStringArray with std::copy
-    {
-        const FixedLenStringArray<10> arr1{"0000000", "1111111"};
-        FixedLenStringArray<10> arr2{"0000000", "1111111"};
-        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
-        BOOST_CHECK_EQUAL(arr2.size(), 4);
-    }
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
 
-    using array_t = FixedLenStringArray<10>;
+    using fixed_array_t = FixedLenStringArray<10>;
     // increment the characters of a string written in a std::array
-    auto increment_string = [](const array_t::value_type arr) {
-        array_t::value_type result(arr);
-        for (auto& c : result) {
+    auto increment_string = [](const fixed_array_t::value_type arr) {
+        fixed_array_t::value_type output(arr);
+        for (auto& c : output) {
             if (c == 0) {
                 break;
             }
             ++c;
         }
-        return result;
+        return output;
     };
+
+    // manipulate FixedLenStringArray with std::copy
+    {
+        const fixed_array_t arr1{"0000000", "1111111"};
+        fixed_array_t arr2{"0000000", "1111111"};
+        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
+        BOOST_CHECK_EQUAL(arr2.size(), 4);
+    }
 
     // manipulate FixedLenStringArray with std::transform
     {
-        array_t arr;
+        fixed_array_t arr;
         {
-            const array_t arr1{"0000000", "1111111"};
+            const fixed_array_t arr1{"0000000", "1111111"};
             std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
                            increment_string);
         }
@@ -696,9 +699,9 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
 
     // manipulate FixedLenStringArray with std::transform and reverse iterator
     {
-        array_t arr;
+        fixed_array_t arr;
         {
-            const array_t arr1{"0000000", "1111111"};
+            const fixed_array_t arr1{"0000000", "1111111"};
             std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
         }
         BOOST_CHECK_EQUAL(arr.size(), 2);
@@ -708,11 +711,11 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
 
     // manipulate FixedLenStringArray with std::remove_copy_if
     {
-        array_t arr2;
+        fixed_array_t arr2;
         {
-            const array_t arr1{"0000000", "1111111"};
+            const fixed_array_t arr1{"0000000", "1111111"};
             std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
-                                [](const array_t::value_type& s) {
+                                [](const fixed_array_t::value_type& s) {
                                     return std::strncmp(s.data(), "1111111", 7) == 0;
                                 });
         }
