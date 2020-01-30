@@ -230,10 +230,17 @@ inline void FixedLenStringArray<N>::push_back(const std::string& src) {
 }
 
 template <std::size_t N>
+inline void FixedLenStringArray<N>::push_back(const std::array<char, N>& src) {
+    datavec.emplace_back();
+    const size_t length = std::min(N - 1, src.length());
+    std::memcpy(datavec.back().data(), src.data(), length);
+    datavec.back()[length] = 0;
+}
+
+template <std::size_t N>
 inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
     return std::string(datavec[i].data());
 }
-
 
 // Internal
 

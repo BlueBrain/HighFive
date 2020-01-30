@@ -7,6 +7,7 @@
  *
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -16,8 +17,6 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#include <stdio.h>
 
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
@@ -659,6 +658,67 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
                 BOOST_CHECK_EQUAL(char_c_2darray[i][j], char_c_2darray_out[i][j]);
             }
         }
+    }
+
+    // manipulate FixedLenStringArray with std::copy
+    {
+        const FixedLenStringArray<10> arr1{"0000000", "1111111"};
+        FixedLenStringArray<10> arr2{"0000000", "1111111"};
+        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
+        BOOST_CHECK_EQUAL(arr2.size(), 4);
+    }
+
+    // manipulate FixedLenStringArray with std::transform
+    {
+        using array_t = FixedLenStringArray<10>;
+        array_t arr;
+        {
+            const array_t arr1{"0000000", "1111111"};
+            auto increment_string = [](const array_t::value_type arr) {
+                array_t::value_type result;
+                std::transform(arr.begin(), arr.end(), result.begin(),
+                               [](char c) { return c + 1; });
+                return result;
+            };
+            std::transform(arr1.begin(), arr1.begin(), arr.begin(), increment_string);
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("2222222"));
+    }
+
+    // manipulate FixedLenStringArray with std::transform and reverse iterator
+    {
+        using array_t = FixedLenStringArray<10>;
+        array_t arr;
+        {
+            const array_t arr1{"0000000", "1111111"};
+            auto increment_string = [](const array_t::value_type arr) {
+                array_t::value_type result;
+                std::transform(arr.begin(), arr.end(), result.begin(),
+                               [](char c) { return c + 1; });
+                return result;
+            };
+            std::transform(arr1.rbegin(), arr1.rbegin(), arr.begin(), increment_string);
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("2222222"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("1111111"));
+    }
+
+    // manipulate FixedLenStringArray with std::remove_copy_if
+    {
+        using array_t = FixedLenStringArray<10>;
+        array_t arr2;
+        {
+            const array_t arr1{"0000000", "1111111"};
+            std::remove_copy_if(arr1.begin(), arr1.end(), arr2.begin(),
+                                [](const array_t::value_type& s) {
+                                    return std::strncmp(s.data(), "1111111", 7) == 0;
+                                });
+        }
+        BOOST_CHECK_EQUAL(arr2.size(), 1);
+        BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
     }
 }
 

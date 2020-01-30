@@ -126,6 +126,8 @@ class FixedLenStringArray {
     ///
     void push_back(const std::string&);
 
+    void push_back(const std::array<char, N>&);
+
     ///
     /// \brief Retrieve a string from the structure as std::string
     ///
@@ -152,7 +154,44 @@ class FixedLenStringArray {
     inline const_iterator cend() const noexcept { return datavec.cend(); }
 
   private:
-    typedef typename std::vector<std::array<char, N>> vector_t;
+    using vector_t = typename std::vector<std::array<char, N>>;
+
+  public:
+    using iterator = typename vector_t::iterator;
+    using const_iterator = typename vector_t::const_iterator;
+    using reverse_iterator = typename vector_t::reverse_iterator;
+    using const_reverse_iterator = typename vector_t::const_reverse_iterator;
+    using value_type = typename vector_t::value_type;
+
+    iterator begin() noexcept {
+        return datavec.begin();
+    }
+    iterator end() noexcept {
+        return datavec.end();
+    }
+
+    const_iterator begin() const noexcept {
+        return datavec.begin();
+    }
+    const_iterator end() const noexcept {
+        return datavec.end();
+    }
+
+    reverse_iterator rbegin() noexcept {
+        return datavec.rbegin();
+    }
+    reverse_iterator rend() noexcept {
+        return datavec.rend();
+    }
+
+    const_reverse_iterator rbegin() const noexcept {
+        return datavec.rbegin();
+    }
+    const_reverse_iterator rend() const noexcept {
+        return datavec.rend();
+    }
+
+  private:
     vector_t datavec;
 };
 
