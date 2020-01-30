@@ -115,30 +115,35 @@ class FixedLenStringArray {
     ///
     /// Such conversion involves a copy, original vector is not modified
     ///
-    FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end);
-
     explicit FixedLenStringArray(const std::vector<std::string> & vec);
+
+    FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end);
 
     FixedLenStringArray(const std::initializer_list<std::string> &);
 
     ///
-    /// \brief Append an std::string to buffer structure
+    /// \brief Append an std::string to the buffer structure
     ///
     void push_back(const std::string&);
 
     ///
     /// \brief Retrieve a string from the structure as std::string
     ///
-    std::string operator[](std::size_t index) const;
+    std::string getString(std::size_t index) const;
 
-
-    // Container API
+    // Container interface
+    inline const char* operator[](std::size_t i) const { return datavec[i].data(); }
+    inline const char* at(std::size_t i) const { return datavec.at(i).data(); }
+    inline bool empty() const noexcept { return datavec.empty(); }
     inline std::size_t size() const noexcept { return datavec.size(); }
-    inline char* data() const { return const_cast<char*>(datavec[0].data()); }
-    void resize(std::size_t new_size) { datavec.resize(new_size); }
+    inline void resize(std::size_t i) { datavec.resize(i); }
+    inline const char* front() const { return datavec.front().data(); }
+    inline const char* back() const { return datavec.back().data(); }
+    inline char* data() noexcept { return datavec[0].data(); }
+    inline const char* data() const noexcept { return datavec[0].data(); }
 
   private:
-    typedef std::vector<std::array<char, N>> vector_t;
+    typedef typename std::vector<std::array<char, N>> vector_t;
     vector_t datavec;
 };
 

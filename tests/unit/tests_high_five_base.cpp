@@ -1264,6 +1264,12 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
         BOOST_CHECK(array_back[0] == std::string("000"));
         BOOST_CHECK(array_back[1] == std::string("111"));
         BOOST_CHECK(array_back[2] == std::string("222"));
+        BOOST_CHECK(array_back.getString(1) == "111");
+        BOOST_CHECK(array_back.front() == std::string("000"));
+        BOOST_CHECK(array_back.back() == std::string("222"));
+        BOOST_CHECK(array_back.data() == std::string("000"));
+        array_back.data()[0] = 'x';
+        BOOST_CHECK(array_back.data() == std::string("x00"));
     }
 }
 

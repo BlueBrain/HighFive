@@ -34,10 +34,10 @@ int main(void) {
         file.createDataSet("ds2", strings_fixed);
 
         // Now test the new interface type
-        //FixedLenStringArray<10> arr(std::vector<std::string>{"0000000", "1111111"});
-        FixedLenStringArray<10> arr{"0000000", "1111111"};
+        FixedLenStringArray<10> arr{"0000000", "1111111"};  // also accepts std::vector
         auto ds = file.createDataSet("ds3", arr);
 
+        // Read back truncating to 4 chars
         FixedLenStringArray<4> array_back;
         ds.read(array_back);
         std::cout << "First item is '" << array_back[0] << "'" << std::endl

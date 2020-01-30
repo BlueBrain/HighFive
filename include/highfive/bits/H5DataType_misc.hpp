@@ -229,7 +229,7 @@ inline void FixedLenStringArray<N>::push_back(const std::string& src) {
 }
 
 template <std::size_t N>
-inline std::string FixedLenStringArray<N>::operator[](std::size_t i) const {
+inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
     return std::string(datavec[i].data());
 }
 
