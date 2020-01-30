@@ -190,6 +190,7 @@ AtomicType<T>::AtomicType() {
 }
 
 
+// class FixedLenStringArray<N>
 
 template <std::size_t N>
 inline FixedLenStringArray<N>

@@ -132,15 +132,24 @@ class FixedLenStringArray {
     std::string getString(std::size_t index) const;
 
     // Container interface
-    inline const char* operator[](std::size_t i) const { return datavec[i].data(); }
+    inline const char* operator[](std::size_t i) const noexcept { return datavec[i].data(); }
     inline const char* at(std::size_t i) const { return datavec.at(i).data(); }
     inline bool empty() const noexcept { return datavec.empty(); }
     inline std::size_t size() const noexcept { return datavec.size(); }
-    inline void resize(std::size_t i) { datavec.resize(i); }
+    inline void resize(std::size_t n) { datavec.resize(n); }
     inline const char* front() const { return datavec.front().data(); }
     inline const char* back() const { return datavec.back().data(); }
     inline char* data() noexcept { return datavec[0].data(); }
     inline const char* data() const noexcept { return datavec[0].data(); }
+    // Use the underlying iterator
+    typedef typename std::vector<std::array<char, N>>::iterator iterator;
+    typedef typename std::vector<std::array<char, N>>::const_iterator const_iterator;
+    inline iterator begin() noexcept { return datavec.begin(); }
+    inline iterator end() noexcept { return datavec.end(); }
+    inline const_iterator begin() const noexcept { return datavec.begin(); }
+    inline const_iterator cbegin() const noexcept { return datavec.cbegin(); }
+    inline const_iterator end() const noexcept { return datavec.end(); }
+    inline const_iterator cend() const noexcept { return datavec.cend(); }
 
   private:
     typedef typename std::vector<std::array<char, N>> vector_t;

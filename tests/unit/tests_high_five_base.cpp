@@ -1078,7 +1078,7 @@ void readWriteShuffleDeflateTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) {
-    //readWriteShuffleDeflateTest<T>();
+    readWriteShuffleDeflateTest<T>();
 }
 
 // Broadcasting is supported
@@ -1270,6 +1270,14 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
         BOOST_CHECK(array_back.data() == std::string("000"));
         array_back.data()[0] = 'x';
         BOOST_CHECK(array_back.data() == std::string("x00"));
+
+        for (auto& raw_elem : array_back) {
+            raw_elem[1] = 'y';
+        }
+        BOOST_CHECK(array_back.getString(1) == "1y1");
+        for (auto iter = array_back.cbegin(); iter != array_back.cend(); ++iter) {
+            BOOST_CHECK((*iter)[1] == 'y');
+        }
     }
 }
 
