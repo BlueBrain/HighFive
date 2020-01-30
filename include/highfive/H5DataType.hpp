@@ -134,56 +134,68 @@ class FixedLenStringArray {
     std::string getString(std::size_t index) const;
 
     // Container interface
-    inline const char* operator[](std::size_t i) const noexcept { return datavec[i].data(); }
-    inline const char* at(std::size_t i) const { return datavec.at(i).data(); }
-    inline bool empty() const noexcept { return datavec.empty(); }
-    inline std::size_t size() const noexcept { return datavec.size(); }
-    inline void resize(std::size_t n) { datavec.resize(n); }
-    inline const char* front() const { return datavec.front().data(); }
-    inline const char* back() const { return datavec.back().data(); }
-    inline char* data() noexcept { return datavec[0].data(); }
-    inline const char* data() const noexcept { return datavec[0].data(); }
-    // Use the underlying iterator
-    typedef typename std::vector<std::array<char, N>>::iterator iterator;
-    typedef typename std::vector<std::array<char, N>>::const_iterator const_iterator;
-    inline iterator begin() noexcept { return datavec.begin(); }
-    inline iterator end() noexcept { return datavec.end(); }
-    inline const_iterator begin() const noexcept { return datavec.begin(); }
-    inline const_iterator cbegin() const noexcept { return datavec.cbegin(); }
-    inline const_iterator end() const noexcept { return datavec.end(); }
-    inline const_iterator cend() const noexcept { return datavec.cend(); }
+    inline const char* operator[](std::size_t i) const noexcept {
+        return datavec[i].data();
+    }
+    inline const char* at(std::size_t i) const {
+        return datavec.at(i).data();
+    }
+    inline bool empty() const noexcept {
+        return datavec.empty();
+    }
+    inline std::size_t size() const noexcept {
+        return datavec.size();
+    }
+    inline void resize(std::size_t n) {
+        datavec.resize(n);
+    }
+    inline const char* front() const {
+        return datavec.front().data();
+    }
+    inline const char* back() const {
+        return datavec.back().data();
+    }
+    inline char* data() noexcept {
+        return datavec[0].data();
+    }
+    inline const char* data() const noexcept {
+        return datavec[0].data();
+    }
 
   private:
     using vector_t = typename std::vector<std::array<char, N>>;
 
   public:
+    // Use the underlying iterator
     using iterator = typename vector_t::iterator;
     using const_iterator = typename vector_t::const_iterator;
     using reverse_iterator = typename vector_t::reverse_iterator;
     using const_reverse_iterator = typename vector_t::const_reverse_iterator;
     using value_type = typename vector_t::value_type;
-
-    iterator begin() noexcept {
+    inline iterator begin() noexcept {
         return datavec.begin();
     }
-    iterator end() noexcept {
+    inline iterator end() noexcept {
         return datavec.end();
     }
-
-    const_iterator begin() const noexcept {
+    inline const_iterator begin() const noexcept {
         return datavec.begin();
     }
-    const_iterator end() const noexcept {
+    inline const_iterator cbegin() const noexcept {
+        return datavec.cbegin();
+    }
+    inline const_iterator end() const noexcept {
         return datavec.end();
     }
-
+    inline const_iterator cend() const noexcept {
+        return datavec.cend();
+    }
     reverse_iterator rbegin() noexcept {
         return datavec.rbegin();
     }
     reverse_iterator rend() noexcept {
         return datavec.rend();
     }
-
     const_reverse_iterator rbegin() const noexcept {
         return datavec.rbegin();
     }
@@ -195,9 +207,8 @@ class FixedLenStringArray {
     vector_t datavec;
 };
 
-
 }  // namespace HighFive
 
 #include "bits/H5DataType_misc.hpp"
 
-#endif // H5DATATYPE_HPP
+#endif  // H5DATATYPE_HPP
