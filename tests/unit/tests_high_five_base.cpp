@@ -7,6 +7,7 @@
  *
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -16,8 +17,6 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#include <stdio.h>
 
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
@@ -662,6 +661,69 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
+
+    using fixed_array_t = FixedLenStringArray<10>;
+    // increment the characters of a string written in a std::array
+    auto increment_string = [](const fixed_array_t::value_type arr) {
+        fixed_array_t::value_type output(arr);
+        for (auto& c : output) {
+            if (c == 0) {
+                break;
+            }
+            ++c;
+        }
+        return output;
+    };
+
+    // manipulate FixedLenStringArray with std::copy
+    {
+        const fixed_array_t arr1{"0000000", "1111111"};
+        fixed_array_t arr2{"0000000", "1111111"};
+        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
+        BOOST_CHECK_EQUAL(arr2.size(), 4);
+    }
+
+    // manipulate FixedLenStringArray with std::transform
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
+                           increment_string);
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("2222222"));
+    }
+
+    // manipulate FixedLenStringArray with std::transform and reverse iterator
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("0000000"));
+    }
+
+    // manipulate FixedLenStringArray with std::remove_copy_if
+    {
+        fixed_array_t arr2;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
+                                [](const fixed_array_t::value_type& s) {
+                                    return std::strncmp(s.data(), "1111111", 7) == 0;
+                                });
+        }
+        BOOST_CHECK_EQUAL(arr2.size(), 1);
+        BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
+    }
+}
+
 
 template <typename T>
 void readWriteAttributeVectorTest() {
@@ -1078,7 +1140,7 @@ void readWriteShuffleDeflateTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) {
-    //readWriteShuffleDeflateTest<T>();
+    readWriteShuffleDeflateTest<T>();
 }
 
 // Broadcasting is supported
@@ -1270,6 +1332,14 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
         BOOST_CHECK(array_back.data() == std::string("000"));
         array_back.data()[0] = 'x';
         BOOST_CHECK(array_back.data() == std::string("x00"));
+
+        for (auto& raw_elem : array_back) {
+            raw_elem[1] = 'y';
+        }
+        BOOST_CHECK(array_back.getString(1) == "1y1");
+        for (auto iter = array_back.cbegin(); iter != array_back.cend(); ++iter) {
+            BOOST_CHECK((*iter)[1] == 'y');
+        }
     }
 }
 

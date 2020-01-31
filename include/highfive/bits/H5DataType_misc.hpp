@@ -190,6 +190,7 @@ AtomicType<T>::AtomicType() {
 }
 
 
+// class FixedLenStringArray<N>
 
 template <std::size_t N>
 inline FixedLenStringArray<N>
@@ -229,10 +230,15 @@ inline void FixedLenStringArray<N>::push_back(const std::string& src) {
 }
 
 template <std::size_t N>
+inline void FixedLenStringArray<N>::push_back(const std::array<char, N>& src) {
+    datavec.emplace_back();
+    std::copy(src.begin(), src.end(), datavec.back().data());
+}
+
+template <std::size_t N>
 inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
     return std::string(datavec[i].data());
 }
-
 
 // Internal
 
