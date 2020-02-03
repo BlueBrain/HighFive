@@ -14,7 +14,6 @@
 #include <array>
 #include <cstddef> // __GLIBCXX__
 #include <exception>
-#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -22,6 +21,10 @@
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#endif
+
+#ifdef H5_USE_EIGEN
+#include <Eigen/Eigen>
 #endif
 
 #include <H5public.h>
@@ -69,6 +72,18 @@ struct array_dims<boost::numeric::ublas::matrix<T> > {
 };
 #endif
 
+#ifdef H5_USE_EIGEN
+template<typename T, int M, int N>
+struct array_dims<Eigen::Matrix<T, M, N>> {
+    static constexpr size_t value = 2;
+};
+
+template<typename T, int M, int N>
+struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
+    static constexpr size_t value = 2;
+};
+#endif
+
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
 void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
@@ -96,24 +111,31 @@ struct type_of_array {
 };
 
 template <typename T>
-struct type_of_array<std::vector<T> > {
+struct type_of_array<std::vector<T>> {
     typedef typename type_of_array<T>::type type;
 };
 
 template <typename T, std::size_t N>
-struct type_of_array<std::array<T, N> > {
+struct type_of_array<std::array<T, N>> {
     typedef typename type_of_array<T>::type type;
 };
 
 #ifdef H5_USE_BOOST
 template <typename T, std::size_t Dims>
-struct type_of_array<boost::multi_array<T, Dims> > {
+struct type_of_array<boost::multi_array<T, Dims>> {
     typedef typename type_of_array<T>::type type;
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T> > {
+struct type_of_array<boost::numeric::ublas::matrix<T>> {
     typedef typename type_of_array<T>::type type;
+};
+#endif
+
+#ifdef H5_USE_EIGEN
+template<typename T, int M, int N>
+struct type_of_array<Eigen::Matrix<T, M, N>> {
+    typedef T type;
 };
 #endif
 
@@ -170,12 +192,6 @@ inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
 inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>& vec) {
     return vec;
 }
-
-// shared ptr portability
-// was used pre-C++11, kept for compatibility
-namespace Mem {
-using namespace std;
-}  // namespace Mem
 
 }  // namespace details
 }  // namespace HighFive

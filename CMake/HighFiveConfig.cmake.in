@@ -1,3 +1,25 @@
+
+# Get HighFive targets
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
   include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
+endif()
+
+# If the user sets this flag, all dependencies are preserved.
+# Useful in central deployments where dependencies are not prepared later
+option(HIGHFIVE_USE_INSTALL_DEPS "Use original Highfive dependencies" @HIGHFIVE_USE_INSTALL_DEPS@)
+if(HIGHFIVE_USE_INSTALL_DEPS)
+  return()
+endif()
+
+# Options when used from external projects. Keep defaults
+if(NOT DEFINED HIGHFIVE_PARALLEL_HDF5)
+  option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" @HIGHFIVE_PARALLEL_HDF5@)
+endif()
+if(NOT DEFINED HIGHFIVE_USE_BOOST)
+  option(HIGHFIVE_USE_BOOST "Enable Boost Support" @HIGHFIVE_USE_BOOST@)
+endif()
+
+# Pass on dependencies in target project build
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
 endif()

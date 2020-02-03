@@ -6,7 +6,7 @@ function(compile_example exemple_source)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
     if(${example_filename} MATCHES ".*boost.*")
-        if(NOT USE_BOOST)
+        if(NOT HIGHFIVE_USE_BOOST)
             return()
         endif()
     endif()

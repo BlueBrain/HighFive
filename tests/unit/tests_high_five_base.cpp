@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
 
     // check if the dataset exist
     bool dataset_exist = file.exist(DATASET_NAME + "_double");
-    BOOST_CHECK_EQUAL(dataset_exist, false);
+    BOOST_CHECK(!dataset_exist);
 
     // Create a dataset with double precision floating points
     DataSet dataset_double = file.createDataSet(
@@ -669,7 +669,7 @@ void readWriteAttributeVectorTest() {
         BOOST_CHECK_EQUAL(n2, 1);
 
         has_attribute = g.hasAttribute("my_attribute");
-        BOOST_CHECK_EQUAL(has_attribute, true);
+        BOOST_CHECK(has_attribute);
 
         all_attribute_names = g.listAttributeNames();
         BOOST_CHECK_EQUAL(all_attribute_names.size(), 1);
@@ -684,9 +684,9 @@ void readWriteAttributeVectorTest() {
         a2.write(vec);
     }
 
-    typename std::vector<T> result1, result2;
-
     {
+        typename std::vector<T> result1, result2;
+
         Attribute a1_read =
             file.getGroup("dummy_group").getAttribute("my_attribute");
         a1_read.read(result1);
@@ -706,6 +706,21 @@ void readWriteAttributeVectorTest() {
 
         for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
+    }
+
+    // Delete some attributes
+    {
+        // From group
+        auto g = file.getGroup("dummy_group");
+        g.deleteAttribute("my_attribute");
+        auto n = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n, 0);
+
+        // From dataset
+        auto d = file.getDataSet("/dummy_group/dummy_dataset");
+        d.deleteAttribute("my_attribute_copy");
+        n = g.getNumberAttributes();
+        BOOST_CHECK_EQUAL(n, 0);
     }
 }
 
@@ -907,7 +922,7 @@ void attribute_scalar_rw() {
     Group g = h5file.createGroup("metadata");
 
     bool family_exist = g.hasAttribute("family");
-    BOOST_CHECK_EQUAL(family_exist, false);
+    BOOST_CHECK(!family_exist);
 
     // write a scalar attribute
     {
@@ -920,7 +935,7 @@ void attribute_scalar_rw() {
 
     // test if attribute exist
     family_exist = g.hasAttribute("family");
-    BOOST_CHECK_EQUAL(family_exist, true);
+    BOOST_CHECK(family_exist);
 
     // read back a scalar attribute
     {
@@ -1239,3 +1254,159 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
         BOOST_CHECK_EQUAL(result[1].csl1.m3, 4);
     }
 }
+
+#ifdef H5_USE_EIGEN
+BOOST_AUTO_TEST_CASE(HighFiveEigen) {
+    const std::string FILE_NAME("test_eigen.h5");
+    const std::string DS_NAME = "ds";
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    auto test = [&DS_NAME, &file](const std::string& test_flavor, const auto& vec_input, auto& vec_output){
+        file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
+        file.getDataSet(DS_NAME + test_flavor).read(vec_output);
+        BOOST_CHECK(vec_input == vec_output);
+    };
+
+    std::string DS_NAME_FLAVOR;
+
+
+    // std::vector<of vector <of POD>>
+    {
+        DS_NAME_FLAVOR = "VectorOfVectorOfPOD";
+        std::vector<std::vector<float>> vec_in{{5.0f, 6.0f, 7.0f}, {5.1f, 6.1f, 7.1f}, {5.2f, 6.2f, 7.2f} };
+        std::vector<std::vector<float>> vec_out;
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    //std::vector<Eigen::Vector3d>
+    {
+        DS_NAME_FLAVOR = "VectorOfEigenVector3d";
+        std::vector<Eigen::Vector3d> vec_in{{5.0, 6.0, 7.0},{7.0, 8.0, 9.0}};
+        std::vector<Eigen::Vector3d> vec_out;
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // Eigen Vector2d
+    {
+        DS_NAME_FLAVOR = "EigenVector2d";
+        Eigen::Vector2d vec_in{5.0, 6.0};
+        Eigen::Vector2d vec_out;
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // Eigen Matrix
+    {
+        DS_NAME_FLAVOR = "EigenMatrix";
+        Eigen::Matrix<double, 3,3> vec_in; vec_in << 1,2,3,4,5,6,7,8,9;
+        Eigen::Matrix<double, 3,3> vec_out;
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // Eigen MatrixXd
+    {
+        DS_NAME_FLAVOR = "EigenMatrixXd";
+        Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
+        Eigen::MatrixXd vec_out(20,5);
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // std::vector<of EigenMatrixXd>
+    {
+        DS_NAME_FLAVOR = "VectorEigenMatrixXd";
+
+        Eigen::MatrixXd m1 = 100. * Eigen::MatrixXd::Random(20, 5);
+        Eigen::MatrixXd m2 = 100. * Eigen::MatrixXd::Random(20, 5);
+        std::vector<Eigen::MatrixXd> vec_in;
+        vec_in.push_back(m1);
+        vec_in.push_back(m2);
+        std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20,5));
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // std::vector<of EigenMatrixXd> - exception
+    {
+        DS_NAME_FLAVOR = "VectorEigenMatrixXdExc";
+
+        Eigen::MatrixXd m1 = 100. * Eigen::MatrixXd::Random(20, 5);
+        Eigen::MatrixXd m2 = 100. * Eigen::MatrixXd::Random(20, 5);
+        std::vector<Eigen::MatrixXd> vec_in;
+        vec_in.push_back(m1);
+        vec_in.push_back(m2);
+        file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
+
+        std::vector<Eigen::MatrixXd> vec_out_exception;
+        BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception), HighFive::DataSetException);
+    }
+
+#ifdef H5_USE_BOOST
+    // boost::multi_array<of EigenVector3f>
+    {
+        DS_NAME_FLAVOR = "BMultiEigenVector3f";
+
+        boost::multi_array<Eigen::Vector3f, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::Vector3f::Random(3);
+                }
+            }
+        }
+        boost::multi_array<Eigen::Vector3f, 3> vec_out(boost::extents[3][2][2]);
+
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+
+    // boost::multi_array<of EigenMatrixXd>
+    {
+        DS_NAME_FLAVOR = "BMultiEigenMatrixXd";
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::MatrixXd::Random(3, 3);
+                }
+            }
+        }
+        boost::multi_array<Eigen::MatrixXd, 3> vec_out(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_out[i][j][k] = Eigen::MatrixXd::Zero(3, 3);
+                }
+            }
+        test(DS_NAME_FLAVOR, vec_in, vec_out);
+    }
+
+    // boost::mulit_array<of EigenMatrixXd> - exception
+    {
+        DS_NAME_FLAVOR = "BMultiEigenMatrixXdExc";
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    vec_in[i][j][k] = Eigen::MatrixXd::Random(3, 3);
+                }
+            }
+        }
+
+        file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
+
+        boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
+
+        BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
+                          HighFive::DataSetException);
+    }
+
+#endif
+}
+#endif
