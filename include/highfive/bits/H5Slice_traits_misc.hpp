@@ -109,8 +109,10 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
     std::vector<hsize_t> offsets(dims.size(), 0);
 
     H5Sselect_none(space.getId());
-    for (const auto& i : columns) {
-        offsets[offsets.size() - 1] = i;
+
+    for (const auto& column: columns) {
+        offsets[offsets.size() - 1] = column;
+
         if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(), 0,
                                 counts.data(), 0) < 0) {
             HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
