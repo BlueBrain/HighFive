@@ -1121,6 +1121,10 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
 
     // Using root slash
     BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
+
+    // unlink
+    g1.unlink(GROUP_2);
+    BOOST_CHECK(!g1.exist(GROUP_2));
 }
 
 
