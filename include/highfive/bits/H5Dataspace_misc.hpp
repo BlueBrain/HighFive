@@ -156,6 +156,11 @@ inline DataSpace DataSpace::From(const std::vector<Value>& container) {
     return DataSpace(details::get_dim_vector<Value>(container));
 }
 
+template <typename ValueT, std::size_t N>
+inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
+    return DataSpace(details::get_dim_vector(container));
+}
+
 /// Currently only supports 1D std::array
 template <typename Value, std::size_t N>
 inline DataSpace DataSpace::From(const std::array<Value, N>& ) {
