@@ -189,14 +189,14 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         {
             SilenceHDF5 silencer;
             BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                             AtomicType<double>(),
-                                             badChunking0),
-                          DataSetException);
+                                                 AtomicType<double>(),
+                                                 badChunking0),
+                              DataSetException);
 
             BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                             AtomicType<double>(),
-                                             badChunking1),
-                          DataSetException);
+                                                 AtomicType<double>(),
+                                                 badChunking1),
+                              DataSetException);
         }
 
         // here we use the other signature

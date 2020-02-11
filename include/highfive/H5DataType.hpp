@@ -172,6 +172,7 @@ class FixedLenStringArray {
     using reverse_iterator = typename vector_t::reverse_iterator;
     using const_reverse_iterator = typename vector_t::const_reverse_iterator;
     using value_type = typename vector_t::value_type;
+
     inline iterator begin() noexcept {
         return datavec.begin();
     }
@@ -190,16 +191,16 @@ class FixedLenStringArray {
     inline const_iterator cend() const noexcept {
         return datavec.cend();
     }
-    reverse_iterator rbegin() noexcept {
+    inline reverse_iterator rbegin() noexcept {
         return datavec.rbegin();
     }
-    reverse_iterator rend() noexcept {
+    inline reverse_iterator rend() noexcept {
         return datavec.rend();
     }
-    const_reverse_iterator rbegin() const noexcept {
+    inline const_reverse_iterator rbegin() const noexcept {
         return datavec.rbegin();
     }
-    const_reverse_iterator rend() const noexcept {
+    inline const_reverse_iterator rend() const noexcept {
         return datavec.rend();
     }
 
