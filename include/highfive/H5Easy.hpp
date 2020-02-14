@@ -39,6 +39,7 @@
 
 namespace H5Easy {
 
+using HighFive::Attribute;
 using HighFive::AtomicType;
 using HighFive::Chunking;
 using HighFive::DataSet;
@@ -74,7 +75,7 @@ inline size_t getSize(const File& file, const std::string& path);
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
 ///
-/// \brief Write an Eigen matrix to a new DataSet in an open HDF5 file.
+/// \brief Write an Eigen matrix to a DataSet in an open HDF5 file.
 ///
 /// \param file Writeable opened file
 /// \param path Path of the DataSet
@@ -92,7 +93,7 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// \brief Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
+/// \brief Write "xt::xarray<T>" to a DataSet in an open HDF5 file.
 ///
 /// \param file A writeable opened HDF5 file
 /// \param path Path of the DataSet
@@ -110,7 +111,7 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// \brief Write "xt::xtensor<T,rank>" to a new DataSet in an open HDF5 file.
+/// \brief Write "xt::xtensor<T,rank>" to a DataSet in an open HDF5 file.
 ///
 /// \param file opened File (has to be writeable)
 /// \param path path of the DataSet
@@ -128,7 +129,7 @@ inline DataSet dump(File& file,
 #endif
 
 ///
-/// \brief Write "std::vector<T>" to a new DataSet in an open HDF5 file.
+/// \brief Write "std::vector<T>" to a DataSet in an open HDF5 file.
 ///
 /// \param file opened File (has to be writeable)
 /// \param path path of the DataSet
@@ -144,7 +145,7 @@ inline DataSet dump(File& file,
                     DumpMode mode = DumpMode::Create);
 
 ///
-/// \brief Write scalar/string to a new DataSet in an open HDF5 file.
+/// \brief Write scalar/string to a DataSet in an open HDF5 file.
 ///
 /// \param file Writeable opened file
 /// \param path Path of the DataSet
@@ -199,6 +200,66 @@ inline T load(const File& file,
 ///
 template <class T>
 inline T load(const File& file, const std::string& path);
+
+///
+/// \brief Write to an Attribute of an existing DataSet in an open HDF5 file.
+///
+/// \param file Writeable opened file
+/// \param path Path to the DataSet
+/// \param key Path of the Attribute
+/// \param data Data to write
+/// \param mode Write mode
+///
+/// \return the newly created Attribute
+///
+template <class T>
+inline Attribute dump_attribute(File& file,
+                                const std::string& path,
+                                const std::string& key,
+                                const T& data,
+                                DumpMode mode = DumpMode::Create);
+
+///
+/// \brief Write scalar/string to an Attribute of an existing DataSet in an open HDF5 file.
+///
+/// \param file Writeable opened file
+/// \param dataset Opened DataSet
+/// \param key Path of the Attribute
+/// \param data Data to write
+/// \param mode Write mode
+///
+/// \return the newly created Attribute
+///
+template <class T>
+inline Attribute dump_attribute(File& file,
+                                DataSet& dataset,
+                                const std::string& key,
+                                const T& data,
+                                DumpMode mode = DumpMode::Create);
+
+///
+/// \brief Load an Attribute in an open HDF5 file to an object (templated).
+///
+/// \param file opened File (has to be writeable)
+/// \param path Path to the DataSet
+/// \param key Path of the Attribute
+///
+/// \return the read data
+///
+template <class T>
+inline T load_attribute(const File& file, const std::string& path, const std::string &key);
+
+///
+/// \brief Load an Attribute in an open HDF5 file to an object (templated).
+///
+/// \param file opened File (has to be writeable)
+/// \param dataset Opened DataSet
+/// \param key Path of the Attribute
+///
+/// \return the read data
+///
+template <class T>
+inline T load_attribute(const File& file, const DataSet& dataset, const std::string &key);
 
 }  // namespace H5Easy
 

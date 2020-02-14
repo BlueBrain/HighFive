@@ -27,6 +27,19 @@ inline Exception error(const File& file,
     return Exception(ss.str());
 }
 
+// Generate error-stream and return "Exception" (not yet thrown).
+inline Exception error(const File& file,
+                       const DataSet&,
+                       const std::string& key,
+                       const std::string& message)
+{
+    std::ostringstream ss;
+    ss << message << std::endl
+       << "Key: " << key << std::endl
+       << "Filename: " << file.getName() << std::endl;
+    return Exception(ss.str());
+}
+
 ///
 /// Get the parent of a path.
 /// For example for ``path = "/path/to/dataset"`` this function returns
