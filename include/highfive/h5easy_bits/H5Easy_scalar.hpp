@@ -116,11 +116,10 @@ struct load_impl
 template <class T, class E = void>
 struct dump_attr_impl
 {
-    static Attribute run(File& file, DataSet& dataset, const std::string& key, const T& data)
+    static Attribute run(DataSet& dataset, const std::string& key, const T& data)
     {
         Attribute attribute = dataset.createAttribute<T>(key, DataSpace::From(data));
         attribute.write(data);
-        file.flush();
         return attribute;
     }
 };
@@ -129,15 +128,14 @@ struct dump_attr_impl
 template <class T, class E = void>
 struct overwrite_attr_impl
 {
-    static Attribute run(File& file, DataSet& dataset, const std::string& key, const T& data)
+    static Attribute run(DataSet& dataset, const std::string& key, const T& data)
     {
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getElementCount() != 1) {
-            throw detail::error(file, dataset, key, "Existing field not a scalar");
+            throw detail::error(key, "Existing field not a scalar");
         }
         attribute.write(data);
-        file.flush();
         return attribute;
     }
 };
@@ -161,7 +159,7 @@ struct load_impl
 template <class T, class E = void>
 struct load_attr_impl
 {
-    static T run(const File& file, DataSet& dataset, const std::string& key)
+    static T run(DataSet& dataset, const std::string& key)
     {
         Attribute attribute = dataset.getAttribute(key);
         T data;
@@ -211,26 +209,25 @@ inline T load(const File& file, const std::string& path)
 
 // front-end
 template <class T>
-inline Attribute dump_attribute(File& file,
-                                DataSet& dataset,
+inline Attribute dump_attribute(DataSet& dataset,
                                 const std::string& key,
                                 const T& data,
                                 DumpMode mode)
 {
     if (!dataset.hasAttribute(key)) {
-        return detail::scalar::dump_attr_impl<T>::run(file, dataset, key, data);
+        return detail::scalar::dump_attr_impl<T>::run(dataset, key, data);
     } else if (mode == DumpMode::Overwrite) {
-        return detail::scalar::overwrite_attr_impl<T>::run(file, dataset, key, data);
+        return detail::scalar::overwrite_attr_impl<T>::run(dataset, key, data);
     } else {
-        throw detail::error(file, dataset, key, "Attribute already exists");
+        throw detail::error(key, "Attribute already exists");
     }
 }
 
 // front-end
 template <class T>
-inline T load_attribute(const File& file, DataSet& dataset, const std::string& key)
+inline T load_attribute(DataSet& dataset, const std::string& key)
 {
-    return detail::load_attr_impl<T>::run(file, dataset, key);
+    return detail::load_attr_impl<T>::run(dataset, key);
 }
 
 // front-end
@@ -238,7 +235,7 @@ template <class T>
 inline T load_attribute(const File& file, const std::string& path, const std::string& key)
 {
     DataSet dataset = file.getDataSet(path);
-    return load_attribute<T>(file, dataset, key);
+    return load_attribute<T>(dataset, key);
 }
 
 // front-end
@@ -250,7 +247,9 @@ inline Attribute dump_attribute(File& file,
                                 DumpMode mode)
 {
     DataSet dataset = file.getDataSet(path);
-    return dump_attribute(file, dataset, key, data, mode);
+    Attribute attribute = dump_attribute(dataset, key, data, mode);
+    file.flush();
+    return attribute;
 }
 
 }  // namespace H5Easy

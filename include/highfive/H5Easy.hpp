@@ -259,7 +259,7 @@ inline T load_attribute(const File& file, const std::string& path, const std::st
 /// \return the read data
 ///
 template <class T>
-inline T load_attribute(const File& file, const DataSet& dataset, const std::string &key);
+inline T load_attribute(const DataSet& dataset, const std::string &key);
 
 }  // namespace H5Easy
 

@@ -28,15 +28,11 @@ inline Exception error(const File& file,
 }
 
 // Generate error-stream and return "Exception" (not yet thrown).
-inline Exception error(const File& file,
-                       const DataSet&,
-                       const std::string& key,
+inline Exception error(const std::string& key,
                        const std::string& message)
 {
     std::ostringstream ss;
-    ss << message << std::endl
-       << "Key: " << key << std::endl
-       << "Filename: " << file.getName() << std::endl;
+    ss << key << ": " << message << std::endl;
     return Exception(ss.str());
 }
 
