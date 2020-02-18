@@ -63,11 +63,18 @@ int main(void) {
 
         // Create a more complex type with automatic alignment. For this the
         // type alignment is more complex.
-        CompoundType v_aligned({
-                                   {"u1", AtomicType<unsigned char>{}},
-                                   {"u2", AtomicType<short>{}},
-                                   {"u3", AtomicType<unsigned long long>{}}
-        });
+        // Use the constructor accepting a std::vector this time
+        std::vector<CompoundType::member_def> v_aligned_methods{
+            {"u1", AtomicType<unsigned char>{}},
+            {"u2", AtomicType<short>{}},
+            {"u3", AtomicType<unsigned long long>{}}};
+        CompoundType v_aligned(v_aligned_methods);
+        // introspect the compound type
+        std::cout << "v_aligned size: " << v_aligned.getSize();
+        for (const auto& member : v_aligned.getMembers()) {
+            std::cout << "  field " << member.name << " offset: " << member.offset
+                      << std::endl;
+        }
         v_aligned.commit(file, "new_type2_aligned");
 
         // Create a more complex type with a fully packed alignment. The

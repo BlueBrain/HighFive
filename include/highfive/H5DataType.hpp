@@ -117,7 +117,7 @@ public:
     void commit(const Object& object, const std::string& name) const;
 
     /// \brief Get read access to the CompoundType members
-    const std::vector<member_def>& get_members() const {
+    const std::vector<member_def>& getMembers() const noexcept {
         return members;
     }
 
