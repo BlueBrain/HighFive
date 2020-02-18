@@ -108,7 +108,7 @@ public:
         create(size);
     }
 
-    CompoundType(std::initializer_list<member_def> t_members, size_t size = 0)
+    CompoundType(const std::initializer_list<member_def>& t_members, size_t size = 0)
         : CompoundType(std::vector<member_def>({t_members}), size) {}
 
     /// \brief Commit datatype into the given Object
