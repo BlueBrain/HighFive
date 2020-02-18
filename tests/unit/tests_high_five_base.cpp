@@ -1170,11 +1170,11 @@ typedef struct {
 namespace HighFive {
     CompoundType create_compound_csl1() {
         auto t2 = AtomicType<int>();
-        CompoundType t1;
-        t1.addMember("m1", AtomicType<int>{})
-          .addMember("m2", AtomicType<int>{})
-          .addMember("m3", t2);
-        t1.autoCreate();
+        CompoundType t1({
+                            {"m1", AtomicType<int>{}},
+                            {"m2", AtomicType<int>{}},
+                            {"m3", t2}
+        });
 
         return t1;
     }
@@ -1182,9 +1182,9 @@ namespace HighFive {
     CompoundType create_compound_csl2() {
         CompoundType t1 = create_compound_csl1();
 
-        CompoundType t2;
-        t2.addMember("csl1", t1);
-        t2.autoCreate();
+        CompoundType t2({
+            {"csl1", t1}
+        });
 
         return t2;
     }

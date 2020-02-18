@@ -17,17 +17,23 @@ typedef struct {
     unsigned long long c;
 } csl;
 
+bool operator==(csl x, csl y) {
+    return x.a == y.a && x.b == y.b && x.c == y.c;
+}
+
+bool operator!=(csl x, csl y) {
+    return !(x == y);
+}
 
 // Tell HighFive how to create the HDF5 datatype for this base type by
 // specialising the create_datatype template
 namespace HighFive {
 template <> inline DataType create_datatype<csl>() {
-    CompoundType v_aligned;
-    v_aligned.addMember("u1", AtomicType<unsigned char>{});
-    v_aligned.addMember("u2", AtomicType<short>{});
-    v_aligned.addMember("u3", AtomicType<unsigned long long>{});
-    v_aligned.autoCreate();
-
+    CompoundType v_aligned({
+                               {"u1", AtomicType<unsigned char>{}},
+                               {"u2", AtomicType<short>{}},
+                               {"u3", AtomicType<unsigned long long>{}}
+    });
     return std::move(v_aligned);
 }
 }
@@ -40,37 +46,38 @@ int main(void) {
 
         // Create a simple compound type with automatic alignment of the
         // members. For this the type alignment is trivial.
-        CompoundType t;
-        t.addMember("real", AtomicType<int>{});
-        t.addMember("imag", AtomicType<int>{});
-        t.autoCreate();
+        std::vector<CompoundType::member_def> t_members({
+            {"real", AtomicType<int>{}},
+            {"imag", AtomicType<int>{}}
+        });
+        CompoundType t(t_members);
         t.commit(file, "new_type1");
 
         // Create a complex nested datatype with manual alignment
-        CompoundType u;
-        u.addMember("u1", t, 0);
-        u.addMember("u2", t, 9);
-        u.addMember("u3", AtomicType<int>{}, 20);
-        u.manualCreate(26);
+        CompoundType u({
+                           {"u1", t, 0},
+                           {"u2", t, 9},
+                           {"u3", AtomicType<int>{}, 20}
+        }, 26);
         u.commit(file, "new_type3");
 
         // Create a more complex type with automatic alignment. For this the
         // type alignment is more complex.
-        CompoundType v_aligned;
-        v_aligned.addMember("u1", AtomicType<unsigned char>{});
-        v_aligned.addMember("u2", AtomicType<short>{});
-        v_aligned.addMember("u3", AtomicType<unsigned long long>{});
-        v_aligned.autoCreate();
+        CompoundType v_aligned({
+                                   {"u1", AtomicType<unsigned char>{}},
+                                   {"u2", AtomicType<short>{}},
+                                   {"u3", AtomicType<unsigned long long>{}}
+        });
         v_aligned.commit(file, "new_type2_aligned");
 
         // Create a more complex type with a fully packed alignment. The
         // equivalent type is created with a standard struct alignment in the
         // implementation of HighFive::create_datatype above
-        CompoundType v_packed;
-        v_packed.addMember("u1", AtomicType<unsigned char>{}, 0);
-        v_packed.addMember("u2", AtomicType<short>{}, 1);
-        v_packed.addMember("u3", AtomicType<unsigned long long>{}, 3);
-        v_packed.manualCreate(11);
+        CompoundType v_packed({
+                                  {"u1", AtomicType<unsigned char>{}, 0},
+                                  {"u2", AtomicType<short>{}, 1},
+                                  {"u3", AtomicType<unsigned long long>{}, 3}
+        }, 11);
         v_packed.commit(file, "new_type2_packed");
 
 
@@ -89,17 +96,24 @@ int main(void) {
         std::vector<csl> result;
         dataset.select({0}, {2}).read(result);
 
-        for(const auto& el : result) {
-            std::cout << "CSL:" << std::endl;
-            std::cout << "  " << el.a << std::endl;
-            std::cout << "  " << el.b << std::endl;
-            std::cout << "  " << el.c << std::endl;
+        for(size_t i = 0; i < data.size(); ++i) {
+            if (result[i] != data[i]) {
+                std::cout << "result[" << i << "]:" << std::endl;
+                std::cout << "    " << result[i].a << std::endl;
+                std::cout << "    " << result[i].b << std::endl;
+                std::cout << "    " << result[i].c << std::endl;
+                std::cout << "data[" << i << "]:" << std::endl;
+                std::cout << "    " << data[i].a << std::endl;
+                std::cout << "    " << data[i].b << std::endl;
+                std::cout << "    " << data[i].c << std::endl;
+            }
         }
 
 
     } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
+        return 1;
     }
 
     return 0; // successfully terminated

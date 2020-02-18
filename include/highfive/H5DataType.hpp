@@ -98,44 +98,38 @@ public:
     struct member_def {
         std::string name;
         DataType base_type;
-        size_t offset;
+        size_t offset = 0;
     };
 
-    ///
-    /// \brief Add new members into the compound
-    /// \param init initializer_list of member_def
-    CompoundType& addMembers(const std::initializer_list<member_def>& init)
-    {
-        member_list = init;
-        return *this;
+    CompoundType(const CompoundType& other) = default;
+
+    CompoundType(std::vector<member_def> t_members, size_t size = 0)
+      : members(std::move(t_members)) {
+        create(size);
     }
 
-    ///
-    /// \brief Add a new member into the data type
-    /// \param name Name of the member
-    /// \param base_type DataType of the member
-    /// \param offset Position of this member inside the type (optional when using autoCreate)
-    CompoundType& addMember(const std::string& name, const DataType& base_type, size_t offset = 0);
+    CompoundType(std::initializer_list<member_def> t_members, size_t size = 0)
+        : CompoundType(std::vector<member_def>({t_members}), size) {}
 
-    ///
-    /// \brief Automatically create the type from the set of members
-    ///        using standard struct alignment.
-    void autoCreate();
-
-    ///
-    /// \brief Manually create the type from the members (including their offsets).
-    /// \param total_size Total size of the datatype in bytes.
-    void manualCreate(size_t total_size);
-
-    ///
     /// \brief Commit datatype into the given Object
     /// \param object Location to commit object into
     /// \param name Name to give the datatype
-    void commit(const Object& object, const std::string& name);
+    void commit(const Object& object, const std::string& name) const;
+
+    /// \brief Get read access to the CompoundType members
+    const std::vector<member_def>& get_members() const {
+        return members;
+    }
 
 private:
-    // Store the list of currently added members (name, hid, offset)
-    std::vector<member_def> member_list;
+
+    /// A vector of the member_def members of this CompoundType
+    std::vector<member_def> members;
+
+    /// \brief Automatically create the type from the set of members
+    ///        using standard struct alignment.
+    /// \param size Total size of data type
+    void create(size_t size = 0);
 };
 
 
