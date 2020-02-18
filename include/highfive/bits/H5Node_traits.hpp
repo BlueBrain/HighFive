@@ -122,6 +122,11 @@ class NodeTraits {
     bool exist(const std::string& node_name) const;
 
     ///
+    /// \brief unlink the given dataset or group 
+    /// \param node_name dataset/group name to unlink
+    void unlink(const std::string& node_name) const;
+
+    ///
     /// \brief Returns the kind of link of the given name (soft, hard...)
     /// \param node_name The entry to check, path relative to the current group
     LinkType getLinkType(const std::string& node_name) const;
