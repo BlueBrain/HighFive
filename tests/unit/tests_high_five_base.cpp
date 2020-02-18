@@ -626,6 +626,32 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
             BOOST_CHECK_EQUAL(my_nested[i][j], out_nested[i][j]);
         }
     }
+
+    // Plain c arrays. 1D
+    {
+        int int_c_array[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        DataSet ds_int2 = file.createDataSet("/TmpCArrayInt", int_c_array);
+
+        decltype(int_c_array) int_c_array_out;
+        ds_int2.read(int_c_array_out);
+        for (size_t i = 0; i < 10; ++i) {
+            BOOST_CHECK_EQUAL(int_c_array[i], int_c_array_out[i]);
+        }
+    }
+
+    // Plain c arrays. 2D
+    {
+        char char_c_2darray[][3] = {"aa", "bb", "cc", "12"};
+        DataSet ds_char2 = file.createDataSet("/TmpCArray2dchar", char_c_2darray);
+
+        decltype(char_c_2darray) char_c_2darray_out;
+        ds_char2.read(char_c_2darray_out);
+        for (size_t i = 0; i < 4; ++i) {
+            for (size_t j = 0; j < 3; ++j) {
+                BOOST_CHECK_EQUAL(char_c_2darray[i][j], char_c_2darray_out[i][j]);
+            }
+        }
+    }
 }
 
 

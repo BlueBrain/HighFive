@@ -104,6 +104,21 @@ std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
     return dims;
 }
 
+// determine recursively the size of each dimension of a N dimension vector
+template <typename T, std::size_t N>
+void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
+    dims.push_back(N);
+    get_dim_vector_rec(vec[0], dims);
+}
+
+template <typename T, std::size_t N>
+std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
+    std::vector<size_t> dims;
+    get_dim_vector_rec(vec, dims);
+    return dims;
+}
+
+
 // determine at compile time recursively the basic type of the data
 template <typename T>
 struct type_of_array {
