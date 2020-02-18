@@ -98,7 +98,7 @@ public:
     struct member_def {
         std::string name;
         DataType base_type;
-        size_t offset = 0;
+        size_t offset;
     };
 
     CompoundType(const CompoundType& other) = default;
@@ -108,7 +108,7 @@ public:
         create(size);
     }
 
-    CompoundType(std::initializer_list<member_def> t_members, size_t size = 0)
+    CompoundType(const std::initializer_list<member_def>& t_members, size_t size = 0)
         : CompoundType(std::vector<member_def>({t_members}), size) {}
 
     /// \brief Commit datatype into the given Object
