@@ -30,6 +30,10 @@ inline DataTypeClass DataType::getClass() const {
     return convert_type_class(H5Tget_class(_hid));
 }
 
+inline size_t DataType::getSize() const {
+    return H5Tget_size(_hid);
+}
+
 inline bool DataType::operator==(const DataType& other) const {
     return (H5Tequal(_hid, other._hid) > 0);
 }
@@ -38,20 +42,8 @@ inline bool DataType::operator!=(const DataType& other) const {
     return !(*this == other);
 }
 
-inline size_t DataType::getSize() const {
-    if(!isValid()) {
-        throw DataTypeException("Cannot get size of a DataType before creation\
-        (try calling autoCreate/manualCreate if this is a CompoundType).");
-    }
-    return H5Tget_size(_hid);
-}
-
 inline bool DataType::isVariableStr() const {
-    if(!isValid()) {
-        throw DataTypeException("Cannot test a DataType before creation\
-        (try calling autoCreate/manualCreate if this is a CompoundType).");
-    }
-    return (H5Tis_variable_str(_hid) > 0);
+    return H5Tis_variable_str(_hid) > 0;
 }
 
 inline std::string DataType::string() const {
@@ -174,6 +166,10 @@ inline void CompoundType::create(size_t size) {
         // Do a first pass to find the total size of the compound datatype
         for (auto& member: members) {
             size_t member_size = H5Tget_size(member.base_type.getId());
+            if (member_size == 0) {
+                throw DataTypeException("Cannot get size of DataType with hid: " +
+                                        std::to_string(member.base_type.getId()));
+            }
 
             // Set the offset of this member within the struct according to the
             // standard alignment rules
