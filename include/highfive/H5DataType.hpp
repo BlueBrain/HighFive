@@ -96,9 +96,13 @@ public:
     ///
     /// \brief Use for defining a sub-type of compound type
     struct member_def {
+        member_def(std::string name, DataType base_type, size_t offset = 0)
+          : name(std::move(name))
+          , base_type(std::move(base_type))
+          , offset(offset) {}
         std::string name;
         DataType base_type;
-        size_t offset{};
+        size_t offset;
     };
 
     CompoundType(const CompoundType& other) = default;
