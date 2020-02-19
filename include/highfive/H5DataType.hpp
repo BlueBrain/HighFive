@@ -98,7 +98,7 @@ public:
     struct member_def {
         std::string name;
         DataType base_type;
-        size_t offset;
+        size_t offset{};
     };
 
     CompoundType(const CompoundType& other) = default;
