@@ -96,10 +96,10 @@ public:
     ///
     /// \brief Use for defining a sub-type of compound type
     struct member_def {
-        member_def(std::string name, DataType base_type, size_t offset = 0)
-          : name(std::move(name))
-          , base_type(std::move(base_type))
-          , offset(offset) {}
+        member_def(std::string t_name, DataType t_base_type, size_t t_offset = 0)
+          : name(std::move(t_name))
+          , base_type(std::move(t_base_type))
+          , offset(t_offset) {}
         std::string name;
         DataType base_type;
         size_t offset;
