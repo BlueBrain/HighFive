@@ -137,6 +137,22 @@ struct load_impl
     }
 };
 
+// universal front-end (to minimise double code)
+template <class T>
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    DumpMode mode)
+{
+    if (!file.exist(path)) {
+        return detail::eigen::dump_impl(file, path, data);
+    } else if (mode == DumpMode::Overwrite) {
+        return detail::eigen::overwrite_impl(file, path, data);
+    } else {
+        throw detail::error(file, path, "H5Easy: path already exists");
+    }
+}
+
 }  // namespace eigen
 
 // front-end
@@ -161,13 +177,7 @@ inline DataSet dump(File& file,
                     const Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>& data,
                     DumpMode mode)
 {
-    if (!file.exist(path)) {
-        return detail::eigen::dump_impl(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::eigen::overwrite_impl(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
+    return detail::eigen::dump(file, path, data, mode);
 }
 
 // front-end
@@ -177,13 +187,7 @@ inline DataSet dump(File& file,
                     const Eigen::Ref<T>& data,
                     DumpMode mode)
 {
-    if (!file.exist(path)) {
-        return detail::eigen::dump_impl(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::eigen::overwrite_impl(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
+    return detail::eigen::dump(file, path, data, mode);
 }
 
 // front-end
@@ -193,13 +197,7 @@ inline DataSet dump(File& file,
                     const Eigen::Map<T>& data,
                     DumpMode mode)
 {
-    if (!file.exist(path)) {
-        return detail::eigen::dump_impl(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::eigen::overwrite_impl(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
+    return detail::eigen::dump(file, path, data, mode);
 }
 
 }  // namespace H5Easy
