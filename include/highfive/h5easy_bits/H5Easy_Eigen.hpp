@@ -22,14 +22,14 @@ namespace detail {
 namespace eigen {
 
 // return the shape of the "Eigen::Matrix" as size 1 or 2 "std::vector<size_t>"
-template <class C>
-inline std::vector<size_t> shape(const C& data)
+template <class T>
+inline std::vector<size_t> shape(const T& data)
 {
-    if (std::decay_t<C>::RowsAtCompileTime == 1) {
+    if (std::decay_t<T>::RowsAtCompileTime == 1) {
         return {static_cast<size_t>(data.cols())};
     }
 
-    if (std::decay_t<C>::ColsAtCompileTime == 1) {
+    if (std::decay_t<T>::ColsAtCompileTime == 1) {
         return {static_cast<size_t>(data.rows())};
     }
 
@@ -65,17 +65,17 @@ inline std::vector<Eigen::Index> shape(const File& file,
 
 // write to open DataSet of the correct size
 // (use Eigen::Ref to convert to RowMajor; no action if no conversion is needed)
-template <class C>
-inline void write(DataSet& dataset, const C& data)
+template <class T>
+inline void write(DataSet& dataset, const T& data)
 {
     Eigen::Ref<
         const Eigen::Matrix<
-            typename std::decay_t<C>::Scalar,
-            std::decay_t<C>::RowsAtCompileTime,
-            std::decay_t<C>::ColsAtCompileTime,
-            std::decay_t<C>::ColsAtCompileTime==1?Eigen::ColMajor:Eigen::RowMajor,
-            std::decay_t<C>::MaxRowsAtCompileTime,
-            std::decay_t<C>::MaxColsAtCompileTime>,
+            typename std::decay_t<T>::Scalar,
+            std::decay_t<T>::RowsAtCompileTime,
+            std::decay_t<T>::ColsAtCompileTime,
+            std::decay_t<T>::ColsAtCompileTime==1?Eigen::ColMajor:Eigen::RowMajor,
+            std::decay_t<T>::MaxRowsAtCompileTime,
+            std::decay_t<T>::MaxColsAtCompileTime>,
         0,
         Eigen::InnerStride<1>> row_major(data);
 
@@ -83,12 +83,12 @@ inline void write(DataSet& dataset, const C& data)
 }
 
 // create DataSet and write data
-template <class C>
+template <class T>
 static DataSet dump_impl(File& file,
                          const std::string& path,
-                         const C& data)
+                         const T& data)
 {
-    using type = typename std::decay_t<C>::Scalar;
+    using type = typename std::decay_t<T>::Scalar;
     detail::createGroupsToDataSet(file, path);
     DataSet dataset = file.createDataSet<type>(path, DataSpace(shape(data)));
     detail::eigen::write(dataset, data);
@@ -97,10 +97,10 @@ static DataSet dump_impl(File& file,
 }
 
 // replace data of an existing DataSet of the correct size
-template <class C>
+template <class T>
 static DataSet overwrite_impl(File& file,
                               const std::string& path,
-                              const C& data)
+                              const T& data)
 {
     DataSet dataset = file.getDataSet(path);
     if (dataset.getDimensions() != shape(data)) {
@@ -175,6 +175,22 @@ template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const Eigen::Ref<T>& data,
+                    DumpMode mode)
+{
+    if (!file.exist(path)) {
+        return detail::eigen::dump_impl(file, path, data);
+    } else if (mode == DumpMode::Overwrite) {
+        return detail::eigen::overwrite_impl(file, path, data);
+    } else {
+        throw detail::error(file, path, "H5Easy: path already exists");
+    }
+}
+
+// front-end
+template <class T>
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const Eigen::Map<T>& data,
                     DumpMode mode)
 {
     if (!file.exist(path)) {
