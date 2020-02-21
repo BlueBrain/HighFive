@@ -207,5 +207,6 @@ inline T load(const File& file, const std::string& path);
 #include "h5easy_bits/H5Easy_vector.hpp"
 #include "h5easy_bits/H5Easy_Eigen.hpp"
 #include "h5easy_bits/H5Easy_xtensor.hpp"
+#include "h5easy_bits/H5Easy_opencv.hpp"
 
 #endif  // H5EASY_HPP
