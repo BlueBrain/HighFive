@@ -28,31 +28,32 @@ inline std::vector<size_t> shape(const T& data)
     return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
 }
 
-
-// load opencv-object from DataSet
-template <class T>
+template<typename _Tp, template<typename> class T>
 struct load_impl
 {
-    static T run(const File& file, const std::string& path)
+    static T<_Tp> run(const File& file, const std::string& path)
     {
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
-        T data(dims[0], dims[1]);
-        dataset.read(reinterpret_cast<double*>(data.data));
-        //                             ^ ! Shouldn't be explicitly double of course TODO.
+        T<_Tp> data(dims[0], dims[1]);
+        dataset.read(reinterpret_cast<_Tp*>(data.data)); // idem v, choose
+        //dataset.read(data.template ptr<_Tp>()); // idem ^, choose
         return data;
     }
 };
 
+
+
+
 }  // namespace opencv
 
 // front-end
-template <class T>
-struct load_impl<cv::Mat_<T>>
+template <class _Tp>
+struct load_impl<cv::Mat_<_Tp>>
 {
-    static cv::Mat_<T> run(const File& file, const std::string& path)
+    static cv::Mat_<_Tp> run(const File& file, const std::string& path)
     {
-        return detail::opencv::load_impl<cv::Mat_<T>>::run(file, path);
+        return detail::opencv::load_impl<_Tp, cv::Mat_>::run(file, path);
     }
 };
 
