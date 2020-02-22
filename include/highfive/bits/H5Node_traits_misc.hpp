@@ -203,7 +203,7 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
 
 template <typename Derivate>
 inline void NodeTraits<Derivate>::unlink(const std::string& node_name) const {
-    htri_t val = H5Ldelete(static_cast<const Derivate*>(this)->getId(),
+    herr_t val = H5Ldelete(static_cast<const Derivate*>(this)->getId(),
                            node_name.c_str(), H5P_DEFAULT);
 
     if (val < 0) {
