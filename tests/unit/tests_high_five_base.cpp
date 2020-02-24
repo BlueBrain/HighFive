@@ -1289,6 +1289,39 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     }
 }
 
+enum Position: int {
+    FIRST = 1,
+    SECOND = 2,
+    THIRD = 3,
+    LAST = -1,
+};
+
+namespace HighFive {
+    EnumType<int> create_enum_position() {
+        return EnumType<int>({{"FIRST", Position::FIRST},
+                              {"SECOND", Position::SECOND},
+                              {"THIRD", Position::THIRD},
+                              {"LAST", Position::LAST}},
+                             AtomicType<int>{});
+    }
+
+    template<>
+    DataType create_datatype<Position>() {
+        return create_enum_position();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveEnum) {
+    const std::string FILE_NAME("enum_test.h5");
+    const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    auto e1 = create_enum_position();
+    e1.commit(file, "my_enum");
+}
+
 #ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(HighFiveEigen) {
     const std::string FILE_NAME("test_eigen.h5");
