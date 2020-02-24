@@ -1314,12 +1314,21 @@ namespace HighFive {
 BOOST_AUTO_TEST_CASE(HighFiveEnum) {
     const std::string FILE_NAME("enum_test.h5");
     const std::string DATASET_NAME1("/a");
-    const std::string DATASET_NAME2("/b");
 
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     auto e1 = create_enum_position();
     e1.commit(file, "my_enum");
+
+    auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(1), e1);
+    dataset.write(Position::FIRST);
+
+    file.flush();
+
+    Position result;
+    dataset.select(ElementSet({0})).read(result);
+
+    BOOST_CHECK_EQUAL(result, Position::FIRST);
 }
 
 #ifdef H5_USE_EIGEN
