@@ -26,21 +26,21 @@ class Selection : public SliceTraits<Selection> {
     /// \brief getSpace
     /// \return Dataspace associated with this selection
     ///
-    DataSpace getSpace() const;
+    DataSpace getSpace() const noexcept;
 
     ///
     /// \brief getMemSpace
     /// \return Dataspace associated with the memory representation of this
     /// selection
     ///
-    DataSpace getMemSpace() const;
+    DataSpace getMemSpace() const noexcept;
 
     ///
     /// \brief getDataSet
     /// \return parent dataset of this selection
     ///
-    DataSet& getDataset();
-    const DataSet& getDataset() const;
+    DataSet& getDataset() noexcept;
+    const DataSet& getDataset() const noexcept;
 
   private:
     Selection(const DataSpace& memspace, const DataSpace& file_space,

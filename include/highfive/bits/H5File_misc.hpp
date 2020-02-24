@@ -75,7 +75,7 @@ inline File::File(const std::string& filename, unsigned openFlags,
     }
 }
 
-inline const std::string& File::getName() const {
+inline const std::string& File::getName() const noexcept {
     return _filename;
 }
 

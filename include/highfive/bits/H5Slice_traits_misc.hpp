@@ -160,10 +160,12 @@ SliceTraits<Derivate>::select(const ElementSet& elements) const {
                      details::get_dataset(static_cast<const Derivate*>(this)));
 }
 
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
     typedef typename std::remove_const<T>::type type_no_const;
+    typedef typename details::type_of_array<T>::type element_type;
 
     type_no_const& nocv_array = const_cast<type_no_const&>(array);
 
@@ -179,40 +181,30 @@ inline void SliceTraits<Derivate>::read(T& array) const {
         throw DataSpaceException(ss.str());
     }
 
-    // Create mem datatype
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
-
-    // Apply pre-read conversions
+    // Apply pre read convertions
     details::data_converter<type_no_const> converter(nocv_array, mem_space);
 
-    if (H5Dread(
-            details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-            array_datatype.getId(),
-            details::get_memspace_id((static_cast<const Derivate*>(this))),
-            space.getId(), H5P_DEFAULT,
-            static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Read: ");
-    }
-
+    read((element_type*)(converter.transform_read(nocv_array)));
     // re-arrange results
     converter.process_result(array);
 }
+
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T* array) const {
 
+    typedef typename details::type_of_array<T>::type element_type;
+
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
     // Create mem datatype
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     if (H5Dread(
             details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-            array_datatype.getId(),
+            mem_datatype.getId(),
             details::get_memspace_id((static_cast<const Derivate*>(this))),
             space.getId(), H5P_DEFAULT,
             static_cast<void*>(array)) < 0) {
@@ -221,10 +213,13 @@ inline void SliceTraits<Derivate>::read(T* array) const {
     }
 }
 
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
+
     typedef typename std::remove_const<T>::type type_no_const;
+    typedef typename details::type_of_array<type_no_const>::type element_type;
 
     type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
 
@@ -239,34 +234,28 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
 
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
-
-    // Apply pre write conversions
+    // Apply pre write convertions
     details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
 
-    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 array_datatype.getId(),
-                 details::get_memspace_id((static_cast<Derivate*>(this))),
-                 space.getId(), H5P_DEFAULT,
-                 static_cast<const void*>(
-                     converter.transform_write(nocv_buffer))) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Write: ");
-    }
+    write((const element_type*)(converter.transform_write(nocv_buffer)));
 }
+
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T* buffer) {
 
+    typedef typename std::remove_const<T>::type type_no_const;
+    typedef typename details::type_of_array<type_no_const>::type element_type;
+
     DataSpace space = static_cast<const Derivate*>(this)->getSpace();
     DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
 
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    // Create mem datatype
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 array_datatype.getId(),
+                 mem_datatype.getId(),
                  details::get_memspace_id((static_cast<Derivate*>(this))),
                  space.getId(), H5P_DEFAULT,
                  static_cast<const void*>(buffer)) < 0) {
@@ -274,6 +263,7 @@ inline void SliceTraits<Derivate>::write(const T* buffer) {
             "Error during HDF5 Write: ");
     }
 }
-}
+
+}  // namespace HighFive
 
 #endif // H5SLICE_TRAITS_MISC_HPP

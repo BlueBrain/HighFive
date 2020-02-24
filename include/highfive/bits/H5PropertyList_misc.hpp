@@ -57,17 +57,17 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
 }  // namespace
 
 template <PropertyType T>
-inline PropertyList<T>::PropertyList()
+inline PropertyList<T>::PropertyList() noexcept
     : _hid(H5P_DEFAULT) {}
 
 template <PropertyType T>
-inline PropertyList<T>::PropertyList(PropertyList<T>&& other)
+inline PropertyList<T>::PropertyList(PropertyList<T>&& other) noexcept
     : _hid(other._hid) {
     other._hid = H5P_DEFAULT;
 }
 
 template <PropertyType T>
-inline PropertyList<T>& PropertyList<T>::operator=(PropertyList<T>&& other) {
+inline PropertyList<T>& PropertyList<T>::operator=(PropertyList<T>&& other) noexcept {
     // This code handles self-assignment without ifs
     const auto hid = other._hid;
     other._hid = H5P_DEFAULT;

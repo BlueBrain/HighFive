@@ -52,9 +52,11 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
-    return createDataSet(dataset_name, space, AtomicType<Type>(), createProps,
-                         accessProps);
+                                    const DataSetAccessProps& accessProps)
+{
+    return createDataSet(dataset_name, space,
+                         create_and_check_datatype<Type>(),
+                         createProps, accessProps);
 }
 
 template <typename Derivate>
@@ -66,8 +68,9 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        AtomicType<typename details::type_of_array<T>::type>(), createProps,
-        accessProps);
+        create_and_check_datatype<typename details::type_of_array<T>::type>(),
+        createProps, accessProps);
+
     ds.write(data);
     return ds;
 }

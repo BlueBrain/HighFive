@@ -45,6 +45,13 @@ class DataType : public Object {
     bool operator!=(const DataType& other) const;
 
     ///
+    /// \brief Test if the type is a variable length string
+    ///
+    /// The datatype must already have been created or an exception will be
+    /// thrown
+    bool isVariableStr() const;
+
+    ///
     /// \brief Return the fundamental type.
     ///
     DataTypeClass getClass() const;
@@ -80,6 +87,66 @@ class AtomicType : public DataType {
 
     typedef T basic_type;
 };
+
+///
+/// \brief Create a compound HDF5 datatype
+///
+class CompoundType : public DataType {
+public:
+    ///
+    /// \brief Use for defining a sub-type of compound type
+    struct member_def {
+        member_def(std::string t_name, DataType t_base_type, size_t t_offset = 0)
+          : name(std::move(t_name))
+          , base_type(std::move(t_base_type))
+          , offset(t_offset) {}
+        std::string name;
+        DataType base_type;
+        size_t offset;
+    };
+
+    CompoundType(const CompoundType& other) = default;
+
+    CompoundType(std::vector<member_def> t_members, size_t size = 0)
+      : members(std::move(t_members)) {
+        create(size);
+    }
+
+    CompoundType(const std::initializer_list<member_def>& t_members, size_t size = 0)
+        : CompoundType(std::vector<member_def>({t_members}), size) {}
+
+    /// \brief Commit datatype into the given Object
+    /// \param object Location to commit object into
+    /// \param name Name to give the datatype
+    void commit(const Object& object, const std::string& name) const;
+
+    /// \brief Get read access to the CompoundType members
+    const std::vector<member_def>& getMembers() const noexcept {
+        return members;
+    }
+
+private:
+
+    /// A vector of the member_def members of this CompoundType
+    std::vector<member_def> members;
+
+    /// \brief Automatically create the type from the set of members
+    ///        using standard struct alignment.
+    /// \param size Total size of data type
+    void create(size_t size = 0);
+};
+
+
+/// \brief Create a DataType instance representing type T
+template <typename T>
+DataType create_datatype();
+
+
+/// \brief Create a DataType instance representing type T and perform a sanity check on its size
+template <typename T>
+DataType create_and_check_datatype();
+
+
 }
 
 #include "bits/H5DataType_misc.hpp"

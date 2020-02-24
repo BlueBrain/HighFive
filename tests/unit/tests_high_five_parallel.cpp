@@ -26,8 +26,8 @@
 using namespace HighFive;
 
 
-int argc = boost::unit_test::framework::master_test_suite().argc;
-char** argv = boost::unit_test::framework::master_test_suite().argv;
+static int argc = boost::unit_test::framework::master_test_suite().argc;
+static char** argv = boost::unit_test::framework::master_test_suite().argv;
 
 struct MpiFixture {
     MpiFixture() { MPI_Init(&argc, &argv); }
@@ -49,9 +49,9 @@ void selectionArraySimpleTestParallel() {
     std::ostringstream filename;
     filename << "h5_rw_select_parallel_test_" << typeNameHelper<T>() << "_test.h5";
 
-    const size_t size_x = static_cast<size_t>(mpi_size);
-    const size_t offset_x = static_cast<size_t>(mpi_rank);
-    const size_t count_x = static_cast<size_t>(mpi_size - mpi_rank);
+    const auto size_x = static_cast<size_t>(mpi_size);
+    const auto offset_x = static_cast<size_t>(mpi_rank);
+    const auto count_x = static_cast<size_t>(mpi_size - mpi_rank);
 
     const std::string DATASET_NAME("dset");
 
