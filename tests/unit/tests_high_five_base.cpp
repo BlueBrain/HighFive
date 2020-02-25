@@ -1289,46 +1289,89 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     }
 }
 
-enum Position: int {
+enum Position {
     FIRST = 1,
     SECOND = 2,
     THIRD = 3,
     LAST = -1,
 };
 
+enum class Direction: signed char {
+    FORWARD = 1,
+    BACKWARD = -1,
+    LEFT = -2,
+    RIGHT = 2,
+};
+
+// This is only for boost test
+std::ostream& operator<<(std::ostream& ost, const Direction& dir) {
+    ost << static_cast<typename std::underlying_type<Direction>::type>(dir);
+    return ost;
+}
+
 namespace HighFive {
-    EnumType<int> create_enum_position() {
-        return EnumType<int>({{"FIRST", Position::FIRST},
-                              {"SECOND", Position::SECOND},
-                              {"THIRD", Position::THIRD},
-                              {"LAST", Position::LAST}},
-                             AtomicType<int>{});
+    EnumType<Position> create_enum_position() {
+        return EnumType<Position>({{"FIRST", Position::FIRST},
+                                   {"SECOND", Position::SECOND},
+                                   {"THIRD", Position::THIRD},
+                                   {"LAST", Position::LAST}});
     }
 
     template<>
     DataType create_datatype<Position>() {
         return create_enum_position();
     }
+
+    EnumType<Direction> create_enum_direction() {
+        return EnumType<Direction>({{"FORWARD", Direction::FORWARD},
+                                    {"BACKWARD", Direction::BACKWARD},
+                                    {"LEFT", Direction::LEFT},
+                                    {"RIGHT", Direction::RIGHT}});
+    }
+
+    template<>
+    DataType create_datatype<Direction>() {
+        return create_enum_direction();
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveEnum) {
     const std::string FILE_NAME("enum_test.h5");
     const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
 
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-    auto e1 = create_enum_position();
-    e1.commit(file, "my_enum");
+    { // Unscoped enum
+        auto e1 = create_enum_position();
+        e1.commit(file, "Position");
 
-    auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(1), e1);
-    dataset.write(Position::FIRST);
+        auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(1), e1);
+        dataset.write(Position::FIRST);
 
-    file.flush();
+        file.flush();
 
-    Position result;
-    dataset.select(ElementSet({0})).read(result);
+        Position result;
+        dataset.select(ElementSet({0})).read(result);
 
-    BOOST_CHECK_EQUAL(result, Position::FIRST);
+        BOOST_CHECK_EQUAL(result, Position::FIRST);
+    }
+
+    { // Scoped enum
+        auto e1 = create_enum_direction();
+        e1.commit(file, "Direction");
+
+        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(1), e1);
+        dataset.write(Direction::BACKWARD);
+
+        file.flush();
+
+        Direction result;
+        dataset.select(ElementSet({0})).read(result);
+
+        BOOST_CHECK_EQUAL(result, Direction::BACKWARD);
+    }
 }
 
 #ifdef H5_USE_EIGEN

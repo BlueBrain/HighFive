@@ -136,8 +136,8 @@ private:
     void create(size_t size = 0);
 };
 
-template <typename T>
-class EnumType : public DataType {
+template<typename T>
+class EnumType: public DataType {
 public:
     struct member_def {
         member_def(std::string t_name, T t_value)
@@ -149,20 +149,19 @@ public:
 
     EnumType(const EnumType& other) = default;
 
-    EnumType(std::vector<member_def> t_members, DataType t_underlying_type)
-        : members(std::move(t_members))
-        , underlying_type(t_underlying_type) {
+    EnumType(std::vector<member_def> t_members)
+        : members(std::move(t_members)) {
         create();
     }
 
-    EnumType(const std::initializer_list<member_def>& t_members, DataType t_underlying_type)
-        : EnumType(std::vector<member_def>({t_members}), t_underlying_type) {}
+    template<typename U>
+    EnumType(const std::initializer_list<member_def>& t_members)
+        : EnumType(std::vector<member_def>({t_members})) {}
 
      void commit(const Object& object, const std::string& name) const;
 
 private:
     std::vector<member_def> members;
-    DataType underlying_type;
 
     void create();
 };

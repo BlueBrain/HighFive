@@ -209,7 +209,7 @@ inline void CompoundType::commit(const Object& object, const std::string& name) 
 template<typename T>
 inline void EnumType<T>::create() {
     // Create the HDF5 type
-    if((_hid = H5Tenum_create(underlying_type.getId())) < 0) {
+    if((_hid = H5Tenum_create(AtomicType<typename std::underlying_type<T>::type>{}.getId())) < 0) {
         HDF5ErrMapper::ToException<DataTypeException>(
             "Could not create new enum datatype");
     }
