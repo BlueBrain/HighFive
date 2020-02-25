@@ -1305,7 +1305,7 @@ enum class Direction: signed char {
 
 // This is only for boost test
 std::ostream& operator<<(std::ostream& ost, const Direction& dir) {
-    ost << static_cast<typename std::underlying_type<Direction>::type>(dir);
+    ost << static_cast<int>(dir);
     return ost;
 }
 
@@ -1362,15 +1362,20 @@ BOOST_AUTO_TEST_CASE(HighFiveEnum) {
         auto e1 = create_enum_direction();
         e1.commit(file, "Direction");
 
-        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(1), e1);
-        dataset.write(Direction::BACKWARD);
+        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(5), e1);
+        std::vector<Direction> robot_moves({Direction::BACKWARD, Direction::FORWARD, Direction::FORWARD, Direction::LEFT, Direction::LEFT});
+        dataset.write(robot_moves);
 
         file.flush();
 
-        Direction result;
-        dataset.select(ElementSet({0})).read(result);
+        std::vector<Direction> result;
+        dataset.read(result);
 
-        BOOST_CHECK_EQUAL(result, Direction::BACKWARD);
+        BOOST_CHECK_EQUAL(result[0], Direction::BACKWARD);
+        BOOST_CHECK_EQUAL(result[1], Direction::FORWARD);
+        BOOST_CHECK_EQUAL(result[2], Direction::FORWARD);
+        BOOST_CHECK_EQUAL(result[3], Direction::LEFT);
+        BOOST_CHECK_EQUAL(result[4], Direction::LEFT);
     }
 }
 

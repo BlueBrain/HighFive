@@ -136,9 +136,37 @@ private:
     void create(size_t size = 0);
 };
 
+///
+/// \brief Create a enum HDF5 datatype
+///
+/// \code{.cpp}
+/// enum class Position {
+///     FIRST = 1,
+///     SECOND = 2,
+/// };
+///
+/// EnumType<Position> create_enum_position() {
+///     return EnumType<Position>({{"FIRST", Position::FIRST},
+///                                {"SECOND", Position::SECOND}});
+/// }
+///
+/// template<>
+/// DataType create_datatype<Position>() {
+///     return create_enum_position();
+/// }
+///
+/// void write_first(H5::File& file) {
+///     auto en = create_enum_position();
+///     en.commit(file, "Position");
+///     auto dataset = file.createDataset("/foo", DataSpace(1), en);
+///     dataset.write(Position::FIRST);
+/// }
+/// \endcode
 template<typename T>
 class EnumType: public DataType {
 public:
+    ///
+    /// \brief Use for defining a member of enum type
     struct member_def {
         member_def(std::string t_name, T t_value)
             : name(std::move(t_name))
@@ -158,7 +186,10 @@ public:
     EnumType(const std::initializer_list<member_def>& t_members)
         : EnumType(std::vector<member_def>({t_members})) {}
 
-     void commit(const Object& object, const std::string& name) const;
+    /// \brief Commit datatype into the given Object
+    /// \param object Location to commit object into
+    /// \param name Name to give the datatype
+    void commit(const Object& object, const std::string& name) const;
 
 private:
     std::vector<member_def> members;
