@@ -84,13 +84,11 @@ inline void write(DataSet& dataset, const T& data)
 
 // create DataSet and write data
 template <class T>
-static DataSet dump_impl(File& file,
-                         const std::string& path,
-                         const T& data)
+static DataSet dump_impl(File& file, const std::string& path, const T& data)
 {
-    using type = typename std::decay_t<T>::Scalar;
+    using value_type = typename std::decay_t<T>::Scalar;
     detail::createGroupsToDataSet(file, path);
-    DataSet dataset = file.createDataSet<type>(path, DataSpace(shape(data)));
+    DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
     detail::eigen::write(dataset, data);
     file.flush();
     return dataset;
@@ -98,9 +96,7 @@ static DataSet dump_impl(File& file,
 
 // replace data of an existing DataSet of the correct size
 template <class T>
-static DataSet overwrite_impl(File& file,
-                              const std::string& path,
-                              const T& data)
+static DataSet overwrite_impl(File& file, const std::string& path, const T& data)
 {
     DataSet dataset = file.getDataSet(path);
     if (dataset.getDimensions() != shape(data)) {
@@ -139,10 +135,7 @@ struct load_impl
 
 // universal front-end (to minimise double code)
 template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    DumpMode mode)
+inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode)
 {
     if (!file.exist(path)) {
         return detail::eigen::dump_impl(file, path, data);
