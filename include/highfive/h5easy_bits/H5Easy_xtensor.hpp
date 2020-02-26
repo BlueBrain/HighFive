@@ -32,7 +32,7 @@ inline std::vector<size_t> shape(const T& data)
 template <class T>
 static DataSet dump_impl(File& file, const std::string& path, const T& data)
 {
-    using value_type = typename std::decay_t<T>::value_type
+    using value_type = typename std::decay_t<T>::value_type;
     detail::createGroupsToDataSet(file, path);
     DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
     dataset.write(data.begin());
