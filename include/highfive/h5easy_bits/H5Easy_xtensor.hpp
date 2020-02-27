@@ -30,36 +30,28 @@ inline std::vector<size_t> shape(const T& data)
 
 // create DataSet and write data
 template <class T>
-struct dump_impl
+static DataSet dump_impl(File& file, const std::string& path, T&& data)
 {
-    template <class C>
-    static DataSet run(File& file, const std::string& path, const C& data)
-    {
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset =
-            file.createDataSet<typename C::value_type>(path, DataSpace(shape(data)));
-        dataset.write_raw(data.data());
-        file.flush();
-        return dataset;
-    }
-};
+    detail::createGroupsToDataSet(file, path);
+    DataSet dataset =
+        file.createDataSet<typename std::decay_t<T>::value_type>(path, DataSpace(shape(data)));
+    dataset.write_raw(data.data());
+    file.flush();
+    return dataset;
+}
 
 // replace data of an existing DataSet of the correct size
 template <class T>
-struct overwrite_impl
+static DataSet overwrite_impl(File& file, const std::string& path, T&& data)
 {
-    template <class C>
-    static DataSet run(File& file, const std::string& path, const C& data)
-    {
-        DataSet dataset = file.getDataSet(path);
-        if (dataset.getDimensions() != shape(data)) {
-            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
-        }
-        dataset.write_raw(data.data());
-        file.flush();
-        return dataset;
+    DataSet dataset = file.getDataSet(path);
+    if (dataset.getDimensions() != shape(data)) {
+        throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
     }
-};
+    dataset.write_raw(data.data());
+    file.flush();
+    return dataset;
+}
 
 // load xtensor-object from DataSet
 template <class T>
@@ -74,6 +66,22 @@ struct load_impl
         return data;
     }
 };
+
+// front-end
+template <class T>
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    T&& data,
+                    DumpMode mode)
+{
+    if (!file.exist(path)) {
+        return detail::xtensor::dump_impl(file, path, data);
+    } else if (mode == DumpMode::Overwrite) {
+        return detail::xtensor::overwrite_impl(file, path, data);
+    } else {
+        throw detail::error(file, path, "H5Easy: path already exists");
+    }
+}
 
 }  // namespace xtensor
 
@@ -106,13 +114,7 @@ inline DataSet dump(File& file,
                     const xt::xarray<T>& data,
                     DumpMode mode)
 {
-    if (!file.exist(path)) {
-        return detail::xtensor::dump_impl<xt::xarray<T>>::run(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::xtensor::overwrite_impl<xt::xarray<T>>::run(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
+    return detail::xtensor::dump(file, path, data, mode);
 }
 
 // front-end
@@ -122,13 +124,7 @@ inline DataSet dump(File& file,
                     const xt::xtensor<T, rank>& data,
                     DumpMode mode)
 {
-    if (!file.exist(path)) {
-        return detail::xtensor::dump_impl<xt::xtensor<T, rank>>::run(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::xtensor::overwrite_impl<xt::xtensor<T, rank>>::run(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
+    return detail::xtensor::dump(file, path, data, mode);
 }
 
 }  // namespace H5Easy

@@ -32,7 +32,6 @@
 using namespace HighFive;
 
 
-
 BOOST_AUTO_TEST_CASE(HighFiveBasic) {
     const std::string FILE_NAME("h5tutr_dset.h5");
     const std::string DATASET_NAME("dset");
@@ -661,69 +660,6 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteShortcut) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
-
-    using fixed_array_t = FixedLenStringArray<10>;
-    // increment the characters of a string written in a std::array
-    auto increment_string = [](const fixed_array_t::value_type arr) {
-        fixed_array_t::value_type output(arr);
-        for (auto& c : output) {
-            if (c == 0) {
-                break;
-            }
-            ++c;
-        }
-        return output;
-    };
-
-    // manipulate FixedLenStringArray with std::copy
-    {
-        const fixed_array_t arr1{"0000000", "1111111"};
-        fixed_array_t arr2{"0000000", "1111111"};
-        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
-        BOOST_CHECK_EQUAL(arr2.size(), 4);
-    }
-
-    // manipulate FixedLenStringArray with std::transform
-    {
-        fixed_array_t arr;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
-                           increment_string);
-        }
-        BOOST_CHECK_EQUAL(arr.size(), 2);
-        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
-        BOOST_CHECK_EQUAL(arr[1], std::string("2222222"));
-    }
-
-    // manipulate FixedLenStringArray with std::transform and reverse iterator
-    {
-        fixed_array_t arr;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
-        }
-        BOOST_CHECK_EQUAL(arr.size(), 2);
-        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
-        BOOST_CHECK_EQUAL(arr[1], std::string("0000000"));
-    }
-
-    // manipulate FixedLenStringArray with std::remove_copy_if
-    {
-        fixed_array_t arr2;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
-                                [](const fixed_array_t::value_type& s) {
-                                    return std::strncmp(s.data(), "1111111", 7) == 0;
-                                });
-        }
-        BOOST_CHECK_EQUAL(arr2.size(), 1);
-        BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
-    }
-}
-
 
 template <typename T>
 void readWriteAttributeVectorTest() {
@@ -778,6 +714,10 @@ void readWriteAttributeVectorTest() {
         Attribute a2 = s.createAttribute<T>("my_attribute_copy",
                                             DataSpace::From(vec));
         a2.write(vec);
+
+        // const data, short-circuit syntax
+        const std::vector<int> v{1, 2, 3};
+        s.createAttribute("version_test", v);
     }
 
     {
@@ -802,6 +742,11 @@ void readWriteAttributeVectorTest() {
 
         for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
+
+        std::vector<int> v;  // with const would print a nice err msg
+        file.getDataSet("/dummy_group/dummy_dataset")
+            .getAttribute("version_test")
+            .read(v);
     }
 
     // Delete some attributes
@@ -1221,6 +1166,17 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
 
     // Using root slash
     BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
+
+    // Check unlink with existing group
+    BOOST_CHECK(g1.exist(GROUP_2));
+    g1.unlink(GROUP_2);
+    BOOST_CHECK(!g1.exist(GROUP_2));
+
+    // Check unlink with non-existing group
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(g1.unlink("x"), HighFive::GroupException);
+    }
 }
 
 
@@ -1262,6 +1218,104 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     // meta
     BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
+}
+
+typedef struct {
+    int m1;
+    int m2;
+    int m3;
+} CSL1;
+
+typedef struct {
+    CSL1 csl1;
+} CSL2;
+
+namespace HighFive {
+    CompoundType create_compound_csl1() {
+        auto t2 = AtomicType<int>();
+        CompoundType t1({
+                            {"m1", AtomicType<int>{}},
+                            {"m2", AtomicType<int>{}},
+                            {"m3", t2}
+        });
+
+        return t1;
+    }
+
+    CompoundType create_compound_csl2() {
+        CompoundType t1 = create_compound_csl1();
+
+        CompoundType t2({
+            {"csl1", t1}
+        });
+
+        return t2;
+    }
+
+    template<>
+    DataType create_datatype<CSL1>() {
+        return create_compound_csl1();
+    }
+
+    template<>
+    DataType create_datatype<CSL2>() {
+        return create_compound_csl2();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
+    const std::string FILE_NAME("compounds_test.h5");
+    const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    auto t3 = AtomicType<int>();
+    CompoundType t1 = create_compound_csl1();
+    t1.commit(file, "my_type");
+
+    CompoundType t2 = create_compound_csl2();
+    t2.commit(file, "my_type2");
+
+
+    {   // Not nested
+        auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(2), t1);
+
+        std::vector<CSL1> csl = {{1,1,1}, {2,3,4}};
+        dataset.write(csl);
+
+        file.flush();
+
+        std::vector<CSL1> result;
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].m1, 1);
+        BOOST_CHECK_EQUAL(result[0].m2, 1);
+        BOOST_CHECK_EQUAL(result[0].m3, 1);
+        BOOST_CHECK_EQUAL(result[1].m1, 2);
+        BOOST_CHECK_EQUAL(result[1].m2, 3);
+        BOOST_CHECK_EQUAL(result[1].m3, 4);
+    }
+
+    {   // Nested
+        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(2), t2);
+
+        std::vector<CSL2> csl = {{{1,1,1}, {2,3,4}}};
+        dataset.write(csl);
+
+        file.flush();
+        std::vector<CSL2> result = {{{1,1,1}, {2,3,4}}};
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].csl1.m1, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m2, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m3, 1);
+        BOOST_CHECK_EQUAL(result[1].csl1.m1, 2);
+        BOOST_CHECK_EQUAL(result[1].csl1.m2, 3);
+        BOOST_CHECK_EQUAL(result[1].csl1.m3, 4);
+    }
 }
 
 
@@ -1342,8 +1396,68 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
         }
     }
 }
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
 
+    using fixed_array_t = FixedLenStringArray<10>;
+    // increment the characters of a string written in a std::array
+    auto increment_string = [](const fixed_array_t::value_type arr) {
+        fixed_array_t::value_type output(arr);
+        for (auto& c : output) {
+            if (c == 0) {
+                break;
+            }
+            ++c;
+        }
+        return output;
+    };
 
+    // manipulate FixedLenStringArray with std::copy
+    {
+        const fixed_array_t arr1{"0000000", "1111111"};
+        fixed_array_t arr2{"0000000", "1111111"};
+        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
+        BOOST_CHECK_EQUAL(arr2.size(), 4);
+    }
+
+    // manipulate FixedLenStringArray with std::transform
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
+                           increment_string);
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("2222222"));
+    }
+
+    // manipulate FixedLenStringArray with std::transform and reverse iterator
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("0000000"));
+    }
+
+    // manipulate FixedLenStringArray with std::remove_copy_if
+    {
+        fixed_array_t arr2;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
+                                [](const fixed_array_t::value_type& s) {
+                                    return std::strncmp(s.data(), "1111111", 7) == 0;
+                                });
+        }
+        BOOST_CHECK_EQUAL(arr2.size(), 1);
+        BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
+    }
+}
 
 #ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(HighFiveEigen) {

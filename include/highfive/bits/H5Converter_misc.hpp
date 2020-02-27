@@ -84,9 +84,9 @@ vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
 
 // copy single buffer to multi dimensional vector, following specified dimensions
 template <typename T>
-inline typename std::vector<T>::iterator
-single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
-                         typename std::vector<T>::iterator end_buffer,
+inline typename std::vector<T>::const_iterator
+single_buffer_to_vectors(typename std::vector<T>::const_iterator begin_buffer,
+                         typename std::vector<T>::const_iterator end_buffer,
                          const std::vector<size_t>& dims,
                          const size_t current_dim,
                          std::vector<T>& vec_single_dim) {
@@ -97,9 +97,9 @@ single_buffer_to_vectors(typename std::vector<T>::iterator begin_buffer,
 }
 
 template <typename T, typename U = typename type_of_array<T>::type>
-inline typename std::vector<U>::iterator
-single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
-                         typename std::vector<U>::iterator end_buffer,
+inline typename std::vector<U>::const_iterator
+single_buffer_to_vectors(typename std::vector<U>::const_iterator begin_buffer,
+                         typename std::vector<U>::const_iterator end_buffer,
                          const std::vector<size_t>& dims,
                          const size_t current_dim,
                          std::vector<std::vector<T>>& vec_multi_dim) {
@@ -120,7 +120,7 @@ single_buffer_to_vectors(typename std::vector<U>::iterator begin_buffer,
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable = void>
 struct data_converter {
-    inline data_converter(const DataSpace&) {
+    inline data_converter(const DataSpace&) noexcept {
 
         static_assert((std::is_arithmetic<Scalar>::value ||
                        std::is_enum<Scalar>::value ||
@@ -129,11 +129,15 @@ struct data_converter {
                       "std::string or a container/array");
     }
 
-    inline Scalar* transform_read(Scalar& datamem) { return &datamem; }
+    inline Scalar* transform_read(Scalar& datamem) const noexcept {
+        return &datamem;
+    }
 
-    inline const Scalar* transform_write(const Scalar& datamem) { return &datamem; }
+    inline const Scalar* transform_write(const Scalar& datamem) const noexcept {
+        return &datamem;
+    }
 
-    inline void process_result(Scalar&) {}
+    inline void process_result(Scalar&) const noexcept {}
 };
 
 
@@ -142,17 +146,18 @@ struct data_converter {
 template <typename CArray>
 struct data_converter<CArray,
                       typename std::enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(const DataSpace&) {}
+    inline data_converter(const DataSpace&) noexcept {}
 
     inline CArray& transform_read(CArray& datamem) const noexcept {
         return datamem;
     }
+
     inline const CArray& transform_write(const CArray& datamem) const noexcept {
         return datamem;
     }
-    inline void process_result(CArray&) {}
-};
 
+    inline void process_result(CArray&) const noexcept {}
+};
 
 // Generic container converter
 template <typename Container, typename T = typename type_of_array<Container>::type>
@@ -175,10 +180,11 @@ struct container_converter {
         return vec.data();
     }
 
-    inline void process_result(Container&) {}
+    inline void process_result(Container&) const noexcept {}
 
     const DataSpace& _space;
 };
+
 
 // apply conversion for vectors 1D
 template <typename T>
@@ -190,6 +196,7 @@ struct data_converter<
 
     using container_converter<std::vector<T>>::container_converter;
 };
+
 
 // apply conversion to std::array
 template <typename T, std::size_t S>
@@ -214,18 +221,19 @@ struct data_converter<
         }
     }
 
-    inline T* transform_read(std::array<T, S>& vec) {
+    inline T* transform_read(std::array<T, S>& vec) const noexcept {
         return vec.data();
     }
 };
+
 
 #ifdef H5_USE_BOOST
 // apply conversion to boost multi array
 template <typename T, std::size_t Dims>
 struct data_converter<boost::multi_array<T, Dims>, void>
     : public container_converter<boost::multi_array<T, Dims>> {
-    typedef typename boost::multi_array<T, Dims> MultiArray;
-    typedef typename type_of_array<T>::type value_type;
+    using MultiArray = boost::multi_array<T, Dims>;
+    using value_type = typename type_of_array<T>::type;
     using container_converter<MultiArray>::container_converter;
 
     inline value_type* transform_read(MultiArray& array) {
@@ -239,12 +247,13 @@ struct data_converter<boost::multi_array<T, Dims>, void>
     }
 };
 
+
 // apply conversion to boost matrix ublas
 template <typename T>
 struct data_converter<boost::numeric::ublas::matrix<T>, void>
     : public container_converter<boost::numeric::ublas::matrix<T>> {
-    typedef typename boost::numeric::ublas::matrix<T> Matrix;
-    typedef typename type_of_array<T>::type value_type;
+    using Matrix = boost::numeric::ublas::matrix<T>;
+    using value_type = typename type_of_array<T>::type;
 
     inline data_converter(const DataSpace& space) : container_converter<Matrix>(space) {
         assert(space.getDimensions().size() == 2);
@@ -260,17 +269,18 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void>
         return &(array(0, 0));
     }
 
-    inline const value_type* transform_write(const Matrix& array) const {
+    inline const value_type* transform_write(const Matrix& array) const noexcept {
         return &(array(0, 0));
     }
 };
 #endif
 
+
 // apply conversion for vectors nested vectors
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
-    typedef typename type_of_array<T>::type value_type;
+    using value_type = typename type_of_array<T>::type;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {}
@@ -286,9 +296,9 @@ struct data_converter<std::vector<T>,
         return _vec_align.data();
     }
 
-    inline void process_result(std::vector<T>& vec) {
+    inline void process_result(std::vector<T>& vec) const {
         single_buffer_to_vectors(
-            _vec_align.begin(), _vec_align.end(), _dims, 0, vec);
+            _vec_align.cbegin(), _vec_align.cend(), _dims, 0, vec);
     }
 
     std::vector<size_t> _dims;
@@ -299,17 +309,19 @@ struct data_converter<std::vector<T>,
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    typedef const char* value_type;  // char data is const, mutable pointer
+    using value_type = const char*;  // char data is const, mutable pointer
 
-    inline data_converter(const DataSpace& space)
-        : _c_vec(nullptr), _space(space) {
-    }
+    inline data_converter(const DataSpace& space) noexcept
+        : _c_vec(nullptr)
+        , _space(space) {}
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline value_type* transform_read(std::string&) { return &_c_vec; }
+    inline value_type* transform_read(std::string&) noexcept {
+        return &_c_vec;
+    }
 
-    inline const value_type* transform_write(const std::string& str) {
+    inline const value_type* transform_write(const std::string& str) noexcept {
         _c_vec = str.c_str();
         return &_c_vec;
     }
@@ -318,7 +330,7 @@ struct data_converter<std::string, void> {
         assert(_c_vec != nullptr);
         str = std::string(_c_vec);
 
-        if (_c_vec != NULL) {
+        if (_c_vec != nullptr) {
             AtomicType<std::string> str_type;
             (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
                                   &_c_vec);
@@ -332,16 +344,14 @@ struct data_converter<std::string, void> {
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
-    typedef const char* value_type;
+    using value_type = const char*;
 
-    inline data_converter(const DataSpace& space)
-        : _space(space) {
-    }
+    inline data_converter(const DataSpace& space) noexcept
+        : _space(space) {}
 
     // create a C vector adapted to HDF5
     // fill last element with NULL to identify end
-    inline value_type* transform_read(std::vector<std::string>& vec) {
-        (void)vec;
+    inline value_type* transform_read(std::vector<std::string>&) {
         _c_vec.resize(_space.getDimensions()[0], NULL);
         return _c_vec.data();
     }
@@ -354,7 +364,6 @@ struct data_converter<std::vector<std::string>, void> {
     }
 
     inline void process_result(std::vector<std::string>& vec) {
-        (void)vec;
         vec.resize(_c_vec.size());
         for (size_t i = 0; i < vec.size(); ++i) {
             vec[i] = std::string(_c_vec[i]);

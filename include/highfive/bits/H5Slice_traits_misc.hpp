@@ -27,7 +27,6 @@
 #include <H5Ppublic.h>
 
 #include "H5ReadWrite_misc.hpp"
-
 #include "H5Converter_misc.hpp"
 
 namespace HighFive {
@@ -37,23 +36,22 @@ namespace details {
 // map the correct reference to the dataset depending of the layout
 // dataset -> itself
 // subselection -> parent dataset
-inline const DataSet& get_dataset(const Selection* ptr) {
-    return ptr->getDataset();
+inline const DataSet& get_dataset(const Selection& sel) {
+    return sel.getDataset();
 }
 
-inline const DataSet& get_dataset(const DataSet* ptr) {
-    return *ptr;
+inline const DataSet& get_dataset(const DataSet& ds) {
+    return ds;
 }
 
 // map the correct memspace identifier depending of the layout
 // dataset -> entire memspace
 // selection -> resolve space id
-inline hid_t get_memspace_id(const Selection* ptr) {
-    return ptr->getMemSpace().getId();
+inline hid_t get_memspace_id(const Selection& ptr) {
+    return ptr.getMemSpace().getId();
 }
 
-inline hid_t get_memspace_id(const DataSet* ptr) {
-    (void)ptr;
+inline hid_t get_memspace_id(const DataSet&) {
     return H5S_ALL;
 }
 }  // namespace details
@@ -79,6 +77,7 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset
                                                const std::vector<size_t>& stride) const {
     // hsize_t type conversion
     // TODO : normalize hsize_t type in HighFive namespace
+    const auto& slice = static_cast<const Derivate&>(*this);
     std::vector<hsize_t> offset_local(offset.size());
     std::vector<hsize_t> count_local(count.size());
     std::vector<hsize_t> stride_local(stride.size());
@@ -86,21 +85,20 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset
     std::copy(count.begin(), count.end(), count_local.begin());
     std::copy(stride.begin(), stride.end(), stride_local.begin());
 
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
+    DataSpace space = slice.getSpace().clone();
     if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
                             stride.empty() ? NULL : stride_local.data(),
                             count_local.data(), NULL) < 0) {
         HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
     }
 
-    return Selection(DataSpace(count), space,
-                     details::get_dataset(static_cast<const Derivate*>(this)));
+    return Selection(DataSpace(count), space, details::get_dataset(slice));
 }
 
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
-    const auto* slice = static_cast<const Derivate*>(this);
-    const DataSpace& space = slice->getSpace();
+    const auto& slice = static_cast<const Derivate&>(*this);
+    const DataSpace& space = slice.getSpace();
     const DataSet& dataset = details::get_dataset(slice);
     std::vector<size_t> dims = space.getDimensions();
     std::vector<hsize_t> counts(dims.size());
@@ -125,8 +123,9 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
 
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const {
-    const hsize_t* data = NULL;
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace().clone();
+    const auto& slice = static_cast<const Derivate&>(*this);
+    const hsize_t* data = nullptr;
+    const DataSpace space = slice.getSpace().clone();
     const std::size_t length = elements._ids.size();
     if (length % space.getNumberDimensions() != 0) {
         throw DataSpaceException("Number of coordinates in elements picking "
@@ -151,71 +150,62 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
         HDF5ErrMapper::ToException<DataSpaceException>("Unable to select elements");
     }
 
-    return Selection(DataSpace(num_elements), space,
-                     details::get_dataset(static_cast<const Derivate*>(this)));
+    return Selection(DataSpace(num_elements), space, details::get_dataset(slice));
 }
+
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
-    typedef typename std::remove_const<T>::type type_no_const;
+    const auto& slice = static_cast<const Derivate&>(*this);
+    const DataSpace& mem_space = slice.getMemSpace();
+    const details::BufferInfo<T> buffer_info(slice.getDataType());
 
-    type_no_const& nocv_array = const_cast<type_no_const&>(array);
-
-    const size_t dim_array = details::array_dims<type_no_const>::value;
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
-
-    if (!details::checkDimensions(mem_space, dim_array)) {
+    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
         ss << "Impossible to read DataSet of dimensions "
            << mem_space.getNumberDimensions() << " into arrays of dimensions "
-           << dim_array;
+           << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
 
-    // Create mem datatype
-    const AtomicType<typename details::type_of_array<type_no_const>::type> array_datatype;
+    // Apply pre read conversions
+    details::data_converter<T> converter(mem_space);
 
-    // Apply pre-read conversions
-    details::data_converter<type_no_const> converter(mem_space);
-
-    if (H5Dread(details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-                array_datatype.getId(),
-                details::get_memspace_id((static_cast<const Derivate*>(this))),
-                space.getId(), H5P_DEFAULT, converter.transform_read(nocv_array)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read: ");
-    }
-
+    read(converter.transform_read(array), buffer_info.data_type);
     // re-arrange results
     converter.process_result(array);
 }
 
+
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T* array) const {
-
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype)
+const {
+    static_assert(!std::is_const<T>::value,
+                  "read() requires a non-const structure to read data into");
+    const auto& slice = static_cast<const Derivate&>(*this);
+    using element_type = typename details::type_of_array<T>::type;
 
     // Create mem datatype
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    const DataType& mem_datatype =
+            dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
 
-    if (H5Dread(details::get_dataset(static_cast<const Derivate*>(this)).getId(),
-                array_datatype.getId(),
-                details::get_memspace_id((static_cast<const Derivate*>(this))),
-                space.getId(), H5P_DEFAULT, static_cast<void*>(array)) < 0) {
+    if (H5Dread(details::get_dataset(slice).getId(),
+                mem_datatype.getId(),
+                details::get_memspace_id(slice),
+                slice.getSpace().getId(), H5P_DEFAULT, static_cast<void*>(array)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read: ");
     }
 }
 
+
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
-    const auto& self = static_cast<const Derivate&>(*this);
-    const DataSpace& mem_space = self.getMemSpace();
-    const DataType& dataset_type = self.getDataType();
-    const details::BufferInfo<T> buffer_info(dataset_type);
+    const auto& slice = static_cast<const Derivate&>(*this);
+    const DataSpace& mem_space = slice.getMemSpace();
+    const details::BufferInfo<T> buffer_info(slice.getDataType());
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
@@ -224,40 +214,28 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
 
-    if (dataset_type.getClass() != buffer_info.data_type.getClass()) {
-        std::cerr << "WARNING: src data and hdf5 dataset have different types: "
-                  << buffer_info.data_type.string() << " -> " << dataset_type.string()
-                  << std::endl;
-    }
-
     // Apply pre write conversions
     details::data_converter<T> converter(mem_space);
 
-    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 buffer_info.data_type.getId(),
-                 details::get_memspace_id((static_cast<Derivate*>(this))),
-                 self.getSpace().getId(), H5P_DEFAULT,
-                 converter.transform_write(buffer)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
-    }
+    write_raw(converter.transform_write(buffer), buffer_info.data_type);
 }
 
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::write_raw(const T* buffer) {
-    DataSpace space = static_cast<const Derivate*>(this)->getSpace();
-    DataSpace mem_space = static_cast<const Derivate*>(this)->getMemSpace();
+inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dtype) {
+    using element_type = typename details::type_of_array<T>::type;
+    const auto& slice = static_cast<const Derivate&>(*this);
 
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    const auto& mem_datatype =  // Create mem datatype if not specified
+        dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
 
-    if (H5Dwrite(details::get_dataset(static_cast<Derivate*>(this)).getId(),
-                 array_datatype.getId(),
-                 details::get_memspace_id((static_cast<Derivate*>(this))),
-                 space.getId(), H5P_DEFAULT,
+    if (H5Dwrite(details::get_dataset(slice).getId(),
+                 mem_datatype.getId(),
+                 details::get_memspace_id(slice),
+                 slice.getSpace().getId(), H5P_DEFAULT,
                  static_cast<const void*>(buffer)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Error during HDF5 Write: ");
+        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
 }
 

@@ -65,12 +65,18 @@ class DataType : public Object {
     ///
     /// \brief Returns whether the type is a variable-length string
     ///
-    bool isVariableString() const;
+    bool isVariableStr() const;
 
     ///
     /// \brief Returns whether the type is a fixed-length string
     ///
-    bool isFixedLengthString() const;
+    bool isFixedLenStr() const;
+
+    ///
+    /// \brief Check the DataType was default constructed.
+    /// Such value might represent auto-detection of the datatype from a buffer
+    ///
+    bool empty() const noexcept;
 
   protected:
     friend class Attribute;
@@ -92,6 +98,75 @@ class AtomicType : public DataType {
 
     typedef T basic_type;
 };
+
+
+///
+/// \brief Create a compound HDF5 datatype
+///
+class CompoundType : public DataType {
+public:
+    ///
+    /// \brief Use for defining a sub-type of compound type
+    struct member_def {
+        member_def(std::string t_name, DataType t_base_type, size_t t_offset = 0)
+            : name(std::move(t_name))
+            , base_type(std::move(t_base_type))
+            , offset(t_offset) {}
+        std::string name;
+        DataType base_type;
+        size_t offset;
+    };
+
+    CompoundType(const CompoundType& other) = default;
+
+    ///
+    /// \brief Initializes a compound type from a vector of member difinitions
+    /// \param t_members
+    /// \param size
+    inline CompoundType(const std::vector<member_def>& t_members, size_t size = 0)
+        : members(t_members) {
+        create(size);
+    }
+    inline CompoundType(std::vector<member_def>&& t_members, size_t size = 0)
+        : members(std::move(t_members)) {
+        create(size);
+    }
+    inline CompoundType(const std::initializer_list<member_def>& t_members,
+                        size_t size = 0)
+        : members(t_members) {
+        create(size);
+    }
+
+    /// \brief Commit datatype into the given Object
+    /// \param object Location to commit object into
+    /// \param name Name to give the datatype
+    inline void commit(const Object& object, const std::string& name) const;
+
+    /// \brief Get read access to the CompoundType members
+    inline const std::vector<member_def>& getMembers() const noexcept {
+        return members;
+    }
+
+private:
+
+    /// A vector of the member_def members of this CompoundType
+    std::vector<member_def> members;
+
+    /// \brief Automatically create the type from the set of members
+    ///        using standard struct alignment.
+    /// \param size Total size of data type
+    void create(size_t size = 0);
+};
+
+
+/// \brief Create a DataType instance representing type T
+template <typename T>
+DataType create_datatype();
+
+
+/// \brief Create a DataType instance representing type T and perform a sanity check on its size
+template <typename T>
+DataType create_and_check_datatype();
 
 
 ///
@@ -212,4 +287,4 @@ class FixedLenStringArray {
 
 #include "bits/H5DataType_misc.hpp"
 
-#endif  // H5DATATYPE_HPP
+#endif // H5DATATYPE_HPP

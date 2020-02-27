@@ -23,7 +23,7 @@ namespace HighFive {
 inline DataSpace::DataSpace(const std::vector<size_t>& dims)
     : DataSpace(dims.begin(), dims.end()) {}
 
-inline DataSpace::DataSpace(std::initializer_list<size_t> items)
+inline DataSpace::DataSpace(const std::initializer_list<size_t>& items)
     : DataSpace(std::vector<size_t>(items)) {}
 
 template<typename... Args>
@@ -79,7 +79,7 @@ inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
     }
 }
 
-inline DataSpace::DataSpace() {}
+inline DataSpace::DataSpace() = default;
 
 inline DataSpace DataSpace::clone() const {
     DataSpace res;
@@ -100,7 +100,7 @@ inline size_t DataSpace::getNumberDimensions() const {
 
 inline std::vector<size_t> DataSpace::getDimensions() const {
     std::vector<hsize_t> dims(getNumberDimensions());
-    if (dims.size() > 0) {
+    if (!dims.empty()) {
         if (H5Sget_simple_extent_dims(_hid, dims.data(), NULL) < 0) {
             HDF5ErrMapper::ToException<DataSetException>(
                 "Unable to get dataspace dimensions");
@@ -110,7 +110,7 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
 }
 
 inline size_t DataSpace::getElementCount() const {
-    std::vector<size_t> dims = getDimensions();
+    const std::vector<size_t>& dims = getDimensions();
     return std::accumulate(dims.begin(), dims.end(), size_t{1u},
                            std::multiplies<size_t>());
 }
@@ -229,17 +229,15 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
     if (input_dims == dataset_dims)
         return true;
 
-    const std::vector<size_t> dims = mem_space.getDimensions();
-    for (std::vector<size_t>::const_reverse_iterator i = dims.rbegin();
-         i != --dims.rend() && *i == 1; ++i)
+    const std::vector<size_t>& dims = mem_space.getDimensions();
+    for (auto i = dims.crbegin(); i != --dims.rend() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)
         return true;
 
     dataset_dims = dims.size();
-    for (std::vector<size_t>::const_iterator i = dims.begin();
-         i != --dims.end() && *i == 1; ++i)
+    for (auto i = dims.cbegin(); i != --dims.end() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)

@@ -129,10 +129,14 @@ std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
 }
 
 
+template <typename T>
+using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
+        >::type;
+
 // determine at compile time recursively the basic type of the data
 template <typename T>
 struct type_of_array {
-    typedef typename std::remove_const<T>::type type;
+    typedef unqualified_t<T> type;
 };
 
 template <typename T>
@@ -184,7 +188,7 @@ struct type_char_array {
 template <typename T>
 struct type_char_array<T*> {
     typedef typename std::conditional<
-        std::is_same<typename std::remove_const<T>::type, char>::value,
+        std::is_same<unqualified_t<T>, char>::value,
         char*,
         typename type_char_array<T>::type
     >::type type;
@@ -193,7 +197,7 @@ struct type_char_array<T*> {
 template <typename T, std::size_t N>
 struct type_char_array<T[N]> {
     typedef typename std::conditional<
-        std::is_same<typename std::remove_const<T>::type, char>::value,
+        std::is_same<unqualified_t<T>, char>::value,
         char[N],
         typename type_char_array<T>::type
     >::type type;
@@ -230,8 +234,8 @@ struct is_c_array<T[N]> {
 
 
 // converter function for hsize_t -> size_t when hsize_t != size_t
-template<typename Size>
-inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
+template <typename Size>
+inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
     static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
     std::vector<size_t> res(vec.size());
     std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
@@ -239,11 +243,11 @@ inline std::vector<std::size_t> to_vector_size_t(std::vector<Size> vec){
 }
 
 // converter function for hsize_t -> size_t when size_t == hsize_t
-inline std::vector<std::size_t> to_vector_size_t(std::vector<std::size_t> vec){
+inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>& vec) {
     return vec;
 }
 
-} // end details
-}
+}  // namespace details
+}  // namespace HighFive
 
 #endif // H5UTILS_HPP

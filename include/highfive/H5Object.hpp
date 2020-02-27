@@ -51,14 +51,14 @@ class Object {
     /// \brief isValid
     /// \return true if current Object is a valid HDF5Object
     ///
-    bool isValid() const;
+    bool isValid() const noexcept;
 
     ///
     /// \brief getId
     /// \return internal HDF5 id to the object
     ///  provided for C API compatibility
     ///
-    hid_t getId() const;
+    hid_t getId() const noexcept;
 
     ///
     /// \brief Retrieve several infos about the current object (address, dates, etc)

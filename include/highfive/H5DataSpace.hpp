@@ -54,7 +54,7 @@ class DataSpace : public Object {
     /// Make sure that DataSpace({1,2,3}) works on GCC. This is
     /// the shortcut form of the vector initializer, but one some compilers (gcc)
     /// this does not resolve correctly without this constructor.
-    explicit DataSpace(std::initializer_list<size_t> items);
+    DataSpace(const std::initializer_list<size_t>& items);
 
     /// Allow directly listing 1 or more dimensions to initialize,
     /// that is, DataSpace(1,2) means DataSpace(std::vector<size_t>{1,2}).
@@ -115,7 +115,7 @@ class DataSpace : public Object {
     ///  - vector of std::string
     ///  - boost::multi_array (with H5_USE_BOOST defined)
     template <typename Value>
-    static DataSpace From(const std::vector<Value>& vec);
+    static DataSpace From(const std::vector<Value>& container);
 
     /// Create a dataspace matching the container dimensions for a
     /// std::array.

@@ -92,6 +92,42 @@ inline DataSet dump(File& file,
 #endif
 
 ///
+/// \brief Write an Eigen::Ref object to a new DataSet in an open HDF5 file.
+///
+/// \param file Writeable opened file
+/// \param path Path of the DataSet
+/// \param data eigen matrix to write
+/// \param mode Write mode
+///
+/// \return the newly created DataSet
+///
+#ifdef H5_USE_EIGEN
+template <class T>
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const Eigen::Ref<T>& data,
+                    DumpMode mode = DumpMode::Create);
+#endif
+
+///
+/// \brief Write an Eigen::Map object to a new DataSet in an open HDF5 file.
+///
+/// \param file Writeable opened file
+/// \param path Path of the DataSet
+/// \param data eigen matrix to write
+/// \param mode Write mode
+///
+/// \return the newly created DataSet
+///
+#ifdef H5_USE_EIGEN
+template <class T>
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const Eigen::Map<T>& data,
+                    DumpMode mode = DumpMode::Create);
+#endif
+
+///
 /// \brief Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
 ///
 /// \param file A writeable opened HDF5 file

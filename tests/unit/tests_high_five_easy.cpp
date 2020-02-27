@@ -269,4 +269,18 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorXRowMajor)
     BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
+
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_Map)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    std::vector<int> A = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Eigen::Map<Eigen::VectorXi> mapped_vector(A.data(), static_cast<int>(A.size()));
+
+    H5Easy::dump(file, "/path/to/A", mapped_vector);
+
+    std::vector<int> A_r = H5Easy::load<std::vector<int>>(file, "/path/to/A");
+
+    BOOST_CHECK_EQUAL(A == A_r, true);
+}
 #endif

@@ -13,6 +13,7 @@
 #include <complex>
 #include <cstring>
 
+#include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
 
@@ -31,6 +32,10 @@ inline DataType::DataType(hid_t type_hid) { // protected
     _hid = type_hid;
 }
 
+inline bool DataType::empty() const noexcept {
+    return _hid == H5I_INVALID_HID;
+}
+
 inline DataTypeClass DataType::getClass() const {
     return convert_type_class(H5Tget_class(_hid));
 }
@@ -47,11 +52,7 @@ inline bool DataType::operator!=(const DataType& other) const {
     return !(*this == other);
 }
 
-inline std::string DataType::string() const {
-    return type_class_string(getClass()) + std::to_string(getSize() * 8);
-}
-
-inline bool DataType::isVariableString() const {
+inline bool DataType::isVariableStr() const {
     auto var_value = H5Tis_variable_str(_hid);
     if (var_value < 0) {
          HDF5ErrMapper::ToException<DataTypeException>(
@@ -60,8 +61,12 @@ inline bool DataType::isVariableString() const {
     return static_cast<bool>(var_value);
 }
 
-inline bool DataType::isFixedLengthString() const {
-    return getClass() == DataTypeClass::String && !isVariableString();
+inline bool DataType::isFixedLenStr() const {
+    return getClass() == DataTypeClass::String && !isVariableStr();
+}
+
+inline std::string DataType::string() const {
+    return type_class_string(getClass()) + std::to_string(getSize() * 8);
 }
 
 // char mapping
@@ -242,6 +247,56 @@ inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
 
 // Internal
 
+// Calculate the padding required to align an element of a struct
+#define _H5_STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
+
+inline void CompoundType::create(size_t size) {
+    if (size == 0) {
+        size_t current_size = 0, max_type_size = 0;
+
+        // Do a first pass to find the total size of the compound datatype
+        for (auto& member: members) {
+            size_t member_size = H5Tget_size(member.base_type.getId());
+            if (member_size == 0) {
+                throw DataTypeException("Cannot get size of DataType with hid: " +
+                                        std::to_string(member.base_type.getId()));
+            }
+
+            // Set the offset of this member within the struct according to the
+            // standard alignment rules
+            member.offset = current_size + _H5_STRUCT_PADDING(current_size, member_size);
+
+            // Set the current size to the end of the new member
+            current_size = member.offset + member_size;
+
+            max_type_size = std::max(max_type_size, member_size);
+        }
+
+        size = current_size + _H5_STRUCT_PADDING(current_size, max_type_size);
+    }
+
+    // Create the HDF5 type
+    if((_hid = H5Tcreate(H5T_COMPOUND, size)) < 0) {
+        HDF5ErrMapper::ToException<DataTypeException>(
+            "Could not create new compound datatype");
+    }
+
+    // Loop over all the members and insert them into the datatype
+    for (const auto& member: members) {
+        if(H5Tinsert(_hid, member.name.c_str(), member.offset, member.base_type.getId()) < 0) {
+            HDF5ErrMapper::ToException<DataTypeException>(
+                "Could not add new member to datatype"
+            );
+        }
+    }
+}
+
+#undef _H5_STRUCT_PADDING
+
+inline void CompoundType::commit(const Object& object, const std::string& name) const {
+    H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+}
+
 namespace {
 
 inline hid_t create_string(size_t length){
@@ -319,8 +374,37 @@ inline std::string type_class_string(DataTypeClass tclass) {
 
 }  // unnamed namespace
 
-}  // namespace HighFive
 
+/// \brief Create a DataType instance representing type T
+template <typename T>
+inline DataType create_datatype() {
+    return AtomicType<T>();
+}
+
+
+/// \brief Create a DataType instance representing type T and perform a sanity check on its size
+template <typename T>
+inline DataType create_and_check_datatype() {
+
+    DataType t = create_datatype<T>();
+    // Skip check if the base type is a variable length string
+    if (t.isVariableStr()) {
+        return t;
+    }
+    // Check that the size of the template type matches the size that HDF5 is
+    // expecting.
+    if (sizeof(T) != t.getSize()) {
+        std::ostringstream ss;
+        ss << "Size of array type " << sizeof(T)
+           << " != that of memory datatype " << t.getSize()
+           << std::endl;
+        throw DataTypeException(ss.str());
+    }
+
+    return t;
+}
+
+}  // namespace HighFive
 
 
 #endif // H5DATATYPE_MISC_HPP
