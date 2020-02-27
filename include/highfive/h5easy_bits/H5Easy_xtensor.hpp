@@ -30,11 +30,11 @@ inline std::vector<size_t> shape(const T& data)
 
 // create DataSet and write data
 template <class T>
-static DataSet dump_impl(File& file, const std::string& path, T&& data)
+static DataSet dump_impl(File& file, const std::string& path, const T& data)
 {
+    using value_type = typename std::decay_t<T>::value_type;
     detail::createGroupsToDataSet(file, path);
-    DataSet dataset =
-        file.createDataSet<typename std::decay_t<T>::value_type>(path, DataSpace(shape(data)));
+    DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
     dataset.write(data.begin());
     file.flush();
     return dataset;
@@ -42,7 +42,7 @@ static DataSet dump_impl(File& file, const std::string& path, T&& data)
 
 // replace data of an existing DataSet of the correct size
 template <class T>
-static DataSet overwrite_impl(File& file, const std::string& path, T&& data)
+static DataSet overwrite_impl(File& file, const std::string& path, const T& data)
 {
     DataSet dataset = file.getDataSet(path);
     if (dataset.getDimensions() != shape(data)) {
@@ -67,11 +67,11 @@ struct load_impl
     }
 };
 
-// front-end
+// universal front-end (to minimise double code)
 template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
-                    T&& data,
+                    const T& data,
                     DumpMode mode)
 {
     if (!file.exist(path)) {
