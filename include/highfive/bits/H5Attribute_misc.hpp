@@ -54,6 +54,7 @@ template <typename T>
 inline void Attribute::read(T& array) const {
     static_assert(!std::is_const<typename std::remove_reference<T>::type>::value,
                   "read() requires a non-const array to read into");
+    using element_type = typename details::type_of_array<T>::type;
     const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
@@ -67,12 +68,12 @@ inline void Attribute::read(T& array) const {
     }
 
     // Create mem datatype
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre read conversions
     details::data_converter<T> converter(mem_space);
 
-    if (H5Aread(getId(), array_datatype.getId(),
+    if (H5Aread(getId(), mem_datatype.getId(),
                 static_cast<void*>(converter.transform_read(array))) < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
             "Error during HDF5 Read: ");
@@ -84,6 +85,7 @@ inline void Attribute::read(T& array) const {
 
 template <typename T>
 inline void Attribute::write(const T& buffer) {
+    using element_type = typename details::type_of_array<T>::type;
     const size_t dim_buffer = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
@@ -96,12 +98,12 @@ inline void Attribute::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
 
-    const AtomicType<typename details::type_of_array<T>::type> array_datatype;
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre write conversions
     details::data_converter<T> converter(mem_space);
 
-    if (H5Awrite(getId(), array_datatype.getId(),
+    if (H5Awrite(getId(), mem_datatype.getId(),
                  static_cast<const void*>(converter.transform_write(buffer))) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Write: ");
