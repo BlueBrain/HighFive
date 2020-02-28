@@ -59,10 +59,8 @@ int main(void) {
         // let's list the keys of all attributes now
         std::vector<std::string> all_attributes_keys =
             dataset.listAttributeNames();
-        for (std::vector<std::string>::const_iterator it =
-                 all_attributes_keys.begin();
-             it < all_attributes_keys.end(); ++it) {
-            std::cout << "attribute: " << *it << std::endl;
+        for (const auto& attr : all_attributes_keys) {
+            std::cout << "attribute: " << attr << std::endl;
         }
 
     } catch (Exception& err) {

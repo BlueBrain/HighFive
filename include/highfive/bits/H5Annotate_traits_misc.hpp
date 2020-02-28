@@ -49,7 +49,8 @@ inline Attribute
 AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                           const T& data) {
     Attribute att = createAttribute(
-        attribute_name, DataSpace::From(data),
+        attribute_name, 
+        DataSpace::From(data),
         create_and_check_datatype<typename details::type_of_array<T>::type>());
     att.write(data);
     return att;

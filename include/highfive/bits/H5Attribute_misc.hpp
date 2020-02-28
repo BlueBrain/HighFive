@@ -52,8 +52,9 @@ inline DataSpace Attribute::getMemSpace() const { return getSpace(); }
 
 template <typename T>
 inline void Attribute::read(T& array) const {
+    static_assert(!std::is_const<typename std::remove_reference<T>::type>::value,
+                  "read() requires a non-const array to read into");
     using element_type = typename details::type_of_array<T>::type;
-
     const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
@@ -66,11 +67,10 @@ inline void Attribute::read(T& array) const {
         throw DataSpaceException(ss.str());
     }
 
-    // Create mem datatype
     const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre read conversions
-    details::data_converter<T> converter(array, mem_space);
+    details::data_converter<T> converter(mem_space);
 
     if (H5Aread(getId(), mem_datatype.getId(),
                 static_cast<void*>(converter.transform_read(array))) < 0) {
@@ -85,7 +85,6 @@ inline void Attribute::read(T& array) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     using element_type = typename details::type_of_array<T>::type;
-
     const size_t dim_buffer = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
@@ -99,9 +98,7 @@ inline void Attribute::write(const T& buffer) {
     }
 
     const DataType mem_datatype = create_and_check_datatype<element_type>();
-
-    // Apply pre write conversions
-    details::data_converter<T> converter(buffer, mem_space);
+    details::data_converter<T> converter(mem_space);
 
     if (H5Awrite(getId(), mem_datatype.getId(),
                  static_cast<const void*>(converter.transform_write(buffer))) < 0) {
@@ -109,6 +106,7 @@ inline void Attribute::write(const T& buffer) {
             "Error during HDF5 Write: ");
     }
 }
-}
+
+}  // namespace HighFive
 
 #endif // H5ATTRIBUTE_MISC_HPP

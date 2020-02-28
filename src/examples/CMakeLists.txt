@@ -22,7 +22,6 @@ function(compile_example exemple_source)
 
 endfunction()
 
-
 file(GLOB list_example "*.cpp")
 
 foreach(example_src ${list_example})

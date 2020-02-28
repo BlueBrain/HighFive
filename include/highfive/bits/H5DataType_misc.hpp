@@ -11,6 +11,7 @@
 
 #include <string>
 #include <complex>
+#include <cstring>
 
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
@@ -21,10 +22,19 @@ namespace HighFive {
 namespace {  // unnamed
 inline DataTypeClass convert_type_class(const H5T_class_t& tclass);
 inline std::string type_class_string(DataTypeClass);
+inline hid_t create_string(std::size_t length);
 }
 
 
 inline DataType::DataType() {}
+
+inline DataType::DataType(hid_t type_hid) { // protected
+    _hid = type_hid;
+}
+
+inline bool DataType::empty() const noexcept {
+    return _hid == H5I_INVALID_HID;
+}
 
 inline DataTypeClass DataType::getClass() const {
     return convert_type_class(H5Tget_class(_hid));
@@ -43,7 +53,16 @@ inline bool DataType::operator!=(const DataType& other) const {
 }
 
 inline bool DataType::isVariableStr() const {
-    return H5Tis_variable_str(_hid) > 0;
+    auto var_value = H5Tis_variable_str(_hid);
+    if (var_value < 0) {
+         HDF5ErrMapper::ToException<DataTypeException>(
+            "Unable to define datatype size to variable");
+    }
+    return static_cast<bool>(var_value);
+}
+
+inline bool DataType::isFixedLenStr() const {
+    return getClass() == DataTypeClass::String && !isVariableStr();
 }
 
 inline std::string DataType::string() const {
@@ -130,22 +149,31 @@ inline AtomicType<bool>::AtomicType() {
 // std string
 template <>
 inline AtomicType<std::string>::AtomicType() {
-    _hid = H5Tcopy(H5T_C_S1);
-    if (H5Tset_size(_hid, H5T_VARIABLE) < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>(
-            "Unable to define datatype size to variable");
-    }
-    // define encoding to UTF-8 by default
-    H5Tset_cset(_hid, H5T_CSET_UTF8);
+    _hid = create_string(H5T_VARIABLE);
 }
 
+// Fixed-Length strings
+// require class specialization templated for the char length
+template <size_t StrLen>
+class AtomicType<char[StrLen]> : public DataType {
+  public:
+    inline AtomicType() {
+        _hid = create_string(StrLen);
+    }
+};
+
+template <size_t StrLen>
+class AtomicType<FixedLenStringArray<StrLen>> : public DataType {
+  public:
+    inline AtomicType() {
+        _hid = create_string(StrLen);
+    }
+};
+
 template <>
-inline AtomicType<std::complex<double> >::AtomicType()
-{
-    static struct ComplexType : public Object
-    {
-        ComplexType()
-        {
+inline AtomicType<std::complex<double> >::AtomicType() {
+    static struct ComplexType : public Object {
+        ComplexType() {
             _hid = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
             // h5py/numpy compatible datatype
             H5Tinsert(_hid, "r", 0, H5T_NATIVE_DOUBLE);
@@ -155,6 +183,66 @@ inline AtomicType<std::complex<double> >::AtomicType()
     _hid = H5Tcopy(complexType.getId());
 }
 
+// Other cases not supported. Fail early with a user message
+template <typename T>
+AtomicType<T>::AtomicType() {
+    static_assert(details::array_dims<T>::value == 0,
+                  "Atomic types cant be arrays, except for char[] (fixed-len strings)");
+    static_assert(details::array_dims<T>::value > 0, "Type not supported");
+}
+
+
+// class FixedLenStringArray<N>
+
+template <std::size_t N>
+inline FixedLenStringArray<N>
+::FixedLenStringArray(const char array[][N], std::size_t length) {
+    datavec.resize(length);
+    std::memcpy(datavec[0].data(), array[0].data(), N * length);
+}
+
+template <std::size_t N>
+inline FixedLenStringArray<N>
+::FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end) {
+    datavec.resize(static_cast<std::size_t>(iter_end - iter_begin));
+    for (auto& dst_array : datavec) {
+        const char* src = (iter_begin++)->c_str();
+        const size_t length = std::min(N - 1 , std::strlen(src));
+        std::memcpy(dst_array.data(), src, length);
+        dst_array[length] = 0;
+    }
+}
+
+template <std::size_t N>
+inline FixedLenStringArray<N>
+::FixedLenStringArray(const std::vector<std::string> & vec)
+    : FixedLenStringArray(&vec.front(), &vec.back()) {}
+
+template <std::size_t N>
+inline FixedLenStringArray<N>
+::FixedLenStringArray(const std::initializer_list<std::string>& init_list)
+    : FixedLenStringArray(init_list.begin(), init_list.end()) {}
+
+template <std::size_t N>
+inline void FixedLenStringArray<N>::push_back(const std::string& src) {
+    datavec.emplace_back();
+    const size_t length = std::min(N - 1 , src.length());
+    std::memcpy(datavec.back().data(), src.c_str(), length);
+    datavec.back()[length] = 0;
+}
+
+template <std::size_t N>
+inline void FixedLenStringArray<N>::push_back(const std::array<char, N>& src) {
+    datavec.emplace_back();
+    std::copy(src.begin(), src.end(), datavec.back().data());
+}
+
+template <std::size_t N>
+inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
+    return std::string(datavec[i].data());
+}
+
+// Internal
 
 // Calculate the padding required to align an element of a struct
 #define _H5_STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
@@ -231,6 +319,18 @@ inline void EnumType<T>::commit(const Object& object, const std::string& name) c
 
 namespace {
 
+inline hid_t create_string(size_t length){
+    hid_t _hid = H5Tcopy(H5T_C_S1);
+    if (H5Tset_size(_hid, length) < 0) {
+        HDF5ErrMapper::ToException<DataTypeException>(
+            "Unable to define datatype size to variable");
+    }
+    // define encoding to UTF-8 by default
+    H5Tset_cset(_hid, H5T_CSET_UTF8);
+    return _hid;
+}
+
+
 inline DataTypeClass convert_type_class(const H5T_class_t& tclass) {
     switch(tclass) {
         case H5T_TIME:
@@ -292,7 +392,7 @@ inline std::string type_class_string(DataTypeClass tclass) {
     }
 }
 
-}  // namespace
+}  // unnamed namespace
 
 
 /// \brief Create a DataType instance representing type T
@@ -307,10 +407,13 @@ template <typename T>
 inline DataType create_and_check_datatype() {
 
     DataType t = create_datatype<T>();
-
+    // Skip check if the base type is a variable length string
+    if (t.isVariableStr()) {
+        return t;
+    }
     // Check that the size of the template type matches the size that HDF5 is
-    // expecting. Skip this check if the base type is a variable length string
-    if(!t.isVariableStr() && (sizeof(T) != t.getSize())) {
+    // expecting.
+    if (sizeof(T) != t.getSize()) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(T)
            << " != that of memory datatype " << t.getSize()

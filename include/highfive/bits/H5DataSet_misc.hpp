@@ -33,9 +33,7 @@ inline uint64_t DataSet::getStorageSize() const {
 }
 
 inline DataType DataSet::getDataType() const {
-    DataType res;
-    res._hid = H5Dget_type(_hid);
-    return res;
+    return DataType(H5Dget_type(_hid));
 }
 
 inline DataSpace DataSet::getSpace() const {
