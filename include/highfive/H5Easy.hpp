@@ -95,7 +95,7 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write "xt::xarray<T>" to a DataSet in an open HDF5 file.
 ///
-/// \param file Writeable opened HDF5 file
+/// \param file Open HDF5 file, writable
 /// \param path Path of the DataSet
 /// \param data xtensor array to write
 /// \param mode Write mode
