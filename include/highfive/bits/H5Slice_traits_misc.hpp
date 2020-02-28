@@ -108,7 +108,7 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
 
     H5Sselect_none(space.getId());
 
-    for (const auto& column: columns) {
+    for (const auto& column : columns) {
         offsets[offsets.size() - 1] = column;
 
         if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(), 0,
@@ -131,7 +131,6 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
         throw DataSpaceException("Number of coordinates in elements picking "
                                  "should be a multiple of the dimensions.");
     }
-
     const std::size_t num_elements = length / space.getNumberDimensions();
     std::vector<hsize_t> raw_elements;
 
@@ -168,10 +167,7 @@ inline void SliceTraits<Derivate>::read(T& array) const {
            << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
-
-    // Apply pre read conversions
     details::data_converter<T> converter(mem_space);
-
     read(converter.transform_read(array), buffer_info.data_type);
     // re-arrange results
     converter.process_result(array);
@@ -180,14 +176,13 @@ inline void SliceTraits<Derivate>::read(T& array) const {
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype)
-const {
+inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
     const auto& slice = static_cast<const Derivate&>(*this);
     using element_type = typename details::type_of_array<T>::type;
 
-    // Create mem datatype
+    // Auto-detect mem datatype if not provided
     const DataType& mem_datatype =
             dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
 
@@ -213,10 +208,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-
-    // Apply pre write conversions
     details::data_converter<T> converter(mem_space);
-
     write_raw(converter.transform_write(buffer), buffer_info.data_type);
 }
 
@@ -226,8 +218,7 @@ template <typename T>
 inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dtype) {
     using element_type = typename details::type_of_array<T>::type;
     const auto& slice = static_cast<const Derivate&>(*this);
-
-    const auto& mem_datatype =  // Create mem datatype if not specified
+    const auto& mem_datatype =
         dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
 
     if (H5Dwrite(details::get_dataset(slice).getId(),
@@ -238,7 +229,6 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dt
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
 }
-
 
 }  // namespace HighFive
 

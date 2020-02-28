@@ -96,10 +96,7 @@ struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
-inline void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
-    (void)dims;
-    (void)vec;
-}
+inline void get_dim_vector_rec(const T& /*vec*/, std::vector<size_t>& /*dims*/) {}
 
 template <typename T>
 inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
@@ -108,7 +105,7 @@ inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& d
 }
 
 template <typename T>
-std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
+inline std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
     std::vector<size_t> dims;
     get_dim_vector_rec(vec, dims);
     return dims;
@@ -122,7 +119,7 @@ inline void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
 }
 
 template <typename T, std::size_t N>
-std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
+inline std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
     std::vector<size_t> dims;
     get_dim_vector_rec(vec, dims);
     return dims;
@@ -232,13 +229,15 @@ struct is_c_array<T[N]> {
 };
 
 
-
 // converter function for hsize_t -> size_t when hsize_t != size_t
 template <typename Size>
 inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
-    static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
+    static_assert(std::is_same<Size, std::size_t>::value == false,
+                  " hsize_t != size_t mandatory here");
     std::vector<size_t> res(vec.size());
-    std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
+    std::transform(vec.cbegin(), vec.cend(), res.begin(), [](Size e) {
+        return static_cast<size_t>(e);
+    });
     return res;
 }
 

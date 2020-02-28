@@ -101,7 +101,7 @@ class SliceTraits {
     /// \param array: A buffer containing enough space for the data
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     template <typename T>
-    void read(T* array, const DataType &dtype = DataType()) const;
+    void read(T* array, const DataType& dtype = DataType()) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
@@ -123,7 +123,7 @@ class SliceTraits {
     /// \param array: A buffer containing the data to be written
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     template <typename T>
-    void write_raw(const T* buffer, const DataType &dtype = DataType());
+    void write_raw(const T* buffer, const DataType& dtype = DataType());
 
 };
 

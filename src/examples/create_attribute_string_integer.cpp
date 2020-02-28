@@ -59,7 +59,7 @@ int main(void) {
         // let's list the keys of all attributes now
         std::vector<std::string> all_attributes_keys =
             dataset.listAttributeNames();
-        for (const auto& attr: all_attributes_keys) {
+        for (const auto& attr : all_attributes_keys) {
             std::cout << "attribute: " << attr << std::endl;
         }
 

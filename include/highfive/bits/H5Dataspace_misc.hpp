@@ -28,7 +28,7 @@ inline DataSpace::DataSpace(const std::initializer_list<size_t>& items)
 
 template<typename... Args>
     inline DataSpace::DataSpace(size_t dim1, Args... dims)
-    : DataSpace(std::vector<size_t>{dim1, static_cast<size_t>(dims)...}){}
+    : DataSpace(std::vector<size_t>{dim1, static_cast<size_t>(dims)...}) {}
 
 template <class IT, typename>
 inline DataSpace::DataSpace(const IT begin, const IT end) {
@@ -230,14 +230,14 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
         return true;
 
     const std::vector<size_t>& dims = mem_space.getDimensions();
-    for (auto i = dims.crbegin(); i != --dims.rend() && *i == 1; ++i)
+    for (auto i = dims.crbegin(); i != --dims.crend() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)
         return true;
 
     dataset_dims = dims.size();
-    for (auto i = dims.cbegin(); i != --dims.end() && *i == 1; ++i)
+    for (auto i = dims.cbegin(); i != --dims.cend() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)

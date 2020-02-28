@@ -67,7 +67,6 @@ inline void Attribute::read(T& array) const {
         throw DataSpaceException(ss.str());
     }
 
-    // Create mem datatype
     const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre read conversions
@@ -99,8 +98,6 @@ inline void Attribute::write(const T& buffer) {
     }
 
     const DataType mem_datatype = create_and_check_datatype<element_type>();
-
-    // Apply pre write conversions
     details::data_converter<T> converter(mem_space);
 
     if (H5Awrite(getId(), mem_datatype.getId(),
@@ -109,6 +106,7 @@ inline void Attribute::write(const T& buffer) {
             "Error during HDF5 Write: ");
     }
 }
-}
+
+}  // namespace HighFive
 
 #endif // H5ATTRIBUTE_MISC_HPP

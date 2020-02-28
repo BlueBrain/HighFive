@@ -34,7 +34,6 @@ typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, 
     dataset_test_types;
 
 
-
 template <typename T, typename Func>
 void fillVec(std::vector<std::vector<T>>& v, std::vector<size_t> dims, const Func& f) {
     v.resize(dims[0]);

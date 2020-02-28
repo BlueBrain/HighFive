@@ -34,20 +34,16 @@ inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
 // compute size for  boost::multi_array of Eigens
 template <typename T, size_t Dims>
 inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
-    return std::accumulate(vec.origin(),
-                           vec.origin() + vec.num_elements(),
-                           size_t{0u},
-                           [](size_t so_far, const auto& v) {
-                               return so_far +
-                                      static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
-                           });
+    return std::accumulate(vec.origin(), vec.origin() + vec.num_elements(), size_t{0u},
+        [](size_t so_far, const auto& v) {
+            return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
+        });
 }
 #endif
 
 //compute total row size for std::vector of Eigens
 template <typename T, int M, int N>
-inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
-{
+inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec) {
     return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
         return so_far + static_cast<size_t>(v.rows());
     });
@@ -91,7 +87,7 @@ inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T,M,N>>& ve
 
     check_dimensions_vector(compute_total_row_size(vec), dims[current_dim], current_dim);
     for (const auto& k : vec) {
-        std::copy(k.data(), k.data()+k.size(), std::back_inserter(buffer));
+        std::copy(k.data(), k.data() + k.size(), std::back_inserter(buffer));
     }
 }
 
@@ -119,26 +115,23 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
     inline void process_result(std::vector<MatrixTMN>& vec) {
         T* start = _vec_align.data();
-        if(vec.size() > 0) {
+        if (vec.size() > 0) {
             for(auto& v : vec){
                 v = Eigen::Map<MatrixTMN>(start, v.rows(), v.cols());
                 start += v.rows()*v.cols();
             }
         }
+        else if (M == -1 || N == -1) {
+            std::ostringstream ss;
+            ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
+               << "Initiliaze vector elements using Zero, i.e.:\n"
+               << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
+            throw DataSetException(ss.str());
+        }
         else {
-            if(M == -1 || N == -1) {
-                std::ostringstream ss;
-                ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
-                   << "Initiliaze vector elements using Zero, i.e.:\n"
-                   << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
-                throw DataSetException(ss.str());
-            }
-            else
-            {
-                for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
-                    vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
-                    start += M * N;
-                }
+            for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
+                vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
+                start += M * N;
             }
         }
     }
@@ -199,7 +192,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     const DataSpace& _space;
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
-#endif
+#endif  // H5_USE_BOOST
 
 #endif
 

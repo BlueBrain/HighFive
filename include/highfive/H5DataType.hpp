@@ -120,7 +120,7 @@ public:
     CompoundType(const CompoundType& other) = default;
 
     ///
-    /// \brief Initializes a compound type from a vector of member difinitions
+    /// \brief Initializes a compound type from a vector of member definitions
     /// \param t_members
     /// \param size
     inline CompoundType(const std::vector<member_def>& t_members, size_t size = 0)
