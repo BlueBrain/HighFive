@@ -68,7 +68,7 @@ inline size_t getSize(const File& file, const std::string& path);
 ///
 /// \brief Get the shape of an existing DataSet in an readable file.
 ///
-/// \param file Readable opened HDF5 file
+/// \param file Open HDF5 file, readable
 /// \param path Path of the DataSet
 ///
 /// \return the shape of the DataSet
