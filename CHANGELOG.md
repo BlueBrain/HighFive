@@ -1,4 +1,17 @@
-## Version 2.1 - 2019/10/XX
+## Version 2.2 - 2020/03/XX
+### New Features:
+    - Compound: Support of Compound type (#78). Thanks to Richard Shaw.
+    - Support of Fixed-length strings (#277)
+
+### Improvements:
+    - Support for array of type Eigen::Matrix (#258)
+    - An attribute can be deleted with deleteAttribute (#239)
+    - A link can now be unlink (#284). Thanks to Tom Vander Aa.
+    - An annotation can now be any DataType supported by HighFive (#298)
+
+### Bug Fixes:
+
+## Version 2.1 - 2019/10/30
 ### New Features:
     - Inspection: API to get the type of links/objects and datasets data-types (#221)
     - H5Easy: API for simple import/export to Eigen and xtensor (#141)
@@ -7,7 +20,7 @@
     - Shortcut syntax: ability to create a filled dataset in a single line (#130)
     - DataSet now accepts `std::complex` and `std::array`'s (#128, #129)
 
-### Improvements
+### Improvements:
     - Improved compat with MSVC and ICC compilers
     - CMake build system: modernized, create exported targets, better messages, etc.
     - Building and publishing documentation: https://bluebrain.github.io/HighFive/

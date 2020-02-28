@@ -39,7 +39,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(foo)
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(HighFive 2.1 REQUIRED)
+find_package(HighFive 2.2 REQUIRED)
 add_executable(bar bar.cpp)
 target_link_libraries(bar HighFive)
 ```
