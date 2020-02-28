@@ -59,7 +59,7 @@ enum class DumpMode
 ///
 /// \brief Get the size of an existing DataSet in an open HDF5 file.
 ///
-/// \param file Readable opened HDF5 file
+/// \param file Open HDF5 file, readable
 /// \param path Path of the DataSet
 ///
 /// \return Size of the DataSet
