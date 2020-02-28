@@ -113,7 +113,7 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write "xt::xtensor<T,rank>" to a DataSet in an open HDF5 file.
 ///
-/// \param file Writeable opened HDF5 file
+/// \param file Open HDF5 file, writable
 /// \param path Path of the DataSet
 /// \param data The data to write
 /// \param mode Write mode
