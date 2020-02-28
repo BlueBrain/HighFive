@@ -35,7 +35,7 @@ static DataSet dump_impl(File& file, const std::string& path, const T& data)
     using value_type = typename std::decay_t<T>::value_type;
     detail::createGroupsToDataSet(file, path);
     DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
-    dataset.write(data.begin());
+    dataset.write_raw(data.data());
     file.flush();
     return dataset;
 }
@@ -48,7 +48,7 @@ static DataSet overwrite_impl(File& file, const std::string& path, const T& data
     if (dataset.getDimensions() != shape(data)) {
         throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
     }
-    dataset.write(data.begin());
+    dataset.write_raw(data.data());
     file.flush();
     return dataset;
 }

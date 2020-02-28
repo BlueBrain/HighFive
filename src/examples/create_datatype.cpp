@@ -28,15 +28,15 @@ bool operator!=(csl x, csl y) {
 // Tell HighFive how to create the HDF5 datatype for this base type by
 // specialising the create_datatype template
 namespace HighFive {
-template <> inline DataType create_datatype<csl>() {
-    CompoundType v_aligned({
-                               {"u1", AtomicType<unsigned char>{}},
-                               {"u2", AtomicType<short>{}},
-                               {"u3", AtomicType<unsigned long long>{}}
-    });
-    return std::move(v_aligned);
+template <>
+inline DataType create_datatype<csl>() {
+    return CompoundType({{"u1", AtomicType<unsigned char>{}},
+                         {"u2", AtomicType<short>{}},
+                         {"u3", AtomicType<unsigned long long>{}}});
 }
-}
+
+}  // namespace HighFive
+
 
 int main(void) {
 
@@ -54,11 +54,10 @@ int main(void) {
         t.commit(file, "new_type1");
 
         // Create a complex nested datatype with manual alignment
-        CompoundType u({
-                           {"u1", t, 0},
-                           {"u2", t, 9},
-                           {"u3", AtomicType<int>{}, 20}
-        }, 26);
+        CompoundType u({{"u1", t, 0},
+                        {"u2", t, 9},
+                        {"u3", AtomicType<int>{}, 20}},
+                       26);
         u.commit(file, "new_type3");
 
         // Create a more complex type with automatic alignment. For this the
@@ -78,11 +77,10 @@ int main(void) {
         // Create a more complex type with a fully packed alignment. The
         // equivalent type is created with a standard struct alignment in the
         // implementation of HighFive::create_datatype above
-        CompoundType v_packed({
-                                  {"u1", AtomicType<unsigned char>{}, 0},
-                                  {"u2", AtomicType<short>{}, 1},
-                                  {"u3", AtomicType<unsigned long long>{}, 3}
-        }, 11);
+        CompoundType v_packed({{"u1", AtomicType<unsigned char>{}, 0},
+                               {"u2", AtomicType<short>{}, 1},
+                               {"u3", AtomicType<unsigned long long>{}, 3}},
+                              11);
         v_packed.commit(file, "new_type2_packed");
 
 

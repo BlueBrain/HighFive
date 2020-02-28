@@ -7,6 +7,7 @@
  *
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -16,8 +17,6 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#include <stdio.h>
 
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
@@ -63,6 +62,7 @@ BOOST_AUTO_TEST_CASE(HighFiveBasic) {
         BOOST_CHECK_EQUAL(dataset_exist, true);
 
         // and also try to recreate it to the sake of exception testing
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(
             {
                 DataSet fail_duplicated = file.createDataSet(
@@ -101,6 +101,8 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     const std::string DATASET_NAME("dset");
 
     std::remove(FILE_NAME.c_str());
+
+    SilenceHDF5 silencer;
 
     // Attempt open file only ReadWrite should fail (wont create)
     BOOST_CHECK_THROW({ File file(FILE_NAME, File::ReadWrite); },
@@ -183,15 +185,18 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
         DataSetCreateProps badChunking1;
         badChunking1.add(Chunking(std::vector<hsize_t>{1, 1, 1}));
 
-        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                             AtomicType<double>(),
-                                             badChunking0),
-                          DataSetException);
+        {
+            SilenceHDF5 silencer;
+            BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                                 AtomicType<double>(),
+                                                 badChunking0),
+                              DataSetException);
 
-        BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                             AtomicType<double>(),
-                                             badChunking1),
-                          DataSetException);
+            BOOST_CHECK_THROW(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                                 AtomicType<double>(),
+                                                 badChunking1),
+                              DataSetException);
+        }
 
         // here we use the other signature
         DataSet dataset_chunked = file.createDataSet<float>(
@@ -263,6 +268,7 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
         // Write into the new part of the dataset
         dataset.select({3, 3}, {1, 3}).write(t2);
 
+        SilenceHDF5 silencer;
         // Try resize out of bounds
         BOOST_CHECK_THROW(dataset.resize({18, 1}), DataSetException);
         // Try resize invalid dimensions
@@ -708,6 +714,10 @@ void readWriteAttributeVectorTest() {
         Attribute a2 = s.createAttribute<T>("my_attribute_copy",
                                             DataSpace::From(vec));
         a2.write(vec);
+
+        // const data, short-circuit syntax
+        const std::vector<int> v{1, 2, 3};
+        s.createAttribute("version_test", v);
     }
 
     {
@@ -732,6 +742,11 @@ void readWriteAttributeVectorTest() {
 
         for (size_t i = 0; i < x_size; ++i)
             BOOST_CHECK_EQUAL(result2[i], vec[i]);
+
+        std::vector<int> v;  // with const would print a nice err msg
+        file.getDataSet("/dummy_group/dummy_dataset")
+            .getAttribute("version_test")
+            .read(v);
     }
 
     // Delete some attributes
@@ -882,6 +897,7 @@ BOOST_AUTO_TEST_CASE(selectionByElementMultiDim) {
     }
 
     {
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(set.select(ElementSet{0, 1, 2}), DataSpaceException);
     }
 }
@@ -1127,7 +1143,10 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     BOOST_CHECK_EQUAL(file.getName(), FILE_NAME);
 
     // Without parents creating both groups will fail
-    BOOST_CHECK_THROW(file.createGroup(DS_PATH, false), std::exception);
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.createGroup(DS_PATH, false), std::exception);
+    }
     Group g2 = file.createGroup(DS_PATH);
 
     std::vector<double> some_data{5.0, 6.0, 7.0};
@@ -1154,7 +1173,10 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
     BOOST_CHECK(!g1.exist(GROUP_2));
 
     // Check unlink with non-existing group
-    BOOST_CHECK_THROW(g1.unlink("x"), HighFive::GroupException);
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(g1.unlink("x"), HighFive::GroupException);
+    }
 }
 
 
@@ -1171,13 +1193,20 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     g.createDataSet(DS_NAME, some_data);
 
     BOOST_CHECK(file.getLinkType(GROUP_1) == LinkType::Hard);
-    BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.getLinkType("x"), HighFive::GroupException);
+    }
 
     BOOST_CHECK(file.getObjectType(GROUP_1) == ObjectType::Group);
     BOOST_CHECK(file.getObjectType(GROUP_1 + "/" + DS_NAME) == ObjectType::Dataset);
     BOOST_CHECK(g.getObjectType(DS_NAME) == ObjectType::Dataset);
 
-    BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
+    {
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.getObjectType(DS_NAME), HighFive::GroupException);
+    }
 
     // Data type
     auto ds = g.getDataSet(DS_NAME);
@@ -1289,6 +1318,147 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     }
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
+    const std::string FILE_NAME("array_atomic_types.h5");
+    const std::string GROUP_1("group1");
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    char raw_strings[][10] = {"abcd", "1234"};
+
+    /// This will not compile - only char arrays - hits static_assert with a nice error
+    // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
+
+    { // But char should be fine
+        auto ds = file.createDataSet<char[10]>("ds1", DataSpace(2));
+        BOOST_CHECK(ds.getDataType().getClass() == DataTypeClass::String);
+        ds.write(raw_strings);
+    }
+
+    { // char[] is, by default, int8
+        auto ds2 = file.createDataSet("ds2", raw_strings);
+        BOOST_CHECK(ds2.getDataType().getClass() == DataTypeClass::Integer);
+    }
+
+    { // String Truncate happens low-level if well setup
+        auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
+        ds3.write(raw_strings);
+    }
+
+    { // Write as raw elements from pointer (with const)
+        const char (*strings_fixed)[10] = raw_strings;
+        // With a pointer we dont know how many strings -> manual DataSpace
+        file.createDataSet<char[10]>("ds4", DataSpace(2)).write(strings_fixed);
+    }
+
+    { // Cant convert flex-length to fixed-length
+        const char* buffer[] = {"abcd", "1234"};
+        SilenceHDF5 silencer;
+        BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
+                          HighFive::DataSetException);
+    }
+
+    { // scalar char strings
+        const char buffer[] = "abcd";
+        file.createDataSet<char[10]>("ds6", DataSpace(1)).write(buffer);
+    }
+
+    { // Dedicated FixedLenStringArray
+        FixedLenStringArray<10> arr{"0000000", "1111111"};
+        // For completeness, test also the other constructor
+        FixedLenStringArray<10> arrx(std::vector<std::string>{"0000", "1111"});
+
+        // More API: test inserting something
+        arr.push_back("2222");
+        auto ds = file.createDataSet("ds7", arr);  // Short syntax ok
+
+        // Recover truncating
+        FixedLenStringArray<4> array_back;
+        ds.read(array_back);
+        BOOST_CHECK(array_back.size() == 3);
+        BOOST_CHECK(array_back[0] == std::string("000"));
+        BOOST_CHECK(array_back[1] == std::string("111"));
+        BOOST_CHECK(array_back[2] == std::string("222"));
+        BOOST_CHECK(array_back.getString(1) == "111");
+        BOOST_CHECK(array_back.front() == std::string("000"));
+        BOOST_CHECK(array_back.back() == std::string("222"));
+        BOOST_CHECK(array_back.data() == std::string("000"));
+        array_back.data()[0] = 'x';
+        BOOST_CHECK(array_back.data() == std::string("x00"));
+
+        for (auto& raw_elem : array_back) {
+            raw_elem[1] = 'y';
+        }
+        BOOST_CHECK(array_back.getString(1) == "1y1");
+        for (auto iter = array_back.cbegin(); iter != array_back.cend(); ++iter) {
+            BOOST_CHECK((*iter)[1] == 'y');
+        }
+    }
+}
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
+
+    using fixed_array_t = FixedLenStringArray<10>;
+    // increment the characters of a string written in a std::array
+    auto increment_string = [](const fixed_array_t::value_type arr) {
+        fixed_array_t::value_type output(arr);
+        for (auto& c : output) {
+            if (c == 0) {
+                break;
+            }
+            ++c;
+        }
+        return output;
+    };
+
+    // manipulate FixedLenStringArray with std::copy
+    {
+        const fixed_array_t arr1{"0000000", "1111111"};
+        fixed_array_t arr2{"0000000", "1111111"};
+        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
+        BOOST_CHECK_EQUAL(arr2.size(), 4);
+    }
+
+    // manipulate FixedLenStringArray with std::transform
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
+                           increment_string);
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("2222222"));
+    }
+
+    // manipulate FixedLenStringArray with std::transform and reverse iterator
+    {
+        fixed_array_t arr;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
+        }
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("1111111"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("0000000"));
+    }
+
+    // manipulate FixedLenStringArray with std::remove_copy_if
+    {
+        fixed_array_t arr2;
+        {
+            const fixed_array_t arr1{"0000000", "1111111"};
+            std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
+                                [](const fixed_array_t::value_type& s) {
+                                    return std::strncmp(s.data(), "1111111", 7) == 0;
+                                });
+        }
+        BOOST_CHECK_EQUAL(arr2.size(), 1);
+        BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
+    }
+}
+
 #ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(HighFiveEigen) {
     const std::string FILE_NAME("test_eigen.h5");
@@ -1376,6 +1546,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
 
         std::vector<Eigen::MatrixXd> vec_out_exception;
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception), HighFive::DataSetException);
     }
 
@@ -1437,6 +1608,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
 
         boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
 
+        SilenceHDF5 silencer;
         BOOST_CHECK_THROW(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
                           HighFive::DataSetException);
     }

@@ -70,7 +70,19 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
         dataset_name, DataSpace::From(data),
         create_and_check_datatype<typename details::type_of_array<T>::type>(),
         createProps, accessProps);
+    ds.write(data);
+    return ds;
+}
 
+template <typename Derivate>
+template <std::size_t N>
+inline DataSet
+NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
+                                    const FixedLenStringArray<N>& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps) {
+    DataSet ds = createDataSet<char[N]>(
+        dataset_name, DataSpace(data.size()), createProps, accessProps);
     ds.write(data);
     return ds;
 }
@@ -206,9 +218,8 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
 
 template <typename Derivate>
 inline void NodeTraits<Derivate>::unlink(const std::string& node_name) const {
-    herr_t val = H5Ldelete(static_cast<const Derivate*>(this)->getId(),
-                           node_name.c_str(), H5P_DEFAULT);
-
+    const herr_t val = H5Ldelete(static_cast<const Derivate*>(this)->getId(),
+                                 node_name.c_str(), H5P_DEFAULT);
     if (val < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Invalid name for unlink() "));

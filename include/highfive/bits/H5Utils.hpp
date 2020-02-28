@@ -31,12 +31,22 @@
 
 namespace HighFive {
 
+// If ever used, recognize dimensions of FixedLenStringArray
+template <std::size_t N>
+class FixedLenStringArray;
+
+
 namespace details {
 
 // determine at compile time number of dimensions of in memory datasets
 template <typename T>
 struct array_dims {
     static constexpr size_t value = 0;
+};
+
+template <std::size_t N>
+struct array_dims<FixedLenStringArray<N>> {
+    static constexpr size_t value = 1;
 };
 
 template <typename T>
@@ -86,19 +96,16 @@ struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
-void get_dim_vector_rec(const T& vec, std::vector<size_t>& dims) {
-    (void)dims;
-    (void)vec;
-}
+inline void get_dim_vector_rec(const T& /*vec*/, std::vector<size_t>& /*dims*/) {}
 
 template <typename T>
-void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
+inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
     dims.push_back(vec.size());
     get_dim_vector_rec(vec[0], dims);
 }
 
 template <typename T>
-std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
+inline std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
     std::vector<size_t> dims;
     get_dim_vector_rec(vec, dims);
     return dims;
@@ -106,23 +113,27 @@ std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T, std::size_t N>
-void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
+inline void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
     dims.push_back(N);
     get_dim_vector_rec(vec[0], dims);
 }
 
 template <typename T, std::size_t N>
-std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
+inline std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
     std::vector<size_t> dims;
     get_dim_vector_rec(vec, dims);
     return dims;
 }
 
 
+template <typename T>
+using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
+        >::type;
+
 // determine at compile time recursively the basic type of the data
 template <typename T>
 struct type_of_array {
-    typedef T type;
+    typedef unqualified_t<T> type;
 };
 
 template <typename T>
@@ -164,6 +175,32 @@ struct type_of_array<T[N]> {
     typedef typename type_of_array<T>::type type;
 };
 
+
+// Find the type of an eventual char array, otherwise void
+template <typename>
+struct type_char_array {
+    typedef void type;
+};
+
+template <typename T>
+struct type_char_array<T*> {
+    typedef typename std::conditional<
+        std::is_same<unqualified_t<T>, char>::value,
+        char*,
+        typename type_char_array<T>::type
+    >::type type;
+};
+
+template <typename T, std::size_t N>
+struct type_char_array<T[N]> {
+    typedef typename std::conditional<
+        std::is_same<unqualified_t<T>, char>::value,
+        char[N],
+        typename type_char_array<T>::type
+    >::type type;
+};
+
+
 // check if the type is a container ( only vector supported for now )
 template <typename>
 struct is_container {
@@ -176,7 +213,6 @@ struct is_container<std::vector<T> > {
 };
 
 // check if the type is a basic C-Array
-// check if the type is a container ( only vector supported for now )
 template <typename>
 struct is_c_array {
     static const bool value = false;
@@ -193,13 +229,15 @@ struct is_c_array<T[N]> {
 };
 
 
-
 // converter function for hsize_t -> size_t when hsize_t != size_t
 template <typename Size>
 inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
-    static_assert(std::is_same<Size, std::size_t>::value == false, " hsize_t != size_t mandatory here");
+    static_assert(std::is_same<Size, std::size_t>::value == false,
+                  " hsize_t != size_t mandatory here");
     std::vector<size_t> res(vec.size());
-    std::transform(vec.begin(), vec.end(), res.begin(), [](Size e) { return static_cast<size_t>(e); });
+    std::transform(vec.cbegin(), vec.cend(), res.begin(), [](Size e) {
+        return static_cast<size_t>(e);
+    });
     return res;
 }
 

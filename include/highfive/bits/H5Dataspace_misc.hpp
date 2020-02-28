@@ -28,8 +28,7 @@ inline DataSpace::DataSpace(const std::initializer_list<size_t>& items)
 
 template<typename... Args>
     inline DataSpace::DataSpace(size_t dim1, Args... dims)
-    : DataSpace(std::vector<size_t>{static_cast<size_t>(dim1),
-                                    static_cast<size_t>(dims)...}){}
+    : DataSpace(std::vector<size_t>{dim1, static_cast<size_t>(dims)...}) {}
 
 template <class IT, typename>
 inline DataSpace::DataSpace(const IT begin, const IT end) {
@@ -161,12 +160,15 @@ inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
     return DataSpace(details::get_dim_vector(container));
 }
 
+template <std::size_t N, std::size_t Width>
+inline DataSpace DataSpace::FromCharArrayStrings(const char(&)[N][Width]) {
+    return DataSpace(N);
+}
+
 /// Currently only supports 1D std::array
 template <typename Value, std::size_t N>
 inline DataSpace DataSpace::From(const std::array<Value, N>& ) {
-    std::vector<size_t> dims;
-    dims.push_back(N);
-    return DataSpace(dims);
+    return DataSpace(N);
 }
 
 #ifdef H5_USE_BOOST
@@ -228,14 +230,14 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
         return true;
 
     const std::vector<size_t>& dims = mem_space.getDimensions();
-    for (auto i = dims.rbegin(); i != --dims.rend() && *i == 1; ++i)
+    for (auto i = dims.crbegin(); i != --dims.crend() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)
         return true;
 
     dataset_dims = dims.size();
-    for (auto i = dims.begin(); i != --dims.end() && *i == 1; ++i)
+    for (auto i = dims.cbegin(); i != --dims.cend() && *i == 1; ++i)
         --dataset_dims;
 
     if (input_dims == dataset_dims)
