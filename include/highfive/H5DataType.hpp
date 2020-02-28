@@ -172,16 +172,11 @@ private:
 ///                                {"SECOND", Position::SECOND}});
 /// }
 ///
-/// template<>
-/// DataType create_datatype<Position>() {
-///     return create_enum_position();
-/// }
+/// // You have to register the type inside HighFive
+/// HIGHFIVE_REGISTER_ENUM(Position, create_enum_position)
 ///
 /// void write_first(H5::File& file) {
-///     auto en = create_enum_position();
-///     en.commit(file, "Position");
-///     auto dataset = file.createDataset("/foo", DataSpace(1), en);
-///     dataset.write(Position::FIRST);
+///     auto dataset = file.createDataSet("/foo", Position::FIRST);
 /// }
 /// \endcode
 template<typename T>
@@ -190,8 +185,8 @@ public:
     ///
     /// \brief Use for defining a member of enum type
     struct member_def {
-        member_def(std::string t_name, T t_value)
-            : name(std::move(t_name))
+        member_def(const std::string& t_name, T t_value)
+            : name(t_name)
             , value(std::move(t_value)) {}
         std::string name;
         T value;
@@ -199,13 +194,13 @@ public:
 
     EnumType(const EnumType& other) = default;
 
-    EnumType(std::vector<member_def> t_members)
-        : members(std::move(t_members)) {
+    EnumType(const std::vector<member_def>& t_members)
+        : members(t_members) {
         create();
     }
 
     template<typename U>
-    EnumType(const std::initializer_list<member_def>& t_members)
+    EnumType(std::initializer_list<member_def> t_members)
         : EnumType(std::vector<member_def>({t_members})) {}
 
     /// \brief Commit datatype into the given Object
@@ -343,8 +338,27 @@ class FixedLenStringArray {
   private:
     vector_t datavec;
 };
-
 }  // namespace HighFive
+
+/// \brief Macro to extend datatype of HighFive
+///
+/// This macro has to be called outside of any namespace.
+///
+/// \code{.cpp}
+/// enum FooBar { FOO = 1, BAR = 2 };
+/// EnumType create_enum_foobar() {
+///    return EnumType<FooBar>({{"FOO", FooBar::FOO},
+///                             {"BAR", FooBar::BAR}});
+/// }
+/// HIGHFIVE_REGISTER_TYPE(FooBar, create_enum_foobar)
+/// \endcode
+#define HIGHFIVE_REGISTER_TYPE(type, function) \
+    namespace HighFive {                       \
+    template<>                                 \
+    DataType create_datatype<type>() {         \
+        return function();                     \
+    }                                          \
+    }
 
 #include "bits/H5DataType_misc.hpp"
 
