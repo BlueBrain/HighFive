@@ -40,7 +40,7 @@ template <typename Type>
 inline Attribute
 AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                           const DataSpace& space) {
-    return createAttribute(attribute_name, space, AtomicType<Type>());
+    return createAttribute(attribute_name, space, create_and_check_datatype<Type>());
 }
 
 template <typename Derivate>
@@ -50,7 +50,7 @@ AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                           const T& data) {
     Attribute att = createAttribute(
         attribute_name, DataSpace::From(data),
-        AtomicType<typename details::type_of_array<T>::type>());
+        create_and_check_datatype<typename details::type_of_array<T>::type>());
     att.write(data);
     return att;
 }

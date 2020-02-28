@@ -52,11 +52,9 @@ inline DataSpace Attribute::getMemSpace() const { return getSpace(); }
 
 template <typename T>
 inline void Attribute::read(T& array) const {
-    typedef typename std::remove_const<T>::type type_no_const;
+    using element_type = typename details::type_of_array<T>::type;
 
-    type_no_const& nocv_array = const_cast<type_no_const&>(array);
-
-    const size_t dim_array = details::array_dims<type_no_const>::value;
+    const size_t dim_array = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 
@@ -69,29 +67,26 @@ inline void Attribute::read(T& array) const {
     }
 
     // Create mem datatype
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre read conversions
-    details::data_converter<type_no_const> converter(nocv_array, mem_space);
+    details::data_converter<T> converter(array, mem_space);
 
-    if (H5Aread(getId(), array_datatype.getId(),
-                static_cast<void*>(converter.transform_read(nocv_array))) < 0) {
+    if (H5Aread(getId(), mem_datatype.getId(),
+                static_cast<void*>(converter.transform_read(array))) < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
             "Error during HDF5 Read: ");
     }
 
     // re-arrange results
-    converter.process_result(nocv_array);
+    converter.process_result(array);
 }
 
 template <typename T>
 inline void Attribute::write(const T& buffer) {
-    typedef typename std::remove_const<T>::type type_no_const;
+    using element_type = typename details::type_of_array<T>::type;
 
-    type_no_const& nocv_buffer = const_cast<type_no_const&>(buffer);
-
-    const size_t dim_buffer = details::array_dims<type_no_const>::value;
+    const size_t dim_buffer = details::array_dims<T>::value;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 
@@ -103,15 +98,13 @@ inline void Attribute::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
 
-    const AtomicType<typename details::type_of_array<type_no_const>::type>
-        array_datatype;
+    const DataType mem_datatype = create_and_check_datatype<element_type>();
 
     // Apply pre write conversions
-    details::data_converter<type_no_const> converter(nocv_buffer, mem_space);
+    details::data_converter<T> converter(buffer, mem_space);
 
-    if (H5Awrite(getId(), array_datatype.getId(),
-                 static_cast<const void*>(
-                     converter.transform_write(nocv_buffer))) < 0) {
+    if (H5Awrite(getId(), mem_datatype.getId(),
+                 static_cast<const void*>(converter.transform_write(buffer))) < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             "Error during HDF5 Write: ");
     }

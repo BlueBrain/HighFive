@@ -121,6 +121,7 @@ class SliceTraits {
     template <typename T>
     void write(const T* buffer);
 
+
   private:
     typedef Derivate derivate_type;
 };

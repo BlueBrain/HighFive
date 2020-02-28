@@ -57,7 +57,7 @@ class File : public Object,
     ///
     /// \brief Return the name of the file
     ///
-    const std::string& getName() const;
+    const std::string& getName() const noexcept;
 
     ///
     /// \brief flush

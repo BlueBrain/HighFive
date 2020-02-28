@@ -1147,6 +1147,14 @@ BOOST_AUTO_TEST_CASE(HighFiveRecursiveGroups) {
 
     // Using root slash
     BOOST_CHECK(file.exist(std::string("/") + DS_PATH));
+
+    // Check unlink with existing group
+    BOOST_CHECK(g1.exist(GROUP_2));
+    g1.unlink(GROUP_2);
+    BOOST_CHECK(!g1.exist(GROUP_2));
+
+    // Check unlink with non-existing group
+    BOOST_CHECK_THROW(g1.unlink("x"), HighFive::GroupException);
 }
 
 
@@ -1181,6 +1189,104 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     // meta
     BOOST_CHECK(ds.getType() == ObjectType::Dataset);  // internal
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
+}
+
+typedef struct {
+    int m1;
+    int m2;
+    int m3;
+} CSL1;
+
+typedef struct {
+    CSL1 csl1;
+} CSL2;
+
+namespace HighFive {
+    CompoundType create_compound_csl1() {
+        auto t2 = AtomicType<int>();
+        CompoundType t1({
+                            {"m1", AtomicType<int>{}},
+                            {"m2", AtomicType<int>{}},
+                            {"m3", t2}
+        });
+
+        return t1;
+    }
+
+    CompoundType create_compound_csl2() {
+        CompoundType t1 = create_compound_csl1();
+
+        CompoundType t2({
+            {"csl1", t1}
+        });
+
+        return t2;
+    }
+
+    template<>
+    DataType create_datatype<CSL1>() {
+        return create_compound_csl1();
+    }
+
+    template<>
+    DataType create_datatype<CSL2>() {
+        return create_compound_csl2();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
+    const std::string FILE_NAME("compounds_test.h5");
+    const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    auto t3 = AtomicType<int>();
+    CompoundType t1 = create_compound_csl1();
+    t1.commit(file, "my_type");
+
+    CompoundType t2 = create_compound_csl2();
+    t2.commit(file, "my_type2");
+
+
+    {   // Not nested
+        auto dataset = file.createDataSet(DATASET_NAME1, DataSpace(2), t1);
+
+        std::vector<CSL1> csl = {{1,1,1}, {2,3,4}};
+        dataset.write(csl);
+
+        file.flush();
+
+        std::vector<CSL1> result;
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].m1, 1);
+        BOOST_CHECK_EQUAL(result[0].m2, 1);
+        BOOST_CHECK_EQUAL(result[0].m3, 1);
+        BOOST_CHECK_EQUAL(result[1].m1, 2);
+        BOOST_CHECK_EQUAL(result[1].m2, 3);
+        BOOST_CHECK_EQUAL(result[1].m3, 4);
+    }
+
+    {   // Nested
+        auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(2), t2);
+
+        std::vector<CSL2> csl = {{{1,1,1}, {2,3,4}}};
+        dataset.write(csl);
+
+        file.flush();
+        std::vector<CSL2> result = {{{1,1,1}, {2,3,4}}};
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].csl1.m1, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m2, 1);
+        BOOST_CHECK_EQUAL(result[0].csl1.m3, 1);
+        BOOST_CHECK_EQUAL(result[1].csl1.m1, 2);
+        BOOST_CHECK_EQUAL(result[1].csl1.m2, 3);
+        BOOST_CHECK_EQUAL(result[1].csl1.m3, 4);
+    }
 }
 
 #ifdef H5_USE_EIGEN
