@@ -77,7 +77,7 @@ inline std::vector<size_t> getShape(const File& file, const std::string& path);
 ///
 /// \brief Write an Eigen matrix to a DataSet in an open HDF5 file.
 ///
-/// \param file Writeable opened HDF5 file
+/// \param file Open HDF5 file, writable
 /// \param path Path of the DataSet
 /// \param data eigen matrix to write
 /// \param mode Write mode
