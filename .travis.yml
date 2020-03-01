@@ -51,6 +51,7 @@ matrix:
       env:
         - HIGHFIVE_USE_XTENSOR=False
         - HIGHFIVE_PARALLEL_HDF5=False
+        - IS_BASE_ENVIRON=1
       addons:
         apt:
           packages:
@@ -157,4 +158,7 @@ script:
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}
-
+  - popd
+  - if [ $IS_BASE_ENVIRON ]; then
+      bash tests/test_project_integration.sh;
+    fi
