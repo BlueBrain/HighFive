@@ -1459,30 +1459,33 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
     }
 }
 
+
+template <typename T>
+void test_eigen_vec(File& file,
+                    const std::string& test_flavor,
+                    const T& vec_input,
+                    T& vec_output){
+    const std::string DS_NAME = "ds";
+    file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
+    file.getDataSet(DS_NAME + test_flavor).read(vec_output);
+    BOOST_CHECK(vec_input == vec_output);
+}
+
+
 #ifdef H5_USE_EIGEN
 BOOST_AUTO_TEST_CASE(HighFiveEigen) {
     const std::string FILE_NAME("test_eigen.h5");
-    const std::string DS_NAME = "ds";
 
     // Create a new file using the default property lists.
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-    auto test = [&DS_NAME, &file](const std::string& test_flavor, const auto& vec_input, auto& vec_output){
-        file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
-        file.getDataSet(DS_NAME + test_flavor).read(vec_output);
-        BOOST_CHECK(vec_input == vec_output);
-    };
-
     std::string DS_NAME_FLAVOR;
-
 
     // std::vector<of vector <of POD>>
     {
         DS_NAME_FLAVOR = "VectorOfVectorOfPOD";
         std::vector<std::vector<float>> vec_in{{5.0f, 6.0f, 7.0f}, {5.1f, 6.1f, 7.1f}, {5.2f, 6.2f, 7.2f} };
         std::vector<std::vector<float>> vec_out;
-
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     //std::vector<Eigen::Vector3d>
@@ -1490,7 +1493,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         DS_NAME_FLAVOR = "VectorOfEigenVector3d";
         std::vector<Eigen::Vector3d> vec_in{{5.0, 6.0, 7.0},{7.0, 8.0, 9.0}};
         std::vector<Eigen::Vector3d> vec_out;
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // Eigen Vector2d
@@ -1499,7 +1502,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         Eigen::Vector2d vec_in{5.0, 6.0};
         Eigen::Vector2d vec_out;
 
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // Eigen Matrix
@@ -1508,7 +1511,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         Eigen::Matrix<double, 3,3> vec_in; vec_in << 1,2,3,4,5,6,7,8,9;
         Eigen::Matrix<double, 3,3> vec_out;
 
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // Eigen MatrixXd
@@ -1517,7 +1520,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
         Eigen::MatrixXd vec_out(20,5);
 
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // std::vector<of EigenMatrixXd>
@@ -1531,11 +1534,12 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         vec_in.push_back(m2);
         std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20,5));
 
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // std::vector<of EigenMatrixXd> - exception
     {
+        const std::string DS_NAME = "ds";
         DS_NAME_FLAVOR = "VectorEigenMatrixXdExc";
 
         Eigen::MatrixXd m1 = 100. * Eigen::MatrixXd::Random(20, 5);
@@ -1565,7 +1569,7 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         }
         boost::multi_array<Eigen::Vector3f, 3> vec_out(boost::extents[3][2][2]);
 
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
 
@@ -1588,11 +1592,12 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
                     vec_out[i][j][k] = Eigen::MatrixXd::Zero(3, 3);
                 }
             }
-        test(DS_NAME_FLAVOR, vec_in, vec_out);
+        test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
     // boost::mulit_array<of EigenMatrixXd> - exception
     {
+        const std::string DS_NAME = "ds";
         DS_NAME_FLAVOR = "BMultiEigenMatrixXdExc";
 
         boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
@@ -1605,7 +1610,6 @@ BOOST_AUTO_TEST_CASE(HighFiveEigen) {
         }
 
         file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
-
         boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
 
         SilenceHDF5 silencer;
