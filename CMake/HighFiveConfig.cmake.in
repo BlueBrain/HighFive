@@ -1,13 +1,28 @@
 
 # Get HighFive targets
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
-  include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
+
+# Combined HighFive
+add_library(HighFive INTERFACE)
+target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
+
+# Ensure we activate at least C++11
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  if(CMAKE_VERSION VERSION_LESS 3.8)
+    message(WARNING "HighFive requires minimum C++11. \
+        You may need to set CMAKE_CXX_STANDARD in you project")
+  else()
+    # Request cxx_std_11. A client request for a higher std overrides this
+    target_compile_features(HighFive INTERFACE cxx_std_11)
+  endif()
 endif()
 
 # If the user sets this flag, all dependencies are preserved.
 # Useful in central deployments where dependencies are not prepared later
 option(HIGHFIVE_USE_INSTALL_DEPS "Use original Highfive dependencies" @HIGHFIVE_USE_INSTALL_DEPS@)
 if(HIGHFIVE_USE_INSTALL_DEPS)
+  message("HIGHFIVE @PROJECT_VERSION@: Using original dependencies (HIGHFIVE_USE_INSTALL_DEPS=YES)")
+  target_link_libraries(HighFive INTERFACE HighFive_libheaders HighFive_libdeps)
   return()
 endif()
 
@@ -19,7 +34,6 @@ if(NOT DEFINED HIGHFIVE_USE_BOOST)
   option(HIGHFIVE_USE_BOOST "Enable Boost Support" @HIGHFIVE_USE_BOOST@)
 endif()
 
-# Pass on dependencies in target project build
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
-  include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
-endif()
+message("HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
+include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
+target_link_libraries(HighFive INTERFACE HighFive_libheaders _libdeps)
