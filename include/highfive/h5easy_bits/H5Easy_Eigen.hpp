@@ -52,7 +52,7 @@ inline std::vector<EigenIndex> shape(const File& file,
     }
     if (dims.size() == 2) {
         return std::vector<EigenIndex>{static_cast<EigenIndex>(dims[0]),
-                                         static_cast<EigenIndex>(dims[1])};
+                                       static_cast<EigenIndex>(dims[1])};
     }
 
     throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
@@ -67,7 +67,7 @@ inline void write(DataSet& dataset, const T& data) {
             typename std::decay<T>::type::Scalar,
             std::decay<T>::type::RowsAtCompileTime,
             std::decay<T>::type::ColsAtCompileTime,
-            std::decay<T>::type::ColsAtCompileTime==1? Eigen::ColMajor : Eigen::RowMajor,
+            std::decay<T>::type::ColsAtCompileTime==1 ? Eigen::ColMajor : Eigen::RowMajor,
             std::decay<T>::type::MaxRowsAtCompileTime,
             std::decay<T>::type::MaxColsAtCompileTime>,
         0,
