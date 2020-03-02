@@ -168,12 +168,12 @@ private:
 /// };
 ///
 /// EnumType<Position> create_enum_position() {
-///     return EnumType<Position>({{"FIRST", Position::FIRST},
-///                                {"SECOND", Position::SECOND}});
+///     return {{"FIRST", Position::FIRST},
+///             {"SECOND", Position::SECOND}};
 /// }
 ///
 /// // You have to register the type inside HighFive
-/// HIGHFIVE_REGISTER_ENUM(Position, create_enum_position)
+/// HIGHFIVE_REGISTER_TYPE(Position, create_enum_position)
 ///
 /// void write_first(H5::File& file) {
 ///     auto dataset = file.createDataSet("/foo", Position::FIRST);
@@ -199,7 +199,6 @@ public:
         create();
     }
 
-    template<typename U>
     EnumType(std::initializer_list<member_def> t_members)
         : EnumType(std::vector<member_def>({t_members})) {}
 

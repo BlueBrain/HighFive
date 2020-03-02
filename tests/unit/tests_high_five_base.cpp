@@ -1230,38 +1230,29 @@ typedef struct {
     CSL1 csl1;
 } CSL2;
 
-namespace HighFive {
-    CompoundType create_compound_csl1() {
-        auto t2 = AtomicType<int>();
-        CompoundType t1({
-                            {"m1", AtomicType<int>{}},
-                            {"m2", AtomicType<int>{}},
-                            {"m3", t2}
-        });
+CompoundType create_compound_csl1() {
+    auto t2 = AtomicType<int>();
+    CompoundType t1({
+                        {"m1", AtomicType<int>{}},
+                        {"m2", AtomicType<int>{}},
+                        {"m3", t2}
+    });
 
-        return t1;
-    }
-
-    CompoundType create_compound_csl2() {
-        CompoundType t1 = create_compound_csl1();
-
-        CompoundType t2({
-            {"csl1", t1}
-        });
-
-        return t2;
-    }
-
-    template<>
-    DataType create_datatype<CSL1>() {
-        return create_compound_csl1();
-    }
-
-    template<>
-    DataType create_datatype<CSL2>() {
-        return create_compound_csl2();
-    }
+    return t1;
 }
+
+CompoundType create_compound_csl2() {
+    CompoundType t1 = create_compound_csl1();
+
+    CompoundType t2({
+        {"csl1", t1}
+    });
+
+    return t2;
+}
+
+HIGHFIVE_REGISTER_TYPE(CSL1, create_compound_csl1)
+HIGHFIVE_REGISTER_TYPE(CSL2, create_compound_csl2)
 
 BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     const std::string FILE_NAME("compounds_test.h5");
@@ -1339,32 +1330,22 @@ std::ostream& operator<<(std::ostream& ost, const Direction& dir) {
     return ost;
 }
 
-namespace HighFive {
-    EnumType<Position> create_enum_position() {
-        return EnumType<Position>({{"FIRST", Position::FIRST},
-                                   {"SECOND", Position::SECOND},
-                                   {"THIRD", Position::THIRD},
-                                   {"LAST", Position::LAST}});
-    }
-
-    template<>
-    DataType create_datatype<Position>() {
-        return create_enum_position();
-    }
-
-    EnumType<Direction> create_enum_direction() {
-        return EnumType<Direction>({{"FORWARD", Direction::FORWARD},
-                                    {"BACKWARD", Direction::BACKWARD},
-                                    {"LEFT", Direction::LEFT},
-                                    {"RIGHT", Direction::RIGHT}});
-    }
-
-    template<>
-    DataType create_datatype<Direction>() {
-        return create_enum_direction();
-    }
-
+EnumType<Position> create_enum_position() {
+    return {{"FIRST", Position::FIRST},
+            {"SECOND", Position::SECOND},
+            {"THIRD", Position::THIRD},
+            {"LAST", Position::LAST}};
 }
+HIGHFIVE_REGISTER_TYPE(Position, create_enum_position)
+
+EnumType<Direction> create_enum_direction() {
+    return {{"FORWARD", Direction::FORWARD},
+            {"BACKWARD", Direction::BACKWARD},
+            {"LEFT", Direction::LEFT},
+            {"RIGHT", Direction::RIGHT}};
+}
+HIGHFIVE_REGISTER_TYPE(Direction, create_enum_direction)
+
 
 BOOST_AUTO_TEST_CASE(HighFiveEnum) {
     const std::string FILE_NAME("enum_test.h5");
