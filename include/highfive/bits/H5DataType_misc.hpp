@@ -294,6 +294,29 @@ inline void CompoundType::commit(const Object& object, const std::string& name) 
     H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 }
 
+template<typename T>
+inline void EnumType<T>::create() {
+    // Create the HDF5 type
+    if((_hid = H5Tenum_create(AtomicType<typename std::underlying_type<T>::type>{}.getId())) < 0) {
+        HDF5ErrMapper::ToException<DataTypeException>(
+            "Could not create new enum datatype");
+    }
+
+    // Loop over all the members and insert them into the datatype
+    for (const auto& member: members) {
+        if(H5Tenum_insert(_hid, member.name.c_str(), &(member.value)) < 0) {
+            HDF5ErrMapper::ToException<DataTypeException>(
+                "Could not add new member to this enum datatype"
+            );
+        }
+    }
+}
+
+template<typename T>
+inline void EnumType<T>::commit(const Object& object, const std::string& name) const {
+    H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+}
+
 namespace {
 
 inline hid_t create_string(size_t length){
