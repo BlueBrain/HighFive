@@ -7,6 +7,7 @@ endif()
 
 project(HighFive VERSION 2.2)
 
+# INCLUDES
 list(APPEND CMAKE_MODULE_PATH
   ${PROJECT_SOURCE_DIR}/CMake
   ${PROJECT_SOURCE_DIR}/CMake/portability
@@ -17,15 +18,7 @@ include(ReleaseDebugAutoFlags)
 include(CheckCXXStandardSupport)
 include(BlueGenePortability)
 
-if(NOT COMPILER_SUPPORTS_CXX11)
-  message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
-endif()
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
-
+# OPTIONS
 # Compat within Highfive 2.x series
 set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
 set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
@@ -43,10 +36,32 @@ option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 
-# Search dependencies (hdf5, boost, mpi) and build target highfive_deps
+
+# Check compiler cxx_std requirements
+# -----------------------------------
+
+if(NOT COMPILER_SUPPORTS_CXX11)
+  message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
+endif()
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
+if(HIGHFIVE_USE_XTENSOR)
+  if(NOT COMPILER_SUPPORTS_CXX14)
+    message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
+  else()
+    set(CMAKE_CXX_STANDARD 14)
+  endif()
+endif()
+
+
+# Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 
-# HighFive as a sub-project and using the the same filename
+# Setup HighFive to be used in 3rd party project using exports. Create a HighFive target
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
 # Installation of headers (HighFive is only interface)
@@ -72,29 +87,6 @@ if(HIGHFIVE_UNIT_TESTS)
     message(FATAL_ERROR "\
       Boost not found which is required for efficient multi-dimension and tests.\n\
       To disable support please use cmake .. -DHIGHFIVE_USE_BOOST=OFF.")
-  endif()
-endif()
-
-if(HIGHFIVE_USE_EIGEN)
-  find_package(Eigen3 NO_MODULE)
-  if(NOT Eigen3_FOUND)
-    find_package(PkgConfig)
-    pkg_check_modules(EIGEN3 REQUIRED eigen3)
-  endif()
-  if(Eigen3_FOUND)
-    add_definitions(-DH5_USE_EIGEN)
-    include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
-  endif()
-endif()
-
-if(HIGHFIVE_USE_XTENSOR)
-  if(NOT COMPILER_SUPPORTS_CXX14)
-    message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
-  else()
-    set(CMAKE_CXX_STANDARD 14)
-    find_package(xtensor REQUIRED)
-    include_directories(SYSTEM $<TARGET_PROPERTY:xtensor,INTERFACE_INCLUDE_DIRECTORIES>)
-    add_definitions(-DH5_USE_XTENSOR)
   endif()
 endif()
 

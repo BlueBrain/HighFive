@@ -28,6 +28,29 @@ if(HIGHFIVE_USE_BOOST)
   target_compile_definitions(_libdeps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
 endif()
 
+# Eigen
+if(HIGHFIVE_USE_EIGEN)
+  find_package(Eigen3 NO_MODULE)
+  if(Eigen3_FOUND)
+    message(STATUS "Found Eigen ${Eigen3_VERSION}: ${EIGEN3_INCLUDE_DIRS}")
+  else()
+    find_package(PkgConfig)
+    pkg_check_modules(EIGEN3 REQUIRED eigen3)
+  endif()
+  if (NOT Eigen3_FOUND)
+    message(FATAL_ERROR "Eigen was requested but could not be found")
+  endif()   
+  target_include_directories(_libdeps SYSTEM INTERFACE ${EIGEN3_INCLUDE_DIRS})
+  target_compile_definitions(_libdeps INTERFACE H5_USE_EIGEN)
+endif()
+
+# XTensor
+if(HIGHFIVE_USE_XTENSOR)
+  find_package(xtensor REQUIRED)
+  target_include_directories(_libdeps SYSTEM INTERFACE ${xtensor_INCLUDE_DIRS})
+  target_compile_definitions(_libdeps INTERFACE H5_USE_XTENSOR)
+endif()
+
 # MPI
 if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
   find_package(MPI REQUIRED)
