@@ -26,17 +26,13 @@ bool operator!=(csl x, csl y) {
 }
 
 // Tell HighFive how to create the HDF5 datatype for this base type by
-// specialising the create_datatype template
-namespace HighFive {
-template <>
-inline DataType create_datatype<csl>() {
-    return CompoundType({{"u1", AtomicType<unsigned char>{}},
-                         {"u2", AtomicType<short>{}},
-                         {"u3", AtomicType<unsigned long long>{}}});
+// using the HIGHFUVE_REGISTER_TYPE macro
+CompoundType create_compound_csl() {
+    return {{"u1", AtomicType<unsigned char>{}},
+            {"u2", AtomicType<short>{}},
+            {"u3", AtomicType<unsigned long long>{}}};
 }
-
-}  // namespace HighFive
-
+HIGHFIVE_REGISTER_TYPE(csl, create_compound_csl)
 
 int main(void) {
 
