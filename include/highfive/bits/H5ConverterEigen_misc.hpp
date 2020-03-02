@@ -65,8 +65,8 @@ struct data_converter<Eigen::Matrix<T, M, N>, void> {
     inline T* transform_read(MatrixTMN& array) {
         if (_dims[0] != static_cast<size_t>(array.rows()) ||
             _dims[1] != static_cast<size_t>(array.cols())) {
-            array.resize(static_cast<Eigen::Index>(_dims[0]),
-                         static_cast<Eigen::Index>(_dims[1]));
+            array.resize(static_cast<typename MatrixTMN::Index>(_dims[0]),
+                         static_cast<typename MatrixTMN::Index>(_dims[1]));
         }
         return array.data();
     }

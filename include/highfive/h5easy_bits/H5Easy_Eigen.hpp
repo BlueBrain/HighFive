@@ -34,22 +34,25 @@ inline std::vector<size_t> shape(const T& data) {
             static_cast<size_t>(data.cols())};
 }
 
+
+using EigenIndex = Eigen::DenseIndex;
+
 // get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
-inline std::vector<Eigen::Index> shape(const File& file,
-                                       const std::string& path,
-                                       const DataSet& dataset,
-                                       int RowsAtCompileTime) {
+inline std::vector<EigenIndex> shape(const File& file,
+                                     const std::string& path,
+                                     const DataSet& dataset,
+                                     int RowsAtCompileTime) {
     std::vector<size_t> dims = dataset.getDimensions();
 
     if (dims.size() == 1 && RowsAtCompileTime == 1) {
-        return std::vector<Eigen::Index>{1u, static_cast<Eigen::Index>(dims[0])};
+        return std::vector<EigenIndex>{1u, static_cast<EigenIndex>(dims[0])};
     }
     if (dims.size() == 1) {
-        return std::vector<Eigen::Index>{static_cast<Eigen::Index>(dims[0]), 1u};
+        return std::vector<EigenIndex>{static_cast<EigenIndex>(dims[0]), 1u};
     }
     if (dims.size() == 2) {
-        return std::vector<Eigen::Index>{static_cast<Eigen::Index>(dims[0]),
-                                         static_cast<Eigen::Index>(dims[1])};
+        return std::vector<EigenIndex>{static_cast<EigenIndex>(dims[0]),
+                                         static_cast<EigenIndex>(dims[1])};
     }
 
     throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
@@ -102,7 +105,7 @@ template <class T>
 struct load_impl {
     static T run(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        std::vector<Eigen::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
+        std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
         dataset.read(data.data());
 
