@@ -25,7 +25,12 @@ class Group : public Object,
   public:
     Group();
 
+  protected:
+    explicit Group(const Object& o) : Object(o) {};
+
     friend class File;
+
+    friend class ::HighFive::Reference;
 };
 }
 

@@ -27,6 +27,8 @@ class AnnotateTraits;
 
 class ObjectInfo;
 
+class Reference;
+
 
 ///
 /// \brief Enum of the types of objects (H5O api)
@@ -79,18 +81,20 @@ class Object {
     // copy constructor, increase reference counter
     Object(const Object& other);
 
+    // Init with an low-level object id
+    explicit Object(hid_t);
+
     Object& operator=(const Object& other);
 
     hid_t _hid;
 
   private:
-    // Init with an low-level object id
-    explicit Object(hid_t);
 
     template <typename Derivate>
     friend class NodeTraits;
     template <typename Derivate>
     friend class AnnotateTraits;
+    friend class Reference;
 };
 
 

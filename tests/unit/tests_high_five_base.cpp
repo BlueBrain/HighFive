@@ -22,6 +22,7 @@
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5File.hpp>
 #include <highfive/H5Group.hpp>
+#include <highfive/H5Reference.hpp>
 #include <highfive/H5Utility.hpp>
 
 #define BOOST_TEST_MAIN HighFiveTestBase
@@ -1541,6 +1542,82 @@ void test_eigen_vec(File& file,
     file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
     file.getDataSet(DS_NAME + test_flavor).read(vec_output);
     BOOST_CHECK(vec_input == vec_output);
+}
+
+
+BOOST_AUTO_TEST_CASE(HighFiveReference) {
+    const std::string FILE_NAME("h5_ref_test.h5");
+    const std::string DATASET1_NAME("dset1");
+    const std::string DATASET2_NAME("dset2");
+    const std::string GROUP_NAME("/group1");
+    const std::string REFGROUP_NAME("/group2");
+    const std::string REFDATASET_NAME("dset2");
+
+    ContentGenerate<double> generator;
+    std::vector<double> vec1(4);
+    std::vector<double> vec2(4);
+    std::generate(vec1.begin(), vec1.end(), generator);
+    std::generate(vec2.begin(), vec2.end(), generator);
+    {
+        // Create a new file using the default property lists.
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+        // create group
+        Group g1 = file.createGroup(GROUP_NAME);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims{4};
+        DataSpace dataspace(dims);
+
+        DataSet dataset1 = g1.createDataSet(
+            DATASET1_NAME,
+            dataspace, AtomicType<double>());
+        DataSet dataset2 = g1.createDataSet(
+            DATASET2_NAME,
+            dataspace, AtomicType<double>());
+
+        // write some data
+        dataset1.write(vec1);
+        dataset2.write(vec2);
+
+        // create group and dataset to hold reference
+        Group refgroup = file.createGroup(REFGROUP_NAME);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> ref_dims{2};
+        DataSpace ref_dspace(ref_dims);
+
+        DataSet ref_ds = refgroup.createDataSet(REFDATASET_NAME, ref_dspace, AtomicType<Reference>());
+
+        auto references = std::vector<Reference>({{g1, dataset1},{file, g1}});
+
+        ref_ds.write(references);
+    }
+    // read it back
+    {
+        File file(FILE_NAME, File::ReadOnly);
+        Group refgroup = file.getGroup(REFGROUP_NAME);
+
+        DataSet refdataset = refgroup.getDataSet(
+            REFDATASET_NAME);
+        BOOST_CHECK_EQUAL(2, refdataset.getSpace().getDimensions()[0]);
+        auto refs = std::vector<Reference>(refdataset.getSpace().getDimensions()[0]);
+        refdataset.read(refs);
+        auto data_ds = refs[0].dereference<DataSet>(file);
+        std::vector<double> rdata;
+        data_ds.read(rdata);
+        for (size_t i = 0; i < rdata.size(); ++i) {
+            BOOST_CHECK_EQUAL(rdata[i], vec1[i]);
+        }
+
+        auto group = refs[1].dereference<Group>(file);
+        DataSet data_ds2 = group.getDataSet(DATASET2_NAME);
+        std::vector<double> rdata2;
+        data_ds.read(rdata2);
+        for (size_t i = 0; i < rdata2.size(); ++i) {
+            BOOST_CHECK_EQUAL(rdata2[i], vec2[i]);
+        }
+    }
 }
 
 

@@ -85,11 +85,15 @@ class DataSet : public Object,
     inline size_t getElementCount() const {
         return getSpace().getElementCount();
     }
+  protected:
+    explicit DataSet(const Object& o) : Object(o) {};
 
   private:
     DataSet();
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
+
+    friend class ::HighFive::Reference;
 };
 
 }  // namespace HighFive
