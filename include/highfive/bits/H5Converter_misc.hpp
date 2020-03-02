@@ -394,6 +394,8 @@ struct data_converter<FixedLenStringArray<N>, void>
 
 }  // namespace HighFive
 
+#ifdef H5_USE_EIGEN
 #include "H5ConverterEigen_misc.hpp"
+#endif
 
 #endif // H5CONVERTER_MISC_HPP

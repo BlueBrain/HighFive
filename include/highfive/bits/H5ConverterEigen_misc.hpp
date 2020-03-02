@@ -8,12 +8,13 @@
  */
 #pragma once
 
+#include <Eigen/Eigen>
+
 namespace HighFive {
 
 namespace details {
 
 
-#ifdef H5_USE_EIGEN
 //compute size for single Eigen Matrix
 template <typename T, int M, int N>
 inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix) {
@@ -194,9 +195,6 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
 #endif  // H5_USE_BOOST
-
-#endif
-
 
 }  // namespace details
 
