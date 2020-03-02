@@ -120,7 +120,7 @@ class SliceTraits {
     /// responsibility to ensure that the buffer holds the right amount of
     /// elements. For n-dimensional matrices the buffer layout follows H5
     /// default conventions.
-    /// \param array: A buffer containing the data to be written
+    /// \param buffer: A buffer containing the data to be written
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
