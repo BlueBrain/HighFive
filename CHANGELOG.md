@@ -2,12 +2,14 @@
 ### New Features:
     - Compound: Support of Compound type (#78). Thanks to Richard Shaw.
     - Support of Fixed-length strings (#277)
+    - Support of enums (#297)
 
 ### Improvements:
     - Support for array of type Eigen::Matrix (#258)
     - An attribute can be deleted with deleteAttribute (#239)
     - A link can now be unlink (#284). Thanks to Tom Vander Aa.
     - An annotation can now be any DataType supported by HighFive (#298)
+    - Add HIGHFIVE_REGISTER_TYPE to help register of compound types and enums (#297)
 
 ### Bug Fixes:
 
