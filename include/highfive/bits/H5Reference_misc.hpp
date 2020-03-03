@@ -14,12 +14,12 @@
 
 namespace HighFive {
 
-inline Reference::Reference(const Object& parent, const Object& o)
-    : parent_id(parent.getId()) {
+inline Reference::Reference(const Object& location, const Object& object)
+    : parent_id(location.getId()) {
 
     const size_t maxLength = 255;
     char buffer[maxLength + 1];
-    if (H5Iget_name(o.getId(), buffer, maxLength) <= 0) {
+    if (H5Iget_name(object.getId(), buffer, maxLength) <= 0) {
         HDF5ErrMapper::ToException<DataTypeException>("Invalid object or location");
     }
     obj_name = std::string(buffer);
@@ -27,15 +27,29 @@ inline Reference::Reference(const Object& parent, const Object& o)
 
 
 void Reference::create_ref(hobj_ref_t* refptr) const {
+    if (H5Rcreate(refptr, parent_id, obj_name.c_str(), H5R_OBJECT, -1) < 0) {
+        HDF5ErrMapper::ToException<ReferenceException>(
+            std::string("Unable to create the reference for \"") + obj_name +
+            "\":");
+    }
+}
 
-    H5Rcreate(refptr, parent_id, obj_name.c_str(), H5R_OBJECT, -1);
+ObjectType Reference::getType(const Object& location) const {
+    hid_t res;
+    if ((res = H5Rdereference(location.getId(), H5R_OBJECT, &href)) < 0) {
+        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
+    }
+    return Object(res).getType();
 }
 
 template <typename T>
-T Reference::dereference(const Object& loc) {
+T Reference::dereference(const Object& location) const {
     static_assert(std::is_base_of<Object, T>::value != 0,
         "Can only return a subtype of HighFive::Object");
-    hid_t res = H5Rdereference(loc.getId(), H5R_OBJECT, &href);
+    hid_t res;
+    if ((res = H5Rdereference(location.getId(), H5R_OBJECT, &href)) < 0) {
+        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
+    }
     auto obj = Object(res);
     T h5_obj(obj);
     return h5_obj;
@@ -43,23 +57,21 @@ T Reference::dereference(const Object& loc) {
 
 namespace details {
 
-// apply conversion for vectors nested vectors
 template <>
 struct data_converter<std::vector<Reference>> {
-    inline data_converter(const std::vector<Reference>&, const DataSpace& space)
+    inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
         if (!is_1D(_dims)) {
             throw DataSpaceException("Only 1D std::array supported currently.");
         }
     }
 
-    inline typename type_of_array<hobj_ref_t>::type*
-    transform_read(std::vector<Reference>&) {
+    inline hobj_ref_t* transform_read(std::vector<Reference>&) {
         _vec_align.resize(compute_total_size(_dims));
         return _vec_align.data();
     }
 
-    inline typename type_of_array<hobj_ref_t>::type* transform_write(const std::vector<Reference>& vec) {
+    inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
         _vec_align.reserve(compute_total_size(_dims));
         for (size_t i = 0; i < vec.size(); ++i) {
             vec[i].create_ref(&_vec_align[i]);
@@ -78,9 +90,7 @@ struct data_converter<std::vector<Reference>> {
     std::vector<typename type_of_array<hobj_ref_t>::type> _vec_align;
 };
 
-
 }
-
 }
 
 

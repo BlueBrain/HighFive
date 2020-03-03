@@ -1532,19 +1532,6 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
     }
 }
 
-
-template <typename T>
-void test_eigen_vec(File& file,
-                    const std::string& test_flavor,
-                    const T& vec_input,
-                    T& vec_output){
-    const std::string DS_NAME = "ds";
-    file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
-    file.getDataSet(DS_NAME + test_flavor).read(vec_output);
-    BOOST_CHECK(vec_input == vec_output);
-}
-
-
 BOOST_AUTO_TEST_CASE(HighFiveReference) {
     const std::string FILE_NAME("h5_ref_test.h5");
     const std::string DATASET1_NAME("dset1");
@@ -1622,6 +1609,18 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
 
 
 #ifdef H5_USE_EIGEN
+
+template <typename T>
+void test_eigen_vec(File& file,
+                    const std::string& test_flavor,
+                    const T& vec_input,
+                    T& vec_output){
+    const std::string DS_NAME = "ds";
+    file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
+    file.getDataSet(DS_NAME + test_flavor).read(vec_output);
+    BOOST_CHECK(vec_input == vec_output);
+}
+
 BOOST_AUTO_TEST_CASE(HighFiveEigen) {
     const std::string FILE_NAME("test_eigen.h5");
 
