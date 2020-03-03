@@ -66,8 +66,10 @@ struct data_converter<std::vector<Reference>> {
         }
     }
 
-    inline hobj_ref_t* transform_read(std::vector<Reference>&) {
-        _vec_align.resize(compute_total_size(_dims));
+    inline hobj_ref_t* transform_read(std::vector<Reference>& vec) {
+        auto total_size = compute_total_size(_dims);
+        _vec_align.resize(total_size);
+        vec.resize(total_size);
         return _vec_align.data();
     }
 

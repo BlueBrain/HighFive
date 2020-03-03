@@ -1588,7 +1588,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
         DataSet refdataset = refgroup.getDataSet(
             REFDATASET_NAME);
         BOOST_CHECK_EQUAL(2, refdataset.getSpace().getDimensions()[0]);
-        auto refs = std::vector<Reference>(refdataset.getSpace().getDimensions()[0]);
+        auto refs = std::vector<Reference>();
         refdataset.read(refs);
         auto data_ds = refs[0].dereference<DataSet>(file);
         std::vector<double> rdata;
