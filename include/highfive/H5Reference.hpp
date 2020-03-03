@@ -10,10 +10,16 @@
 #ifndef H5REFERENCE_HPP
 #define H5REFERENCE_HPP
 
+#include <string>
+
+#include <H5Ipublic.h>
 #include <H5Rpublic.h>
 
 
 namespace HighFive {
+
+class Object;
+enum class ObjectType;
 
 ///
 /// \brief An HDF5 (object) reference type
@@ -22,7 +28,6 @@ namespace HighFive {
 /// differ from links in their ability to be stored and retrieved as data from the HDF5
 /// file in datasets themselves.
 ///
-
 class Reference {
   public:
     /// \brief Create an empty Reference to be initialized later

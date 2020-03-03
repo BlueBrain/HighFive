@@ -1600,7 +1600,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
         auto group = refs[1].dereference<Group>(file);
         DataSet data_ds2 = group.getDataSet(DATASET2_NAME);
         std::vector<double> rdata2;
-        data_ds.read(rdata2);
+        data_ds2.read(rdata2);
         for (size_t i = 0; i < rdata2.size(); ++i) {
             BOOST_CHECK_EQUAL(rdata2[i], vec2[i]);
         }
