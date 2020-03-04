@@ -186,9 +186,12 @@ inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
     SilenceHDF5 silencer{raise_errors};
     const auto val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                                node_name.c_str(), H5P_DEFAULT);
-    if (raise_errors && val < 0) {
-        HDF5ErrMapper::ToException<GroupException>(
-            std::string("Invalid link for exist() "));
+    if (val < 0) {
+        if (raise_errors) {
+            HDF5ErrMapper::ToException<GroupException>("Invalid link for exist()");
+        } else {
+            return false;
+        }
     }
 
     // The root path always exists, but H5Lexists return 0 or 1
