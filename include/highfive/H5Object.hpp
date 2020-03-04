@@ -99,8 +99,13 @@ class Object {
 ///
 class ObjectInfo  {
   public:
+#if (H5Oget_info_vers < 3)
     /// \brief Retrieve the address of the object (within its file)
     haddr_t getAddress() const noexcept;
+#else
+    /// \brief Retrieve the token of the object (within its file)
+    H5O_token_t getToken() const noexcept;
+#endif
 
     /// \brief Retrieve the number of references to this object
     size_t getRefCount() const noexcept;
