@@ -196,11 +196,8 @@ inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
 
     // The root path always exists, but H5Lexists return 0 or 1
     // depending of the version of HDF5, so always return true for it
-    // We should call H5Lexists anyway to check that no error is returned
-    if (node_name == "/")
-        return true;
-
-    return (val > 0);
+    // We had to call H5Lexists anyway to check that there are no errors
+    return (node_name == "/") ? true : (val > 0);
 }
 
 template <typename Derivate>
