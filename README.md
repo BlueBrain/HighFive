@@ -185,16 +185,14 @@ make test  # build and run unit tests
 ```
 
 
-## Contributors
+### Contributors
 
-- Adrien Devresse <adrien.devresse@epfl.ch> - Blue Brain Project
-- Ali Can Demiralp <demiralpali@gmail.com> -
-- Fernando Pereira <fernando.pereira@epfl.ch> - Blue Brain Project
-- Stefan Eilemann <stefan.eilemann@epfl.ch> - Blue Brain Project
-- Tristan Carel <tristan.carel@epfl.ch> - Blue Brain Project
-- Wolf Vollprecht <w.vollprecht@gmail.com> - QuantStack
-- Tom de Geus <tom@geus.me> - EPFL
-- Nicolas Cornu <nicolas.cornu@epfl.ch> - Blue Brain Project
+See [Contributors](https://github.com/BlueBrain/HighFive/graphs/contributors)
+
+Originally created by Adrien Devresse adrien.devresse@epfl.ch - Blue Brain Project
+
+Maintained by the Computing/HPC team, Blue Brain Project - EPFL
+
 
 ### License
 
