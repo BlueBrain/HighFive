@@ -2,19 +2,19 @@
 ### New Features:
     - Compound Types: API to register and read/write structs (#78). Thanks to Richard Shaw.
     - Support of Fixed-length strings (#277)
-    - Support of enums (#297)
+    - Support of Enum data types (#297)
+    - Attributes can be deleted with `deleteAttribute` (#239)
+    - Objects (hard/soft link) can now be deleted with `unlink` (#284). Thanks to Tom Vander Aa.
 
 ### Improvements:
     - Support for array of type Eigen::Matrix (#258)
-    - An attribute can be deleted with deleteAttribute (#239)
-    - An object (hard/soft link) can now be deleted with `unlink` (#284). Thanks to Tom Vander Aa.
-    -  `Attribute`s (metadata) now support additional types (#298)
-    - Add HIGHFIVE_REGISTER_TYPE to help register of compound types and enums (#297)
+    - `Attribute`s (metadata) now support additional types (#298)
+    - Add `HIGHFIVE_REGISTER_TYPE` to help registering compound types and enums (#297)
     - H5Easy: Generalized implementation for compat with Eigen::ref and Eigen::Map (#291, #293)
     - Strict compatibility with CMake 3.1 and C++11 (#304)
     - CMake: Dependencies may be re-detected on FindPackage, including for Eigen and Xtensor (#255, #304)
-    - ElementSet selection work in N-dimensions (#247)
-    - 
+    - Selection: ElementSet working for N-dimensions (#247)
+
 ### Bug Fixes:
     - Shortcut syntax with c arrays (#273)
     - Exception with error messages in MSVC (#263)
