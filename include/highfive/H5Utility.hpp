@@ -23,10 +23,12 @@ public:
         : _client_data(nullptr)
     {
         H5Eget_auto2(H5E_DEFAULT, &_func, &_client_data);
-        if(enable) H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+        if (enable) H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
     }
 
-    inline ~SilenceHDF5() { H5Eset_auto2(H5E_DEFAULT, _func, _client_data); }
+    inline ~SilenceHDF5() {
+        H5Eset_auto2(H5E_DEFAULT, _func, _client_data);
+    }
 private:
     H5E_auto2_t _func;
     void* _client_data;

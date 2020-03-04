@@ -152,11 +152,11 @@ class NodeTraits {
     // A wrapper over the low-level H5Lexist
     // It makes behavior consistent among versions and by default transforms
     // errors to exceptions
-    bool _exist(const std::string& node_name, bool raise_errors=true) const;
+    bool _exist(const std::string& node_name, bool raise_errors = true) const;
 
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps=DataSetAccessProps()) const;
+                 const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
 };
 
 

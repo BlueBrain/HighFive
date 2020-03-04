@@ -207,7 +207,7 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
     if (group_path.find('/') != std::string::npos) {
         _exist("/");  // Shall not throw under normal circumstances
         // Unless "/" (already checked), verify path exists (not thowing errors)
-        return (group_path == "/")? true : _exist(group_path, false);
+        return (group_path == "/") ? true : _exist(group_path, false);
     }
     return _exist(group_path);
 }
