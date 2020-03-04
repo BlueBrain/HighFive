@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Juan Hernando <juan.hernando@epfl.ch>
+ *  Copyright (c), 2017, Blue Brain Project - EPFL (CH)
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,14 +19,16 @@ namespace HighFive {
 ///
 class SilenceHDF5 {
 public:
-    inline SilenceHDF5()
-        : _client_data(0)
+    inline SilenceHDF5(bool enable=true)
+        : _client_data(nullptr)
     {
         H5Eget_auto2(H5E_DEFAULT, &_func, &_client_data);
-        H5Eset_auto2(H5E_DEFAULT, 0, 0);
+        if (enable) H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
     }
 
-    inline ~SilenceHDF5() { H5Eset_auto2(H5E_DEFAULT, _func, _client_data); }
+    inline ~SilenceHDF5() {
+        H5Eset_auto2(H5E_DEFAULT, _func, _client_data);
+    }
 private:
     H5E_auto2_t _func;
     void* _client_data;

@@ -19,12 +19,11 @@
 #include <vector>
 
 #ifdef H5_USE_BOOST
-#include <boost/multi_array.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
+# include <boost/multi_array.hpp>
+# include <boost/numeric/ublas/matrix.hpp>
 #endif
-
 #ifdef H5_USE_EIGEN
-#include <Eigen/Eigen>
+# include <Eigen/Eigen>
 #endif
 
 #include <H5public.h>

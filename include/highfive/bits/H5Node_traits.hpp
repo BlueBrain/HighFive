@@ -132,7 +132,7 @@ class NodeTraits {
     bool exist(const std::string& node_name) const;
 
     ///
-    /// \brief unlink the given dataset or group 
+    /// \brief unlink the given dataset or group
     /// \param node_name dataset/group name to unlink
     void unlink(const std::string& node_name) const;
 
@@ -150,11 +150,13 @@ class NodeTraits {
     typedef Derivate derivate_type;
 
     // A wrapper over the low-level H5Lexist
-    bool _exist(const std::string& node_name) const;
+    // It makes behavior consistent among versions and by default transforms
+    // errors to exceptions
+    bool _exist(const std::string& node_name, bool raise_errors = true) const;
 
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps=DataSetAccessProps()) const;
+                 const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
 };
 
 

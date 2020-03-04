@@ -17,7 +17,7 @@ HighFive does not require an additional library and supports both HDF5 thread sa
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
 - Zero overhead
-- Support C++11 ( compatible with C++98 )
+- Support C++11
 
 
 ### Dependencies
@@ -35,7 +35,7 @@ Below is a very simple *foo* project creating a *bar* C++ program
 using HighFive library:
 
 ```cmake
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(foo)
 set(CMAKE_CXX_STANDARD 11)
 

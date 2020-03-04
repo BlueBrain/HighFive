@@ -8,26 +8,26 @@
  */
 #pragma once
 
+#include <Eigen/Eigen>
+
 namespace HighFive {
 
 namespace details {
 
 
-#ifdef H5_USE_EIGEN
 //compute size for single Eigen Matrix
 template <typename T, int M, int N>
-inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix)
-{
+inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix) {
     return matrix.rows() * matrix.cols();
 }
 
 //compute size for  std::vector of Eigens
 template <typename T, int M, int N>
-inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
-{
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
-        return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
-    });
+inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec) {
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
+        [](size_t so_far, const Eigen::Matrix<T,M,N>& v) {
+            return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
+        });
 }
 
 #ifdef H5_USE_BOOST
@@ -35,7 +35,7 @@ inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec)
 template <typename T, size_t Dims>
 inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
     return std::accumulate(vec.origin(), vec.origin() + vec.num_elements(), size_t{0u},
-        [](size_t so_far, const auto& v) {
+        [](size_t so_far, const T& v) {
             return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
         });
 }
@@ -44,9 +44,10 @@ inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
 //compute total row size for std::vector of Eigens
 template <typename T, int M, int N>
 inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec) {
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u}, [](size_t so_far, const auto& v) {
-        return so_far + static_cast<size_t>(v.rows());
-    });
+    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
+        [](size_t so_far, const Eigen::Matrix<T,M,N>& v) {
+            return so_far + static_cast<size_t>(v.rows());
+        });
 }
 
 
@@ -54,22 +55,23 @@ inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& ve
 template <typename T, int M, int N>
 struct data_converter<Eigen::Matrix<T, M, N>, void> {
 
-    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
+    typedef Eigen::Matrix<T, M, N> MatrixTMN;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
         assert(_dims.size() == 2);
     }
 
-    inline auto* transform_read(MatrixTMN& array) {
+    inline T* transform_read(MatrixTMN& array) {
         if (_dims[0] != static_cast<size_t>(array.rows()) ||
             _dims[1] != static_cast<size_t>(array.cols())) {
-            array.resize(static_cast<Eigen::Index>(_dims[0]), static_cast<Eigen::Index>(_dims[1]));
+            array.resize(static_cast<typename MatrixTMN::Index>(_dims[0]),
+                         static_cast<typename MatrixTMN::Index>(_dims[1]));
         }
         return array.data();
     }
 
-    inline const auto* transform_write(const MatrixTMN& array) {
+    inline const T* transform_write(const MatrixTMN& array) {
         return array.data();
     }
 
@@ -95,19 +97,19 @@ inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T,M,N>>& ve
 template <typename T, int M, int N>
 struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
-    typedef typename Eigen::Matrix<T, M, N> MatrixTMN;
+    typedef Eigen::Matrix<T, M, N> MatrixTMN;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()), _space(space) {
         assert(_dims.size() == 2);
     }
 
-    inline auto * transform_read(std::vector<MatrixTMN>& /* vec */) {
+    inline T * transform_read(std::vector<MatrixTMN>& /* vec */) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
 
-    inline const auto* transform_write(const std::vector<MatrixTMN>& vec) {
+    inline const T* transform_write(const std::vector<MatrixTMN>& vec) {
         _vec_align.reserve(compute_total_size(vec));
         vectors_to_single_buffer<T, M, N>(vec, _dims, 0, _vec_align);
         return _vec_align.data();
@@ -152,12 +154,12 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
         assert(_dims.size() == Dims);
     }
 
-    inline auto* transform_read(const MultiArrayEigen& /*array*/) {
+    inline T* transform_read(const MultiArrayEigen& /*array*/) {
         _vec_align.resize(compute_total_size(_space.getDimensions()));
         return _vec_align.data();
     }
 
-    inline const auto* transform_write(const MultiArrayEigen& array) {
+    inline const T* transform_write(const MultiArrayEigen& array) {
         _vec_align.reserve(compute_total_size(array));
         for (auto e = array.origin(); e < array.origin() + array.num_elements(); ++e) {
             std::copy(e->data(), e->data() + e->size(), std::back_inserter(_vec_align));
@@ -193,9 +195,6 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     std::vector<typename type_of_array<T>::type> _vec_align;
 };
 #endif  // H5_USE_BOOST
-
-#endif
-
 
 }  // namespace details
 
