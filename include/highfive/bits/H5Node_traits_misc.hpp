@@ -181,11 +181,12 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 }
 
 template <typename Derivate>
-inline bool NodeTraits<Derivate>::_exist(const std::string& node_name) const {
-    htri_t val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
-                           node_name.c_str(), H5P_DEFAULT);
-
-    if (val < 0) {
+inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
+                                         bool raise_errors) const {
+    SilenceHDF5 silencer{raise_errors};
+    const auto val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
+                               node_name.c_str(), H5P_DEFAULT);
+    if (raise_errors && val < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Invalid link for exist() "));
     }
@@ -205,12 +206,8 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
     // so that subsequent errors are only due to missing intermediate groups
     if (group_path.find('/') != std::string::npos) {
         _exist("/");  // Shall not throw under normal circumstances
-        try {
-            SilenceHDF5 silencer;
-            return _exist(group_path);
-        } catch (const GroupException&) {
-            return false;
-        }
+        // Unless "/" (already checked), verify path exists (not thowing errors)
+        return (group_path == "/")? true : _exist(group_path, false);
     }
     return _exist(group_path);
 }
