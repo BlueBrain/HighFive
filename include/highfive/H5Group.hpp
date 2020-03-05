@@ -23,6 +23,9 @@ class Group : public Object,
               public NodeTraits<Group>,
               public AnnotateTraits<Group> {
   public:
+
+    const static ObjectType type = ObjectType::Group;
+
     Group();
 
   protected:

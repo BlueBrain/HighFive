@@ -1556,6 +1556,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
         BOOST_CHECK_EQUAL(2, refdataset.getSpace().getDimensions()[0]);
         auto refs = std::vector<Reference>();
         refdataset.read(refs);
+        BOOST_CHECK_THROW(refs[0].dereference<Group>(file), HighFive::ReferenceException);
         auto data_ds = refs[0].dereference<DataSet>(file);
         std::vector<double> rdata;
         data_ds.read(rdata);

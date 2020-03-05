@@ -22,6 +22,7 @@ namespace HighFive {
 // Forward declarations
 class Object;
 enum class ObjectType;
+class Group;
 
 namespace details {
 // Forward declaration of data_converter with default value of Enable

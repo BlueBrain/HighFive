@@ -29,6 +29,9 @@ class DataSet : public Object,
                 public SliceTraits<DataSet>,
                 public AnnotateTraits<DataSet> {
   public:
+
+    const static ObjectType type = ObjectType::Dataset;
+
     ///
     /// \brief getStorageSize
     /// \return returns the amount of storage allocated for a dataset.

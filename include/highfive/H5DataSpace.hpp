@@ -35,6 +35,9 @@ class DataSet;
 class DataSpace : public Object {
   public:
 
+    const static ObjectType type = ObjectType::DataSpace;
+
+
     static const size_t UNLIMITED = SIZE_MAX;
 
     /// dataspace type
