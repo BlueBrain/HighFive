@@ -11,6 +11,7 @@
 #define H5REFERENCE_HPP
 
 #include <string>
+#include <vector>
 
 #include <H5Ipublic.h>
 #include <H5Rpublic.h>
@@ -18,8 +19,15 @@
 
 namespace HighFive {
 
+// Forward declarations
 class Object;
 enum class ObjectType;
+
+namespace details {
+// Forward declaration of data_converter with default value of Enable
+template <typename T, typename Enable = void>
+struct data_converter;
+}
 
 ///
 /// \brief An HDF5 (object) reference type
@@ -47,7 +55,7 @@ class Reference {
     template <typename T>
     T dereference(const Object& location) const;
 
-    /// \brief Ge only the type of the referenced Object
+    /// \brief Get only the type of the referenced Object
     ///
     /// \param location the location where the referenced object is to be found (a File)
     /// \return the ObjectType of the referenced object
@@ -60,7 +68,8 @@ class Reference {
 
     /// \brief Create the low-level reference and store it at refptr
     ///
-    /// \param refptr Pointer to a memory location where the created HDF5 reference will be stored
+    /// \param refptr Pointer to a memory location where the created HDF5 reference will
+    /// be stored
     void create_ref(hobj_ref_t* refptr) const;
 
   private:
@@ -68,12 +77,12 @@ class Reference {
     std::string obj_name{};
     hid_t parent_id{};
 
-    friend HighFive::details::data_converter<std::vector<Reference>>;
+    friend details::data_converter<std::vector<Reference>>;
 };
 
-}
+}  // namespace HighFive
 
 #include "H5DataSet.hpp"
 #include "bits/H5Reference_misc.hpp"
 
-#endif // H5REFERENCE_HPP
+#endif  // H5REFERENCE_HPP
