@@ -134,6 +134,14 @@ class PropertyException : public Exception {
   public:
     PropertyException(const std::string& err_msg) : Exception(err_msg) {}
 };
+
+///
+/// \brief Exception specific to HighFive Reference interface
+///
+class ReferenceException : public Exception {
+  public:
+    ReferenceException(const std::string& err_msg) : Exception(err_msg) {}
+};
 }
 
 #include "bits/H5Exception_misc.hpp"

@@ -78,6 +78,9 @@ class DataType : public Object {
     ///
     bool empty() const noexcept;
 
+    /// \brief Returns whether the type is a Reference
+    bool isReference() const;
+
   protected:
     friend class Attribute;
     friend class File;
