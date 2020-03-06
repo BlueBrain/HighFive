@@ -74,6 +74,9 @@ class Reference {
     void create_ref(hobj_ref_t* refptr) const;
 
   private:
+
+    Object get_ref(const Object& location) const;
+
     hobj_ref_t href{};
     std::string obj_name{};
     hid_t parent_id{};

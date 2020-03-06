@@ -1523,29 +1523,16 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
         // create group
         Group g1 = file.createGroup(GROUP_NAME);
 
-        // Create the data space for the dataset.
-        std::vector<size_t> dims{4};
-        DataSpace dataspace(dims);
-
+        // create datasets and write some data
         DataSet dataset1 = g1.createDataSet(DATASET1_NAME, vec1);
         DataSet dataset2 = g1.createDataSet(DATASET2_NAME, vec2);
 
-        // write some data
-        dataset1.write(vec1);
-        dataset2.write(vec2);
-
-        // create group and dataset to hold reference
+        // create group to hold reference
         Group refgroup = file.createGroup(REFGROUP_NAME);
 
-        // Create the data space for the dataset.
-        std::vector<size_t> ref_dims{2};
-        DataSpace ref_dspace(ref_dims);
-
-        DataSet ref_ds = refgroup.createDataSet<Reference>(REFDATASET_NAME, ref_dspace);
-
+        // create the references and write them into a new dataset inside refgroup
         auto references = std::vector<Reference>({{g1, dataset1}, {file, g1}});
-
-        ref_ds.write(references);
+        DataSet ref_ds = refgroup.createDataSet(REFDATASET_NAME, references);
     }
     // read it back
     {

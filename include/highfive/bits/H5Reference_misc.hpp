@@ -33,23 +33,22 @@ inline void Reference::create_ref(hobj_ref_t* refptr) const {
 }
 
 inline ObjectType Reference::getType(const Object& location) const {
-    hid_t res;
-#if (H5Rdereference_vers == 2)
-    if ((res = H5Rdereference(location.getId(), H5P_DEFAULT, H5R_OBJECT, &href)) < 0) {
-        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
-    }
-#else
-    if ((res = H5Rdereference(location.getId(), H5R_OBJECT, &href)) < 0) {
-        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
-    }
-#endif
-    return Object(res).getType();
+    return get_ref(location).getType();
 }
 
 template <typename T>
 inline T Reference::dereference(const Object& location) const {
     static_assert(std::is_same<DataSet, T>::value || std::is_same<Group, T>::value,
                   "We can only (de)reference HighFive::Group or HighFive:DataSet");
+    auto obj = get_ref(location) ;
+    if (obj.getType() != T::type) {
+        HDF5ErrMapper::ToException<ReferenceException>(
+            "Trying to dereference the wrong type");
+    }
+    return T(obj);
+}
+
+Object Reference::get_ref(const Object& location) const {
     hid_t res;
 #if (H5Rdereference_vers == 2)
     if ((res = H5Rdereference(location.getId(), H5P_DEFAULT, H5R_OBJECT, &href)) < 0) {
@@ -60,12 +59,7 @@ inline T Reference::dereference(const Object& location) const {
         HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
     }
 #endif
-    Object obj(res);
-    if (obj.getType() != T::type) {
-        HDF5ErrMapper::ToException<ReferenceException>(
-            "Trying to dereference the wrong type");
-    }
-    return T(obj);
+    return Object(res);
 }
 
 }  // namespace HighFive
