@@ -34,7 +34,7 @@ install(FILES
 # Provides IMPORTED targets when using this project from build/install trees.
 
 # Specify targets to include in the HighFive Exports
-install(TARGETS _libheaders _libdeps
+install(TARGETS HighFive _libheaders _libdeps
         EXPORT HighFiveTargets)
 
 # Generate & install the Export for the INSTALL_INTERFACE
