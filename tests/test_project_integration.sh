@@ -14,7 +14,7 @@ test_install() {
     rm -rf "${builddir}"
     mkdir -p "${builddir}"
     pushd "${builddir}"
-    cmake "${TESTDIR}/${project}" $*
+    cmake "${TESTDIR}/${project}" "$@"
     make VERBOSE=1
     ctest
     popd
