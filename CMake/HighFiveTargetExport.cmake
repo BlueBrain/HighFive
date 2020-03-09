@@ -1,15 +1,15 @@
 
 # Define the HighFive INTERFACE library
-add_library(_libheaders INTERFACE)
+add_library(libheaders INTERFACE)
 
-target_include_directories(_libheaders INTERFACE
+target_include_directories(libheaders INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
 
 # Combined HighFive
 add_library(HighFive INTERFACE)
 target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
-target_link_libraries(HighFive INTERFACE _libheaders _libdeps)
+target_link_libraries(HighFive INTERFACE libheaders libdeps)
 
 
 # Generate ${PROJECT_NAME}Config.cmake
@@ -34,12 +34,12 @@ install(FILES
 # Provides IMPORTED targets when using this project from build/install trees.
 
 # Specify targets to include in the HighFive Exports
-install(TARGETS HighFive _libheaders _libdeps
+install(TARGETS HighFive libheaders libdeps
         EXPORT HighFiveTargets)
 
 # Generate & install the Export for the INSTALL_INTERFACE
 install(EXPORT HighFiveTargets
-        NAMESPACE HighFive
+        NAMESPACE HighFive_
         FILE HighFiveTargets.cmake
         DESTINATION share/${PROJECT_NAME}/CMake)
 

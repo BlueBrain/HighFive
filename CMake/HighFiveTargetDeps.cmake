@@ -2,7 +2,7 @@
 # -------------------------------
 
 # Independent target to make it possible to have new dependencies each build
-add_library(_libdeps INTERFACE)
+add_library(libdeps INTERFACE)
 
 # HDF5
 if(NOT DEFINED HDF5_C_LIBRARIES)
@@ -15,17 +15,17 @@ if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
   message(WARNING "Parallel HDF5 requested but libhdf5 doesnt support it")
 endif()
 
-target_include_directories(_libdeps SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-target_link_libraries(_libdeps INTERFACE ${HDF5_C_LIBRARIES})
-target_compile_definitions(_libdeps INTERFACE ${HDF5_DEFINITIONS})
+target_include_directories(libdeps SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
+target_link_libraries(libdeps INTERFACE ${HDF5_C_LIBRARIES})
+target_compile_definitions(libdeps INTERFACE ${HDF5_DEFINITIONS})
 
 # Boost
 if(HIGHFIVE_USE_BOOST)
   set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
   find_package(Boost REQUIRED COMPONENTS system serialization)
   # Dont use imported targets yet, not avail before cmake 3.5
-  target_include_directories(_libdeps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
-  target_compile_definitions(_libdeps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
+  target_include_directories(libdeps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
+  target_compile_definitions(libdeps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
 endif()
 
 # Eigen
@@ -40,26 +40,26 @@ if(HIGHFIVE_USE_EIGEN)
   if (NOT EIGEN3_INCLUDE_DIRS)
     message(FATAL_ERROR "Eigen was requested but could not be found")
   endif()
-  target_include_directories(_libdeps SYSTEM INTERFACE ${EIGEN3_INCLUDE_DIRS})
-  target_compile_definitions(_libdeps INTERFACE H5_USE_EIGEN)
+  target_include_directories(libdeps SYSTEM INTERFACE ${EIGEN3_INCLUDE_DIRS})
+  target_compile_definitions(libdeps INTERFACE H5_USE_EIGEN)
 endif()
 
 # XTensor
 if(HIGHFIVE_USE_XTENSOR)
   find_package(xtensor REQUIRED)
-  target_include_directories(_libdeps SYSTEM INTERFACE ${xtensor_INCLUDE_DIRS})
-  target_compile_definitions(_libdeps INTERFACE H5_USE_XTENSOR)
+  target_include_directories(libdeps SYSTEM INTERFACE ${xtensor_INCLUDE_DIRS})
+  target_compile_definitions(libdeps INTERFACE H5_USE_XTENSOR)
 endif()
 
 # MPI
 if(HIGHFIVE_PARALLEL_HDF5 OR HDF5_IS_PARALLEL)
   find_package(MPI REQUIRED)
-  target_include_directories(_libdeps SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
-  target_link_libraries(_libdeps INTERFACE ${MPI_CXX_LIBRARIES})
+  target_include_directories(libdeps SYSTEM INTERFACE ${MPI_CXX_INCLUDE_PATH})
+  target_link_libraries(libdeps INTERFACE ${MPI_CXX_LIBRARIES})
   if(CMAKE_VERSION VERSION_LESS 3.13)
-    target_link_libraries(_libdeps INTERFACE ${MPI_CXX_LINK_FLAGS})
+    target_link_libraries(libdeps INTERFACE ${MPI_CXX_LINK_FLAGS})
   else()
-    target_link_options(_libdeps INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
+    target_link_options(libdeps INTERFACE "SHELL:${MPI_CXX_LINK_FLAGS}")
   endif()
 endif()
 
