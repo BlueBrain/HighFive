@@ -2,7 +2,7 @@
 set -xeo pipefail
 cd "$( dirname "${BASH_SOURCE[0]}")"  # cd here
 
-BUILDDIR="${PWD}/build/highfive"
+BUILDDIR="${PWD}/build"
 ROOT="${PWD}/.."
 TESTDIR="${PWD}"
 

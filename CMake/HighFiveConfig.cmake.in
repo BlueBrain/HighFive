@@ -4,6 +4,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 
 # Recreate combined HighFive
 add_library(HighFive INTERFACE IMPORTED)
+set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS MPI_NO_CPPBIND)  # No c++ bindings
 
 # Ensure we activate required C++ std
 if(NOT DEFINED CMAKE_CXX_STANDARD)
