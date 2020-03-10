@@ -1,23 +1,24 @@
-## Version 2.2 - 2020/03/XX
+## Version 2.2 - 2020/03/11
 ### New Features:
     - Compound Types: API to register and read/write structs (#78). Thanks to Richard Shaw.
-    - Support of Fixed-length strings (#277)
-    - Support of Enum data types (#297)
-    - Attributes can be deleted with `deleteAttribute` (#239)
+    - Fixed-length strings. API via char[] and `FixedLenStringArray`(#277)
+    - Enum data types (#297)
+    - Datasets of HDF5 References. Support to dereference groups and datasets (#306)
     - Objects (hard/soft link) can now be deleted with `unlink` (#284). Thanks to Tom Vander Aa.
+    - Attributes can be deleted with `deleteAttribute` (#239)
 
 ### Improvements:
-    - Support for array of type Eigen::Matrix (#258)
+    - Support for array of `Eigen::Matrix` (#258)
     - `Attribute`s (metadata) now support additional types (#298)
     - Add `HIGHFIVE_REGISTER_TYPE` to help registering compound types and enums (#297)
-    - H5Easy: Generalized implementation for compat with Eigen::ref and Eigen::Map (#291, #293)
+    - H5Easy: Generalized implementation for compat with `Eigen::ref` and `Eigen::Map` (#291, #293)
     - Strict compatibility with CMake 3.1 and C++11 (#304)
     - CMake: Dependencies may be re-detected on FindPackage, including for Eigen and Xtensor (#255, #304)
-    - Selection: ElementSet working for N-dimensions (#247)
+    - Selection: `ElementSet` working for N-dimensions (#247)
 
 ### Bug Fixes:
     - Shortcut syntax with c arrays (#273)
-    - Exception with error messages in MSVC (#263)
+    - Compat with in MSVC (Exception messages #263 and avoid throwing in `exist` check #308)
 
 ## Version 2.1 - 2019/10/30
 ### New Features:

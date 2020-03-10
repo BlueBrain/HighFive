@@ -1,14 +1,13 @@
 # HighFive - HDF5 header-only C++ Library
 
 [![Build Status](https://travis-ci.org/BlueBrain/HighFive.svg?branch=master)](https://travis-ci.org/BlueBrain/HighFive)
-
 [![Coverity Statys](https://scan.coverity.com/projects/13635/badge.svg)](https://scan.coverity.com/projects/highfive)
 
 ## Brief
 
 HighFive is a modern header-only C++11 friendly interface for libhdf5.
 
-HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array, Eigen and Xtensor. It handles C++ from/to HDF5 automatic type mapping.
+HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array, Eigen and Xtensor. It handles C++ from/to HDF5 with automatic type mapping.
 HighFive does not require additional libraries (see dependencies) and supports both HDF5 thread safety and Parallel HDF5 (contrary to the official hdf5 cpp)
 
 It integrates nicely with other CMake projects by defining (and exporting) a HighFive target.
@@ -27,7 +26,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - automatic conversion of `std::string` to/from variable length string dataset
 - selection() / slice support
 - parallel Read/Write operations from several nodes with Parallel HDF5
-- Advanced types: Compound, Enum, Arrays of Fixed-length strings
+- Advanced types: Compound, Enum, Arrays of Fixed-length strings, References
 - etc... (see [ChangeLog](./CHANGELOG.md))
 
 ### Dependencies
@@ -60,12 +59,11 @@ std::vector<int> result;
 dataset.read(result);
 ```
 
-**Note:** if you can use `DataSpace::From` on your data, you can combine the create and write into one statement. 
+**Note:** if you can use `DataSpace::From` on your data, you can combine the create and write into one statement.
 Such shortcut syntax is available for both `createDataSet` and `createAttribute`.
 ```c++
 DataSet dataset = file.createDataSet("/dataset_one",  data);
 ```
-
 
 #### Write a 2 dimensional C double float array to a 2D HDF5 dataset
 
@@ -148,7 +146,21 @@ target_link_libraries(bar HighFive)
 ```
 
 Alternativelly you can install HighFive once and use it in several projects via `find_package()`.
-When installed via CMake, besides the header files, a special HighFiveConfig.cmake is generated which provides a HighFive target.
+
+A HighFive target will bring the compilation settings to find HighFive headers and all chosen dependencies.
+
+```cmake
+# ...
+find_package(HighFive REQUIRED)
+add_executable(bar bar.cpp)
+target_link_libraries(bar HighFive)
+```
+**Note:** Like with other libraries you may need to provide CMake the location to find highfive: `CMAKE_PREFIX_PATH=<highfive_install_dir>`
+
+**Note:** `find_package(HighFive)` will search dependencies as well (e.g. Boost if requested). In order to use the same dependencies found at HighFive install time (e.g. for system deployments) you may set `HIGHFIVE_USE_INSTALL_DEPS=YES`
+
+### Installing
+When installing via CMake, besides the headers, a HighFiveConfig.cmake is generated which provides the HighFive target, as seen before. Note: You may need to set `CMAKE_INSTALL_PREFIX`:
 ```bash
 mkdir build && cd build
 # Look up HighFive CMake options, consider inspecting with `ccmake`
@@ -156,26 +168,8 @@ cmake .. -DHIGHFIVE_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="<highfive_install_dir>"
 make install
 ```
 
-#### Use from your project
-A HighFive target will bring the compilation settings to find HighFive headers and all chosen dependencies.
-
-`CMakeLists.txt`:
-```cmake
-# ...
-find_package(HighFive REQUIRED)
-add_executable(bar bar.cpp)
-target_link_libraries(bar HighFive)
-```
-**Note:** When building project foo you may need to provide CMake the location to find highfive: `CMAKE_PREFIX_PATH=<highfive_install_dir>`
-
-**Note:** `find_package(HighFive)` will search dependencies as well (e.g. Boost if requested). In order to use the same dependencies found at HighFive install time (e.g. for system deployments) you may set `HIGHFIVE_USE_INSTALL_DEPS=YES`
-
-
 ### Test Compilation
-As a header-only library HighFive doesn't require compilation. You may however build tests and examples.
-
-**Note:** Unit tests require Boost. In case you don't have it in your system use the option `-DHIGHFIVE_USE_BOOST=OFF`.
-It will disable HighFive features requiring it and skip building unit tests (will still build examples).
+As a header-only library, HighFive doesn't require compilation. You may however build tests and examples.
 
 ```bash
 mkdir build && cd build
@@ -184,10 +178,13 @@ make  # build tests and examples
 make test  # build and run unit tests
 ```
 
+**Note:** Unit tests require Boost. In case it's unavailable you may use `-DHIGHFIVE_USE_BOOST=OFF`.
+HighFive with disable support for Boost types as well as unit tests (though most examples will build).
+
 
 ### Contributors
 
-See [Contributors](https://github.com/BlueBrain/HighFive/graphs/contributors)
+List of GitHub [Contributors](https://github.com/BlueBrain/HighFive/graphs/contributors)
 
 Originally created by Adrien Devresse adrien.devresse@epfl.ch - Blue Brain Project
 
