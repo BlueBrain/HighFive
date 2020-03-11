@@ -18,7 +18,7 @@
 
 ### Bug Fixes:
     - Shortcut syntax with c arrays (#273)
-    - Compat with in MSVC (Exception messages #263 and avoid throwing in `exist` check #308)
+    - Compatibility with in MSVC (Exception messages #263 and avoid throwing in `exist` check #308)
 
 ## Version 2.1 - 2019/10/30
 ### New Features:

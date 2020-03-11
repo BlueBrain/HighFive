@@ -184,7 +184,7 @@ HighFive with disable support for Boost types as well as unit tests (though most
 
 ### Contributors
 
-List of GitHub [Contributors](https://github.com/BlueBrain/HighFive/graphs/contributors)
+See the list of contributors on [GitHub](https://github.com/BlueBrain/HighFive/graphs/contributors)
 
 Originally created by Adrien Devresse adrien.devresse@epfl.ch - Blue Brain Project
 
