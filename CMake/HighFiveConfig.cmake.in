@@ -1,12 +1,10 @@
 function(copy_interface_properties target source)
   foreach(prop
-          INTERFACE_AUTOUIC_OPTIONS
           INTERFACE_COMPILE_DEFINITIONS
           INTERFACE_COMPILE_FEATURES
           INTERFACE_COMPILE_OPTIONS
           INTERFACE_INCLUDE_DIRECTORIES
           INTERFACE_LINK_LIBRARIES
-          INTERFACE_POSITION_INDEPENDENT_CODE
           INTERFACE_SOURCES
           INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
     set_property(TARGET ${target} APPEND PROPERTY ${prop} $<TARGET_PROPERTY:${source},${prop}>)

@@ -24,5 +24,15 @@ target_include_directories(simpleton
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 target_link_libraries(simpleton PUBLIC HighFive)
-install(TARGETS simpleton EXPORT simpletonTarget ARCHIVE DESTINATION lib)
+set_property(TARGET simpleton PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(otherton "src/simpleton.cpp")
+target_include_directories(otherton
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_link_libraries(otherton PUBLIC HighFive)
+set_property(TARGET otherton PROPERTY POSITION_INDEPENDENT_CODE OFF)
+
+install(TARGETS simpleton otherton EXPORT simpletonTarget ARCHIVE DESTINATION lib)
 install(EXPORT simpletonTarget DESTINATION lib)
