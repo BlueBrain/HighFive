@@ -84,22 +84,16 @@ inline ObjectInfo Object::getInfo() const {
 #if (H5Oget_info_vers < 3)
     if (H5Oget_info(_hid, &info.raw_info) < 0) {
 #else
-    if (H5Oget_info(_hid, &info.raw_info, H5O_INFO_ALL) < 0) {
+    if (H5Oget_info1(_hid, &info.raw_info) < 0) {
 #endif
         HDF5ErrMapper::ToException<ObjectException>("Unable to obtain info for object");
     }
     return info;
 }
 
-#if (H5Oget_info_vers < 3)
 inline haddr_t ObjectInfo::getAddress() const noexcept {
     return raw_info.addr;
 }
-#else
-inline H5O_token_t ObjectInfo::getToken() const noexcept {
-    return raw_info.token;
-}
-#endif
 inline size_t ObjectInfo::getRefCount() const noexcept {
     return raw_info.rc;
 }
