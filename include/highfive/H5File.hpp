@@ -25,6 +25,9 @@ class File : public Object,
              public NodeTraits<File>,
              public AnnotateTraits<File> {
  public:
+
+    const static ObjectType type = ObjectType::File;
+
     enum : unsigned {
         /// Open flag: Read only access
         ReadOnly = 0x00u,

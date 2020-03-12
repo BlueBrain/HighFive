@@ -23,9 +23,17 @@ class Group : public Object,
               public NodeTraits<Group>,
               public AnnotateTraits<Group> {
   public:
+
+    const static ObjectType type = ObjectType::Group;
+
     Group();
 
+  protected:
+    explicit Group(const Object& o) : Object(o) {};
+
     friend class File;
+
+    friend class ::HighFive::Reference;
 };
 }
 
