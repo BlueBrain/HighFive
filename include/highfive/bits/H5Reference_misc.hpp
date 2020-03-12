@@ -48,7 +48,7 @@ inline T Reference::dereference(const Object& location) const {
     return T(obj);
 }
 
-Object Reference::get_ref(const Object& location) const {
+inline Object Reference::get_ref(const Object& location) const {
     hid_t res;
 #if (H5Rdereference_vers == 2)
     if ((res = H5Rdereference(location.getId(), H5P_DEFAULT, H5R_OBJECT, &href)) < 0) {
