@@ -1,9 +1,9 @@
 #pragma once
 
 #if defined(__GNUC__) || defined(__clang__)
-#define H5_DEPRECATED __attribute__((deprecated))
+#define H5_DEPRECATED(msg) __attribute__((deprecated(#msg)))
 #elif defined(_MSC_VER)
-#define H5_DEPRECATED __declspec(deprecated)
+#define H5_DEPRECATED(msg) __declspec(deprecated(#msg))
 #else
 #pragma message("WARNING: Compiler doesnt support deprecation")
 #define H5_DEPRECATED

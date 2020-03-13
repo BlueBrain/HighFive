@@ -91,7 +91,8 @@ class Object {
 class ObjectInfo  {
   public:
     /// \brief Retrieve the address of the object (within its file)
-    H5_DEPRECATED haddr_t getAddress() const noexcept;
+    H5_DEPRECATED("Deprecated since HighFive 2.2. Soon supporting VOL tokens")
+    haddr_t getAddress() const noexcept;
 
     /// \brief Retrieve the number of references to this object
     size_t getRefCount() const noexcept;
