@@ -108,7 +108,7 @@ class ObjectInfo  {
 #if (H5Oget_info_vers < 3)
     H5O_info_t raw_info;
 #else
-    // Use compat H5O_info1_t while getAddress() is supported (deprected)
+    // Use compat H5O_info1_t while getAddress() is supported (deprecated)
     H5O_info1_t raw_info;
 #endif
 

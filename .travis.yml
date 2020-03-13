@@ -118,14 +118,15 @@ env:
 
 install:
   - export HOMEBREW_NO_AUTO_UPDATE=1
-  - if [[ "$BREW_AUTOUPDATE" && "$BREW_AUTOUPDATE" != 0 ]]; then 
+  - if [[ "$BREW_AUTOUPDATE" && "$BREW_AUTOUPDATE" != 0 ]]; then
       unset HOMEBREW_NO_AUTO_UPDATE;
     fi
 
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       MINCONDA_OS=$MINCONDA_LINUX;
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-       brew install boost hdf5 eigen ninja;
+      brew install boost hdf5 eigen ninja;
+      if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ]; then brew upgrade hdf5; fi;
       MINCONDA_OS=$MINCONDA_OSX;
     fi
 
