@@ -18,7 +18,7 @@ else()
     find_package(HighFive REQUIRED)
 endif()
 
-add_library(simpleton "src/simpleton.cpp")
+add_library(simpleton SHARED "src/simpleton.cpp" "src/otherton.cpp")
 target_include_directories(simpleton
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -26,7 +26,7 @@ target_include_directories(simpleton
 target_link_libraries(simpleton PUBLIC HighFive)
 set_property(TARGET simpleton PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_library(otherton "src/simpleton.cpp")
+add_library(otherton STATIC "src/simpleton.cpp" "src/otherton.cpp")
 target_include_directories(otherton
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -34,5 +34,9 @@ target_include_directories(otherton
 target_link_libraries(otherton PUBLIC HighFive)
 set_property(TARGET otherton PROPERTY POSITION_INDEPENDENT_CODE OFF)
 
-install(TARGETS simpleton otherton EXPORT simpletonTarget ARCHIVE DESTINATION lib)
+install(
+    TARGETS simpleton otherton
+    EXPORT simpletonTarget
+    DESTINATION lib
+    ARCHIVE DESTINATION lib)
 install(EXPORT simpletonTarget DESTINATION lib)
