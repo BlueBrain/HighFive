@@ -30,7 +30,7 @@ cmake "${ROOT}" \
 make install
 popd
 
-for project in test_project test_library; do
+for project in test_project test_dependent_library; do
     # Case 1. Base case: include subdirectory
     test_install "${project}" subdir
 
