@@ -10,7 +10,7 @@
 #endif
 
 
-// Fw declarations
+// Forward declarations
 
 namespace HighFive {
 

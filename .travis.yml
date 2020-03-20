@@ -102,7 +102,7 @@ matrix:
       env:
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_PARALLEL_HDF5=False
-        - BREW_AUTOUPDATE=1
+        - BREW_USE_LATEST=1
 
     # Windows
     - os: windows
@@ -117,16 +117,16 @@ env:
     - MINCONDA_OSX="MacOSX-x86_64"
 
 install:
-  - export HOMEBREW_NO_AUTO_UPDATE=1
-  - if [[ "$BREW_AUTOUPDATE" && "$BREW_AUTOUPDATE" != 0 ]]; then
-      unset HOMEBREW_NO_AUTO_UPDATE;
-    fi
+  - export HOMEBREW_NO_AUTO_UPDATE=1  # for reproducibility, dont autoupdate
 
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       MINCONDA_OS=$MINCONDA_LINUX;
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [ "$BREW_USE_LATEST" ]; then
+        brew update;
+        brew install hdf5; brew upgrade hdf5;
+      fi;
       brew install boost hdf5 eigen ninja;
-      if [ -z "$HOMEBREW_NO_AUTO_UPDATE" ]; then brew upgrade hdf5; fi;
       MINCONDA_OS=$MINCONDA_OSX;
     fi
 
