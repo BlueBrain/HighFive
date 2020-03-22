@@ -1,4 +1,4 @@
-## Version 2.2 - 2020/03/11
+## Version 2.2 - 2020/03/23
 ### New Features:
     - Compound Types: API to register and read/write structs (#78). Thanks to Richard Shaw.
     - Fixed-length strings. API via char[] and `FixedLenStringArray`(#277)
@@ -8,12 +8,12 @@
     - Attributes can be deleted with `deleteAttribute` (#239)
 
 ### Improvements:
-    - Support for array of `Eigen::Matrix` (#258)
     - `Attribute`s (metadata) now support additional types (#298)
-    - Add `HIGHFIVE_REGISTER_TYPE` to help registering compound types and enums (#297)
-    - H5Easy: Generalized implementation for compat with `Eigen::ref` and `Eigen::Map` (#291, #293)
+    - H5Easy: Reworked for compat with `Eigen::ref` and `Eigen::Map` (#291, #293)
+    - Hdf5 1.12 compatibility: working `Object::getInfo` and marking getAddress deprecated (#311)
     - Strict compatibility with CMake 3.1 and C++11 (#304)
-    - CMake: Dependencies may be re-detected on FindPackage, including for Eigen and Xtensor (#255, #304)
+    - CMake: Dependencies may be re-detected on FindPackage, fixed export targets and added integration tests (#255, #304, #312, #317)
+    - Support for array of `Eigen::Matrix` (#258)
     - Selection: `ElementSet` working for N-dimensions (#247)
 
 ### Bug Fixes:
