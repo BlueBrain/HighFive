@@ -460,6 +460,10 @@ BOOST_AUTO_TEST_CASE(DataTypeEqualTakeBack) {
 
     BOOST_CHECK(s == dataset.getDataType());
     BOOST_CHECK(d != dataset.getDataType());
+
+    // Test getAddress and expect deprecation warning
+    auto addr = dataset.getInfo().getAddress();
+    BOOST_CHECK(addr != 0);
 }
 
 BOOST_AUTO_TEST_CASE(DataSpaceTest) {

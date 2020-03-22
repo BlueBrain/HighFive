@@ -16,11 +16,9 @@
 #include "H5Object.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Slice_traits.hpp"
+#include "bits/H5_definitions.hpp"
 
 namespace HighFive {
-
-template <typename Derivate>
-class NodeTraits;
 
 ///
 /// \brief Class representing a dataset.

@@ -13,13 +13,9 @@
 #include <vector>
 
 #include "H5Utils.hpp"
+#include "H5_definitions.hpp"
 
 namespace HighFive {
-
-class Selection;
-
-template <typename>
-class SliceTraits;
 
 class ElementSet {
   public:

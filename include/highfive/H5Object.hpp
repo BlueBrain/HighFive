@@ -15,20 +15,9 @@
 #include <H5Opublic.h>
 
 #include "H5Exception.hpp"
+#include "bits/H5_definitions.hpp"
 
 namespace HighFive {
-
-
-template <typename Derivate>
-class NodeTraits;
-
-template <typename Derivate>
-class AnnotateTraits;
-
-class ObjectInfo;
-
-class Reference;
-
 
 ///
 /// \brief Enum of the types of objects (H5O api)
@@ -90,10 +79,8 @@ class Object {
 
   private:
 
-    template <typename Derivate>
-    friend class NodeTraits;
-    template <typename Derivate>
-    friend class AnnotateTraits;
+    template <typename Derivate> friend class NodeTraits;
+    template <typename Derivate> friend class AnnotateTraits;
     friend class Reference;
 };
 
@@ -104,6 +91,7 @@ class Object {
 class ObjectInfo  {
   public:
     /// \brief Retrieve the address of the object (within its file)
+    H5_DEPRECATED("Deprecated since HighFive 2.2. Soon supporting VOL tokens")
     haddr_t getAddress() const noexcept;
 
     /// \brief Retrieve the number of references to this object
@@ -116,7 +104,13 @@ class ObjectInfo  {
     time_t getModificationTime() const noexcept;
 
   protected:
+
+#if (H5Oget_info_vers < 3)
     H5O_info_t raw_info;
+#else
+    // Use compat H5O_info1_t while getAddress() is supported (deprecated)
+    H5O_info1_t raw_info;
+#endif
 
     friend class Object;
 };
