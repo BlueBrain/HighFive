@@ -23,17 +23,18 @@
 #endif
 
 #include "H5Object.hpp"
+#include "bits/H5_definitions.hpp"
 
 namespace HighFive {
-
-class File;
-class DataSet;
 
 ///
 /// \brief Class representing the space (dimensions) of a dataset
 ///
 class DataSpace : public Object {
   public:
+
+    const static ObjectType type = ObjectType::DataSpace;
+
 
     static const size_t UNLIMITED = SIZE_MAX;
 

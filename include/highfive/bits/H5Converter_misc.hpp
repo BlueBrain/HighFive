@@ -27,6 +27,7 @@
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
+#include "../H5Reference.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive {
@@ -118,7 +119,7 @@ single_buffer_to_vectors(typename std::vector<U>::const_iterator begin_buffer,
 // ===============
 
 // apply conversion operations to basic scalar type
-template <typename Scalar, class Enable = void>
+template <typename Scalar, class Enable>
 struct data_converter {
     inline data_converter(const DataSpace&) noexcept {
 
@@ -191,7 +192,9 @@ template <typename T>
 struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value)>::type>
+        std::is_same<T, typename type_of_array<T>::type>::value &&
+        !std::is_same<T, Reference>::value
+        )>::type>
     : public container_converter<std::vector<T>> {
 
     using container_converter<std::vector<T>>::container_converter;
@@ -389,6 +392,40 @@ struct data_converter<FixedLenStringArray<N>, void>
     using container_converter<FixedLenStringArray<N>, char>::container_converter;
 };
 
+template <>
+struct data_converter<std::vector<Reference>, void> {
+    inline data_converter(const DataSpace& space)
+        : _dims(space.getDimensions()) {
+        if (!is_1D(_dims)) {
+            throw DataSpaceException("Only 1D std::array supported currently.");
+        }
+    }
+
+    inline hobj_ref_t* transform_read(std::vector<Reference>& vec) {
+        auto total_size = compute_total_size(_dims);
+        _vec_align.resize(total_size);
+        vec.resize(total_size);
+        return _vec_align.data();
+    }
+
+    inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
+        _vec_align.reserve(compute_total_size(_dims));
+        for (size_t i = 0; i < vec.size(); ++i) {
+            vec[i].create_ref(&_vec_align[i]);
+        }
+        return _vec_align.data();
+    }
+
+    inline void process_result(std::vector<Reference>& vec) const {
+        auto* href = const_cast<hobj_ref_t*>(_vec_align.data());
+        for (auto& ref : vec) {
+            ref = Reference(*(href++));
+        }
+    }
+
+    std::vector<size_t> _dims;
+    std::vector<typename type_of_array<hobj_ref_t>::type> _vec_align;
+};
 
 }  // namespace details
 

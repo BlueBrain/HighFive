@@ -23,6 +23,9 @@ namespace HighFive {
 ///
 class Attribute : public Object {
   public:
+
+    const static ObjectType type = ObjectType::Attribute;
+
     size_t getStorageSize() const;
 
     ///

@@ -65,6 +65,10 @@ inline bool DataType::isFixedLenStr() const {
     return getClass() == DataTypeClass::String && !isVariableStr();
 }
 
+inline bool DataType::isReference() const {
+    return H5Tequal(_hid, H5T_STD_REF_OBJ) > 0;
+}
+
 inline std::string DataType::string() const {
     return type_class_string(getClass()) + std::to_string(getSize() * 8);
 }
@@ -243,6 +247,12 @@ inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
 }
 
 // Internal
+// Reference mapping
+template <>
+inline AtomicType<Reference>::AtomicType() {
+    _hid = H5Tcopy(H5T_STD_REF_OBJ);
+}
+
 
 // Calculate the padding required to align an element of a struct
 #define _H5_STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
@@ -413,7 +423,7 @@ inline DataType create_and_check_datatype() {
     }
     // Check that the size of the template type matches the size that HDF5 is
     // expecting.
-    if (sizeof(T) != t.getSize()) {
+    if(!t.isReference() && (sizeof(T) != t.getSize())) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(T)
            << " != that of memory datatype " << t.getSize()

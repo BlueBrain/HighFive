@@ -86,7 +86,7 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wall -Wextra")
 		string(CONCAT CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG
 			" -Werror -Wshadow -Wnon-virtual-dtor -Wunused -Woverloaded-virtual"
-			" -Wformat=2 -Wconversion -Wsign-conversion"
+			" -Wformat=2 -Wconversion -Wsign-conversion -Wno-error=deprecated-declarations"
 		)
 		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_ICC)
 			string(CONCAT CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG
