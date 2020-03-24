@@ -1,8 +1,13 @@
 var class_high_five_1_1_data_type =
 [
     [ "DataType", "class_high_five_1_1_data_type.html#ae8534d04fe563807371b0ee533e1476b", null ],
+    [ "DataType", "class_high_five_1_1_data_type.html#a76888c0fb9657dcd4c7310749fdad15c", null ],
+    [ "empty", "class_high_five_1_1_data_type.html#a546aceb9cdbc45d5e471811b8e9cdce8", null ],
     [ "getClass", "class_high_five_1_1_data_type.html#a98e6e07ff15a8e1b73673bc51a1a1339", null ],
     [ "getSize", "class_high_five_1_1_data_type.html#a2658ec3c1c3c77dadeb0b1b053d3a7d3", null ],
+    [ "isFixedLenStr", "class_high_five_1_1_data_type.html#a0d74bf84217ed4b71818d53db9077d5f", null ],
+    [ "isReference", "class_high_five_1_1_data_type.html#a9c9656462b3b4442fd0a8ba7fb0ce93f", null ],
+    [ "isVariableStr", "class_high_five_1_1_data_type.html#a3f239e86eb8235d0cad445421f97af7c", null ],
     [ "operator!=", "class_high_five_1_1_data_type.html#aba3b0bec1739ee7482a9d6f3c7464769", null ],
     [ "operator==", "class_high_five_1_1_data_type.html#a00fa13324f13dc81bf52b385fc9d852b", null ],
     [ "string", "class_high_five_1_1_data_type.html#a957ea4848ba76cab82d7b4cff7210c87", null ],

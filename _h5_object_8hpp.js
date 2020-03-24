@@ -1,7 +1,5 @@
 var _h5_object_8hpp =
 [
-    [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
-    [ "AnnotateTraits", "class_high_five_1_1_annotate_traits.html", "class_high_five_1_1_annotate_traits" ],
     [ "Object", "class_high_five_1_1_object.html", "class_high_five_1_1_object" ],
     [ "ObjectInfo", "class_high_five_1_1_object_info.html", "class_high_five_1_1_object_info" ],
     [ "ObjectType", "_h5_object_8hpp.html#ad8790d0a626a7355392c05dc69a1d474", [

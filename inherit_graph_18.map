@@ -1,3 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$struct_high_five_1_1details_1_1data__converter_3_01std_1_1array_3_01_t_00_01_s_01_4_00_01typenamc91534cb55aca5baa82cc80a3e1d2d59.html" title="HighFive::details::\ldata_converter\&lt; std\l::array\&lt; T, S \&gt;, typename\l std::enable_if\&lt;(std::is\l_same\&lt; T, typename type_of\l_array\&lt; T \&gt;::type \&gt;::value)\l\&gt;::type \&gt;" alt="" coords="5,5,199,120"/>
+<area shape="rect" id="node1" href="$class_high_five_1_1_slice_traits.html" title=" " alt="" coords="5,5,159,47"/>
 </map>

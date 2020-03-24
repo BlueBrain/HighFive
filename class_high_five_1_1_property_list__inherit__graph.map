@@ -1,5 +1,6 @@
 <map id="HighFive::PropertyList&lt; T &gt;" name="HighFive::PropertyList&lt; T &gt;">
-<area shape="rect" id="node2" href="$class_high_five_1_1_file_driver.html" title="file driver base concept " alt="" coords="22,80,161,107"/>
-<area shape="rect" id="node4" href="$class_high_five_1_1_raw_property_list.html" title="HighFive::RawPropertyList\&lt; T \&gt;" alt="" coords="185,80,395,107"/>
-<area shape="rect" id="node3" href="$class_high_five_1_1_m_p_i_o_file_driver.html" title="MPIIO Driver for Parallel HDF5. " alt="" coords="5,155,177,181"/>
+<area shape="rect" id="node1" title="Base HDF5 property List." alt="" coords="103,5,305,32"/>
+<area shape="rect" id="node2" href="$class_high_five_1_1_file_driver.html" title="file driver base concept" alt="" coords="22,80,173,107"/>
+<area shape="rect" id="node4" href="$class_high_five_1_1_raw_property_list.html" title=" " alt="" coords="197,80,427,107"/>
+<area shape="rect" id="node3" href="$class_high_five_1_1_m_p_i_o_file_driver.html" title="MPIIO Driver for Parallel HDF5." alt="" coords="5,155,189,181"/>
 </map>

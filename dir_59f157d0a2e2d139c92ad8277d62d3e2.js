@@ -6,7 +6,6 @@ var dir_59f157d0a2e2d139c92ad8277d62d3e2 =
       [ "Attribute", "class_high_five_1_1_attribute.html", "class_high_five_1_1_attribute" ]
     ] ],
     [ "H5DataSet.hpp", "_h5_data_set_8hpp.html", [
-      [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
       [ "DataSet", "class_high_five_1_1_data_set.html", "class_high_five_1_1_data_set" ]
     ] ],
     [ "H5DataSpace.hpp", "_h5_data_space_8hpp.html", [
@@ -23,7 +22,8 @@ var dir_59f157d0a2e2d139c92ad8277d62d3e2 =
       [ "AttributeException", "class_high_five_1_1_attribute_exception.html", "class_high_five_1_1_attribute_exception" ],
       [ "DataSetException", "class_high_five_1_1_data_set_exception.html", "class_high_five_1_1_data_set_exception" ],
       [ "GroupException", "class_high_five_1_1_group_exception.html", "class_high_five_1_1_group_exception" ],
-      [ "PropertyException", "class_high_five_1_1_property_exception.html", "class_high_five_1_1_property_exception" ]
+      [ "PropertyException", "class_high_five_1_1_property_exception.html", "class_high_five_1_1_property_exception" ],
+      [ "ReferenceException", "class_high_five_1_1_reference_exception.html", "class_high_five_1_1_reference_exception" ]
     ] ],
     [ "H5File.hpp", "_h5_file_8hpp.html", [
       [ "File", "class_high_five_1_1_file.html", "class_high_five_1_1_file" ]
@@ -37,6 +37,9 @@ var dir_59f157d0a2e2d139c92ad8277d62d3e2 =
     ] ],
     [ "H5Object.hpp", "_h5_object_8hpp.html", "_h5_object_8hpp" ],
     [ "H5PropertyList.hpp", "_h5_property_list_8hpp.html", "_h5_property_list_8hpp" ],
+    [ "H5Reference.hpp", "_h5_reference_8hpp.html", [
+      [ "Reference", "class_high_five_1_1_reference.html", "class_high_five_1_1_reference" ]
+    ] ],
     [ "H5Selection.hpp", "_h5_selection_8hpp.html", [
       [ "Selection", "class_high_five_1_1_selection.html", "class_high_five_1_1_selection" ]
     ] ],

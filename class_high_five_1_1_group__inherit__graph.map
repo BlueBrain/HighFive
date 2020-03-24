@@ -1,5 +1,6 @@
 <map id="HighFive::Group" name="HighFive::Group">
-<area shape="rect" id="node2" href="$class_high_five_1_1_object.html" title="HighFive::Object" alt="" coords="5,13,125,39"/>
-<area shape="rect" id="node3" href="$class_high_five_1_1_node_traits.html" title="HighFive::NodeTraits\l\&lt; Group \&gt;" alt="" coords="149,5,296,47"/>
-<area shape="rect" id="node4" href="$class_high_five_1_1_annotate_traits.html" title="HighFive::AnnotateTraits\l\&lt; Group \&gt;" alt="" coords="321,5,487,47"/>
+<area shape="rect" id="node1" title="Represents an hdf5 group." alt="" coords="173,95,300,121"/>
+<area shape="rect" id="node2" href="$class_high_five_1_1_object.html" title=" " alt="" coords="5,13,135,39"/>
+<area shape="rect" id="node3" href="$class_high_five_1_1_node_traits.html" title=" " alt="" coords="159,5,315,47"/>
+<area shape="rect" id="node4" href="$class_high_five_1_1_annotate_traits.html" title=" " alt="" coords="339,5,521,47"/>
 </map>

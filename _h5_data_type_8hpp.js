@@ -2,6 +2,12 @@ var _h5_data_type_8hpp =
 [
     [ "DataType", "class_high_five_1_1_data_type.html", "class_high_five_1_1_data_type" ],
     [ "AtomicType", "class_high_five_1_1_atomic_type.html", "class_high_five_1_1_atomic_type" ],
+    [ "CompoundType", "class_high_five_1_1_compound_type.html", "class_high_five_1_1_compound_type" ],
+    [ "member_def", "struct_high_five_1_1_compound_type_1_1member__def.html", "struct_high_five_1_1_compound_type_1_1member__def" ],
+    [ "EnumType", "class_high_five_1_1_enum_type.html", "class_high_five_1_1_enum_type" ],
+    [ "member_def", "struct_high_five_1_1_enum_type_1_1member__def.html", "struct_high_five_1_1_enum_type_1_1member__def" ],
+    [ "FixedLenStringArray", "class_high_five_1_1_fixed_len_string_array.html", "class_high_five_1_1_fixed_len_string_array" ],
+    [ "HIGHFIVE_REGISTER_TYPE", "_h5_data_type_8hpp.html#aabbf38f2b276343c2b2a85116e60313c", null ],
     [ "DataTypeClass", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847b", [
       [ "Time", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847baa76d4ef5f3f6a672bbfab2865563e530", null ],
       [ "Integer", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847baa0faef0851b4294c06f2b94bb1cb2044", null ],
@@ -15,5 +21,7 @@ var _h5_data_type_8hpp =
       [ "VarLen", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847ba72c6842c18d1470d1c991f865a2fab3a", null ],
       [ "Array", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847ba4410ec34d9e6c1a68100ca0ce033fb17", null ],
       [ "Invalid", "_h5_data_type_8hpp.html#ad43e509d198c83c5484c796babdd847ba4bbb8f967da6d1a610596d7257179c2b", null ]
-    ] ]
+    ] ],
+    [ "create_and_check_datatype", "_h5_data_type_8hpp.html#a43d3946c0bb037e99c803ec90dc247b4", null ],
+    [ "create_datatype", "_h5_data_type_8hpp.html#a6f3b307cc5b6bd82d6360f13cacac2de", null ]
 ];

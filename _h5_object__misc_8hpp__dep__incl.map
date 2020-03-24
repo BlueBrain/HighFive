@@ -1,20 +1,25 @@
-<map id="/home/cornu/HighFive/include/highfive/bits/H5Object_misc.hpp" name="/home/cornu/HighFive/include/highfive/bits/H5Object_misc.hpp">
-<area shape="rect" id="node2" href="$_h5_object_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Object.hpp" alt="" coords="398,109,598,151"/>
-<area shape="rect" id="node3" href="$_h5_property_list_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Property\lList.hpp" alt="" coords="223,467,410,523"/>
-<area shape="rect" id="node5" href="$_h5_file_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5File.hpp" alt="" coords="239,764,421,805"/>
-<area shape="rect" id="node12" href="$_h5_group_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Group.hpp" alt="" coords="367,675,565,716"/>
-<area shape="rect" id="node14" href="$_h5_data_space_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5DataSpace.hpp" alt="" coords="829,199,1055,240"/>
-<area shape="rect" id="node15" href="$_h5_data_set_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5DataSet.hpp" alt="" coords="686,377,897,419"/>
-<area shape="rect" id="node18" href="$_h5_attribute_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Attribute.hpp" alt="" coords="493,288,703,329"/>
-<area shape="rect" id="node19" href="$_h5_data_type_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5DataType.hpp" alt="" coords="535,199,754,240"/>
-<area shape="rect" id="node4" href="$_h5_node__traits_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits.hpp" alt="" coords="255,571,405,627"/>
-<area shape="rect" id="node13" href="$_h5_file_driver_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5FileDriver.hpp" alt="" coords="74,675,293,716"/>
-<area shape="rect" id="node6" href="$_h5_easy_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Easy.hpp" alt="" coords="234,853,426,895"/>
-<area shape="rect" id="node7" href="$_h5_easy__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_misc.hpp" alt="" coords="118,943,281,999"/>
-<area shape="rect" id="node8" href="$_h5_easy__scalar_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_scalar.hpp" alt="" coords="203,1047,371,1103"/>
-<area shape="rect" id="node9" href="$_h5_easy__vector_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_vector.hpp" alt="" coords="5,1151,175,1207"/>
-<area shape="rect" id="node10" href="$_h5_easy___eigen_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_Eigen.hpp" alt="" coords="220,1151,387,1207"/>
-<area shape="rect" id="node11" href="$_h5_easy__xtensor_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_xtensor.hpp" alt="" coords="442,1151,618,1207"/>
-<area shape="rect" id="node17" href="$_h5_selection_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Selection.hpp" alt="" coords="726,474,942,515"/>
-<area shape="rect" id="node16" href="$_h5_node__traits__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits_misc.hpp" alt="" coords="639,571,810,627"/>
+<map id="/home/alkino/EPFL/HighFive/include/highfive/bits/H5Object_misc.hpp" name="/home/alkino/EPFL/HighFive/include/highfive/bits/H5Object_misc.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="609,5,831,61"/>
+<area shape="rect" id="node2" href="$_h5_object_8hpp.html" title=" " alt="" coords="609,109,831,151"/>
+<area shape="rect" id="node3" href="$_h5_data_space_8hpp.html" title=" " alt="" coords="277,199,526,240"/>
+<area shape="rect" id="node4" href="$_h5_data_set_8hpp.html" title=" " alt="" coords="369,288,599,329"/>
+<area shape="rect" id="node8" href="$_h5_attribute_8hpp.html" title=" " alt="" coords="655,675,891,716"/>
+<area shape="rect" id="node9" href="$_h5_file_8hpp.html" title=" " alt="" coords="816,957,1019,999"/>
+<area shape="rect" id="node16" href="$_h5_group_8hpp.html" title=" " alt="" coords="808,868,1027,909"/>
+<area shape="rect" id="node20" href="$_h5_data_type_8hpp.html" title=" " alt="" coords="600,199,840,240"/>
+<area shape="rect" id="node21" href="$_h5_property_list_8hpp.html" title=" " alt="" coords="966,675,1223,716"/>
+<area shape="rect" id="node18" href="$_h5_selection_8hpp.html" title=" " alt="" coords="43,675,282,716"/>
+<area shape="rect" id="node5" href="$_h5_reference_8hpp.html" title=" " alt="" coords="443,377,688,419"/>
+<area shape="rect" id="node19" href="$_h5_node__traits__misc_8hpp.html" title=" " alt="" coords="309,764,523,820"/>
+<area shape="rect" id="node6" href="$_h5_converter__misc_8hpp.html" title=" " alt="" coords="444,467,687,523"/>
+<area shape="rect" id="node7" href="$_h5_attribute__misc_8hpp.html" title=" " alt="" coords="453,571,689,627"/>
+<area shape="rect" id="node17" href="$_h5_slice__traits__misc_8hpp.html" title=" " alt="" coords="168,571,379,627"/>
+<area shape="rect" id="node10" href="$_h5_easy_8hpp.html" title=" " alt="" coords="813,1047,1021,1088"/>
+<area shape="rect" id="node11" href="$_h5_easy__misc_8hpp.html" title=" " alt="" coords="665,1136,868,1192"/>
+<area shape="rect" id="node12" href="$_h5_easy__scalar_8hpp.html" title=" " alt="" coords="811,1240,1013,1296"/>
+<area shape="rect" id="node13" href="$_h5_easy__vector_8hpp.html" title=" " alt="" coords="540,1344,743,1400"/>
+<area shape="rect" id="node14" href="$_h5_easy___eigen_8hpp.html" title=" " alt="" coords="809,1344,1012,1400"/>
+<area shape="rect" id="node15" href="$_h5_easy__xtensor_8hpp.html" title=" " alt="" coords="1036,1344,1239,1400"/>
+<area shape="rect" id="node22" href="$_h5_node__traits_8hpp.html" title=" " alt="" coords="965,764,1179,820"/>
+<area shape="rect" id="node23" href="$_h5_file_driver_8hpp.html" title=" " alt="" coords="1102,868,1343,909"/>
 </map>

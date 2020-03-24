@@ -1,7 +1,8 @@
-<map id="/home/cornu/HighFive/include/highfive/H5Easy.hpp" name="/home/cornu/HighFive/include/highfive/H5Easy.hpp">
-<area shape="rect" id="node2" href="$_h5_easy__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_misc.hpp" alt="" coords="143,95,306,151"/>
-<area shape="rect" id="node3" href="$_h5_easy__scalar_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_scalar.hpp" alt="" coords="203,199,371,255"/>
-<area shape="rect" id="node4" href="$_h5_easy__vector_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_vector.hpp" alt="" coords="5,303,175,359"/>
-<area shape="rect" id="node5" href="$_h5_easy___eigen_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_Eigen.hpp" alt="" coords="220,303,387,359"/>
-<area shape="rect" id="node6" href="$_h5_easy__xtensor_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_xtensor.hpp" alt="" coords="442,303,618,359"/>
+<map id="/home/alkino/EPFL/HighFive/include/highfive/H5Easy.hpp" name="/home/alkino/EPFL/HighFive/include/highfive/H5Easy.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="305,5,513,47"/>
+<area shape="rect" id="node2" href="$_h5_easy__misc_8hpp.html" title=" " alt="" coords="157,95,360,151"/>
+<area shape="rect" id="node3" href="$_h5_easy__scalar_8hpp.html" title=" " alt="" coords="220,199,423,255"/>
+<area shape="rect" id="node4" href="$_h5_easy__vector_8hpp.html" title=" " alt="" coords="5,303,208,359"/>
+<area shape="rect" id="node5" href="$_h5_easy___eigen_8hpp.html" title=" " alt="" coords="244,303,447,359"/>
+<area shape="rect" id="node6" href="$_h5_easy__xtensor_8hpp.html" title=" " alt="" coords="483,303,685,359"/>
 </map>

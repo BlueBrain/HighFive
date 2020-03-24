@@ -1,14 +1,19 @@
-<map id="/home/cornu/HighFive/include/highfive/H5DataType.hpp" name="/home/cornu/HighFive/include/highfive/H5DataType.hpp">
-<area shape="rect" id="node2" href="$_h5_data_set_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5DataSet.hpp" alt="" coords="122,184,333,225"/>
-<area shape="rect" id="node13" href="$_h5_attribute_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Attribute.hpp" alt="" coords="266,95,477,136"/>
-<area shape="rect" id="node3" href="$_h5_node__traits__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/bits\l/H5Node_traits_misc.hpp" alt="" coords="142,363,313,419"/>
-<area shape="rect" id="node12" href="$_h5_selection_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Selection.hpp" alt="" coords="119,273,335,315"/>
-<area shape="rect" id="node4" href="$_h5_group_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Group.hpp" alt="" coords="189,467,386,508"/>
-<area shape="rect" id="node5" href="$_h5_file_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5File.hpp" alt="" coords="264,556,447,597"/>
-<area shape="rect" id="node6" href="$_h5_easy_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/H5Easy.hpp" alt="" coords="259,645,451,687"/>
-<area shape="rect" id="node7" href="$_h5_easy__misc_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_misc.hpp" alt="" coords="143,735,306,791"/>
-<area shape="rect" id="node8" href="$_h5_easy__scalar_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_scalar.hpp" alt="" coords="203,839,371,895"/>
-<area shape="rect" id="node9" href="$_h5_easy__vector_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_vector.hpp" alt="" coords="5,943,175,999"/>
-<area shape="rect" id="node10" href="$_h5_easy___eigen_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_Eigen.hpp" alt="" coords="220,943,387,999"/>
-<area shape="rect" id="node11" href="$_h5_easy__xtensor_8hpp.html" title="/home/cornu/HighFive\l/include/highfive/h5easy\l_bits/H5Easy_xtensor.hpp" alt="" coords="442,943,618,999"/>
+<map id="/home/alkino/EPFL/HighFive/include/highfive/H5DataType.hpp" name="/home/alkino/EPFL/HighFive/include/highfive/H5DataType.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="253,5,493,47"/>
+<area shape="rect" id="node2" href="$_h5_data_set_8hpp.html" title=" " alt="" coords="41,95,271,136"/>
+<area shape="rect" id="node6" href="$_h5_attribute_8hpp.html" title=" " alt="" coords="430,481,666,523"/>
+<area shape="rect" id="node3" href="$_h5_reference_8hpp.html" title=" " alt="" coords="119,184,364,225"/>
+<area shape="rect" id="node16" href="$_h5_selection_8hpp.html" title=" " alt="" coords="45,481,283,523"/>
+<area shape="rect" id="node17" href="$_h5_node__traits__misc_8hpp.html" title=" " alt="" coords="57,571,271,627"/>
+<area shape="rect" id="node4" href="$_h5_converter__misc_8hpp.html" title=" " alt="" coords="120,273,363,329"/>
+<area shape="rect" id="node5" href="$_h5_attribute__misc_8hpp.html" title=" " alt="" coords="353,377,589,433"/>
+<area shape="rect" id="node15" href="$_h5_slice__traits__misc_8hpp.html" title=" " alt="" coords="119,377,329,433"/>
+<area shape="rect" id="node7" href="$_h5_file_8hpp.html" title=" " alt="" coords="373,764,576,805"/>
+<area shape="rect" id="node14" href="$_h5_group_8hpp.html" title=" " alt="" coords="292,675,511,716"/>
+<area shape="rect" id="node8" href="$_h5_easy_8hpp.html" title=" " alt="" coords="371,853,579,895"/>
+<area shape="rect" id="node9" href="$_h5_easy__misc_8hpp.html" title=" " alt="" coords="223,943,425,999"/>
+<area shape="rect" id="node10" href="$_h5_easy__scalar_8hpp.html" title=" " alt="" coords="285,1047,488,1103"/>
+<area shape="rect" id="node11" href="$_h5_easy__vector_8hpp.html" title=" " alt="" coords="59,1151,261,1207"/>
+<area shape="rect" id="node12" href="$_h5_easy___eigen_8hpp.html" title=" " alt="" coords="297,1151,500,1207"/>
+<area shape="rect" id="node13" href="$_h5_easy__xtensor_8hpp.html" title=" " alt="" coords="548,1151,751,1207"/>
 </map>

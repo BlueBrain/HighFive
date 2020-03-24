@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['fileaccessprops',['FileAccessProps',['../namespace_high_five.html#aa3dfc464695b45967c41df71df14230b',1,'HighFive']]],
-  ['filecreateprops',['FileCreateProps',['../namespace_high_five.html#a10ad134f57ad4818ab2e4c74e8c95940',1,'HighFive']]]
+  ['datasetaccessprops_490',['DataSetAccessProps',['../namespace_high_five.html#a6b914d333d1d32032720ac3ab8f2b62f',1,'HighFive']]],
+  ['datasetcreateprops_491',['DataSetCreateProps',['../namespace_high_five.html#a7f63486ab3b1e3cf43263860aca43c29',1,'HighFive']]],
+  ['datatransferprops_492',['DataTransferProps',['../namespace_high_five.html#abe30bda0d3c5a2b8c3adf746d7843f79',1,'HighFive']]]
 ];

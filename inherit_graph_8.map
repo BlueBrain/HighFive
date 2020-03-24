@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$class_high_five_1_1_caching.html" title="HighFive::Caching" alt="" coords="5,5,136,32"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,208,92,235"/>
+<area shape="rect" id="node2" href="$class_high_five_1_1_exception.html" title="Basic HighFive Exception class." alt="" coords="140,208,291,235"/>
+<area shape="rect" id="node3" href="$class_high_five_1_1_attribute_exception.html" title="Exception specific to HighFive Attribute interface." alt="" coords="345,5,553,32"/>
+<area shape="rect" id="node4" href="$class_high_five_1_1_data_set_exception.html" title="Exception specific to HighFive DataSet interface." alt="" coords="348,56,551,83"/>
+<area shape="rect" id="node5" href="$class_high_five_1_1_data_space_exception.html" title="Exception specific to HighFive DataSpace interface." alt="" coords="339,107,560,133"/>
+<area shape="rect" id="node6" href="$class_high_five_1_1_data_type_exception.html" title="Exception specific to HighFive DataType interface." alt="" coords="343,157,555,184"/>
+<area shape="rect" id="node7" href="$class_high_five_1_1_file_exception.html" title="Exception specific to HighFive File interface." alt="" coords="362,208,537,235"/>
+<area shape="rect" id="node8" href="$class_high_five_1_1_group_exception.html" title="Exception specific to HighFive Group interface." alt="" coords="354,259,545,285"/>
+<area shape="rect" id="node9" href="$class_high_five_1_1_object_exception.html" title="Exception specific to HighFive Object interface." alt="" coords="353,309,546,336"/>
+<area shape="rect" id="node10" href="$class_high_five_1_1_property_exception.html" title="Exception specific to HighFive Property interface." alt="" coords="346,360,553,387"/>
+<area shape="rect" id="node11" href="$class_high_five_1_1_reference_exception.html" title="Exception specific to HighFive Reference interface." alt="" coords="341,411,558,437"/>
 </map>

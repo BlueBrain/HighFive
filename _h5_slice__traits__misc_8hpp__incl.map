@@ -1,4 +1,52 @@
-<map id="/home/cornu/HighFive/include/highfive/bits/H5Slice_traits_misc.hpp" name="/home/cornu/HighFive/include/highfive/bits/H5Slice_traits_misc.hpp">
-<area shape="rect" id="node10" href="$_h5_converter__misc_8hpp.html" title="H5Converter_misc.hpp" alt="" coords="394,109,550,136"/>
-<area shape="rect" id="node12" href="$_h5_utils_8hpp.html" title="H5Utils.hpp" alt="" coords="404,184,495,211"/>
+<map id="/home/alkino/EPFL/HighFive/include/highfive/bits/H5Slice_traits_misc.hpp" name="/home/alkino/EPFL/HighFive/include/highfive/bits/H5Slice_traits_misc.hpp">
+<area shape="rect" id="node1" title=" " alt="" coords="2832,5,3043,61"/>
+<area shape="rect" id="node2" title=" " alt="" coords="2984,721,3069,748"/>
+<area shape="rect" id="node3" title=" " alt="" coords="1916,184,1985,211"/>
+<area shape="rect" id="node4" title=" " alt="" coords="3065,572,3151,599"/>
+<area shape="rect" id="node5" title=" " alt="" coords="2813,572,2888,599"/>
+<area shape="rect" id="node6" title=" " alt="" coords="3176,572,3251,599"/>
+<area shape="rect" id="node7" title=" " alt="" coords="2421,721,2480,748"/>
+<area shape="rect" id="node8" title=" " alt="" coords="3275,572,3376,599"/>
+<area shape="rect" id="node9" title=" " alt="" coords="2488,572,2587,599"/>
+<area shape="rect" id="node10" href="$_h5_read_write__misc_8hpp.html" title=" " alt="" coords="1358,109,1533,136"/>
+<area shape="rect" id="node18" href="$_h5_converter__misc_8hpp.html" title=" " alt="" coords="2617,109,2788,136"/>
+<area shape="rect" id="node11" href="$_h5_utils_8hpp.html" title=" " alt="" coords="1461,647,1560,673"/>
+<area shape="rect" id="node12" title=" " alt="" coords="8,721,64,748"/>
+<area shape="rect" id="node13" title=" " alt="" coords="1475,721,1546,748"/>
+<area shape="rect" id="node14" title=" " alt="" coords="1570,721,1657,748"/>
+<area shape="rect" id="node15" title=" " alt="" coords="949,721,1041,748"/>
+<area shape="rect" id="node16" title=" " alt="" coords="446,721,509,748"/>
+<area shape="rect" id="node17" title=" " alt="" coords="1360,721,1451,748"/>
+<area shape="rect" id="node19" href="$_h5_reference_8hpp.html" title=" " alt="" coords="2111,184,2257,211"/>
+<area shape="rect" id="node20" title=" " alt="" coords="1849,647,1943,673"/>
+<area shape="rect" id="node21" title=" " alt="" coords="2134,259,2234,285"/>
+<area shape="rect" id="node22" href="$_h5_data_set_8hpp.html" title=" " alt="" coords="1200,259,1320,285"/>
+<area shape="rect" id="node50" href="$_h5_reference__misc_8hpp.html" title=" " alt="" coords="2332,333,2532,360"/>
+<area shape="rect" id="node23" href="$_h5_data_space_8hpp.html" title=" " alt="" coords="675,408,813,435"/>
+<area shape="rect" id="node26" href="$_h5_object_8hpp.html" title=" " alt="" coords="1334,490,1445,517"/>
+<area shape="rect" id="node32" href="$_h5__definitions_8hpp.html" title=" " alt="" coords="392,572,563,599"/>
+<area shape="rect" id="node36" href="$_h5_data_type_8hpp.html" title=" " alt="" coords="1450,408,1579,435"/>
+<area shape="rect" id="node41" href="$_h5_annotate__traits_8hpp.html" title=" " alt="" coords="1655,408,1851,435"/>
+<area shape="rect" id="node42" href="$_h5_slice__traits_8hpp.html" title=" " alt="" coords="200,490,368,517"/>
+<area shape="rect" id="node44" href="$_h5_data_set__misc_8hpp.html" title=" " alt="" coords="2924,490,3111,517"/>
+<area shape="rect" id="node45" href="$_h5_attribute_8hpp.html" title=" " alt="" coords="1349,333,1475,360"/>
+<area shape="rect" id="node48" href="$_h5_selection_8hpp.html" title=" " alt="" coords="388,333,516,360"/>
+<area shape="rect" id="node24" title=" " alt="" coords="1008,490,1075,517"/>
+<area shape="rect" id="node25" title=" " alt="" coords="689,572,799,599"/>
+<area shape="rect" id="node34" href="$_h5_dataspace__misc_8hpp.html" title=" " alt="" coords="781,490,984,517"/>
+<area shape="rect" id="node27" title=" " alt="" coords="1400,572,1459,599"/>
+<area shape="rect" id="node28" title=" " alt="" coords="1483,572,1584,599"/>
+<area shape="rect" id="node29" href="$_h5_exception_8hpp.html" title=" " alt="" coords="1710,572,1842,599"/>
+<area shape="rect" id="node33" href="$_h5_object__misc_8hpp.html" title=" " alt="" coords="1200,572,1376,599"/>
+<area shape="rect" id="node30" title=" " alt="" coords="1696,647,1773,673"/>
+<area shape="rect" id="node31" title=" " alt="" coords="1585,647,1671,673"/>
+<area shape="rect" id="node35" title=" " alt="" coords="925,572,1024,599"/>
+<area shape="rect" id="node37" href="$_h5_data_type__misc_8hpp.html" title=" " alt="" coords="2084,490,2279,517"/>
+<area shape="rect" id="node38" title=" " alt="" coords="2142,572,2221,599"/>
+<area shape="rect" id="node39" title=" " alt="" coords="2245,572,2312,599"/>
+<area shape="rect" id="node40" title=" " alt="" coords="2019,572,2117,599"/>
+<area shape="rect" id="node43" title=" " alt="" coords="201,572,266,599"/>
+<area shape="rect" id="node46" href="$_h5_annotate__traits__misc_8hpp.html" title=" " alt="" coords="1632,483,1800,524"/>
+<area shape="rect" id="node47" href="$_h5_attribute__misc_8hpp.html" title=" " alt="" coords="2607,490,2798,517"/>
+<area shape="rect" id="node49" href="$_h5_selection__misc_8hpp.html" title=" " alt="" coords="321,408,516,435"/>
 </map>

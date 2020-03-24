@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['type',['type',['../struct_high_five_1_1details_1_1type__of__array.html#a26afb39ef4f4ea2dc004f6690fef9c0e',1,'HighFive::details::type_of_array::type()'],['../struct_high_five_1_1details_1_1type__of__array_3_01std_1_1vector_3_01_t_01_4_01_4.html#a8d765cdd79465b8bb0ebf9ff98fe0ae8',1,'HighFive::details::type_of_array&lt; std::vector&lt; T &gt; &gt;::type()'],['../struct_high_five_1_1details_1_1type__of__array_3_01std_1_1array_3_01_t_00_01_n_01_4_01_4.html#a4a1f7b5717879767b81ee37d1b2c450d',1,'HighFive::details::type_of_array&lt; std::array&lt; T, N &gt; &gt;::type()'],['../struct_high_five_1_1details_1_1type__of__array_3_01_t_01_5_01_4.html#a61bc1d52eb552ccbfc043f2ff36cfdd0',1,'HighFive::details::type_of_array&lt; T * &gt;::type()'],['../struct_high_five_1_1details_1_1type__of__array_3_01_t[_n]_4.html#af4b8b831581ba739e167139d5e798778',1,'HighFive::details::type_of_array&lt; T[N]&gt;::type()']]]
+  ['fileaccessprops_493',['FileAccessProps',['../namespace_high_five.html#aa3dfc464695b45967c41df71df14230b',1,'HighFive']]],
+  ['filecreateprops_494',['FileCreateProps',['../namespace_high_five.html#a10ad134f57ad4818ab2e4c74e8c95940',1,'HighFive']]]
 ];

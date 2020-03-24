@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['listattributenames',['listAttributeNames',['../class_high_five_1_1_annotate_traits.html#a4f19dffbf3bb1be6ba8279fb49917f22',1,'HighFive::AnnotateTraits']]],
-  ['listobjectnames',['listObjectNames',['../class_high_five_1_1_node_traits.html#ab5053a0150b348aadfa4bd81b1f1a551',1,'HighFive::NodeTraits']]],
-  ['load',['load',['../namespace_h5_easy.html#a97ce3122b92fcf8322ed7e8c460c6862',1,'H5Easy::load(const File &amp;file, const std::string &amp;path, const std::vector&lt; size_t &gt; &amp;idx)'],['../namespace_h5_easy.html#a35bd0e824fe3dca2e2d9f9b5e42a18aa',1,'H5Easy::load(const File &amp;file, const std::string &amp;path)']]]
+  ['isfixedlenstr_434',['isFixedLenStr',['../class_high_five_1_1_data_type.html#a0d74bf84217ed4b71818d53db9077d5f',1,'HighFive::DataType']]],
+  ['isreference_435',['isReference',['../class_high_five_1_1_data_type.html#a9c9656462b3b4442fd0a8ba7fb0ce93f',1,'HighFive::DataType']]],
+  ['isvalid_436',['isValid',['../class_high_five_1_1_object.html#a7b4b75cd26da783a0ad21ca7f2a593d3',1,'HighFive::Object']]],
+  ['isvariablestr_437',['isVariableStr',['../class_high_five_1_1_data_type.html#a3f239e86eb8235d0cad445421f97af7c',1,'HighFive::DataType']]]
 ];

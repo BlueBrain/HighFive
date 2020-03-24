@@ -11,5 +11,5 @@ var class_high_five_1_1_exception =
     [ "_err_major", "class_high_five_1_1_exception.html#a835aebf45a86bbd81bf59b5975d69608", null ],
     [ "_err_minor", "class_high_five_1_1_exception.html#ad62a656089c5e551f258138b48a1eb6c", null ],
     [ "_errmsg", "class_high_five_1_1_exception.html#aa2d52ba9b9f7ca9157d46569b13e8462", null ],
-    [ "_next", "class_high_five_1_1_exception.html#a1c763b8242a3d6fdc10ee12831611faf", null ]
+    [ "_next", "class_high_five_1_1_exception.html#a45f55e73e6d6e5ba8187ba15c799d829", null ]
 ];

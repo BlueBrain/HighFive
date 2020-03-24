@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['load_5fimpl',['load_impl',['../struct_h5_easy_1_1detail_1_1scalar_1_1load__impl.html',1,'H5Easy::detail::scalar::load_impl&lt; T &gt;'],['../struct_h5_easy_1_1detail_1_1load__impl.html',1,'H5Easy::detail::load_impl&lt; T, E &gt;']]]
+  ['nodetraits_292',['NodeTraits',['../class_high_five_1_1_node_traits.html',1,'HighFive']]],
+  ['nodetraits_3c_20file_20_3e_293',['NodeTraits&lt; File &gt;',['../class_high_five_1_1_node_traits.html',1,'HighFive']]],
+  ['nodetraits_3c_20group_20_3e_294',['NodeTraits&lt; Group &gt;',['../class_high_five_1_1_node_traits.html',1,'HighFive']]]
 ];

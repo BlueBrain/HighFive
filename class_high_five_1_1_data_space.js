@@ -5,7 +5,7 @@ var class_high_five_1_1_data_space =
       [ "datascape_null", "class_high_five_1_1_data_space.html#a7169f30770f2b72b4d28841da2d6c153a2df48354d50b6cb11d2f582b80c8f1ab", null ]
     ] ],
     [ "DataSpace", "class_high_five_1_1_data_space.html#a40b1526be36b7ebb536122f9c413feef", null ],
-    [ "DataSpace", "class_high_five_1_1_data_space.html#a90164d32c023a09e877c7d3d1aa9296e", null ],
+    [ "DataSpace", "class_high_five_1_1_data_space.html#a716fbc887958072c142ca0f64e15692d", null ],
     [ "DataSpace", "class_high_five_1_1_data_space.html#a2771c3df1c0578278bfbd0e2263e7abf", null ],
     [ "DataSpace", "class_high_five_1_1_data_space.html#a5d48bf7863b08eed90d4357ac476b4a1", null ],
     [ "DataSpace", "class_high_five_1_1_data_space.html#a435085d2b1d06d54966c13d0d84a6e77", null ],

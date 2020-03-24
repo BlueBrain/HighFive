@@ -1,5 +1,6 @@
 var _h5_node__traits_8hpp =
 [
+    [ "FixedLenStringArray", "class_high_five_1_1_fixed_len_string_array.html", "class_high_five_1_1_fixed_len_string_array" ],
     [ "NodeTraits", "class_high_five_1_1_node_traits.html", "class_high_five_1_1_node_traits" ],
     [ "LinkType", "_h5_node__traits_8hpp.html#abe5895b8113887accd6bff2392b24c40", [
       [ "Hard", "_h5_node__traits_8hpp.html#abe5895b8113887accd6bff2392b24c40a3656183169810334a96b91129dc9d881", null ],

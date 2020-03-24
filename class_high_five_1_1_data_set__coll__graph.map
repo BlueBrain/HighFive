@@ -1,5 +1,6 @@
 <map id="HighFive::DataSet" name="HighFive::DataSet">
-<area shape="rect" id="node2" href="$class_high_five_1_1_object.html" title="HighFive::Object" alt="" coords="29,5,149,32"/>
-<area shape="rect" id="node3" href="$class_high_five_1_1_slice_traits.html" title="HighFive::SliceTraits\l\&lt; DataSet \&gt;" alt="" coords="17,57,161,98"/>
-<area shape="rect" id="node4" href="$class_high_five_1_1_annotate_traits.html" title="HighFive::AnnotateTraits\l\&lt; DataSet \&gt;" alt="" coords="5,122,172,163"/>
+<area shape="rect" id="node1" title="Class representing a dataset." alt="" coords="235,64,373,91"/>
+<area shape="rect" id="node2" href="$class_high_five_1_1_object.html" title=" " alt="" coords="31,5,161,32"/>
+<area shape="rect" id="node3" href="$class_high_five_1_1_slice_traits.html" title=" " alt="" coords="19,57,173,98"/>
+<area shape="rect" id="node4" href="$class_high_five_1_1_annotate_traits.html" title=" " alt="" coords="5,122,187,163"/>
 </map>
