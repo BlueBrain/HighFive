@@ -9,7 +9,7 @@
 
 ### Improvements:
     - `Attribute`s (metadata) now support additional types (#298)
-    - H5Easy: Reworked for compat with `Eigen::ref` and `Eigen::Map` (#291, #293)
+    - H5Easy: Reworked for compatibility with `Eigen::ref` and `Eigen::Map` (#291, #293)
     - Hdf5 1.12 compatibility: working `Object::getInfo` and marking getAddress deprecated (#311)
     - Strict compatibility with CMake 3.1 and C++11 (#304)
     - CMake: Dependencies may be re-detected on FindPackage, fixed export targets and added integration tests (#255, #304, #312, #317)
