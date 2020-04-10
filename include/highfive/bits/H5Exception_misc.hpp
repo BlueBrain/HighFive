@@ -61,6 +61,7 @@ struct HDF5ErrMapper {
         throw ExceptionType(prefix_msg + ": Unknown HDF5 error");
     }
 };
-}
+
+}  // namespace HighFive
 
 #endif // H5OBJECT_MISC_HPP

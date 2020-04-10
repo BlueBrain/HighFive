@@ -12,8 +12,8 @@
 #include <cstdlib>
 #include <vector>
 
-#include "H5Utils.hpp"
 #include "H5_definitions.hpp"
+#include "H5Utils.hpp"
 
 namespace HighFive {
 
@@ -48,6 +48,7 @@ class ElementSet {
     template <typename Derivate>
     friend class SliceTraits;
 };
+
 
 template <typename Derivate>
 class SliceTraits {

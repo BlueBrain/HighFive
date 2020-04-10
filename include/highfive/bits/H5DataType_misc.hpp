@@ -25,13 +25,6 @@ inline std::string type_class_string(DataTypeClass);
 inline hid_t create_string(std::size_t length);
 }
 
-
-inline DataType::DataType() {}
-
-inline DataType::DataType(hid_t type_hid) { // protected
-    _hid = type_hid;
-}
-
 inline bool DataType::empty() const noexcept {
     return _hid == H5I_INVALID_HID;
 }
@@ -161,17 +154,13 @@ inline AtomicType<std::string>::AtomicType() {
 template <size_t StrLen>
 class AtomicType<char[StrLen]> : public DataType {
   public:
-    inline AtomicType() {
-        _hid = create_string(StrLen);
-    }
+    inline AtomicType() : DataType(create_string(StrLen)) {}
 };
 
 template <size_t StrLen>
 class AtomicType<FixedLenStringArray<StrLen>> : public DataType {
   public:
-    inline AtomicType() {
-        _hid = create_string(StrLen);
-    }
+    inline AtomicType() : DataType(create_string(StrLen)) {}
 };
 
 template <>

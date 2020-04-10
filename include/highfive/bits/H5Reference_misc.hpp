@@ -11,6 +11,7 @@
 #define H5REFERENCE_MISC_HPP
 
 #include <string>
+#include <H5Ppublic.h>
 
 namespace HighFive {
 
@@ -45,7 +46,7 @@ inline T Reference::dereference(const Object& location) const {
         HDF5ErrMapper::ToException<ReferenceException>(
             "Trying to dereference the wrong type");
     }
-    return T(obj);
+    return std::move(obj);
 }
 
 inline Object Reference::get_ref(const Object& location) const {

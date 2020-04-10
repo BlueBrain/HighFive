@@ -11,11 +11,9 @@
 
 #include <string>
 
-namespace HighFive {
+#include "../H5Attribute.hpp"
 
-class Attribute;
-class DataSpace;
-class DataType;
+namespace HighFive {
 
 template <typename Derivate>
 class AnnotateTraits {
@@ -28,7 +26,8 @@ class AnnotateTraits {
     /// \return the attribute object
     ///
     Attribute createAttribute(const std::string& attribute_name,
-                              const DataSpace& space, const DataType& type);
+                              const DataSpace& space,
+                              const DataType& type);
 
     ///
     /// \brief createAttribute create a new attribute on the current dataset with

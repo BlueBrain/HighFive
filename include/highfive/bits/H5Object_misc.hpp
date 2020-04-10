@@ -23,6 +23,11 @@ inline Object::Object(const Object& other) : _hid(other._hid) {
     }
 }
 
+inline Object::Object(Object&& other) noexcept
+    : _hid(other._hid)  {
+    other._hid = H5I_INVALID_HID;
+}
+
 inline Object& Object::operator=(const Object& other) {
     if (this != &other) {
         if (_hid != H5I_INVALID_HID)

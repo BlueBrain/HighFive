@@ -17,7 +17,7 @@
 
 namespace HighFive {
 
-namespace {
+namespace {  // unnamed
 
 // libhdf5 uses a preprocessor trick on their oflags
 // we can not declare them constant without a mapper
@@ -36,6 +36,7 @@ inline unsigned convert_open_flag(unsigned openFlags) {
     return res_open;
 }
 }  // namespace
+
 
 inline File::File(const std::string& filename, unsigned openFlags,
                   const FileAccessProps& fileAccessProps)
@@ -85,6 +86,7 @@ inline void File::flush() {
             std::string("Unable to flush file " + _filename));
     }
 }
+
 }  // namespace HighFive
 
 #endif  // H5FILE_MISC_HPP

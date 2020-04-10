@@ -12,21 +12,13 @@
 #include <string>
 
 #include "../H5PropertyList.hpp"
+#include "H5_definitions.hpp"
 
 namespace HighFive {
 
-class Attribute;
-class DataSet;
-class DataSpace;
-class DataType;
-class Group;
-
-template <std::size_t N>
-class FixedLenStringArray;
-
-enum class LinkType;
-
-
+///
+/// \brief NodeTraits: Base class for Group and File
+///
 template <typename Derivate>
 class NodeTraits {
   public:

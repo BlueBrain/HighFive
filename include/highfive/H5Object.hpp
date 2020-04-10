@@ -70,6 +70,9 @@ class Object {
     // copy constructor, increase reference counter
     Object(const Object& other);
 
+    // move constructor, reuse hid
+    Object(Object&& other) noexcept;
+
     // Init with an low-level object id
     explicit Object(hid_t);
 

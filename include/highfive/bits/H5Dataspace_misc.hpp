@@ -79,8 +79,6 @@ inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
     }
 }
 
-inline DataSpace::DataSpace() = default;
-
 inline DataSpace DataSpace::clone() const {
     DataSpace res;
     if ((res._hid = H5Scopy(_hid)) < 0) {

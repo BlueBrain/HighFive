@@ -35,7 +35,6 @@ class DataSpace : public Object {
 
     const static ObjectType type = ObjectType::DataSpace;
 
-
     static const size_t UNLIMITED = SIZE_MAX;
 
     /// dataspace type
@@ -150,7 +149,7 @@ class DataSpace : public Object {
 #endif
 
   protected:
-    explicit DataSpace();
+    DataSpace() = default;
 
     friend class Attribute;
     friend class File;
@@ -158,6 +157,7 @@ class DataSpace : public Object {
 };
 }
 
+// We include bits right away since DataSpace can be constructed stand-alone
 #include "bits/H5Dataspace_misc.hpp"
 
 #endif // H5DATASPACE_HPP

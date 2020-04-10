@@ -16,19 +16,10 @@
 #include <H5Ipublic.h>
 #include <H5Rpublic.h>
 
+#include "H5Object.hpp"
+#include "bits/H5_definitions.hpp"
 
 namespace HighFive {
-
-// Forward declarations
-class Object;
-enum class ObjectType;
-class Group;
-
-namespace details {
-// Forward declaration of data_converter with default value of Enable
-template <typename T, typename Enable = void>
-struct data_converter;
-}
 
 ///
 /// \brief An HDF5 (object) reference type
@@ -64,8 +55,8 @@ class Reference {
 
   protected:
     /// \brief Create a Reference from a low-level HDF5 object reference
-    explicit Reference(const hobj_ref_t h5_ref)
-        : href(h5_ref){};
+    inline explicit Reference(const hobj_ref_t h5_ref)
+        : href(h5_ref) {};
 
     /// \brief Create the low-level reference and store it at refptr
     ///
@@ -86,7 +77,6 @@ class Reference {
 
 }  // namespace HighFive
 
-#include "H5DataSet.hpp"
 #include "bits/H5Reference_misc.hpp"
 
 #endif  // H5REFERENCE_HPP

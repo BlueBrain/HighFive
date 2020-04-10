@@ -14,6 +14,7 @@
 
 namespace HighFive {
 
+enum class LinkType;
 enum class ObjectType;
 enum class PropertyType;
 
@@ -24,6 +25,7 @@ class DataType;
 class Exception;
 class File;
 class FileDriver;
+class Group;
 class Object;
 class ObjectInfo;
 class Reference;
@@ -36,11 +38,25 @@ class AtomicType;
 template <typename Derivate>
 class AnnotateTraits;
 
+template <std::size_t N>
+class FixedLenStringArray;
+
 template <typename Derivate>
 class NodeTraits;
 
 template <PropertyType T>
 class PropertyList;
+
+
+// Internal
+
+namespace details {
+
+// Forward declaration of data_converter with default value of Enable
+template <typename T, typename Enable = void>
+struct data_converter;
+
+}
 
 }  // namespace HighFive
 

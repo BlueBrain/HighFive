@@ -29,10 +29,12 @@ public:
     inline ~SilenceHDF5() {
         H5Eset_auto2(H5E_DEFAULT, _func, _client_data);
     }
+
 private:
     H5E_auto2_t _func;
     void* _client_data;
 };
-}
+
+}  // namespace HighFive
 
 #endif // H5UTIL_HPP

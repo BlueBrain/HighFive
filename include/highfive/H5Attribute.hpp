@@ -14,7 +14,6 @@
 #include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
-#include "bits/H5Annotate_traits.hpp"
 
 namespace HighFive {
 
@@ -68,13 +67,12 @@ class Attribute : public Object {
     void write(const T& buffer);
 
   private:
-    Attribute();
-    template <typename Derivate>
-    friend class ::HighFive::AnnotateTraits;
-};
-}
+    Attribute() = default;
 
-#include "bits/H5Annotate_traits_misc.hpp"
-#include "bits/H5Attribute_misc.hpp"
+    template <typename Derivate> friend class ::HighFive::AnnotateTraits;
+};
+
+}  // namespace HighFive
+
 
 #endif // H5ATTRIBUTE_HPP

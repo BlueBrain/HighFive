@@ -148,5 +148,7 @@ inline void Caching::apply(const hid_t hid) const {
             "Error setting dataset cache parameters");
     }
 }
+
 }  // namespace HighFive
+
 #endif  // H5PROPERTY_LIST_HPP

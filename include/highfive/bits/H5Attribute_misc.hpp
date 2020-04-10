@@ -27,8 +27,6 @@
 
 namespace HighFive {
 
-inline Attribute::Attribute() {}
-
 inline size_t Attribute::getStorageSize() const {
     return static_cast<size_t>(H5Aget_storage_size(_hid));
 }
