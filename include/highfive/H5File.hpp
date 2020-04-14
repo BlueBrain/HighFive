@@ -75,13 +75,9 @@ class File : public Object,
 
 }  // namespace HighFive
 
-
 // H5File is the main user constructible -> bring in implementation headers
 #include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5File_misc.hpp"
 #include "bits/H5Node_traits_misc.hpp"
-#include "bits/H5Object_misc.hpp"
-
 
 #endif  // H5FILE_HPP
-

@@ -157,7 +157,7 @@ class DataSpace : public Object {
 };
 }
 
-// We include bits right away since DataSpace can be constructed stand-alone
+// We include bits right away since DataSpace is user-constructible
 #include "bits/H5Dataspace_misc.hpp"
 
 #endif // H5DATASPACE_HPP

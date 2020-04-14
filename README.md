@@ -42,6 +42,8 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 #### Write a std::vector<int> to 1D HDF5 dataset and read it back
 
 ```c++
+#include <highfive/H5File.hpp>
+
 using namespace HighFive;
 // we create a new hdf5 file
 File file("/tmp/new_file.h5", File::ReadWrite | File::Create | File::Truncate);
@@ -59,7 +61,9 @@ std::vector<int> result;
 dataset.read(result);
 ```
 
-**Note:** if you can use `DataSpace::From` on your data, you can combine the create and write into one statement.
+**Note:** `H5File.hpp` is the top-level header of HighFive core which should be always included.
+
+**Note:** If you can use `DataSpace::From` on your data, you can combine the create and write into one statement.
 Such shortcut syntax is available for both `createDataSet` and `createAttribute`.
 ```c++
 DataSet dataset = file.createDataSet("/dataset_one",  data);
