@@ -130,7 +130,7 @@ struct load_impl
 }  // namespace detail
 
 // front-end
-template <class T>
+template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
 inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode)
 {
     if (!file.exist(path)) {
@@ -143,7 +143,7 @@ inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode
 }
 
 // front-end
-template <class T>
+template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const T& data,

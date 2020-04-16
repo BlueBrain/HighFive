@@ -21,7 +21,7 @@ namespace detail {
 
 namespace eigen {
 
-// return the shape of the "Eigen::Matrix" as size 1 or 2 "std::vector<size_t>"
+// return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"
 template <class T>
 inline std::vector<size_t> shape(const T& data) {
     if (std::decay<T>::type::RowsAtCompileTime == 1) {
@@ -63,7 +63,7 @@ inline std::vector<EigenIndex> shape(const File& file,
 template <class T>
 inline void write(DataSet& dataset, const T& data) {
     Eigen::Ref<
-        const Eigen::Matrix<
+        const Eigen::Array<
             typename std::decay<T>::type::Scalar,
             std::decay<T>::type::RowsAtCompileTime,
             std::decay<T>::type::ColsAtCompileTime,
@@ -71,7 +71,8 @@ inline void write(DataSet& dataset, const T& data) {
             std::decay<T>::type::MaxRowsAtCompileTime,
             std::decay<T>::type::MaxColsAtCompileTime>,
         0,
-        Eigen::InnerStride<1>> row_major(data);
+        Eigen::InnerStride<1>
+    > row_major(data);
 
     dataset.write_raw(row_major.data());
 }
@@ -113,7 +114,7 @@ struct load_impl {
             return data;
         }
 
-        return Eigen::Map<Eigen::Matrix<
+        return Eigen::Map<Eigen::Array<
             typename T::Scalar,
             T::RowsAtCompileTime,
             T::ColsAtCompileTime,
@@ -124,8 +125,8 @@ struct load_impl {
 };
 
 // universal front-end (to minimise double code)
-template <class T>
-inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
+template <class Derived>
+inline DataSet dump(File& file, const std::string& path, const Derived& data, DumpMode mode) {
     if (!file.exist(path)) {
         return detail::eigen::dump_impl(file, path, data);
     } else if (mode == DumpMode::Overwrite) {
@@ -138,45 +139,28 @@ inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode
 }  // namespace eigen
 
 // front-end
-template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-struct load_impl<Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>> {
-    static Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>
+template <typename Derived>
+struct load_impl<Eigen::DenseBase<Derived>> {
+    static Derived
     run(const File& file,
         const std::string& path)
     {
-        return detail::eigen::load_impl<
-            Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>>::run(file, path);
+        return detail::eigen::load_impl<Derived>::run(file,path);
     }
 };
 
 }  // namespace detail
 
-// front-end
-template <class T, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+
+template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
-                    const Eigen::Matrix<T,Rows,Cols,Options,MaxRows,MaxCols>& data,
+                    const Eigen::DenseBase<T>& data,
                     DumpMode mode) {
     return detail::eigen::dump(file, path, data, mode);
 }
 
-// front-end
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const Eigen::Ref<T>& data,
-                    DumpMode mode) {
-    return detail::eigen::dump(file, path, data, mode);
-}
 
-// front-end
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const Eigen::Map<T>& data,
-                    DumpMode mode) {
-    return detail::eigen::dump(file, path, data, mode);
-}
 
 }  // namespace H5Easy
 

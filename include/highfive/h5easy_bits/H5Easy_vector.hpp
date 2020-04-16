@@ -59,16 +59,16 @@ struct overwrite_impl
 }  // namespace detail
 
 // front-end
-template <class T>
+template <class VectorT, typename std::enable_if<is_vector<VectorT>::value,int>::type=0>
 inline DataSet dump(File& file,
                     const std::string& path,
-                    const std::vector<T>& data,
+                    const VectorT& data,
                     DumpMode mode)
 {
     if (!file.exist(path)) {
-        return detail::vector::dump_impl<T>::run(file, path, data);
+        return detail::vector::dump_impl<typename VectorT::value_type>::run(file, path, data);
     } else if (mode == DumpMode::Overwrite) {
-        return detail::vector::overwrite_impl<T>::run(file, path, data);
+        return detail::vector::overwrite_impl<typename VectorT::value_type>::run(file, path, data);
     } else {
         throw detail::error(file, path, "H5Easy: path already exists");
     }
