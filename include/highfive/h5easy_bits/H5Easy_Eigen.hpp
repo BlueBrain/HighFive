@@ -139,13 +139,13 @@ inline DataSet dump(File& file, const std::string& path, const Derived& data, Du
 }  // namespace eigen
 
 // front-end
-template <typename Derived>
-struct load_impl<Eigen::DenseBase<Derived>> {
-    static Derived
+template <typename T>
+struct load_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>,T>::value>::type> {
+    static T
     run(const File& file,
         const std::string& path)
     {
-        return detail::eigen::load_impl<Derived>::run(file,path);
+        return detail::eigen::load_impl<T>::run(file,path);
     }
 };
 

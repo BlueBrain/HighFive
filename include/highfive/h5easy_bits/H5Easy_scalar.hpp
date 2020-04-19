@@ -114,8 +114,9 @@ struct load_impl
 
 }  // namespace scalar
 
-// load from DataSet
-template <class T, class E = void>
+// load from DataSet: base template (used as fallback)
+// inspired by https://stackoverflow.com/questions/281725/template-specialization-based-on-inherit-class/282006
+template<class T, typename = void>
 struct load_impl
 {
     static T run(const File& file, const std::string& path)
