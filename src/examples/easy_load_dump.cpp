@@ -78,7 +78,7 @@ int main()
         D = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/D");
 
 
-        Eigen::MatrixXd D2 = Eigen::ArrayXd::Random(10,5);
+        Eigen::ArrayXd D2 = Eigen::ArrayXd::Random(30);
 
         H5Easy::dump(file, "/path/to/D2", D2);
         H5Easy::dump(file, "/path/to/D2", D2, H5Easy::DumpMode::Overwrite);

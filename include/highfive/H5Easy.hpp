@@ -73,99 +73,7 @@ inline size_t getSize(const File& file, const std::string& path);
 /// \return the shape of the DataSet
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
-template<typename T>
-struct is_easy{
-	static const bool value=std::is_arithmetic<T>::value
-        || std::is_same<char *, typename std::decay<T>::type>::value
-        || std::is_same<const char *, typename std::decay<T>::type>::value
-        || std::is_same<std::string, typename std::decay<T>::type>::value
-	;
-};
-
-
-template<class T>
-struct is_vector {
-    static const bool value = false;
-};
-
-template<class T>
-struct is_vector<std::vector<T>> {
-    const static bool value = true;
-};
-
-
-///
-/// \brief Write any (dense) Eigen object to a new DataSet in an open HDF5 file.
-///
-/// \param file Writeable opened file
-/// \param path Path of the DataSet
-/// \param data eigen matrix to write
-/// \param mode Write mode
-///
-/// \return the newly created DataSet
-///
-#ifdef H5_USE_EIGEN
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const Eigen::DenseBase<T>& data,
-                    DumpMode mode = DumpMode::Create);
-#endif
-
-
-///
-/// \brief Write "xt::xarray<T>" to a new DataSet in an open HDF5 file.
-///
-/// \param file A writeable opened HDF5 file
-/// \param path Path of the DataSet
-/// \param data xtensor array to write
-/// \param mode write mode
-///
-/// \return the newly created DataSet
-///
-#ifdef H5_USE_XTENSOR
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const xt::xarray<T>& data,
-                    DumpMode mode = DumpMode::Create);
-#endif
-
-///
-/// \brief Write "xt::xtensor<T,rank>" to a new DataSet in an open HDF5 file.
-///
-/// \param file opened File (has to be writeable)
-/// \param path path of the DataSet
-/// \param data the data to write
-/// \param mode write mode
-///
-/// \return the newly created DataSet
-///
-#ifdef H5_USE_XTENSOR
-template <class T, size_t rank>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const xt::xtensor<T, rank>& data,
-                    DumpMode mode = DumpMode::Create);
-#endif
-
-
-///
-/// \brief Write "std::vector<T>" to a new DataSet in an open HDF5 file.
-///
-/// \param file opened File (has to be writeable)
-/// \param path path of the DataSet
-/// \param data the data to write
-/// \param mode write mode
-///
-/// \return the newly created DataSet
-///
-template <class T, typename std::enable_if<is_vector<T>::value,int>::type=0>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    DumpMode mode = DumpMode::Create);
-
+                    
 ///
 /// \brief Write scalar/string to a new DataSet in an open HDF5 file.
 ///
@@ -176,7 +84,7 @@ inline DataSet dump(File& file,
 ///
 /// \return The newly created DataSet
 ///
-template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
+template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const T& data,
@@ -192,7 +100,7 @@ inline DataSet dump(File& file,
 ///
 /// \return The newly created DataSet
 ///
-template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
+template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const T& data,
@@ -224,8 +132,6 @@ inline T load(const File& file,
 // template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
 template <class T>
 inline T load(const File& file, const std::string& path);
-
-
 
 
 }  // namespace H5Easy

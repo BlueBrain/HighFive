@@ -17,31 +17,30 @@ namespace H5Easy {
 
 namespace detail {
 
-namespace vector {
+template<class T> struct is_vector: std::false_type  {};
+template<class T> struct is_vector<std::vector<T>> : std::true_type {};
 
 using HighFive::details::type_of_array;
 using HighFive::details::get_dim_vector;
 
-// create DataSet and write data
-template <class T, class E = void>
-struct dump_impl
-{
-    static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
-    {
-        using type_name = typename type_of_array<T>::type;
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
-        dataset.write(data);
-        file.flush();
-        return dataset;
-    }
-};
+/*
+This vector specialization does not implement load, load_part, dump_extend.
+Since it inherits from io_impl_base, implementations there will be called automatically.
+ */
+template<typename T>
+struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type>: public io_impl_base<T> {
 
-// replace data of an existing DataSet of the correct size
-template <class T, class E = void>
-struct overwrite_impl
-{
-    static DataSet run(File& file, const std::string& path, const std::vector<T>& data)
+	// create DataSet and write data
+	static DataSet dump(File& file, const std::string& path, const T& data)
+	{
+		using type_name = typename type_of_array<T>::type;
+		detail::createGroupsToDataSet(file, path);
+		DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
+		dataset.write(data);
+		file.flush();
+		return dataset;
+	}
+    static DataSet overwrite(File& file, const std::string& path, const T& data)
     {
         DataSet dataset = file.getDataSet(path);
         if (get_dim_vector(data) != dataset.getDimensions())
@@ -54,26 +53,7 @@ struct overwrite_impl
     }
 };
 
-}  // namespace vector
-
 }  // namespace detail
-
-// front-end
-template <class VectorT, typename std::enable_if<is_vector<VectorT>::value,int>::type=0>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const VectorT& data,
-                    DumpMode mode)
-{
-    if (!file.exist(path)) {
-        return detail::vector::dump_impl<typename VectorT::value_type>::run(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::vector::overwrite_impl<typename VectorT::value_type>::run(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
-}
-
 }  // namespace H5Easy
 
 #endif  // H5EASY_BITS_VECTOR_HPP
