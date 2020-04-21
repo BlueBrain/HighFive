@@ -15,6 +15,7 @@
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
+#include "H5Attribute_misc.hpp"
 #include "H5Iterables_misc.hpp"
 
 namespace HighFive {
@@ -29,8 +30,7 @@ AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
              static_cast<Derivate*>(this)->getId(), attribute_name.c_str(),
              dtype._hid, space._hid, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to create the attribute \"") + attribute_name +
-            "\":");
+            std::string("Unable to create the attribute \"") + attribute_name + "\":");
     }
     return attribute;
 }
@@ -120,6 +120,7 @@ AnnotateTraits<Derivate>::hasAttribute(const std::string& attr_name) const {
     }
     return res;
 }
-}
+
+}  // namespace HighFive
 
 #endif // H5ANNOTATE_TRAITS_MISC_HPP

@@ -14,6 +14,7 @@
 #include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
+#include "bits/H5_definitions.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Slice_traits.hpp"
 #include "bits/H5_definitions.hpp"
@@ -86,24 +87,17 @@ class DataSet : public Object,
     inline size_t getElementCount() const {
         return getSpace().getElementCount();
     }
+
   protected:
-    explicit DataSet(const Object& o) : Object(o) {};
+    using Object::Object;
 
-  private:
-    DataSet();
-    template <typename Derivate>
-    friend class ::HighFive::NodeTraits;
+    inline DataSet(Object&& o) noexcept : Object(std::move(o)) {}
 
-    friend class ::HighFive::Reference;
+    friend class Reference;
+    template <typename Derivate> friend class NodeTraits;
+
 };
 
 }  // namespace HighFive
-
-#include "bits/H5DataSet_misc.hpp"
-
-// To avoid loops, we must bring the respective top-level header
-// Only the headers representing a trait can include directly their implementation
-#include "H5Attribute.hpp"  // top-level header of AnnotateTraits
-#include "H5Selection.hpp"  // top-level header of SliceTraits
 
 #endif // H5DATASET_HPP

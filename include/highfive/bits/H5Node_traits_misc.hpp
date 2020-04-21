@@ -1,4 +1,4 @@
-/*
+ /*
  *  Copyright (c), 2017, Adrien Devresse <adrien.devresse@epfl.ch>
  *
  *  Distributed under the Boost Software License, Version 1.0.
@@ -19,10 +19,14 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
-#include "H5Iterables_misc.hpp"
 #include "../H5DataSet.hpp"
+#include "../H5Group.hpp"
 #include "../H5Selection.hpp"
 #include "../H5Utility.hpp"
+#include "H5DataSet_misc.hpp"
+#include "H5Iterables_misc.hpp"
+#include "H5Selection_misc.hpp"
+#include "H5Slice_traits_misc.hpp"
 
 namespace HighFive {
 
@@ -34,16 +38,15 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataType& dtype,
                                     const DataSetCreateProps& createProps,
                                     const DataSetAccessProps& accessProps) {
-    DataSet set;
-    if ((set._hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
-                               dataset_name.c_str(), dtype._hid, space._hid,
-                               H5P_DEFAULT, createProps.getId(),
-                               accessProps.getId())) < 0) {
+    DataSet ds{H5Dcreate2(static_cast<Derivate*>(this)->getId(),
+                          dataset_name.c_str(), dtype._hid, space._hid,
+                          H5P_DEFAULT, createProps.getId(), accessProps.getId())};
+    if (ds._hid  < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to create the dataset \"") + dataset_name +
             "\":");
     }
-    return set;
+    return ds;
 }
 
 template <typename Derivate>
@@ -91,13 +94,13 @@ template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                  const DataSetAccessProps& accessProps) const {
-    DataSet set;
-    if ((set._hid = H5Dopen2(static_cast<const Derivate*>(this)->getId(),
-                             dataset_name.c_str(), accessProps.getId())) < 0) {
+    DataSet ds{H5Dopen2(static_cast<const Derivate*>(this)->getId(),
+                        dataset_name.c_str(), accessProps.getId())};
+    if (ds._hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to open the dataset \"") + dataset_name + "\":");
     }
-    return set;
+    return ds;
 }
 
 template <typename Derivate>
@@ -107,10 +110,9 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
     if (parents) {
         lcpl.add(H5Pset_create_intermediate_group, 1u);
     }
-    Group group;
-    if ((group._hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                                 group_name.c_str(), lcpl.getId(), H5P_DEFAULT,
-                                 H5P_DEFAULT)) < 0) {
+    Group group{H5Gcreate2(static_cast<Derivate*>(this)->getId(),
+                           group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT)};
+    if (group._hid < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to create the group \"") + group_name + "\":");
     }
@@ -120,9 +122,9 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
 template <typename Derivate>
 inline Group
 NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
-    Group group;
-    if ((group._hid = H5Gopen2(static_cast<const Derivate*>(this)->getId(),
-                               group_name.c_str(), H5P_DEFAULT)) < 0) {
+    Group group{H5Gopen2(static_cast<const Derivate*>(this)->getId(),
+                         group_name.c_str(), H5P_DEFAULT)};
+    if (group._hid < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to open the group \"") + group_name + "\":");
     }

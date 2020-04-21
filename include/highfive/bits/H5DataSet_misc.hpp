@@ -26,8 +26,6 @@
 
 namespace HighFive {
 
-inline DataSet::DataSet() {}
-
 inline uint64_t DataSet::getStorageSize() const {
     return H5Dget_storage_size(_hid);
 }

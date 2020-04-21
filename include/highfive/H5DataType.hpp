@@ -38,7 +38,6 @@ enum class DataTypeClass {
 ///
 class DataType : public Object {
   public:
-    DataType();
 
     bool operator==(const DataType& other) const;
 
@@ -82,11 +81,11 @@ class DataType : public Object {
     bool isReference() const;
 
   protected:
+    using Object::Object;
+
     friend class Attribute;
     friend class File;
     friend class DataSet;
-
-    DataType(hid_t type_hid);
 };
 
 ///
@@ -340,7 +339,9 @@ class FixedLenStringArray {
   private:
     vector_t datavec;
 };
+
 }  // namespace HighFive
+
 
 /// \brief Macro to extend datatype of HighFive
 ///
