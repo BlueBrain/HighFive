@@ -69,7 +69,14 @@ class File : public Object,
     ///
     void flush();
 
- private:
+    ///
+    /// \brief close
+    ///
+    /// Flushes then closes file handle
+    ///
+    void close();
+
+  private:
     std::string _filename;
 };
 

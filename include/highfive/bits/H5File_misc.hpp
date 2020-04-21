@@ -87,6 +87,12 @@ inline void File::flush() {
     }
 }
 
+inline void File::close() {
+    if (H5Fclose(_hid) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to close file " + _filename));
+    }
+}
 }  // namespace HighFive
 
 #endif  // H5FILE_MISC_HPP
