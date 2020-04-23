@@ -49,10 +49,10 @@ using HighFive::File;
 
 ///
 /// \brief Write mode for DataSets
-enum class DumpMode
-{
-  Create, /*!< Dump only if DataSet does not exist, otherwise throw. */
-  Overwrite /*!< If DataSet already exists overwrite it if data has the same shape, otherwise throw. */
+enum class DumpMode {
+    Create,   /*!< Dump only if DataSet does not exist, otherwise throw. */
+    Overwrite /*!< If DataSet already exists overwrite it if data has the same shape,
+                 otherwise throw. */
 };
 
 ///
@@ -72,7 +72,6 @@ inline size_t getSize(const File& file, const std::string& path);
 ///
 /// \return the shape of the DataSet
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
-
 
 ///
 /// \brief Write scalar/string to a new DataSet in an open HDF5 file.
@@ -101,10 +100,8 @@ inline DataSet dump(File& file,
 /// \return The newly created DataSet
 ///
 template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    const std::vector<size_t>& idx);
+inline DataSet
+dump(File& file, const std::string& path, const T& data, const std::vector<size_t>& idx);
 
 ///
 /// \brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
@@ -116,9 +113,7 @@ inline DataSet dump(File& file,
 /// \return the read data
 ///
 template <class T>
-inline T load(const File& file,
-              const std::string& path,
-              const std::vector<size_t>& idx);
+inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx);
 
 ///
 /// \brief Load a DataSet in an open HDF5 file to an object (templated).
@@ -133,10 +128,10 @@ inline T load(const File& file, const std::string& path);
 
 }  // namespace H5Easy
 
+#include "h5easy_bits/H5Easy_Eigen.hpp"
 #include "h5easy_bits/H5Easy_misc.hpp"
 #include "h5easy_bits/H5Easy_scalar.hpp"
 #include "h5easy_bits/H5Easy_vector.hpp"
-#include "h5easy_bits/H5Easy_Eigen.hpp"
 #include "h5easy_bits/H5Easy_xtensor.hpp"
 
 #endif  // H5EASY_HPP

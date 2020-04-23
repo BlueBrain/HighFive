@@ -16,10 +16,8 @@ namespace H5Easy {
 namespace detail {
 
 // Generate error-stream and return "Exception" (not yet thrown).
-inline Exception error(const File& file,
-                       const std::string& path,
-                       const std::string& message)
-{
+inline Exception
+error(const File& file, const std::string& path, const std::string& message) {
     std::ostringstream ss;
     ss << message << std::endl
        << "Path: " << path << std::endl
@@ -35,8 +33,7 @@ inline Exception error(const File& file,
 /// \param path path to a DataSet
 ///
 /// \return group the path of the group above the DataSet
-inline std::string getParentName(const std::string& path)
-{
+inline std::string getParentName(const std::string& path) {
     std::size_t idx = path.find_last_of("/\\");
 
     if (idx == std::string::npos) {
@@ -55,8 +52,7 @@ inline std::string getParentName(const std::string& path)
 /// \param file opened File
 /// \param path path of the DataSet
 ///
-inline void createGroupsToDataSet(File& file, const std::string& path)
-{
+inline void createGroupsToDataSet(File& file, const std::string& path) {
     std::string group_name = getParentName(path);
 
     if (!file.exist(group_name)) {

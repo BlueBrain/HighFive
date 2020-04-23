@@ -20,52 +20,51 @@ namespace H5Easy {
 namespace detail {
 
 // handled xtensor types
-template <class T> struct is_xtensor: std::false_type  {};
-template <class T> struct is_xtensor<xt::xarray<T>> : std::true_type {};
-template <class T, size_t N> struct is_xtensor<xt::xtensor<T, N>> : std::true_type {};
+template <class T>
+struct is_xtensor : std::false_type {};
+template <class T>
+struct is_xtensor<xt::xarray<T>> : std::true_type {};
+template <class T, size_t N>
+struct is_xtensor<xt::xtensor<T, N>> : std::true_type {};
 
-template<typename T>
-struct io_impl<T,typename std::enable_if<is_xtensor<T>::value>::type> {
-	// helper function
-	inline static std::vector<size_t> shape(const T& data)
-	{
-		return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
-	}
+template <typename T>
+struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
+    // helper function
+    inline static std::vector<size_t> shape(const T& data) {
+        return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
+    }
 
-	// create DataSet and write data
-	static DataSet dump(File& file, const std::string& path, const T& data)
-	{
-		using value_type = typename std::decay_t<T>::value_type;
-		detail::createGroupsToDataSet(file, path);
-		DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
-		dataset.write_raw(data.data());
-		file.flush();
-		return dataset;
-	}
+    // create DataSet and write data
+    static DataSet dump(File& file, const std::string& path, const T& data) {
+        using value_type = typename std::decay_t<T>::value_type;
+        detail::createGroupsToDataSet(file, path);
+        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
+        dataset.write_raw(data.data());
+        file.flush();
+        return dataset;
+    }
 
-	// replace data of an existing DataSet of the correct size
-	static DataSet overwrite(File& file, const std::string& path, const T& data)
-	{
-		DataSet dataset = file.getDataSet(path);
-		if (dataset.getDimensions() != shape(data)) {
-			throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
-		}
-		dataset.write_raw(data.data());
-		file.flush();
-		return dataset;
-	}
+    // replace data of an existing DataSet of the correct size
+    static DataSet overwrite(File& file, const std::string& path, const T& data) {
+        DataSet dataset = file.getDataSet(path);
+        if (dataset.getDimensions() != shape(data)) {
+            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
+        }
+        dataset.write_raw(data.data());
+        file.flush();
+        return dataset;
+    }
 
-	static T load(const File& file, const std::string& path)
-	{
-		DataSet dataset = file.getDataSet(path);
-		std::vector<size_t> dims = dataset.getDimensions();
-		T data = T::from_shape(dims);
-		dataset.read(data.data());
-		return data;
-	}
-	
-	// TODO: load_part
-	// TODO: extend
+    static T load(const File& file, const std::string& path) {
+        DataSet dataset = file.getDataSet(path);
+        std::vector<size_t> dims = dataset.getDimensions();
+        T data = T::from_shape(dims);
+        dataset.read(data.data());
+        return data;
+    }
+
+    // TODO: load_part
+    // TODO: extend
 };
 
 }  // namespace detail

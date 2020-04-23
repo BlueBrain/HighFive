@@ -29,21 +29,18 @@ The full API set is:
 * load_part
 
 */
-template<typename T, typename = void>
-struct io_impl
-{
+template <typename T, typename = void>
+struct io_impl {
     // create DataSet and write data
-    static DataSet dump(File& file, const std::string& path, const T& data)
-    {
-        detail::createGroupsToDataSet(file, path);	
+    static DataSet dump(File& file, const std::string& path, const T& data) {
+        detail::createGroupsToDataSet(file, path);
         DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
         dataset.write(data);
         file.flush();
         return dataset;
     }
     // replace data of an existing DataSet of the correct size
-    static DataSet overwrite(File& file, const std::string& path, const T& data)
-    {
+    static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
             throw detail::error(file, path, "H5Easy::dump: Existing field not a scalar");
@@ -54,10 +51,9 @@ struct io_impl
     }
     // create/write extendible DataSet and write data
     static DataSet dump_extend(File& file,
-                       const std::string& path,
-                       const T& data,
-                       const std::vector<size_t>& idx)
-    {
+                               const std::string& path,
+                               const T& data,
+                               const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
 
         if (file.exist(path)) {
@@ -66,7 +62,8 @@ struct io_impl
             std::vector<size_t> shape = dims;
             if (dims.size() != idx.size()) {
                 throw detail::error(file, path,
-                    "H5Easy::dump: Rank of the index and the existing field do not match");
+                                    "H5Easy::dump: Rank of the index and the existing "
+                                    "field do not match");
             }
             for (size_t i = 0; i < dims.size(); ++i) {
                 shape[i] = std::max(dims[i], idx[i] + 1);
@@ -96,10 +93,8 @@ struct io_impl
         return dataset;
     }
     // load a part of a larger DataSet
-    static T load_part(const File& file,
-                 const std::string& path,
-                 const std::vector<size_t>& idx)
-    {
+    static T
+    load_part(const File& file, const std::string& path, const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
         DataSet dataset = file.getDataSet(path);
         T data;
@@ -107,18 +102,15 @@ struct io_impl
         return data;
     }
     // load entire DataSet
-    static T load(const File& file, const std::string& path)
-    {
+    static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.read(data);
         return data;
     }
-    
 };
 
 }  // namespace detail
-
 
 /*
 Frontend functions only dispatch to io_impl<T> and are common for all datatypes.
@@ -126,8 +118,7 @@ Frontend functions only dispatch to io_impl<T> and are common for all datatypes.
 
 // front-end
 template <class T>
-inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode)
-{
+inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
     if (!file.exist(path)) {
         return detail::io_impl<T>::dump(file, path, data);
     } else if (mode == DumpMode::Overwrite) {
@@ -139,25 +130,20 @@ inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode
 
 // front-end
 template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    const std::vector<size_t>& idx)
-{
+inline DataSet
+dump(File& file, const std::string& path, const T& data, const std::vector<size_t>& idx) {
     return detail::io_impl<T>::dump_extend(file, path, data, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx)
-{
+inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx) {
     return detail::io_impl<T>::load_part(file, path, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const File& file, const std::string& path)
-{
+inline T load(const File& file, const std::string& path) {
     return detail::io_impl<T>::load(file, path);
 }
 

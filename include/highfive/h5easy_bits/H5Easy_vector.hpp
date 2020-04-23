@@ -17,34 +17,33 @@ namespace H5Easy {
 
 namespace detail {
 
-template<class T> struct is_vector: std::false_type  {};
-template<class T> struct is_vector<std::vector<T>> : std::true_type {};
+template <class T>
+struct is_vector : std::false_type {};
+template <class T>
+struct is_vector<std::vector<T>> : std::true_type {};
 
-using HighFive::details::type_of_array;
 using HighFive::details::get_dim_vector;
+using HighFive::details::type_of_array;
 
 /*
 This vector specialization does not implement load, load_part, dump_extend.
 Since it inherits from io_impl_base, implementations there will be called automatically.
  */
-template<typename T>
-struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type> {
+template <typename T>
+struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
-	// create DataSet and write data
-	static DataSet dump(File& file, const std::string& path, const T& data)
-	{
-		using type_name = typename type_of_array<T>::type;
-		detail::createGroupsToDataSet(file, path);
-		DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
-		dataset.write(data);
-		file.flush();
-		return dataset;
-	}
-    static DataSet overwrite(File& file, const std::string& path, const T& data)
-    {
+    // create DataSet and write data
+    static DataSet dump(File& file, const std::string& path, const T& data) {
+        using type_name = typename type_of_array<T>::type;
+        detail::createGroupsToDataSet(file, path);
+        DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
+        dataset.write(data);
+        file.flush();
+        return dataset;
+    }
+    static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
-        if (get_dim_vector(data) != dataset.getDimensions())
-        {
+        if (get_dim_vector(data) != dataset.getDimensions()) {
             throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
         }
         dataset.write(data);
@@ -53,8 +52,7 @@ struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type> {
     }
     // load entire DataSet
     // (copied verbatim from generic implementation)
-    static T load(const File& file, const std::string& path)
-    {
+    static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.read(data);
