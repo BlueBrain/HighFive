@@ -17,9 +17,8 @@ namespace H5Easy {
 namespace detail {
 
 /*
-This base class presents fallback methods which will be automatically
-called from specializations, if not defined in the specialization.
-Every specialization of io_impl<T> should inherit from io_impl_base<T>.
+I/O template for scalar types; it is base template for partial specialization
+thus will be used as fallback if more specialized templates don't match.
 
 The full API set is:
 
@@ -30,8 +29,8 @@ The full API set is:
 * load_part
 
 */
-template<typename T>
-struct io_impl_base
+template<typename T, typename = void>
+struct io_impl
 {
     // create DataSet and write data
     static DataSet dump(File& file, const std::string& path, const T& data)
@@ -117,14 +116,6 @@ struct io_impl_base
     }
     
 };
-
-/*
-Base template for specialization;
-The defaults are all implemented in io_impl_base, thus there is nothing new here.
-*/
-template<typename T, typename = void>
-struct io_impl: public io_impl_base<T>{};
-
 
 }  // namespace detail
 

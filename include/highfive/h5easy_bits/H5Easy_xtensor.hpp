@@ -25,7 +25,7 @@ template <class T> struct is_xtensor<xt::xarray<T>> : std::true_type {};
 template <class T, size_t N> struct is_xtensor<xt::xtensor<T, N>> : std::true_type {};
 
 template<typename T>
-struct io_impl<T,typename std::enable_if<is_xtensor<T>::value>::type>: public io_impl_base<T> {
+struct io_impl<T,typename std::enable_if<is_xtensor<T>::value>::type> {
 	// helper function
 	inline static std::vector<size_t> shape(const T& data)
 	{

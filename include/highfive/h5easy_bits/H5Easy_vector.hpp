@@ -28,7 +28,7 @@ This vector specialization does not implement load, load_part, dump_extend.
 Since it inherits from io_impl_base, implementations there will be called automatically.
  */
 template<typename T>
-struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type>: public io_impl_base<T> {
+struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type> {
 
 	// create DataSet and write data
 	static DataSet dump(File& file, const std::string& path, const T& data)
@@ -50,6 +50,15 @@ struct io_impl<T,typename std::enable_if<is_vector<T>::value>::type>: public io_
         dataset.write(data);
         file.flush();
         return dataset;
+    }
+    // load entire DataSet
+    // (copied verbatim from generic implementation)
+    static T load(const File& file, const std::string& path)
+    {
+        DataSet dataset = file.getDataSet(path);
+        T data;
+        dataset.read(data);
+        return data;
     }
 };
 

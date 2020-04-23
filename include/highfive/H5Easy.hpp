@@ -73,7 +73,7 @@ inline size_t getSize(const File& file, const std::string& path);
 /// \return the shape of the DataSet
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
-                    
+
 ///
 /// \brief Write scalar/string to a new DataSet in an open HDF5 file.
 ///
@@ -115,7 +115,6 @@ inline DataSet dump(File& file,
 ///
 /// \return the read data
 ///
-// template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
 template <class T>
 inline T load(const File& file,
               const std::string& path,
@@ -129,10 +128,8 @@ inline T load(const File& file,
 ///
 /// \return the read data
 ///
-// template <class T, typename std::enable_if<is_easy<T>::value,int>::type=0>
 template <class T>
 inline T load(const File& file, const std::string& path);
-
 
 }  // namespace H5Easy
 
