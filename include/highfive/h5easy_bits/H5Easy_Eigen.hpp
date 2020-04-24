@@ -11,7 +11,7 @@
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
-#include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
+#include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_EIGEN
 
@@ -61,21 +61,20 @@ struct io_impl<
     // write to open DataSet of the correct size
     // (use Eigen::Ref to convert to RowMajor; no action if no conversion is needed)
     inline static void write(DataSet& dataset, const T& data) {
-        Eigen::Ref<const Eigen::Array<typename std::decay<T>::type::Scalar,
-                                      std::decay<T>::type::RowsAtCompileTime,
-                                      std::decay<T>::type::ColsAtCompileTime,
-                                      std::decay<T>::type::ColsAtCompileTime == 1
-                                          ? Eigen::ColMajor
-                                          : Eigen::RowMajor,
-                                      std::decay<T>::type::MaxRowsAtCompileTime,
-                                      std::decay<T>::type::MaxColsAtCompileTime>,
-                   0, Eigen::InnerStride<1>>
-            row_major(data);
+        Eigen::Ref<
+            const Eigen::Array<
+                typename std::decay<T>::type::Scalar,
+                std::decay<T>::type::RowsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+                std::decay<T>::type::MaxRowsAtCompileTime,
+                std::decay<T>::type::MaxColsAtCompileTime>,
+            0,
+            Eigen::InnerStride<1>> row_major(data);
 
         dataset.write_raw(row_major.data());
     }
 
-    // create DataSet and write data
     static DataSet dump(File& file, const std::string& path, const T& data) {
         using value_type = typename std::decay<T>::type::Scalar;
         detail::createGroupsToDataSet(file, path);
@@ -85,7 +84,6 @@ struct io_impl<
         return dataset;
     }
 
-    // replace data of an existing DataSet of the correct size
     static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getDimensions() != shape(data)) {
@@ -96,12 +94,9 @@ struct io_impl<
         return dataset;
     }
 
-    // load from DataSet
-    // convert to ColMajor if needed (HDF5 always stores row-major)
     static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        std::vector<typename T::Index> dims = shape(file, path, dataset,
-                                                    T::RowsAtCompileTime);
+        std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
         dataset.read(data.data());
 
@@ -109,11 +104,14 @@ struct io_impl<
             return data;
         }
 
-        return Eigen::Map<
-            Eigen::Array<typename T::Scalar, T::RowsAtCompileTime, T::ColsAtCompileTime,
-                         T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-                         T::MaxRowsAtCompileTime, T::MaxColsAtCompileTime>>(
-            data.data(), dims[0], dims[1]);
+        // convert to ColMajor if needed (HDF5 always stores row-major)
+        return Eigen::Map<Eigen::Array<
+            typename T::Scalar,
+            T::RowsAtCompileTime,
+            T::ColsAtCompileTime,
+            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+            T::MaxRowsAtCompileTime,
+            T::MaxColsAtCompileTime>>(data.data(), dims[0], dims[1]);
     }
 };
 

@@ -11,7 +11,7 @@
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
-#include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
+#include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_XTENSOR
 
@@ -19,7 +19,6 @@ namespace H5Easy {
 
 namespace detail {
 
-// handled xtensor types
 template <class T>
 struct is_xtensor : std::false_type {};
 template <class T>
@@ -29,12 +28,11 @@ struct is_xtensor<xt::xtensor<T, N>> : std::true_type {};
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
-    // helper function
+
     inline static std::vector<size_t> shape(const T& data) {
         return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
 
-    // create DataSet and write data
     static DataSet dump(File& file, const std::string& path, const T& data) {
         using value_type = typename std::decay_t<T>::value_type;
         detail::createGroupsToDataSet(file, path);
@@ -44,7 +42,6 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return dataset;
     }
 
-    // replace data of an existing DataSet of the correct size
     static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getDimensions() != shape(data)) {
@@ -63,8 +60,6 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return data;
     }
 
-    // TODO: load_part
-    // TODO: extend
 };
 
 }  // namespace detail

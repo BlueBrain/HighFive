@@ -17,21 +17,12 @@ namespace H5Easy {
 namespace detail {
 
 /*
-I/O template for scalar types; it is base template for partial specialization
-thus will be used as fallback if more specialized templates don't match.
-
-The full API set is:
-
-* dump
-* overwrite
-* dump_extend
-* load
-* load_part
-
+Base template for partial specialization: the fallback if specialized templates don't match.
+Used e.g. for scalars.
 */
 template <typename T, typename = void>
 struct io_impl {
-    // create DataSet and write data
+
     static DataSet dump(File& file, const std::string& path, const T& data) {
         detail::createGroupsToDataSet(file, path);
         DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
@@ -39,7 +30,7 @@ struct io_impl {
         file.flush();
         return dataset;
     }
-    // replace data of an existing DataSet of the correct size
+
     static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
@@ -49,7 +40,7 @@ struct io_impl {
         file.flush();
         return dataset;
     }
-    // create/write extendible DataSet and write data
+
     static DataSet dump_extend(File& file,
                                const std::string& path,
                                const T& data,
@@ -62,8 +53,7 @@ struct io_impl {
             std::vector<size_t> shape = dims;
             if (dims.size() != idx.size()) {
                 throw detail::error(file, path,
-                                    "H5Easy::dump: Rank of the index and the existing "
-                                    "field do not match");
+                    "H5Easy::dump: Rank of the index and the existing field do not match");
             }
             for (size_t i = 0; i < dims.size(); ++i) {
                 shape[i] = std::max(dims[i], idx[i] + 1);
@@ -92,16 +82,17 @@ struct io_impl {
         file.flush();
         return dataset;
     }
-    // load a part of a larger DataSet
-    static T
-    load_part(const File& file, const std::string& path, const std::vector<size_t>& idx) {
+
+    static T load_part(const File& file,
+                       const std::string& path,
+                       const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.select(idx, ones).read(data);
         return data;
     }
-    // load entire DataSet
+
     static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
@@ -113,7 +104,7 @@ struct io_impl {
 }  // namespace detail
 
 /*
-Frontend functions only dispatch to io_impl<T> and are common for all datatypes.
+Frontend functions: dispatch to io_impl<T> and are common for all datatypes.
 */
 
 // front-end
@@ -130,8 +121,10 @@ inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode
 
 // front-end
 template <class T>
-inline DataSet
-dump(File& file, const std::string& path, const T& data, const std::vector<size_t>& idx) {
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    const std::vector<size_t>& idx) {
     return detail::io_impl<T>::dump_extend(file, path, data, idx);
 }
 

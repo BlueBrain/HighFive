@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-// optionally enable plug-in xtensor and load the library
+// optionally enable xtensor plug-in and load the library
 #ifdef XTENSOR_VERSION_MAJOR
 #ifndef H5_USE_XTENSOR
 #define H5_USE_XTENSOR
@@ -24,7 +24,7 @@
 #include <xtensor/xtensor.hpp>
 #endif
 
-// optionally enable plug-in Eigen and load the library
+// optionally enable Eigen plug-in and load the library
 #ifdef EIGEN_WORLD_VERSION
 #ifndef H5_USE_EIGEN
 #define H5_USE_EIGEN
@@ -50,9 +50,8 @@ using HighFive::File;
 ///
 /// \brief Write mode for DataSets
 enum class DumpMode {
-    Create,   /*!< Dump only if DataSet does not exist, otherwise throw. */
-    Overwrite /*!< If DataSet already exists overwrite it if data has the same shape,
-                 otherwise throw. */
+    Create, /*!< Dump only if DataSet does not exist, otherwise throw. */
+    Overwrite /*!< If DataSet already exists overwrite it if data has the same shape, otherwise throw. */
 };
 
 ///
@@ -100,8 +99,10 @@ inline DataSet dump(File& file,
 /// \return The newly created DataSet
 ///
 template <class T>
-inline DataSet
-dump(File& file, const std::string& path, const T& data, const std::vector<size_t>& idx);
+inline DataSet dump(File& file,
+                    const std::string& path,
+                    const T& data,
+                    const std::vector<size_t>& idx);
 
 ///
 /// \brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
