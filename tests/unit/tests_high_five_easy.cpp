@@ -213,6 +213,41 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
 
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayXX)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    Eigen::ArrayXXf A = 100. * Eigen::ArrayXXf::Random(20, 5);
+    Eigen::ArrayXXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    Eigen::ArrayXXf A_r = H5Easy::load<Eigen::MatrixXf>(file, "/path/to/A");
+    Eigen::ArrayXXi B_r = H5Easy::load<Eigen::MatrixXi>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayX)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    Eigen::ArrayXf A = Eigen::ArrayXf::Random(50);
+    Eigen::ArrayXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    Eigen::ArrayXf A_r = H5Easy::load<Eigen::ArrayXf>(file, "/path/to/A");
+    Eigen::ArrayXi B_r = H5Easy::load<Eigen::ArrayXi>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+}
+
+
 BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);

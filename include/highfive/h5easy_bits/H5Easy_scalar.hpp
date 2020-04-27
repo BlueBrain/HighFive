@@ -16,28 +16,22 @@ namespace H5Easy {
 
 namespace detail {
 
-namespace scalar {
+/*
+Base template for partial specialization: the fallback if specialized templates don't match.
+Used e.g. for scalars.
+*/
+template <typename T, typename = void>
+struct io_impl {
 
-// create DataSet and write data
-template <class T, class E = void>
-struct dump_impl
-{
-    static DataSet run(File& file, const std::string& path, const T& data)
-    {
+    static DataSet dump(File& file, const std::string& path, const T& data) {
         detail::createGroupsToDataSet(file, path);
         DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
         dataset.write(data);
         file.flush();
         return dataset;
     }
-};
 
-// replace data of an existing DataSet of the correct size
-template <class T, class E = void>
-struct overwrite_impl
-{
-    static DataSet run(File& file, const std::string& path, const T& data)
-    {
+    static DataSet overwrite(File& file, const std::string& path, const T& data) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
             throw detail::error(file, path, "H5Easy::dump: Existing field not a scalar");
@@ -46,17 +40,11 @@ struct overwrite_impl
         file.flush();
         return dataset;
     }
-};
 
-// create/write extendible DataSet and write data
-template <class T, class E = void>
-struct dump_extend_impl
-{
-    static DataSet run(File& file,
-                       const std::string& path,
-                       const T& data,
-                       const std::vector<size_t>& idx)
-    {
+    static DataSet dump_extend(File& file,
+                               const std::string& path,
+                               const T& data,
+                               const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
 
         if (file.exist(path)) {
@@ -94,32 +82,18 @@ struct dump_extend_impl
         file.flush();
         return dataset;
     }
-};
 
-// load "scalar" as part of a larger DataSet
-template <class T>
-struct load_impl
-{
-    static T run(const File& file,
-                 const std::string& path,
-                 const std::vector<size_t>& idx)
-    {
+    static T load_part(const File& file,
+                       const std::string& path,
+                       const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.select(idx, ones).read(data);
         return data;
     }
-};
 
-}  // namespace scalar
-
-// load from DataSet
-template <class T, class E = void>
-struct load_impl
-{
-    static T run(const File& file, const std::string& path)
-    {
+    static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.read(data);
@@ -129,14 +103,17 @@ struct load_impl
 
 }  // namespace detail
 
+/*
+Frontend functions: dispatch to io_impl<T> and are common for all datatypes.
+*/
+
 // front-end
 template <class T>
-inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode)
-{
+inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
     if (!file.exist(path)) {
-        return detail::scalar::dump_impl<T>::run(file, path, data);
+        return detail::io_impl<T>::dump(file, path, data);
     } else if (mode == DumpMode::Overwrite) {
-        return detail::scalar::overwrite_impl<T>::run(file, path, data);
+        return detail::io_impl<T>::overwrite(file, path, data);
     } else {
         throw detail::error(file, path, "H5Easy: path already exists");
     }
@@ -147,23 +124,20 @@ template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const T& data,
-                    const std::vector<size_t>& idx)
-{
-    return detail::scalar::dump_extend_impl<T>::run(file, path, data, idx);
+                    const std::vector<size_t>& idx) {
+    return detail::io_impl<T>::dump_extend(file, path, data, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx)
-{
-    return detail::scalar::load_impl<T>::run(file, path, idx);
+inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx) {
+    return detail::io_impl<T>::load_part(file, path, idx);
 }
 
 // front-end
 template <class T>
-inline T load(const File& file, const std::string& path)
-{
-    return detail::load_impl<T>::run(file, path);
+inline T load(const File& file, const std::string& path) {
+    return detail::io_impl<T>::load(file, path);
 }
 
 }  // namespace H5Easy

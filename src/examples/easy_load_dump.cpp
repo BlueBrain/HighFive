@@ -69,12 +69,21 @@ int main()
 #ifdef H5_USE_EIGEN
     // (over)write and read Eigen::Matrix
     {
+        // matrix
         Eigen::MatrixXd D = Eigen::MatrixXd::Random(10,5);
 
         H5Easy::dump(file, "/path/to/D", D);
         H5Easy::dump(file, "/path/to/D", D, H5Easy::DumpMode::Overwrite);
 
         D = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/D");
+
+
+        Eigen::ArrayXd D2 = Eigen::ArrayXd::Random(30);
+
+        H5Easy::dump(file, "/path/to/D2", D2);
+        H5Easy::dump(file, "/path/to/D2", D2, H5Easy::DumpMode::Overwrite);
+
+        D2 = H5Easy::load<Eigen::ArrayXd>(file, "/path/to/D2");
     }
 #endif
 

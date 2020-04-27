@@ -11,7 +11,7 @@
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
-#include "H5Easy_scalar.hpp"  // to get the basic "load_impl"
+#include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_XTENSOR
 
@@ -19,113 +19,50 @@ namespace H5Easy {
 
 namespace detail {
 
-namespace xtensor {
-
-// return the shape of the xtensor-object as "std::vector<size_t>"
 template <class T>
-inline std::vector<size_t> shape(const T& data)
-{
-    return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
-}
-
-// create DataSet and write data
+struct is_xtensor : std::false_type {};
 template <class T>
-static DataSet dump_impl(File& file, const std::string& path, const T& data)
-{
-    using value_type = typename std::decay_t<T>::value_type;
-    detail::createGroupsToDataSet(file, path);
-    DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
-    dataset.write_raw(data.data());
-    file.flush();
-    return dataset;
-}
+struct is_xtensor<xt::xarray<T>> : std::true_type {};
+template <class T, size_t N>
+struct is_xtensor<xt::xtensor<T, N>> : std::true_type {};
 
-// replace data of an existing DataSet of the correct size
-template <class T>
-static DataSet overwrite_impl(File& file, const std::string& path, const T& data)
-{
-    DataSet dataset = file.getDataSet(path);
-    if (dataset.getDimensions() != shape(data)) {
-        throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
+template <typename T>
+struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
+
+    inline static std::vector<size_t> shape(const T& data) {
+        return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
-    dataset.write_raw(data.data());
-    file.flush();
-    return dataset;
-}
 
-// load xtensor-object from DataSet
-template <class T>
-struct load_impl
-{
-    static T run(const File& file, const std::string& path)
-    {
+    static DataSet dump(File& file, const std::string& path, const T& data) {
+        using value_type = typename std::decay_t<T>::value_type;
+        detail::createGroupsToDataSet(file, path);
+        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
+        dataset.write_raw(data.data());
+        file.flush();
+        return dataset;
+    }
+
+    static DataSet overwrite(File& file, const std::string& path, const T& data) {
+        DataSet dataset = file.getDataSet(path);
+        if (dataset.getDimensions() != shape(data)) {
+            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
+        }
+        dataset.write_raw(data.data());
+        file.flush();
+        return dataset;
+    }
+
+    static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         T data = T::from_shape(dims);
         dataset.read(data.data());
         return data;
     }
-};
 
-// universal front-end (to minimise double code)
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    DumpMode mode)
-{
-    if (!file.exist(path)) {
-        return detail::xtensor::dump_impl(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
-        return detail::xtensor::overwrite_impl(file, path, data);
-    } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
-    }
-}
-
-}  // namespace xtensor
-
-// front-end
-template <class T>
-struct load_impl<xt::xarray<T>>
-{
-    static xt::xarray<T> run(const File& file, const std::string& path)
-    {
-        return detail::xtensor::load_impl<xt::xarray<T>>::run(file, path);
-    }
-};
-
-// front-end
-template <class T, size_t rank>
-struct load_impl<xt::xtensor<T, rank>>
-{
-    static xt::xtensor<T, rank> run(const File& file, const std::string& path)
-    {
-        return detail::xtensor::load_impl<xt::xtensor<T, rank>>::run(file, path);
-    }
 };
 
 }  // namespace detail
-
-// front-end
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const xt::xarray<T>& data,
-                    DumpMode mode)
-{
-    return detail::xtensor::dump(file, path, data, mode);
-}
-
-// front-end
-template <class T, size_t rank>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const xt::xtensor<T, rank>& data,
-                    DumpMode mode)
-{
-    return detail::xtensor::dump(file, path, data, mode);
-}
 
 }  // namespace H5Easy
 
