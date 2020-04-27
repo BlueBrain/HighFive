@@ -46,6 +46,7 @@ using HighFive::DataSetCreateProps;
 using HighFive::DataSpace;
 using HighFive::Exception;
 using HighFive::File;
+using HighFive::ObjectType;
 
 ///
 /// \brief Write mode for DataSets
