@@ -112,10 +112,15 @@ template <class T>
 inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
     if (!file.exist(path)) {
         return detail::io_impl<T>::dump(file, path, data);
-    } else if (mode == DumpMode::Overwrite) {
+    } else if (mode == DumpMode::Overwrite && file.getObjectType(path) == ObjectType::Dataset) {
         return detail::io_impl<T>::overwrite(file, path, data);
+    } else if (file.getObjectType(path) == ObjectType::Dataset) {
+        throw detail::error(file, path,
+            "H5Easy: Dataset already exists, dump with H5Easy::DumpMode::Overwrite "
+            "to overwrite (with an array of the same shape).");
     } else {
-        throw detail::error(file, path, "H5Easy: path already exists");
+        throw detail::error(file, path,
+            "H5Easy: path exists, but does not correspond to a Dataset. Dump not possible.");
     }
 }
 
