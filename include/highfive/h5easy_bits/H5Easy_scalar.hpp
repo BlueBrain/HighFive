@@ -23,7 +23,10 @@ Used e.g. for scalars.
 template <typename T, typename = void>
 struct io_impl {
 
-    static DataSet dump(File& file, const std::string& path, const T& data) {
+    static DataSet dump(File& file,
+                        const std::string& path,
+                        const T& data,
+                        const DumpSettings&) {
         detail::createGroupsToDataSet(file, path);
         DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
         dataset.write(data);
@@ -108,11 +111,13 @@ Frontend functions: dispatch to io_impl<T> and are common for all datatypes.
 */
 
 // front-end
-template <class T>
-inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
+template <class T, class... Args>
+inline DataSet dump(File& file, const std::string& path, const T& data, Args... options) {
+    detail::DumpSettings settings = detail::get_dumpsettings(options...);
+
     if (!file.exist(path)) {
-        return detail::io_impl<T>::dump(file, path, data);
-    } else if (mode == DumpMode::Overwrite && file.getObjectType(path) == ObjectType::Dataset) {
+        return detail::io_impl<T>::dump(file, path, data, settings);
+    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
         return detail::io_impl<T>::overwrite(file, path, data);
     } else if (file.getObjectType(path) == ObjectType::Dataset) {
         throw detail::error(file, path,

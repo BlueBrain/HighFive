@@ -75,10 +75,13 @@ struct io_impl<
         dataset.write_raw(row_major.data());
     }
 
-    static DataSet dump(File& file, const std::string& path, const T& data) {
+    static DataSet dump(File& file,
+                        const std::string& path,
+                        const T& data,
+                        const DumpSettings& settings) {
         using value_type = typename std::decay<T>::type::Scalar;
         detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
+        DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);
         write(dataset, data);
         file.flush();
         return dataset;

@@ -33,10 +33,13 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
 
-    static DataSet dump(File& file, const std::string& path, const T& data) {
+    static DataSet dump(File& file,
+                        const std::string& path,
+                        const T& data,
+                        const DumpSettings& settings) {
         using value_type = typename std::decay_t<T>::value_type;
         detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
+        DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);;
         dataset.write_raw(data.data());
         file.flush();
         return dataset;

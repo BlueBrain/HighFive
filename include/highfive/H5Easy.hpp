@@ -44,15 +44,26 @@ using HighFive::Chunking;
 using HighFive::DataSet;
 using HighFive::DataSetCreateProps;
 using HighFive::DataSpace;
+using HighFive::Deflate;
 using HighFive::Exception;
 using HighFive::File;
 using HighFive::ObjectType;
+using HighFive::Shuffle;
 
 ///
 /// \brief Write mode for DataSets
 enum class DumpMode {
-    Create, /*!< Dump only if DataSet does not exist, otherwise throw. */
+    Create, /*!< Dump only if DataSet does not exist, otherwise throw. (default) */
     Overwrite /*!< If DataSet already exists overwrite it if data has the same shape, otherwise throw. */
+};
+
+///
+/// \brief Compression-level for writing DataSets
+enum class Compression
+{
+    None, /*!< No compression. (default) */
+    Medium, /*!< Medium compression level. */
+    High /*!< High compression level. */
 };
 
 ///
@@ -79,15 +90,15 @@ inline std::vector<size_t> getShape(const File& file, const std::string& path);
 /// \param file Writeable opened file
 /// \param path Path of the DataSet
 /// \param data Data to write
-/// \param mode Write mode
+/// \param write_options Write mode, any combination of DumpMode and Compression
 ///
 /// \return The newly created DataSet
 ///
-template <class T>
+template <class T, class... Args>
 inline DataSet dump(File& file,
                     const std::string& path,
                     const T& data,
-                    DumpMode mode = DumpMode::Create);
+                    Args... write_options);
 
 ///
 /// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.

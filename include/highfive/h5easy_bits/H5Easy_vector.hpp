@@ -28,7 +28,10 @@ using HighFive::details::type_of_array;
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
-    static DataSet dump(File& file, const std::string& path, const T& data) {
+    static DataSet dump(File& file,
+                        const std::string& path,
+                        const T& data,
+                        const DumpSettings&) {
         using type_name = typename type_of_array<T>::type;
         detail::createGroupsToDataSet(file, path);
         DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
