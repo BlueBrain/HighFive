@@ -68,7 +68,7 @@ matrix:
       env:
         - GCC_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
-        - HIGHFIVE_USE_OPENCV=True
+        - HIGHFIVE_USE_OPENCV=False
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *gcc7
 
@@ -88,7 +88,7 @@ matrix:
       env:
         - CLANG_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
-        - HIGHFIVE_USE_OPENCV=True
+        - HIGHFIVE_USE_OPENCV=False
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *clang7
 

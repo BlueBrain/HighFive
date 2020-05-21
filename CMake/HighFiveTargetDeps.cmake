@@ -57,9 +57,10 @@ endif()
 
 # OpenCV
 if(HIGHFIVE_USE_OPENCV)
-  if (NOT OpenCV_LIBS)
+  if (NOT OpenCV_INCLUDE_DIRS)
     find_package(OpenCV REQUIRED)
   endif()
+  target_include_directories(libdeps SYSTEM INTERFACE ${OpenCV_INCLUDE_DIRS})
   target_link_libraries(libdeps INTERFACE ${OpenCV_LIBS})
   target_compile_definitions(libdeps INTERFACE H5_USE_OPENCV)
 endif()
