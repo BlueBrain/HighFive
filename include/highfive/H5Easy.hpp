@@ -35,6 +35,17 @@
 #include <Eigen/Eigen>
 #endif
 
+// optionally enable OpenCV plug-in and load the library
+#ifdef CV_MAJOR_VERSION
+#ifndef H5_USE_OPENCV
+#define H5_USE_OPENCV
+#endif
+#endif
+
+#ifdef H5_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 #include "H5File.hpp"
 
 namespace H5Easy {
@@ -132,6 +143,7 @@ inline T load(const File& file, const std::string& path);
 
 #include "h5easy_bits/H5Easy_Eigen.hpp"
 #include "h5easy_bits/H5Easy_misc.hpp"
+#include "h5easy_bits/H5Easy_opencv.hpp"
 #include "h5easy_bits/H5Easy_scalar.hpp"
 #include "h5easy_bits/H5Easy_vector.hpp"
 #include "h5easy_bits/H5Easy_xtensor.hpp"
