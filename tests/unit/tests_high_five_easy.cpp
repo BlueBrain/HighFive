@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_scalar)
     H5Easy::dump(file, "/path/to/a", a);
     H5Easy::dump(file, "/path/to/b", b);
     H5Easy::dump(file, "/path/to/c", c);
+    H5Easy::dump(file, "/path/to/c", c, H5Easy::DumpMode::Overwrite);
 
     double a_r = H5Easy::load<double>(file, "/path/to/a");
     int b_r = H5Easy::load<int>(file, "/path/to/b");
@@ -88,6 +89,28 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d)
     BOOST_CHECK_EQUAL(a == a_r, true);
 }
 
+BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    using type = std::vector<std::vector<size_t>>;
+
+    type a(3);
+    a[0].push_back(0);
+    a[0].push_back(1);
+    a[1].push_back(2);
+    a[1].push_back(3);
+    a[2].push_back(4);
+    a[2].push_back(5);
+
+    H5Easy::dump(file, "/path/to/a", a, H5Easy::Compression::High);
+    H5Easy::dump(file, "/path/to/a", a, H5Easy::Compression::High, H5Easy::DumpMode::Overwrite);
+
+    type a_r = H5Easy::load<type>(file, "/path/to/a");
+
+    BOOST_CHECK_EQUAL(a == a_r, true);
+}
+
 BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -99,16 +122,16 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
     a[1].resize(2);
     a[2].resize(2);
 
-    a[0][0].push_back( 0);
-    a[0][0].push_back( 1);
-    a[0][1].push_back( 2);
-    a[0][1].push_back( 3);
-    a[1][0].push_back( 4);
-    a[1][0].push_back( 5);
-    a[1][1].push_back( 6);
-    a[1][1].push_back( 7);
-    a[2][0].push_back( 8);
-    a[2][0].push_back( 9);
+    a[0][0].push_back(0);
+    a[0][0].push_back(1);
+    a[0][1].push_back(2);
+    a[0][1].push_back(3);
+    a[1][0].push_back(4);
+    a[1][0].push_back(5);
+    a[1][1].push_back(6);
+    a[1][1].push_back(7);
+    a[2][0].push_back(8);
+    a[2][0].push_back(9);
     a[2][1].push_back(10);
     a[2][1].push_back(11);
 
@@ -202,6 +225,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
     xt::xtensor<int, 2> B = A;
 
     H5Easy::dump(file, "/path/to/A", A, H5Easy::Compression::High);
+    H5Easy::dump(file, "/path/to/A", A, H5Easy::Compression::High, H5Easy::DumpMode::Overwrite);
     H5Easy::dump(file, "/path/to/B", B, H5Easy::Compression::High);
 
     xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
