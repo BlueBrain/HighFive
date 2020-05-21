@@ -26,22 +26,18 @@ struct io_impl {
     static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
-                        const DumpSettings&) {
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<T>(path, DataSpace::From(data));
+                        const DumpSettings& settings) {
+        DataSet dataset = init_dataset(file, path, data, settings);
         dataset.write(data);
         file.flush();
         return dataset;
     }
 
-    static DataSet overwrite(File& file, const std::string& path, const T& data) {
+    static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        if (dataset.getElementCount() != 1) {
-            throw detail::error(file, path, "H5Easy::dump: Existing field not a scalar");
-        }
-        dataset.write(data);
-        file.flush();
-        return dataset;
+        T data;
+        dataset.read(data);
+        return data;
     }
 
     static DataSet dump_extend(File& file,
@@ -95,13 +91,6 @@ struct io_impl {
         dataset.select(idx, ones).read(data);
         return data;
     }
-
-    static T load(const File& file, const std::string& path) {
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
-        return data;
-    }
 };
 
 }  // namespace detail
@@ -110,26 +99,12 @@ struct io_impl {
 Frontend functions: dispatch to io_impl<T> and are common for all datatypes.
 */
 
-// front-end
 template <class T, class... Args>
 inline DataSet dump(File& file, const std::string& path, const T& data, Args... options) {
     detail::DumpSettings settings = detail::get_dumpsettings(options...);
-
-    if (!file.exist(path)) {
-        return detail::io_impl<T>::dump(file, path, data, settings);
-    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
-        return detail::io_impl<T>::overwrite(file, path, data);
-    } else if (file.getObjectType(path) == ObjectType::Dataset) {
-        throw detail::error(file, path,
-            "H5Easy: Dataset already exists, dump with H5Easy::DumpMode::Overwrite "
-            "to overwrite (with an array of the same shape).");
-    } else {
-        throw detail::error(file, path,
-            "H5Easy: path exists, but does not correspond to a Dataset. Dump not possible.");
-    }
+    return detail::io_impl<T>::dump(file, path, data, settings);
 }
 
-// front-end
 template <class T>
 inline DataSet dump(File& file,
                     const std::string& path,
@@ -138,13 +113,11 @@ inline DataSet dump(File& file,
     return detail::io_impl<T>::dump_extend(file, path, data, idx);
 }
 
-// front-end
 template <class T>
 inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx) {
     return detail::io_impl<T>::load_part(file, path, idx);
 }
 
-// front-end
 template <class T>
 inline T load(const File& file, const std::string& path) {
     return detail::io_impl<T>::load(file, path);

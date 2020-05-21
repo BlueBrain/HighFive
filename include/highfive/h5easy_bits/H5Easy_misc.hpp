@@ -15,96 +15,6 @@ namespace H5Easy {
 
 namespace detail {
 
-// structure to pass-on dump-settings
-struct DumpSettings
-{
-    inline DumpSettings() = default;
-
-    inline void set(DumpMode mode)
-    {
-        switch(mode){
-            case DumpMode::Overwrite:
-                overwrite = true;
-                break;
-            default:
-                overwrite = false;
-                break;
-        }
-    }
-
-    inline void set(Compression mode)
-    {
-        switch(mode){
-            case Compression::Medium:
-                deflate_level = 5;
-                compress = true;
-                break;
-            case Compression::High:
-                deflate_level = 9;
-                compress = true;
-                break;
-            default:
-                compress = false;
-                break;
-        }
-    }
-
-    bool overwrite = false;
-    bool compress = false;
-    unsigned deflate_level = 0;
-};
-
-// variadic template to read the DumpSettings
-inline void read_dumpsettings(DumpSettings&)
-{
-}
-
-template <class T, class... Args>
-inline void read_dumpsettings(DumpSettings& options, T arg, Args... args)
-{
-    options.set(arg);
-    read_dumpsettings(options, args...);
-}
-
-// process DumpSettings
-template <class... Args>
-inline DumpSettings get_dumpsettings(Args... args)
-{
-    DumpSettings out;
-    read_dumpsettings(out, args...);
-    return out;
-}
-
-// get a opened DataSet
-template <class T>
-inline DataSet init_dataset(File& file,
-                            const std::string& path,
-                            const std::vector<size_t>& shape,
-                            const DumpSettings& settings)
-{
-    if (settings.compress == false) {
-        return file.createDataSet<T>(path, DataSpace(shape));
-    }
-
-    std::vector<hsize_t> hshape(shape.begin(), shape.end());
-    DataSetCreateProps props;
-    props.add(Chunking(hshape));
-    props.add(Shuffle());
-    props.add(Deflate(settings.deflate_level));
-    return file.createDataSet<T>(path, DataSpace(shape), props);
-}
-
-// Generate error-stream and return "Exception" (not yet thrown).
-inline Exception error(const File& file,
-                       const std::string& path,
-                       const std::string& message) {
-    std::ostringstream ss;
-    ss << message << std::endl
-       << "Path: " << path << std::endl
-       << "Filename: " << file.getName() << std::endl;
-    return Exception(ss.str());
-}
-
 ///
 /// Get the parent of a path.
 /// For example for ``path = "/path/to/dataset"`` this function returns
@@ -136,6 +46,132 @@ inline void createGroupsToDataSet(File& file, const std::string& path) {
     if (!file.exist(group_name)) {
         file.createGroup(group_name);
     }
+}
+
+// Generate error-stream and return "Exception" (not yet thrown).
+inline Exception error(const File& file,
+                       const std::string& path,
+                       const std::string& message) {
+    std::ostringstream ss;
+    ss << message << std::endl
+       << "Path: " << path << std::endl
+       << "Filename: " << file.getName() << std::endl;
+    return Exception(ss.str());
+}
+
+// Generate specific dump error
+inline Exception dump_error(File& file, const std::string& path)
+{
+    if (file.getObjectType(path) == ObjectType::Dataset) {
+        return error(file, path,
+            "H5Easy: Dataset already exists, dump with H5Easy::DumpMode::Overwrite "
+            "to overwrite (with an array of the same shape).");
+    } else {
+        return error(file, path,
+            "H5Easy: path exists, but does not correspond to a Dataset. Dump not possible.");
+    }
+}
+
+// structure to pass-on dump-settings
+struct DumpSettings
+{
+    inline DumpSettings() = default;
+
+    inline void set(DumpMode mode)
+    {
+        if (mode == DumpMode::Overwrite) {
+            overwrite = true;
+        } else if (mode == DumpMode::Create) {
+            overwrite = false;
+        }
+    }
+
+    inline void set(Compression mode)
+    {
+        if (mode == Compression::None) {
+            compress = false;
+        } else if (mode == Compression::Medium) {
+            compress = true;
+            deflate_level = 5;
+        } else if (mode == Compression::High) {
+            compress = true;
+            deflate_level = 9;
+        }
+    }
+
+    bool overwrite = false;
+    bool compress = false;
+    unsigned deflate_level = 0;
+};
+
+// variadic template to read the DumpSettings
+inline void read_dumpsettings(DumpSettings&)
+{
+}
+
+template <class T, class... Args>
+inline void read_dumpsettings(DumpSettings& options, T arg, Args... args)
+{
+    options.set(arg);
+    read_dumpsettings(options, args...);
+}
+
+// process DumpSettings
+template <class... Args>
+inline DumpSettings get_dumpsettings(Args... args)
+{
+    DumpSettings out;
+    read_dumpsettings(out, args...);
+    return out;
+}
+
+// get a opened DataSet: nd-array
+template <class T>
+inline DataSet init_dataset(File& file,
+                            const std::string& path,
+                            const std::vector<size_t>& shape,
+                            const DumpSettings& settings)
+{
+    if (!file.exist(path)) {
+        detail::createGroupsToDataSet(file, path);
+        if (settings.compress == false) {
+            return file.createDataSet<T>(path, DataSpace(shape));
+        } else {
+            std::vector<hsize_t> hshape(shape.begin(), shape.end());
+            DataSetCreateProps props;
+            props.add(Chunking(hshape));
+            props.add(Shuffle());
+            props.add(Deflate(settings.deflate_level));
+            return file.createDataSet<T>(path, DataSpace(shape), props);
+        }
+    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
+        DataSet dataset = file.getDataSet(path);
+        if (dataset.getDimensions() != shape) {
+            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
+        }
+        return dataset;
+    }
+    throw dump_error(file, path);
+}
+
+// get a opened DataSet: scalar
+template <class T>
+inline DataSet init_dataset(File& file,
+                            const std::string& path,
+                            const T& data,
+                            const DumpSettings& settings)
+{
+    if (!file.exist(path)) {
+        detail::createGroupsToDataSet(file, path);
+        return file.createDataSet<T>(path, DataSpace::From(data));
+    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
+        DataSet dataset = file.getDataSet(path);
+        if (dataset.getElementCount() != 1) {
+            throw detail::error(file, path, "H5Easy::dump: Existing field not a scalar");
+        }
+        return dataset;
+    }
+    throw dump_error(file, path);
 }
 
 }  // namespace detail

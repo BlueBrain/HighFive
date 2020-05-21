@@ -31,20 +31,9 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
     static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
-                        const DumpSettings&) {
-        using type_name = typename type_of_array<T>::type;
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<type_name>(path, DataSpace::From(data));
-        dataset.write(data);
-        file.flush();
-        return dataset;
-    }
-
-    static DataSet overwrite(File& file, const std::string& path, const T& data) {
-        DataSet dataset = file.getDataSet(path);
-        if (get_dim_vector(data) != dataset.getDimensions()) {
-            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
-        }
+                        const DumpSettings& settings) {
+        using value_type = typename type_of_array<T>::type;
+        DataSet dataset = init_dataset<value_type>(file, path, get_dim_vector(data), settings);
         dataset.write(data);
         file.flush();
         return dataset;

@@ -58,9 +58,11 @@ struct io_impl<
         throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
     }
 
-    // write to open DataSet of the correct size
-    // (use Eigen::Ref to convert to RowMajor; no action if no conversion is needed)
-    inline static void write(DataSet& dataset, const T& data) {
+    static DataSet dump(File& file,
+                        const std::string& path,
+                        const T& data,
+                        const DumpSettings& settings) {
+        // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
         Eigen::Ref<
             const Eigen::Array<
                 typename std::decay<T>::type::Scalar,
@@ -72,27 +74,9 @@ struct io_impl<
             0,
             Eigen::InnerStride<1>> row_major(data);
 
-        dataset.write_raw(row_major.data());
-    }
-
-    static DataSet dump(File& file,
-                        const std::string& path,
-                        const T& data,
-                        const DumpSettings& settings) {
         using value_type = typename std::decay<T>::type::Scalar;
-        detail::createGroupsToDataSet(file, path);
         DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);
-        write(dataset, data);
-        file.flush();
-        return dataset;
-    }
-
-    static DataSet overwrite(File& file, const std::string& path, const T& data) {
-        DataSet dataset = file.getDataSet(path);
-        if (dataset.getDimensions() != shape(data)) {
-            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
-        }
-        write(dataset, data);
+        dataset.write_raw(row_major.data());
         file.flush();
         return dataset;
     }
@@ -122,5 +106,4 @@ struct io_impl<
 }  // namespace H5Easy
 
 #endif  // H5_USE_EIGEN
-
 #endif  // H5EASY_BITS_EIGEN_HPP

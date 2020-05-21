@@ -38,18 +38,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
                         const T& data,
                         const DumpSettings& settings) {
         using value_type = typename std::decay_t<T>::value_type;
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);;
-        dataset.write_raw(data.data());
-        file.flush();
-        return dataset;
-    }
-
-    static DataSet overwrite(File& file, const std::string& path, const T& data) {
-        DataSet dataset = file.getDataSet(path);
-        if (dataset.getDimensions() != shape(data)) {
-            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
-        }
+        DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);
         dataset.write_raw(data.data());
         file.flush();
         return dataset;
@@ -66,9 +55,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
 };
 
 }  // namespace detail
-
 }  // namespace H5Easy
 
 #endif  // H5_USE_XTENSOR
-
 #endif  // H5EASY_BITS_XTENSOR_HPP
