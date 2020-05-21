@@ -27,7 +27,7 @@ struct io_impl {
                         const std::string& path,
                         const T& data,
                         const DumpSettings& settings) {
-        DataSet dataset = init_dataset(file, path, data, settings);
+        DataSet dataset = init_dataset_scalar(file, path, data, settings);
         dataset.write(data);
         file.flush();
         return dataset;

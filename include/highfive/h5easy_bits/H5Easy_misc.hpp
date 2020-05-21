@@ -156,7 +156,7 @@ inline DataSet init_dataset(File& file,
 
 // get a opened DataSet: scalar
 template <class T>
-inline DataSet init_dataset(File& file,
+inline DataSet init_dataset_scalar(File& file,
                             const std::string& path,
                             const T& data,
                             const DumpSettings& settings)
