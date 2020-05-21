@@ -39,6 +39,7 @@
 
 namespace H5Easy {
 
+using HighFive::Attribute;
 using HighFive::AtomicType;
 using HighFive::Chunking;
 using HighFive::DataSet;
@@ -85,12 +86,12 @@ inline size_t getSize(const File& file, const std::string& path);
 inline std::vector<size_t> getShape(const File& file, const std::string& path);
 
 ///
-/// \brief Write scalar/string to a new DataSet in an open HDF5 file.
+/// \brief Write object (templated) to a (new) DataSet in an open HDF5 file.
 ///
 /// \param file Writeable opened file
 /// \param path Path of the DataSet
 /// \param data Data to write
-/// \param write_options Write mode, any combination of DumpMode and Compression
+/// \param write_options Write mode, e.g. DumpMode or Compression
 ///
 /// \return The newly created DataSet
 ///
@@ -138,6 +139,36 @@ inline T load(const File& file, const std::string& path, const std::vector<size_
 ///
 template <class T>
 inline T load(const File& file, const std::string& path);
+
+///
+/// \brief Write object (templated) to a (new) Attribute in an open HDF5 file.
+///
+/// \param file Writeable opened file
+/// \param path Path of the DataSet
+/// \param key Name of the attribute
+/// \param data Data to write
+/// \param write_options Write mode, e.g. DumpMode
+///
+/// \return The newly created DataSet
+///
+template <class T, class... Args>
+inline Attribute dump_attr(File& file,
+                           const std::string& path,
+                           const std::string& key,
+                           const T& data,
+                           Args... write_options);
+
+///
+/// \brief Load a Attribute in an open HDF5 file to an object (templated).
+///
+/// \param file opened File (has to be writeable)
+/// \param path path of the DataSet
+/// \param key Name of the attribute
+///
+/// \return the read data
+///
+template <class T>
+inline T load_attr(const File& file, const std::string& path, const std::string& key);
 
 }  // namespace H5Easy
 

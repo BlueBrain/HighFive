@@ -52,6 +52,27 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return data;
     }
 
+    static Attribute dump_attr(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               const DumpSettings& settings) {
+        using value_type = typename std::decay_t<T>::value_type;
+        Attribute attribute = init_attribute<value_type>(file, path, key, shape(data), settings);
+        attribute.write_raw(data.data());
+        file.flush();
+        return attribute;
+    }
+
+    static T load_attr(const File& file, const std::string& path, const std::string& key) {
+        DataSet dataset = file.getDataSet(path);
+        Attribute attribute = dataset.getAttribute(key);
+        DataSpace dataspace = attribute.getSpace();
+        std::vector<size_t> dims = dataspace.getDimensions();
+        T data = T::from_shape(dims);
+        attribute.read(data.data());
+        return data;
+    }
 };
 
 }  // namespace detail

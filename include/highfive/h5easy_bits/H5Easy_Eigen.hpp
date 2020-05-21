@@ -38,9 +38,10 @@ struct io_impl<
     using EigenIndex = Eigen::DenseIndex;
 
     // get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
+    template <class D>
     inline static std::vector<EigenIndex> shape(const File& file,
                                                 const std::string& path,
-                                                const DataSet& dataset,
+                                                const D& dataset,
                                                 int RowsAtCompileTime) {
         std::vector<size_t> dims = dataset.getDimensions();
 
@@ -58,7 +59,7 @@ struct io_impl<
         throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
     }
 
-    static DataSet dump(File& file,
+    inline static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
                         const DumpSettings& settings) {
@@ -81,11 +82,57 @@ struct io_impl<
         return dataset;
     }
 
-    static T load(const File& file, const std::string& path) {
+    inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
         dataset.read(data.data());
+
+        if (data.IsVectorAtCompileTime || data.IsRowMajor) {
+            return data;
+        }
+
+        // convert to ColMajor if needed (HDF5 always stores row-major)
+        return Eigen::Map<Eigen::Array<
+            typename T::Scalar,
+            T::RowsAtCompileTime,
+            T::ColsAtCompileTime,
+            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+            T::MaxRowsAtCompileTime,
+            T::MaxColsAtCompileTime>>(data.data(), dims[0], dims[1]);
+    }
+
+    inline static Attribute dump_attr(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               const DumpSettings& settings) {
+        // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
+        Eigen::Ref<
+            const Eigen::Array<
+                typename std::decay<T>::type::Scalar,
+                std::decay<T>::type::RowsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+                std::decay<T>::type::MaxRowsAtCompileTime,
+                std::decay<T>::type::MaxColsAtCompileTime>,
+            0,
+            Eigen::InnerStride<1>> row_major(data);
+
+        using value_type = typename std::decay<T>::type::Scalar;
+        Attribute atrribute = init_attribute<value_type>(file, path, key, shape(data), settings);
+        atrribute.write_raw(row_major.data());
+        file.flush();
+        return atrribute;
+    }
+
+    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+        DataSet dataset = file.getDataSet(path);
+        Attribute attribute = dataset.getAttribute(key);
+        DataSpace dataspace = attribute.getSpace();
+        std::vector<typename T::Index> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
+        T data(dims[0], dims[1]);
+        attribute.read(data.data());
 
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;

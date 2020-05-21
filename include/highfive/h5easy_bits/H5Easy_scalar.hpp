@@ -23,27 +23,46 @@ Used e.g. for scalars.
 template <typename T, typename = void>
 struct io_impl {
 
-    static DataSet dump(File& file,
-                        const std::string& path,
-                        const T& data,
-                        const DumpSettings& settings) {
+    inline static DataSet dump(File& file,
+                               const std::string& path,
+                               const T& data,
+                               const DumpSettings& settings) {
         DataSet dataset = init_dataset_scalar(file, path, data, settings);
         dataset.write(data);
         file.flush();
         return dataset;
     }
 
-    static T load(const File& file, const std::string& path) {
+    inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.read(data);
         return data;
     }
 
-    static DataSet dump_extend(File& file,
-                               const std::string& path,
-                               const T& data,
-                               const std::vector<size_t>& idx) {
+    inline static Attribute dump_attr(File& file,
+                                      const std::string& path,
+                                      const std::string& key,
+                                      const T& data,
+                                      const DumpSettings& settings) {
+        Attribute atrribute = init_attribute_scalar(file, path, key, data, settings);
+        atrribute.write(data);
+        file.flush();
+        return atrribute;
+    }
+
+    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+        DataSet dataset = file.getDataSet(path);
+        Attribute attribute = dataset.getAttribute(key);
+        T data;
+        attribute.read(data);
+        return data;
+    }
+
+    inline static DataSet dump_extend(File& file,
+                                      const std::string& path,
+                                      const T& data,
+                                      const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
 
         if (file.exist(path)) {
@@ -82,9 +101,9 @@ struct io_impl {
         return dataset;
     }
 
-    static T load_part(const File& file,
-                       const std::string& path,
-                       const std::vector<size_t>& idx) {
+    inline static T load_part(const File& file,
+                              const std::string& path,
+                              const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
         DataSet dataset = file.getDataSet(path);
         T data;
@@ -121,6 +140,21 @@ inline T load(const File& file, const std::string& path, const std::vector<size_
 template <class T>
 inline T load(const File& file, const std::string& path) {
     return detail::io_impl<T>::load(file, path);
+}
+
+template <class T, class... Args>
+inline Attribute dump_attr(File& file,
+                           const std::string& path,
+                           const std::string& key,
+                           const T& data,
+                           Args... options) {
+    detail::DumpSettings settings = detail::get_dumpsettings(options...);
+    return detail::io_impl<T>::dump_attr(file, path, key, data, settings);
+}
+
+template <class T>
+inline T load_attr(const File& file, const std::string& path, const std::string& key) {
+    return detail::io_impl<T>::load_attr(file, path, key);
 }
 
 }  // namespace H5Easy

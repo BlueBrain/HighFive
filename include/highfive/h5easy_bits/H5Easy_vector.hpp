@@ -45,6 +45,27 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         dataset.read(data);
         return data;
     }
+
+   static Attribute dump_attr(File& file,
+                              const std::string& path,
+                              const std::string& key,
+                              const T& data,
+                              const DumpSettings& settings) {
+        using value_type = typename type_of_array<T>::type;
+        std::vector<size_t> shape = get_dim_vector(data);
+        Attribute attribute = init_attribute<value_type>(file, path, key, shape, settings);
+        attribute.write(data);
+        file.flush();
+        return attribute;
+    }
+
+    static T load_attr(const File& file, const std::string& path, const std::string& key) {
+        DataSet dataset = file.getDataSet(path);
+        Attribute attribute = dataset.getAttribute(key);
+        T data;
+        attribute.read(data);
+        return data;
+    }
 };
 
 }  // namespace detail
