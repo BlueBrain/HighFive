@@ -33,7 +33,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
 
-    static DataSet dump(File& file,
+    inline static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
                         const DumpSettings& settings) {
@@ -44,7 +44,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return dataset;
     }
 
-    static T load(const File& file, const std::string& path) {
+    inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         T data = T::from_shape(dims);
@@ -52,7 +52,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return data;
     }
 
-    static Attribute dump_attr(File& file,
+    inline static Attribute dump_attr(File& file,
                                const std::string& path,
                                const std::string& key,
                                const T& data,
@@ -64,7 +64,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return attribute;
     }
 
-    static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();

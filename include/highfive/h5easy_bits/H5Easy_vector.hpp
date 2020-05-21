@@ -28,7 +28,7 @@ using HighFive::details::type_of_array;
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
-    static DataSet dump(File& file,
+    inline static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
                         const DumpSettings& settings) {
@@ -39,14 +39,14 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         return dataset;
     }
 
-    static T load(const File& file, const std::string& path) {
+    inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
         T data;
         dataset.read(data);
         return data;
     }
 
-   static Attribute dump_attr(File& file,
+   inline static Attribute dump_attr(File& file,
                               const std::string& path,
                               const std::string& key,
                               const T& data,
@@ -59,7 +59,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         return attribute;
     }
 
-    static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         T data;
