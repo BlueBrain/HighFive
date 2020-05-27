@@ -118,6 +118,24 @@ class NodeTraits {
     std::string getObjectPath() const;
 
     ///
+    /// \brief moves an object within an HDF5 file. Moved object is still valid!
+    /// \param dst_parent destination object
+    /// \param dst_path relative path from dst_parent
+    /// \param parents Whether it shall create intermediate groups if
+    ///      necessary. Default: true
+    /// \return the group object
+    bool moveObject(const std::string& src_name, const File& dst_parent, const std::string& dst_path, bool parents = true) const;
+
+    ///
+    /// \brief moves an object within an HDF5 file. Moved object is still valid!
+    /// \param dst_parent destination object
+    /// \param dst_path relative path from dst_parent
+    /// \param parents Whether it shall create intermediate groups if
+    ///      necessary. Default: true
+    /// \return the group object
+    bool moveObject(const std::string& src_name, const Group& dst_parent, const std::string& dst_path, bool parents = true) const;
+
+    ///
     /// \brief list all leaf objects name of the node / group
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
