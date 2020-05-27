@@ -163,6 +163,25 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 }
 
 template <typename Derivate>
+inline std::string NodeTraits<Derivate>::getObjectPath() const {
+    const size_t maxLength = 255;
+    char  buffer[maxLength + 1];
+    ssize_t retcode = H5Iget_name(
+        static_cast<const Derivate*>(this)->getId(), buffer, static_cast<hsize_t>(maxLength) + 1 );
+    if (retcode < 0) {
+        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    }
+    const size_t length = static_cast<std::size_t>(retcode);
+        if (length <= maxLength) {
+        return std::string(buffer, length);
+    }
+    std::vector<char> bigBuffer(length + 1, 0);
+    H5Iget_name(
+        static_cast<const Derivate*>(this)->getId(), bigBuffer.data(), static_cast<hsize_t>(length) + 1 );
+    return std::string(bigBuffer.data(), length);
+}
+
+template <typename Derivate>
 inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 
     std::vector<std::string> names;
