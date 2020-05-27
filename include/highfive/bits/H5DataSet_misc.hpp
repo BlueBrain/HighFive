@@ -26,6 +26,24 @@
 
 namespace HighFive {
 
+inline std::string DataSet::getDatasetPath() const {
+    const size_t maxLength = 255;
+    char  buffer[maxLength + 1];
+    ssize_t retcode = H5Iget_name(
+        _hid, buffer, static_cast<hsize_t>(maxLength) + 1);
+    if (retcode < 0) {
+        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    }
+    const size_t length = static_cast<std::size_t>(retcode);
+        if (length <= maxLength) {
+        return std::string(buffer, length);
+    }
+    std::vector<char> bigBuffer(length + 1, 0);
+    H5Iget_name(
+        _hid, bigBuffer.data(), static_cast<hsize_t>(length) + 1 );
+    return std::string(bigBuffer.data(), length);
+}
+    
 inline uint64_t DataSet::getStorageSize() const {
     return H5Dget_storage_size(_hid);
 }
