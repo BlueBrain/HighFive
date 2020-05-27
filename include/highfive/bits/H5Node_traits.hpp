@@ -113,6 +113,11 @@ class NodeTraits {
     std::string getObjectName(size_t index) const;
 
     ///
+    /// \brief return the path to the current object
+    /// \return the path to the object
+    std::string getObjectPath() const;
+
+    ///
     /// \brief list all leaf objects name of the node / group
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
