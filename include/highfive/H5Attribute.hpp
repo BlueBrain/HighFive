@@ -28,8 +28,8 @@ class Attribute : public Object {
     ///
     /// \brief return the name of the current attribute
     /// \return the name of the attribute
-    std::string getAttributeName() const;
-  
+    std::string getName() const;
+
     size_t getStorageSize() const;
 
     ///

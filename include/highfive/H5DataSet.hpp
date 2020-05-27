@@ -34,8 +34,8 @@ class DataSet : public Object,
     ///
     /// \brief return the path to the current dataset
     /// \return the path to the dataset
-    std::string getDatasetPath() const;
-                  
+    std::string getPath() const;
+
     ///
     /// \brief getStorageSize
     /// \return returns the amount of storage allocated for a dataset.
