@@ -26,7 +26,7 @@
 
 namespace HighFive {
 
-inline std::string DataSet::getDatasetPath() const {
+inline std::string DataSet::getPath() const {
     const size_t maxLength = 255;
     char  buffer[maxLength + 1];
     ssize_t retcode = H5Iget_name(
@@ -43,7 +43,7 @@ inline std::string DataSet::getDatasetPath() const {
         _hid, bigBuffer.data(), static_cast<hsize_t>(length) + 1 );
     return std::string(bigBuffer.data(), length);
 }
-    
+
 inline uint64_t DataSet::getStorageSize() const {
     return H5Dget_storage_size(_hid);
 }

@@ -110,12 +110,12 @@ class NodeTraits {
     ///
     /// \brief return the name of the object with the given index
     /// \return the name of the object
-    std::string getObjectName(size_t index) const;
+    std::string getName(size_t index) const;
 
     ///
     /// \brief return the path to the current object
     /// \return the path to the object
-    std::string getObjectPath() const;
+    std::string getPath() const;
 
     ///
     /// \brief moves an object within an HDF5 file. Moved object is still valid!

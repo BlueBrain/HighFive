@@ -142,7 +142,7 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 }
 
 template <typename Derivate>
-inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
+inline std::string NodeTraits<Derivate>::getName(size_t index) const {
     const size_t maxLength = 255;
     char buffer[maxLength + 1];
     ssize_t retcode = H5Lget_name_by_idx(
@@ -163,7 +163,7 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 }
 
 template <typename Derivate>
-inline std::string NodeTraits<Derivate>::getObjectPath() const {
+inline std::string NodeTraits<Derivate>::getPath() const {
     const size_t maxLength = 255;
     char  buffer[maxLength + 1];
     ssize_t retcode = H5Iget_name(
