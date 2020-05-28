@@ -1,8 +1,8 @@
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5Attribute.hpp>
+#include <H5File.hpp>
+#include <H5Group.hpp>
+#include <H5DataSet.hpp>
+#include <H5DataSpace.hpp>
+#include <H5Attribute.hpp>
 
 using namespace HighFive;
 
@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
      * will be created there (it is done automatically).
      * When we have moved the dataset we can check if dataset
      * object is still valid? We do this by creating second
-     * attribute */
+     * attribute. There is a tricky part at the end when we
+     * move Group with its dataset */
 
     // Create a new file using the default property lists.
     HighFive::File file("names.h5", File::ReadWrite | File::Create | File::Truncate);
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // move dataset with its attribute to another destination path
-    group.moveObject("data", file, "/NewGroup/SubGroup/movedData");
+    group.moveObject(file, "data", "/NewGroup/SubGroup/movedData");
 
     // as you can see to reach destination path new groups were created as well
     std::cout << "dataset new path: \t" << dataset.getPath() << std::endl;
@@ -54,6 +55,21 @@ int main(int argc, char *argv[])
     attribute.write(string_list);
     std::cout << "attribute new name: \t" << attributeNew.getName() << std::endl;
     std::cout << std::endl;
+
+    // move the folder with its content to other place
+    file.moveObject("/NewGroup/SubGroup", "/FinalDestination");
+
+    // here is the important moment. Old 'dataset' variable tells us
+    // that dataset directory wasn't changed
+    std::cout << "dataset new path wasn't changed: \t" << dataset.getPath() << std::endl;
+    std::cout << std::endl;
+
+    // but actually it was moved we just need to update variable
+    std::cout << "actually it was moved we just need to update it: \t" << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
+    std::cout << std::endl;
+
+    /* The conclusion: if you move a Group always update the varibles
+     * to its content :) */
 
     file.flush();
 }
