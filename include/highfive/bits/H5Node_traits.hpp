@@ -118,22 +118,30 @@ class NodeTraits {
     std::string getPath() const;
 
     ///
-    /// \brief moves an object within an HDF5 file. Moved object is still valid!
-    /// \param dst_parent destination object
+    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
     /// \param dst_path relative path from dst_parent
     /// \param parents Whether it shall create intermediate groups if
     ///      necessary. Default: true
     /// \return the group object
-    bool moveObject(const std::string& src_name, const File& dst_parent, const std::string& dst_path, bool parents = true) const;
+    bool moveObject(const std::string& src_name, const std::string& dst_path, bool parents = true) const;
 
     ///
-    /// \brief moves an object within an HDF5 file. Moved object is still valid!
+    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
     /// \param dst_parent destination object
     /// \param dst_path relative path from dst_parent
     /// \param parents Whether it shall create intermediate groups if
     ///      necessary. Default: true
     /// \return the group object
-    bool moveObject(const std::string& src_name, const Group& dst_parent, const std::string& dst_path, bool parents = true) const;
+    bool moveObject(const File& dst_parent, const std::string& src_name, const std::string& dst_path, bool parents = true) const;
+
+    ///
+    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
+    /// \param dst_parent destination object
+    /// \param dst_path relative path from dst_parent
+    /// \param parents Whether it shall create intermediate groups if
+    ///      necessary. Default: true
+    /// \return the group object
+    bool moveObject(const Group& dst_parent, const std::string& src_name, const std::string& dst_path, bool parents = true) const;
 
     ///
     /// \brief list all leaf objects name of the node / group
