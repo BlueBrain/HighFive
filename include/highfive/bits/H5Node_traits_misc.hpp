@@ -167,7 +167,7 @@ inline std::string NodeTraits<Derivate>::getPath() const {
     const size_t maxLength = 255;
     char  buffer[maxLength + 1];
     ssize_t retcode = H5Iget_name(
-        static_cast<const Derivate*>(this)->getId(), buffer, static_cast<hsize_t>(maxLength) + 1 );
+        static_cast<const Derivate*>(this)->getId(), buffer, static_cast<hsize_t>(maxLength) + 1);
     if (retcode < 0) {
         HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
     }
