@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
      * second attribute */
 
     // Create a new file using the default property lists.
-    HighFive::File file("names.h5", File::ReadWrite | File::Create | File::Truncate);
+   File file("names.h5", File::ReadWrite | File::Create | File::Truncate);
 
     // Create a group
    Group group = file.createGroup("group");
