@@ -190,7 +190,7 @@ inline bool NodeTraits<Derivate>::moveObject(const std::string& src_name,
     }
     herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_name.c_str(),
                             static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
-    if (status  < 0) {
+    if (status < 0) {
         HDF5ErrMapper::ToException<GroupException>(
                     std::string("Unable to move link to \"") + dst_path + "\":");
         return false;
