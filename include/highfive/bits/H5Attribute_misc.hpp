@@ -39,8 +39,7 @@ inline std::string Attribute::getName() const {
         return std::string(buffer, length);
     }
     std::vector<char> bigBuffer(length + 1, 0);
-    H5Aget_name(
-        _hid, static_cast<hsize_t>(length) + 1, bigBuffer.data() );
+    H5Aget_name(_hid, static_cast<hsize_t>(length) + 1, bigBuffer.data());
     return std::string(bigBuffer.data(), length);
 }
 
