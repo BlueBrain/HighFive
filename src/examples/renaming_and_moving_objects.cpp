@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     std::cout << "dataset new path: \t" << dataset.getPath() << std::endl;
     std::cout << std::endl;
 
-    // we can still use moved dataset
+    // We can still use moved dataset
     // let's create new attribute
     Attribute attributeNew = dataset.createAttribute<std::string>("attributeNew", DataSpace::From(string_list));
     attribute.write(string_list);
