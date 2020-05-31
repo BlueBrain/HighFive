@@ -34,7 +34,7 @@ inline std::string DataSet::getPath() const {
         HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
     }
     const size_t length = static_cast<std::size_t>(retcode);
-        if (length <= maxLength) {
+    if (length <= maxLength) {
         return std::string(buffer, length);
     }
     std::vector<char> bigBuffer(length + 1, 0);
