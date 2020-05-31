@@ -183,7 +183,8 @@ inline std::string NodeTraits<Derivate>::getPath() const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::moveObject(const std::string& src_path,
-                                             const std::string& dst_path, bool parents) const {
+                                             const std::string& dst_path, 
+                                             bool parents) const {
     RawPropertyList<PropertyType::LINK_CREATE> lcpl;
     if (parents) {
         lcpl.add(H5Pset_create_intermediate_group, 1u);
