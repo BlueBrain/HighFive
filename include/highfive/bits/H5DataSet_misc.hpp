@@ -28,7 +28,7 @@ namespace HighFive {
 
 inline std::string DataSet::getPath() const {
     const size_t maxLength = 255;
-    char  buffer[maxLength + 1];
+    char buffer[maxLength + 1];
     ssize_t retcode = H5Iget_name(
         _hid, buffer, static_cast<hsize_t>(maxLength) + 1);
     if (retcode < 0) {
