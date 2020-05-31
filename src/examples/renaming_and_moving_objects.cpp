@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     std::cout << "dataset new path wasn't changed: \t" << dataset.getPath() << std::endl;
     std::cout << std::endl;
 
-    // but actually it was moved we just need to update variable
+    // But actually it was moved we just need to update variable
     std::cout << "actually it was moved we just need to update it: \t" << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
     std::cout << std::endl;
 
