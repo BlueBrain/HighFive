@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     // Move dataset with its attribute to another destination path
     group.moveObject(file, "data", "/NewGroup/SubGroup/movedData");
 
-    // as you can see to reach destination path new groups were created as well
+    // As you can see to reach destination path new groups were created as well
     std::cout << "dataset new path: \t" << dataset.getPath() << std::endl;
     std::cout << std::endl;
 
