@@ -13,12 +13,9 @@ int main(int argc, char *argv[])
      * Then we are trying to get path to the root, group dataset
      * and the name of the dataset.
      * Secondly we will move dataset with attached attribute to
-     * some destination path. Every '/' sign means that a group
-     * will be created there (it is done automatically).
-     * When we have moved the dataset we can check if dataset
-     * object is still valid? We do this by creating second
-     * attribute. There is a tricky part at the end when we
-     * move Group with its dataset */
+     * some destination path.
+     * To check if dataset object is still valid, we create a
+     * second attribute */
 
     // Create a new file using the default property lists.
     HighFive::File file("names.h5", File::ReadWrite | File::Create | File::Truncate);
