@@ -110,7 +110,7 @@ class NodeTraits {
     ///
     /// \brief return the name of the object with the given index
     /// \return the name of the object
-    std::string getName(size_t index) const;
+    std::string getObjectName(size_t index) const;
 
     ///
     /// \brief return the path to the current object
