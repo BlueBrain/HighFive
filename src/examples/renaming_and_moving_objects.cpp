@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     HighFive::File file("names.h5", File::ReadWrite | File::Create | File::Truncate);
 
     // Create a group
-    HighFive::Group group = file.createGroup("group");
+   Group group = file.createGroup("group");
 
     // Create a dummy dataset of one single integer
     DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
