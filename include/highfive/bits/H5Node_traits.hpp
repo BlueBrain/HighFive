@@ -112,26 +112,42 @@ class NodeTraits {
     /// \return the name of the object
     std::string getObjectName(size_t index) const;
 
+    ///
+    /// \brief return the path to the current object
+    /// \return the path to the object
+    std::string getPath() const;
 
     ///
     /// \brief moves an object and its content within an HDF5 file.
-    /// \param source_path absolute path of the object
+    /// \param src_path absolute path of the object
     /// \param dest_path new absolute path for the object
     /// \param parents if true necessary intermediate groups are created. Default: true
-    /// \return boolean that is true if the move was successful  
-    bool moveObject(const std::string& source_path,
+    /// \return boolean that is true if the move was successful
+    bool moveObject(const std::string& src_path,
                     const std::string& dest_path,
                     bool parents = true) const;
 
-///
+    ///
     /// \brief moves an object within an HDF5 file.
-    /// \param group group to which the file-paths are relative
-    /// \param source_path relative path of the object
+    /// \param file file to which the object-paths are relative
+    /// \param src_path relative path of the object
+    /// \param dest_path new relative path for the object
+    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \return boolean that is true if the move was successful
+    bool moveObject(const File& file,
+                    const std::string& src_path,
+                    const std::string& dest_path,
+                    bool parents = true) const;
+
+    ///
+    /// \brief moves an object within an HDF5 file.
+    /// \param group group to which the object-paths are relative
+    /// \param src_path relative path of the object
     /// \param dest_path new relative path for the object
     /// \param parents if true necessary intermediate groups are created. Default: true
     /// \return boolean that is true if the move was successful
     bool moveObject(const Group& group,
-                    const std::string& source_path,
+                    const std::string& src_path,
                     const std::string& dest_path,
                     bool parents = true) const;
 
