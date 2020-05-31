@@ -208,7 +208,9 @@ inline bool NodeTraits<Derivate>::moveObject(const File& file,
     if (parents) {
         lcpl.add(H5Pset_create_intermediate_group, 1u);
     }
-    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(), file.getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
+    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(), 
+                            file.getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
+
     if (status  < 0) {
         HDF5ErrMapper::ToException<GroupException>(
                     std::string("Unable to move link to \"") + dst_path + "\":");
