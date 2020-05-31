@@ -62,7 +62,8 @@ int main(void)
     std::cout << std::endl;
     
     // But actually it was moved we just need to update variable
-    std::cout << "actually it was moved we just need to update it: \t" << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
+    std::cout << "actually it was moved we just need to update it: " << std::endl;
+    std::cout << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
     std::cout << std::endl;
     
     file.flush();
