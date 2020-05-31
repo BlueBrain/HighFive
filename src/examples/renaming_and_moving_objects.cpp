@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     std::cout << "attribute name: \t" << attribute.getName() << std::endl;
     std::cout << std::endl;
 
-    // move dataset with its attribute to another destination path
+    // Move dataset with its attribute to another destination path
     group.moveObject(file, "data", "/NewGroup/SubGroup/movedData");
 
     // as you can see to reach destination path new groups were created as well
