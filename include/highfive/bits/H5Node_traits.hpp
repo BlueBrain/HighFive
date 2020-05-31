@@ -123,23 +123,17 @@ class NodeTraits {
                     const std::string& dest_path,
                     bool parents = true) const;
 
-    ///
-    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
-    /// \param dst_parent destination object
-    /// \param dst_path relative path from dst_parent
-    /// \param parents Whether it shall create intermediate groups if
-    ///      necessary. Default: true
-    /// \return the group object
-    bool moveObject(const File& dst_parent, const std::string& src_name, const std::string& dst_path, bool parents = true) const;
-
-    ///
-    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
-    /// \param dst_parent destination object
-    /// \param dst_path relative path from dst_parent
-    /// \param parents Whether it shall create intermediate groups if
-    ///      necessary. Default: true
-    /// \return the group object
-    bool moveObject(const Group& dst_parent, const std::string& src_name, const std::string& dst_path, bool parents = true) const;
+///
+    /// \brief moves an object within an HDF5 file.
+    /// \param group group to which the file-paths are relative
+    /// \param source_path relative path of the object
+    /// \param dest_path new relative path for the object
+    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \return boolean that is true if the move was successful
+    bool moveObject(const Group& group,
+                    const std::string& source_path,
+                    const std::string& dest_path,
+                    bool parents = true) const;
 
     ///
     /// \brief list all leaf objects name of the node / group
