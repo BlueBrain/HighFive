@@ -115,10 +115,10 @@ class NodeTraits {
 
     ///
     /// \brief moves an object and its content within an HDF5 file.
-    /// \param dst_path relative path from dst_parent
-    /// \param parents Whether it shall create intermediate groups if
-    ///      necessary. Default: true
-    /// \return the group object
+    /// \param source_path absolute path of the object
+    /// \param dest_path new absolute path for the object
+    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \return boolean that is true if the move was successful  
     bool moveObject(const std::string& src_name, const std::string& dst_path, bool parents = true) const;
 
     ///
