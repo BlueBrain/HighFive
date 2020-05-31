@@ -65,8 +65,5 @@ int main(int argc, char *argv[])
     std::cout << "actually it was moved we just need to update it: \t" << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
     std::cout << std::endl;
 
-    /* The conclusion: if you move a Group always update the varibles
-     * to its content :) */
-
     file.flush();
 }
