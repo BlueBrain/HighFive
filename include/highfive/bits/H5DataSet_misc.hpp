@@ -38,8 +38,7 @@ inline std::string DataSet::getPath() const {
         return std::string(buffer, length);
     }
     std::vector<char> bigBuffer(length + 1, 0);
-    H5Iget_name(
-        _hid, bigBuffer.data(), static_cast<hsize_t>(length) + 1 );
+    H5Iget_name(_hid, bigBuffer.data(), static_cast<hsize_t>(length) + 1);
     return std::string(bigBuffer.data(), length);
 }
 
