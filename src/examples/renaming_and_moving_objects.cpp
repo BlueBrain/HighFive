@@ -6,7 +6,7 @@
 
 using namespace HighFive;
 
-int main(int argc, char *argv[])
+int main(void)
 {
     /* We are going to create group in root directory then add
      * dataset to this group and attach attribute to the dataset.
