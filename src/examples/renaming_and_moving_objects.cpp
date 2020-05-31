@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     // move the folder with its content to other place
     file.moveObject("/NewGroup/SubGroup", "/FinalDestination");
 
-    // here is the important moment. Old 'dataset' variable tells us
+    // Here is the important moment. The old 'dataset' variable tells us
     // that dataset directory wasn't changed
     std::cout << "dataset new path wasn't changed: \t" << dataset.getPath() << std::endl;
     std::cout << std::endl;
