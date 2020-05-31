@@ -114,7 +114,7 @@ class NodeTraits {
 
 
     ///
-    /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
+    /// \brief moves an object and its content within an HDF5 file.
     /// \param dst_path relative path from dst_parent
     /// \param parents Whether it shall create intermediate groups if
     ///      necessary. Default: true
