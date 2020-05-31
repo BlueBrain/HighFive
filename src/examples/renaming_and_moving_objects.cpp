@@ -58,6 +58,7 @@ int main(void)
 
     // Here is the important moment. The old 'dataset' variable tells us
     // that dataset directory wasn't changed
+    std::cout << "_____Moving folder with its content_____" << std::endl;
     std::cout << "dataset new path wasn't changed: \t" << dataset.getPath() << std::endl;
     std::cout << std::endl;
 
