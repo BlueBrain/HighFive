@@ -119,7 +119,9 @@ class NodeTraits {
     /// \param dest_path new absolute path for the object
     /// \param parents if true necessary intermediate groups are created. Default: true
     /// \return boolean that is true if the move was successful  
-    bool moveObject(const std::string& src_name, const std::string& dst_path, bool parents = true) const;
+    bool moveObject(const std::string& source_path,
+                    const std::string& dest_path,
+                    bool parents = true) const;
 
     ///
     /// \brief moves an object and its content within an HDF5 file. Moved object is still valid but content - NOT!
