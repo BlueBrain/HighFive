@@ -30,8 +30,7 @@ namespace HighFive {
 inline std::string Attribute::getName() const {
     const size_t maxLength = 255;
     char  buffer[maxLength + 1];
-    ssize_t retcode = H5Aget_name(
-        _hid, static_cast<hsize_t>(maxLength) + 1, buffer);
+    ssize_t retcode = H5Aget_name(_hid, static_cast<hsize_t>(maxLength) + 1, buffer);
     if (retcode < 0) {
         HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
     }
