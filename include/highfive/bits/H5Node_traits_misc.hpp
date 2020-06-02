@@ -167,7 +167,7 @@ inline std::string NodeTraits<Derivate>::getPath() const {
     const size_t maxLength = 255;
     char  buffer[maxLength + 1];
     ssize_t retcode = H5Iget_name(
-        static_cast<const Derivate*>(this)->getId(), buffer, static_cast<hsize_t>(maxLength) + 1);
+        static_cast<const Derivate*>(this)->getId(), buffer, static_cast<hsize_t>(maxLength) + 1 );
     if (retcode < 0) {
         HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
     }
@@ -183,8 +183,7 @@ inline std::string NodeTraits<Derivate>::getPath() const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::moveObject(const std::string& src_path,
-                                             const std::string& dst_path, 
-                                             bool parents) const {
+                                             const std::string& dst_path, bool parents) const {
     RawPropertyList<PropertyType::LINK_CREATE> lcpl;
     if (parents) {
         lcpl.add(H5Pset_create_intermediate_group, 1u);
@@ -194,46 +193,6 @@ inline bool NodeTraits<Derivate>::moveObject(const std::string& src_path,
     if (status < 0) {
         HDF5ErrMapper::ToException<GroupException>(
                     std::string("Unable to move link to \"") + dst_path + "\":");
-        return false;
-    }
-    return true;
-}
-
-template <typename Derivate>
-inline bool NodeTraits<Derivate>::moveObject(const File& file,
-                                             const std::string& src_path,
-                                             const std::string& dst_path,
-                                             bool parents) const {
-    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
-    if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1u);
-    }
-    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(), 
-                            file.getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
-
-    if (status  < 0) {
-        HDF5ErrMapper::ToException<GroupException>(
-                    std::string("Unable to move link to \"") + dst_path + "\":");
-        return false;
-    }
-    return true;
-}
-
-template <typename Derivate>
-inline bool NodeTraits<Derivate>::moveObject(const Group& group,
-                                             const std::string& src_path,
-                                             const std::string& dst_path,
-                                             bool parents) const {
-    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
-    if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1u);
-    }
-    herr_t status = H5Lmove(group.getId(), src_path.c_str(),
-                            group.getId(), dst_path.c_str(),
-                            lcpl.getId(), H5P_DEFAULT);
-    if (status < 0) {
-        HDF5ErrMapper::ToException<GroupException>(
-            std::string("Unable to move link to \"") + dst_path + "\":");
         return false;
     }
     return true;
