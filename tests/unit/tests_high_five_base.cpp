@@ -1238,31 +1238,29 @@ BOOST_AUTO_TEST_CASE(HighFiveMove) {
     }
 }
 
-// BOOST_AUTO_TEST_CASE(HighFiveMoveRelative) {
+BOOST_AUTO_TEST_CASE(HighFiveMoveRelative) {
 
-//     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
-//     Group group = file.createGroup("group");
+    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("group");
 
-//     int number = 100;
+    int number = 100;
 
-//     {
-//         DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
-//         dataset.write(number);
-//         std::string path = dataset.getPath();
-//         BOOST_CHECK_EQUAL("/group/data", path);
-//     }
+    {
+        DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+        dataset.write(number);
+        BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    }
 
-//     file.moveObject("/group/data", "sub/new_data");
+    group.moveObject("data", "new_data");
 
-//     {
-//         DataSet dataset = group.getDataSet("sub/new_data");
-//         std::string path = dataset.getPath();
-//         BOOST_CHECK_EQUAL("/group/sub/new_data", path);
-//         int read;
-//         dataset.read(read);
-//         BOOST_CHECK_EQUAL(number, read);
-//     }
-// }
+    {
+        DataSet dataset = group.getDataSet("new_data");
+        BOOST_CHECK_EQUAL("/group/new_data", dataset.getPath());
+        int read;
+        dataset.read(read);
+        BOOST_CHECK_EQUAL(number, read);
+    }
+}
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
