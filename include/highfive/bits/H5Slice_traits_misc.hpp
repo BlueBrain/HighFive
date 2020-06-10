@@ -86,11 +86,7 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset
     std::copy(stride.begin(), stride.end(), stride_local.begin());
 
     DataSpace space = slice.getSpace().clone();
-    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
-                            stride.empty() ? NULL : stride_local.data(),
-                            count_local.data(), NULL) < 0) {
-        HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
-    }
+    HyperSlab(offset, count, stride).apply(space);
 
     return Selection(DataSpace(count), space, details::get_dataset(slice));
 }
@@ -106,16 +102,13 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
     counts[dims.size() - 1] = 1;
     std::vector<hsize_t> offsets(dims.size(), 0);
 
-    H5Sselect_none(space.getId());
-
+    HyperSlab slab{};
     for (const auto& column : columns) {
         offsets[offsets.size() - 1] = column;
-
-        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(), 0,
-                                counts.data(), 0) < 0) {
-            HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
+        slab |= HyperSlab(offsets.data(), counts.data(), {});
         }
     }
+    slab.apply(space);
 
     dims[dims.size() - 1] = columns.size();
     return Selection(DataSpace(dims), space, dataset);

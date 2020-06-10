@@ -49,6 +49,89 @@ class ElementSet {
     friend class SliceTraits;
 };
 
+class HyperSlab {
+  public:
+    HyperSlab() {
+        selects.emplace_back({}, {}, {}, Op::None);
+    };
+
+    HyperSlab(std::vector<size_t>& offset,
+              std::vector<size_t>& count,
+              std::vector<size_t>& stride) {
+        selects.emplace_back(offset, count, stride, OP::Set);
+    }
+
+    HyperSlab operator|(const HyperSlab& sel) const {
+        auto ret = *this;
+        ret.selects.push_back(sel);
+        ret.selects.back().op = Op::Or;
+        return ret;
+    }
+
+    HyperSlab& operator|=(const HyperSlab& sel) {
+        selects.push_back(sel);
+        selects.back().op = Op::Or;
+        return this;
+
+    HyperSlab operator&(const HyperSlab& sel) const {
+        auto ret = *this;
+        ret.selects.push_back(sel);
+        ret.selects.back().op = Op::And;
+        return ret;
+    }
+
+    HyperSlab& operator&=(const HyperSlab& sel) {
+        selects.push_back(sel);
+        selects.back().op = Op::And;
+        return this;
+    }
+
+    HyperSlab operator^(const HyperSlab& sel) const {
+        auto ret = *this;
+        ret.selects.push_back(sel);
+        ret.selects.back().op = Op::Xor;
+        return ret;
+    }
+
+    HyperSlab& operator^=(const HyperSlab& sel) {
+        selects.push_back(sel);
+        selects.back().op = Op::Xor;
+        return this;
+    }
+
+    void apply(DataSpace& space) const {
+        for (const auto& sel: selects) {
+            if (sel.op == Op::None) {
+                H5Sselect_none(space.getId());
+            } else {
+                if (H5Sselect_hyperslab(space.getId(), sel.op, sel.offset.data(), sel.stride.empty() ? NULL : sel.stride.data(), sel.count.empty ? NULL : sel.count.data()) < 0 ) {
+                    HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslab");
+                }
+            }
+        }
+    }
+
+
+  private:
+    enum Op {
+        Set = H5S_SELECT_SET,
+        Or = H5S_SELECT_OR,
+        And = H5S_SELECT_AND,
+        Xor = H5S_SELECT_XOR,
+        NotB = H5S_SELECT_NOTB,
+        NotA = H5S_SELECT_NOTA,
+        None,
+    };
+
+    struct Select {
+        std::vector<size_t> offset;
+        std::vector<size_t> count;
+        std::vector<size_t> stride;
+        Op op;
+    };
+    std::vector<Select> selects;
+};
+
 
 template <typename Derivate>
 class SliceTraits {
