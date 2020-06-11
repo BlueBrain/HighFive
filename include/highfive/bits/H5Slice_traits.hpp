@@ -68,39 +68,39 @@ class HyperSlab {
     };
 
     HyperSlab(Select sel) {
-        selects.emplace_back(Select_(sel, Op::Set));
+        selects.emplace_back(sel, Op::Set);
     }
 
     HyperSlab operator|(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(Select_(sel, Op::Or));
+        ret.selects.emplace_back(sel, Op::Or);
         return ret;
     }
 
     HyperSlab& operator|=(const Select& sel) {
-        selects.push_back(Select_(sel, Op::Or));
+        selects.emplace_back(sel, Op::Or);
         return *this;
     }
 
     HyperSlab operator&(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(Select_(sel, Op::And));
+        ret.selects.emplace_back(sel, Op::And);
         return ret;
     }
 
     HyperSlab& operator&=(const Select& sel) {
-        selects.push_back(Select_(sel, Op::And));
+        selects.emplace_back(sel, Op::And);
         return *this;
     }
 
     HyperSlab operator^(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(Select_(sel, Op::Xor));
+        ret.selects.emplace_back(sel, Op::Xor);
         return ret;
     }
 
     HyperSlab& operator^=(const Select& sel) {
-        selects.push_back(Select_(sel, Op::Xor));
+        selects.emplace_back(sel, Op::Xor);
         return *this;
     }
 
