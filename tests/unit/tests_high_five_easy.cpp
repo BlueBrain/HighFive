@@ -250,9 +250,14 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
     xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
     xt::xtensor<int, 2> B = A;
 
-    H5Easy::dump(file, "/path/to/A", A, H5Easy::Compression::High);
-    H5Easy::dump(file, "/path/to/A", A, H5Easy::Compression::High, H5Easy::DumpMode::Overwrite);
-    H5Easy::dump(file, "/path/to/B", B, H5Easy::Compression::High);
+    H5Easy::dump(file, "/path/to/A", A,
+        H5Easy::DumpOptions(H5Easy::Compression::High));
+
+    H5Easy::dump(file, "/path/to/A", A,
+        H5Easy::DumpOptions(H5Easy::Compression::High, H5Easy::DumpMode::Overwrite));
+
+    H5Easy::dump(file, "/path/to/B", B,
+        H5Easy::DumpOptions(H5Easy::Compression::High));
 
     xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
