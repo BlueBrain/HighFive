@@ -103,8 +103,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
     a[2].push_back(4);
     a[2].push_back(5);
 
-    H5Easy::dump(file, "/path/to/a", a, H5Easy::Compression::High);
-    H5Easy::dump(file, "/path/to/a", a, H5Easy::Compression::High, H5Easy::DumpMode::Overwrite);
+    H5Easy::dump(file, "/path/to/a", a,
+        H5Easy::DumpOptions(H5Easy::Compression::High));
+
+    H5Easy::dump(file, "/path/to/a", a,
+        H5Easy::DumpOptions(H5Easy::Compression::High, H5Easy::DumpMode::Overwrite));
 
     type a_r = H5Easy::load<type>(file, "/path/to/a");
 

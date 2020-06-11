@@ -26,10 +26,12 @@ struct io_impl {
     inline static DataSet dump(File& file,
                                const std::string& path,
                                const T& data,
-                               const DumpSettings& settings) {
-        DataSet dataset = init_dataset_scalar(file, path, data, settings);
+                               const DumpOptions& options) {
+        DataSet dataset = init_dataset_scalar(file, path, data, options);
         dataset.write(data);
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return dataset;
     }
 
@@ -44,10 +46,12 @@ struct io_impl {
                                       const std::string& path,
                                       const std::string& key,
                                       const T& data,
-                                      const DumpSettings& settings) {
-        Attribute atrribute = init_attribute_scalar(file, path, key, data, settings);
+                                      const DumpOptions& options) {
+        Attribute atrribute = init_attribute_scalar(file, path, key, data, options);
         atrribute.write(data);
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return atrribute;
     }
 
@@ -62,7 +66,8 @@ struct io_impl {
     inline static DataSet dump_extend(File& file,
                                       const std::string& path,
                                       const T& data,
-                                      const std::vector<size_t>& idx) {
+                                      const std::vector<size_t>& idx,
+                                      const DumpOptions& options) {
         std::vector<size_t> ones(idx.size(), 1);
 
         if (file.exist(path)) {
@@ -80,7 +85,9 @@ struct io_impl {
                 dataset.resize(shape);
             }
             dataset.select(idx, ones).write(data);
-            file.flush();
+            if (options.Flush()) {
+                file.flush();
+            }
             return dataset;
         }
 
@@ -88,16 +95,24 @@ struct io_impl {
         std::vector<size_t> shape = idx;
         const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
-        std::vector<hsize_t> chuncks(idx.size(), 10);
+        std::vector<hsize_t> chunks(idx.size(), 10);
+        if (!options.AutomaticChunkSize()) {
+            chunks = options.ChunkSize();
+            if (chunks.size() != idx.size()) {
+                throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");
+            }
+        }
         for (size_t& i : shape) {
             i++;
         }
         DataSpace dataspace = DataSpace(shape, unlim_shape);
         DataSetCreateProps props;
-        props.add(Chunking(chuncks));
+        props.add(Chunking(chunks));
         DataSet dataset = file.createDataSet(path, dataspace, AtomicType<T>(), props);
         dataset.select(idx, ones).write(data);
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return dataset;
     }
 
@@ -113,49 +128,6 @@ struct io_impl {
 };
 
 }  // namespace detail
-
-/*
-Frontend functions: dispatch to io_impl<T> and are common for all datatypes.
-*/
-
-template <class T, class... Args>
-inline DataSet dump(File& file, const std::string& path, const T& data, Args... options) {
-    detail::DumpSettings settings = detail::get_dumpsettings(options...);
-    return detail::io_impl<T>::dump(file, path, data, settings);
-}
-
-template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    const std::vector<size_t>& idx) {
-    return detail::io_impl<T>::dump_extend(file, path, data, idx);
-}
-
-template <class T>
-inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx) {
-    return detail::io_impl<T>::load_part(file, path, idx);
-}
-
-template <class T>
-inline T load(const File& file, const std::string& path) {
-    return detail::io_impl<T>::load(file, path);
-}
-
-template <class T, class... Args>
-inline Attribute dump_attr(File& file,
-                           const std::string& path,
-                           const std::string& key,
-                           const T& data,
-                           Args... options) {
-    detail::DumpSettings settings = detail::get_dumpsettings(options...);
-    return detail::io_impl<T>::dump_attr(file, path, key, data, settings);
-}
-
-template <class T>
-inline T load_attr(const File& file, const std::string& path, const std::string& key) {
-    return detail::io_impl<T>::load_attr(file, path, key);
-}
 
 }  // namespace H5Easy
 

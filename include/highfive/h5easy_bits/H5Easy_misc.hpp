@@ -72,79 +72,32 @@ inline Exception dump_error(File& file, const std::string& path)
     }
 }
 
-// structure to pass-on dump-settings
-struct DumpSettings
-{
-    inline DumpSettings() = default;
-
-    inline void set(DumpMode mode)
-    {
-        if (mode == DumpMode::Overwrite) {
-            overwrite = true;
-        } else if (mode == DumpMode::Create) {
-            overwrite = false;
-        }
-    }
-
-    inline void set(Compression mode)
-    {
-        if (mode == Compression::None) {
-            compress = false;
-        } else if (mode == Compression::Medium) {
-            compress = true;
-            deflate_level = 5;
-        } else if (mode == Compression::High) {
-            compress = true;
-            deflate_level = 9;
-        }
-    }
-
-    bool overwrite = false;
-    bool compress = false;
-    unsigned deflate_level = 0;
-};
-
-// variadic template to read the DumpSettings
-inline void read_dumpsettings(DumpSettings&)
-{
-}
-
-template <class T, class... Args>
-inline void read_dumpsettings(DumpSettings& options, T arg, Args... args)
-{
-    options.set(arg);
-    read_dumpsettings(options, args...);
-}
-
-// process DumpSettings
-template <class... Args>
-inline DumpSettings get_dumpsettings(Args... args)
-{
-    DumpSettings out;
-    read_dumpsettings(out, args...);
-    return out;
-}
-
 // get a opened DataSet: nd-array
 template <class T>
 inline DataSet init_dataset(File& file,
                             const std::string& path,
                             const std::vector<size_t>& shape,
-                            const DumpSettings& settings)
+                            const DumpOptions& options)
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
-        if (settings.compress == false) {
+        if (!options.Compress()) {
             return file.createDataSet<T>(path, DataSpace(shape));
         } else {
-            std::vector<hsize_t> hshape(shape.begin(), shape.end());
+            std::vector<hsize_t> chunks(shape.begin(), shape.end());
+            if (!options.AutomaticChunkSize()) {
+                chunks = options.ChunkSize();
+                if (chunks.size() != shape.size()) {
+                    throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");
+                }
+            }
             DataSetCreateProps props;
-            props.add(Chunking(hshape));
+            props.add(Chunking(chunks));
             props.add(Shuffle());
-            props.add(Deflate(settings.deflate_level));
+            props.add(Deflate(options.DeflateLevel()));
             return file.createDataSet<T>(path, DataSpace(shape), props);
         }
-    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
+    } else if (options.Overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getDimensions() != shape) {
             throw error(file, path, "H5Easy::dump: Inconsistent dimensions");
@@ -159,12 +112,12 @@ template <class T>
 inline DataSet init_dataset_scalar(File& file,
                                    const std::string& path,
                                    const T& data,
-                                   const DumpSettings& settings)
+                                   const DumpOptions& options)
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
         return file.createDataSet<T>(path, DataSpace::From(data));
-    } else if (settings.overwrite && file.getObjectType(path) == ObjectType::Dataset) {
+    } else if (options.Overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
             throw error(file, path, "H5Easy::dump: Existing field not a scalar");
@@ -180,7 +133,7 @@ inline Attribute init_attribute(File& file,
                                 const std::string& path,
                                 const std::string& key,
                                 const std::vector<size_t>& shape,
-                                const DumpSettings& settings)
+                                const DumpOptions& options)
 {
     if (!file.exist(path)) {
         throw error(file, path, "H5Easy::dump_attr: DataSet does not exist");
@@ -191,7 +144,7 @@ inline Attribute init_attribute(File& file,
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
         return dataset.createAttribute<T>(key, DataSpace(shape));
-    } else if (settings.overwrite) {
+    } else if (options.Overwrite()) {
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getDimensions() != shape) {
@@ -209,7 +162,7 @@ inline Attribute init_attribute_scalar(File& file,
                                      const std::string& path,
                                      const std::string& key,
                                      const T& data,
-                                     const DumpSettings& settings)
+                                     const DumpOptions& options)
 {
     if (!file.exist(path)) {
         throw error(file, path, "H5Easy::dump_attr: DataSet does not exist");
@@ -220,7 +173,7 @@ inline Attribute init_attribute_scalar(File& file,
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
         return dataset.createAttribute<T>(key, DataSpace::From(data));
-    } else if (settings.overwrite) {
+    } else if (options.Overwrite()) {
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getElementCount() != 1) {
@@ -233,14 +186,6 @@ inline Attribute init_attribute_scalar(File& file,
 }
 
 }  // namespace detail
-
-inline size_t getSize(const File& file, const std::string& path) {
-    return file.getDataSet(path).getElementCount();
-}
-
-inline std::vector<size_t> getShape(const File& file, const std::string& path) {
-    return file.getDataSet(path).getDimensions();
-}
 
 }  // namespace H5Easy
 

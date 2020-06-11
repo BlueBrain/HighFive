@@ -62,7 +62,7 @@ struct io_impl<
     inline static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
-                        const DumpSettings& settings) {
+                        const DumpOptions& options) {
         // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
         Eigen::Ref<
             const Eigen::Array<
@@ -76,9 +76,11 @@ struct io_impl<
             Eigen::InnerStride<1>> row_major(data);
 
         using value_type = typename std::decay<T>::type::Scalar;
-        DataSet dataset = init_dataset<value_type>(file, path, shape(data), settings);
+        DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(row_major.data());
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return dataset;
     }
 
@@ -106,7 +108,7 @@ struct io_impl<
                                const std::string& path,
                                const std::string& key,
                                const T& data,
-                               const DumpSettings& settings) {
+                               const DumpOptions& options) {
         // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
         Eigen::Ref<
             const Eigen::Array<
@@ -120,9 +122,11 @@ struct io_impl<
             Eigen::InnerStride<1>> row_major(data);
 
         using value_type = typename std::decay<T>::type::Scalar;
-        Attribute atrribute = init_attribute<value_type>(file, path, key, shape(data), settings);
+        Attribute atrribute = init_attribute<value_type>(file, path, key, shape(data), options);
         atrribute.write_raw(row_major.data());
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return atrribute;
     }
 

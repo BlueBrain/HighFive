@@ -31,11 +31,13 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
     inline static DataSet dump(File& file,
                         const std::string& path,
                         const T& data,
-                        const DumpSettings& settings) {
+                        const DumpOptions& options) {
         using value_type = typename type_of_array<T>::type;
-        DataSet dataset = init_dataset<value_type>(file, path, get_dim_vector(data), settings);
+        DataSet dataset = init_dataset<value_type>(file, path, get_dim_vector(data), options);
         dataset.write(data);
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return dataset;
     }
 
@@ -50,12 +52,14 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                               const std::string& path,
                               const std::string& key,
                               const T& data,
-                              const DumpSettings& settings) {
+                              const DumpOptions& options) {
         using value_type = typename type_of_array<T>::type;
         std::vector<size_t> shape = get_dim_vector(data);
-        Attribute attribute = init_attribute<value_type>(file, path, key, shape, settings);
+        Attribute attribute = init_attribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
-        file.flush();
+        if (options.Flush()) {
+            file.flush();
+        }
         return attribute;
     }
 
