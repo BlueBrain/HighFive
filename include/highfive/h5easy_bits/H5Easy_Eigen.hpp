@@ -78,7 +78,7 @@ struct io_impl<
         using value_type = typename std::decay<T>::type::Scalar;
         DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(row_major.data());
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return dataset;
@@ -124,7 +124,7 @@ struct io_impl<
         using value_type = typename std::decay<T>::type::Scalar;
         Attribute atrribute = init_attribute<value_type>(file, path, key, shape(data), options);
         atrribute.write_raw(row_major.data());
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return atrribute;

@@ -29,7 +29,7 @@ struct io_impl {
                                const DumpOptions& options) {
         DataSet dataset = init_dataset_scalar(file, path, data, options);
         dataset.write(data);
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return dataset;
@@ -49,7 +49,7 @@ struct io_impl {
                                       const DumpOptions& options) {
         Attribute atrribute = init_attribute_scalar(file, path, key, data, options);
         atrribute.write(data);
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return atrribute;
@@ -85,7 +85,7 @@ struct io_impl {
                 dataset.resize(shape);
             }
             dataset.select(idx, ones).write(data);
-            if (options.Flush()) {
+            if (options.isFlush()) {
                 file.flush();
             }
             return dataset;
@@ -96,8 +96,8 @@ struct io_impl {
         const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
         std::vector<hsize_t> chunks(idx.size(), 10);
-        if (!options.AutomaticChunkSize()) {
-            chunks = options.ChunkSize();
+        if (!options.isAutomaticChunkSize()) {
+            chunks = options.getChunkSize();
             if (chunks.size() != idx.size()) {
                 throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");
             }
@@ -110,7 +110,7 @@ struct io_impl {
         props.add(Chunking(chunks));
         DataSet dataset = file.createDataSet(path, dataspace, AtomicType<T>(), props);
         dataset.select(idx, ones).write(data);
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return dataset;

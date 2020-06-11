@@ -81,12 +81,12 @@ inline DataSet init_dataset(File& file,
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
-        if (!options.Compress()) {
+        if (!options.isCompress()) {
             return file.createDataSet<T>(path, DataSpace(shape));
         } else {
             std::vector<hsize_t> chunks(shape.begin(), shape.end());
-            if (!options.AutomaticChunkSize()) {
-                chunks = options.ChunkSize();
+            if (!options.isAutomaticChunkSize()) {
+                chunks = options.getChunkSize();
                 if (chunks.size() != shape.size()) {
                     throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");
                 }
@@ -94,10 +94,10 @@ inline DataSet init_dataset(File& file,
             DataSetCreateProps props;
             props.add(Chunking(chunks));
             props.add(Shuffle());
-            props.add(Deflate(options.DeflateLevel()));
+            props.add(Deflate(options.getDeflateLevel()));
             return file.createDataSet<T>(path, DataSpace(shape), props);
         }
-    } else if (options.Overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
+    } else if (options.isOverwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getDimensions() != shape) {
             throw error(file, path, "H5Easy::dump: Inconsistent dimensions");
@@ -117,7 +117,7 @@ inline DataSet init_dataset_scalar(File& file,
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
         return file.createDataSet<T>(path, DataSpace::From(data));
-    } else if (options.Overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
+    } else if (options.isOverwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
             throw error(file, path, "H5Easy::dump: Existing field not a scalar");
@@ -144,7 +144,7 @@ inline Attribute init_attribute(File& file,
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
         return dataset.createAttribute<T>(key, DataSpace(shape));
-    } else if (options.Overwrite()) {
+    } else if (options.isOverwrite()) {
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getDimensions() != shape) {
@@ -173,7 +173,7 @@ inline Attribute init_attribute_scalar(File& file,
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
         return dataset.createAttribute<T>(key, DataSpace::From(data));
-    } else if (options.Overwrite()) {
+    } else if (options.isOverwrite()) {
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getElementCount() != 1) {

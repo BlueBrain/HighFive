@@ -35,7 +35,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         using value_type = typename type_of_array<T>::type;
         DataSet dataset = init_dataset<value_type>(file, path, get_dim_vector(data), options);
         dataset.write(data);
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return dataset;
@@ -57,7 +57,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         std::vector<size_t> shape = get_dim_vector(data);
         Attribute attribute = init_attribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
-        if (options.Flush()) {
+        if (options.isFlush()) {
             file.flush();
         }
         return attribute;

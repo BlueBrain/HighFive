@@ -107,7 +107,10 @@ public:
     /// \brief Dump-settings
     /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
     template <class... Args>
-    DumpOptions(Args... args);
+    DumpOptions(Args... args)
+    {
+        set(args...);
+    }
 
     ///
     /// \brief Set setting.
@@ -117,7 +120,7 @@ public:
     ///
     /// \brief Set setting.
     /// \param flush: Flush.
-    inline void set(Flush flush);
+    inline void set(Flush mode);
 
     ///
     /// \brief Set setting.
@@ -153,27 +156,27 @@ public:
 
     ///
     /// \brief Check to overwrite.
-    inline bool Overwrite() const;
+    inline bool isOverwrite() const;
 
     ///
     /// \brief Check to flush.
-    inline bool Flush() const;
+    inline bool isFlush() const;
 
     ///
     /// \brief Check to compress.
-    inline bool Compress() const;
+    inline bool isCompress() const;
 
     ///
     /// \brief Get deflate-level.
-    inline unsigned DeflateLevel() const;
+    inline unsigned getDeflateLevel() const;
 
     ///
     /// \brief Check to compute the chunk-size automatically.
-    inline bool AutomaticChunkSize() const;
+    inline bool isAutomaticChunkSize() const;
 
     ///
     /// \brief Get chunk size.
-    inline std::vector<hsize_t> ChunkSize() const;
+    inline std::vector<hsize_t> getChunkSize() const;
 
 private:
     bool m_overwrite = false;

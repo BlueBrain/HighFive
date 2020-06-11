@@ -22,13 +22,7 @@ inline unsigned CompressionLevel::get() const
     return m_deflate_level;
 }
 
-template <class... Args>
-inline DumpOptions::DumpOptions(Args... args)
-{
-    set(args...);
-}
-
-inline void DumpOptions::set(enum DumpMode mode)
+inline void DumpOptions::set(DumpMode mode)
 {
     if (mode == DumpMode::Create) {
         m_overwrite = false;
@@ -41,12 +35,12 @@ inline void DumpOptions::set(enum DumpMode mode)
     }
 }
 
-inline void DumpOptions::set(enum Flush flush)
+inline void DumpOptions::set(Flush mode)
 {
-    if (flush == Flush::False) {
+    if (mode == Flush::False) {
         m_flush = false;
     }
-    else if (flush == Flush::True) {
+    else if (mode == Flush::True) {
         m_flush = true;
     }
     else {
@@ -54,7 +48,7 @@ inline void DumpOptions::set(enum Flush flush)
     }
 }
 
-inline void DumpOptions::set(enum Compression level)
+inline void DumpOptions::set(Compression level)
 {
     if (level == Compression::None) {
         m_compress = false;
@@ -97,27 +91,27 @@ inline void DumpOptions::setChunkSize(std::initializer_list<size_t> shape)
     m_chunk_size = std::vector<hsize_t>(shape.begin(), shape.end());
 }
 
-inline bool DumpOptions::Overwrite() const
+inline bool DumpOptions::isOverwrite() const
 {
     return m_overwrite;
 }
 
-inline bool DumpOptions::Flush() const
+inline bool DumpOptions::isFlush() const
 {
     return m_flush;
 }
 
-inline bool DumpOptions::Compress() const
+inline bool DumpOptions::isCompress() const
 {
     return m_compress;
 }
 
-inline unsigned DumpOptions::DeflateLevel() const
+inline unsigned DumpOptions::getDeflateLevel() const
 {
     return m_deflate_level;
 }
 
-inline bool DumpOptions::AutomaticChunkSize() const
+inline bool DumpOptions::isAutomaticChunkSize() const
 {
     if (m_chunk_size.size() == 0) {
         return true;
@@ -126,7 +120,7 @@ inline bool DumpOptions::AutomaticChunkSize() const
     return false;
 }
 
-inline std::vector<hsize_t> DumpOptions::ChunkSize() const
+inline std::vector<hsize_t> DumpOptions::getChunkSize() const
 {
     return m_chunk_size;
 }
