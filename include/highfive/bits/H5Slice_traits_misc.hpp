@@ -75,18 +75,9 @@ template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
                                                const std::vector<size_t>& count,
                                                const std::vector<size_t>& stride) const {
-    // hsize_t type conversion
-    // TODO : normalize hsize_t type in HighFive namespace
     const auto& slice = static_cast<const Derivate&>(*this);
-    std::vector<hsize_t> offset_local(offset.size());
-    std::vector<hsize_t> count_local(count.size());
-    std::vector<hsize_t> stride_local(stride.size());
-    std::copy(offset.begin(), offset.end(), offset_local.begin());
-    std::copy(count.begin(), count.end(), count_local.begin());
-    std::copy(stride.begin(), stride.end(), stride_local.begin());
-
     DataSpace space = slice.getSpace().clone();
-    HyperSlab(offset, count, stride).apply(space);
+    HyperSlab(HyperSlab::Select(offset, count, stride)).apply(space);
 
     return Selection(DataSpace(count), space, details::get_dataset(slice));
 }
@@ -97,16 +88,15 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
     const DataSpace& space = slice.getSpace();
     const DataSet& dataset = details::get_dataset(slice);
     std::vector<size_t> dims = space.getDimensions();
-    std::vector<hsize_t> counts(dims.size());
+    std::vector<size_t> counts(dims.size());
     std::copy(dims.begin(), dims.end(), counts.begin());
     counts[dims.size() - 1] = 1;
-    std::vector<hsize_t> offsets(dims.size(), 0);
+    std::vector<size_t> offsets(dims.size(), 0);
 
     HyperSlab slab{};
     for (const auto& column : columns) {
         offsets[offsets.size() - 1] = column;
-        slab |= HyperSlab(offsets.data(), counts.data(), {});
-        }
+        slab |= HyperSlab::Select(offsets, counts, std::vector<size_t>{});
     }
     slab.apply(space);
 

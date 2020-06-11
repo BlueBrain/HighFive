@@ -51,85 +51,118 @@ class ElementSet {
 
 class HyperSlab {
   public:
-    HyperSlab() {
-        selects.emplace_back({}, {}, {}, Op::None);
+    struct Select {
+        Select() = default;
+
+        Select(std::vector<size_t> offset_, std::vector<size_t> count_, std::vector<size_t> stride_)
+            : offset(offset_), count(count_), stride(stride_)
+        {}
+
+        std::vector<size_t> offset;
+        std::vector<size_t> count;
+        std::vector<size_t> stride;
     };
 
-    HyperSlab(std::vector<size_t>& offset,
-              std::vector<size_t>& count,
-              std::vector<size_t>& stride) {
-        selects.emplace_back(offset, count, stride, OP::Set);
+    HyperSlab() {
+        selects.emplace_back(Select{}, Op::None);
+    };
+
+    HyperSlab(Select sel) {
+        selects.emplace_back(Select_(sel, Op::Set));
     }
 
-    HyperSlab operator|(const HyperSlab& sel) const {
+    HyperSlab operator|(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(sel);
-        ret.selects.back().op = Op::Or;
+        ret.selects.push_back(Select_(sel, Op::Or));
         return ret;
     }
 
-    HyperSlab& operator|=(const HyperSlab& sel) {
-        selects.push_back(sel);
-        selects.back().op = Op::Or;
-        return this;
+    HyperSlab& operator|=(const Select& sel) {
+        selects.push_back(Select_(sel, Op::Or));
+        return *this;
+    }
 
-    HyperSlab operator&(const HyperSlab& sel) const {
+    HyperSlab operator&(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(sel);
-        ret.selects.back().op = Op::And;
+        ret.selects.push_back(Select_(sel, Op::And));
         return ret;
     }
 
-    HyperSlab& operator&=(const HyperSlab& sel) {
-        selects.push_back(sel);
-        selects.back().op = Op::And;
-        return this;
+    HyperSlab& operator&=(const Select& sel) {
+        selects.push_back(Select_(sel, Op::And));
+        return *this;
     }
 
-    HyperSlab operator^(const HyperSlab& sel) const {
+    HyperSlab operator^(const Select& sel) const {
         auto ret = *this;
-        ret.selects.push_back(sel);
-        ret.selects.back().op = Op::Xor;
+        ret.selects.push_back(Select_(sel, Op::Xor));
         return ret;
     }
 
-    HyperSlab& operator^=(const HyperSlab& sel) {
-        selects.push_back(sel);
-        selects.back().op = Op::Xor;
-        return this;
+    HyperSlab& operator^=(const Select& sel) {
+        selects.push_back(Select_(sel, Op::Xor));
+        return *this;
     }
 
-    void apply(DataSpace& space) const {
+    void apply(const DataSpace& space) {
         for (const auto& sel: selects) {
             if (sel.op == Op::None) {
                 H5Sselect_none(space.getId());
             } else {
-                if (H5Sselect_hyperslab(space.getId(), sel.op, sel.offset.data(), sel.stride.empty() ? NULL : sel.stride.data(), sel.count.empty ? NULL : sel.count.data()) < 0 ) {
+                std::vector<hsize_t> offset_local(sel.offset.size());
+                std::vector<hsize_t> count_local(sel.count.size());
+                std::vector<hsize_t> stride_local(sel.stride.size());
+                std::copy(sel.offset.begin(), sel.offset.end(), offset_local.begin());
+                std::copy(sel.count.begin(), sel.count.end(), count_local.begin());
+                std::copy(sel.stride.begin(), sel.stride.end(), stride_local.begin());
+                if (H5Sselect_hyperslab(space.getId(), convert(sel.op), offset_local.data(), stride_local.empty() ? NULL : stride_local.data(), count_local.empty() ? NULL : count_local.data(), NULL) < 0) {
                     HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslab");
                 }
             }
         }
     }
 
-
   private:
     enum Op {
-        Set = H5S_SELECT_SET,
-        Or = H5S_SELECT_OR,
-        And = H5S_SELECT_AND,
-        Xor = H5S_SELECT_XOR,
-        NotB = H5S_SELECT_NOTB,
-        NotA = H5S_SELECT_NOTA,
+        Set,
+        Or,
+        And,
+        Xor,
+        NotB,
+        NotA,
         None,
     };
 
-    struct Select {
+    H5S_seloper_t convert(Op op) {
+        switch(op) {
+          case None:
+          case Set:
+            return H5S_SELECT_SET;
+          case Or:
+            return H5S_SELECT_OR;
+          case And:
+            return H5S_SELECT_AND;
+          case Xor:
+            return H5S_SELECT_XOR;
+          case NotB:
+            return H5S_SELECT_NOTB;
+          case NotA:
+            return H5S_SELECT_NOTA;
+        }
+        return H5S_SELECT_SET;
+    }
+
+    struct Select_ {
+        Select_(Select sel, Op op_)
+            : offset(sel.offset), count(sel.count), stride(sel.stride), op(op_) 
+        {}
         std::vector<size_t> offset;
         std::vector<size_t> count;
         std::vector<size_t> stride;
         Op op;
     };
-    std::vector<Select> selects;
+
+    std::vector<Select_> selects;
 };
 
 
