@@ -24,6 +24,30 @@ struct io_impl<
     T,
     typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T>::value>::type> {
 
+    // abbreviate row-major <-> col-major conversions
+    template <typename S>
+    struct types
+    {
+        using row_major = Eigen::Ref<
+            const Eigen::Array<
+                typename std::decay<T>::type::Scalar,
+                std::decay<T>::type::RowsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+                std::decay<T>::type::MaxRowsAtCompileTime,
+                std::decay<T>::type::MaxColsAtCompileTime>,
+            0,
+            Eigen::InnerStride<1>>;
+
+        using col_major = Eigen::Map<Eigen::Array<
+            typename T::Scalar,
+            T::RowsAtCompileTime,
+            T::ColsAtCompileTime,
+            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+            T::MaxRowsAtCompileTime,
+            T::MaxColsAtCompileTime>>;
+    };
+
     // return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"
     inline static std::vector<size_t> shape(const T& data) {
         if (std::decay<T>::type::RowsAtCompileTime == 1) {
@@ -63,19 +87,9 @@ struct io_impl<
                         const std::string& path,
                         const T& data,
                         const DumpOptions& options) {
-        // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
-        Eigen::Ref<
-            const Eigen::Array<
-                typename std::decay<T>::type::Scalar,
-                std::decay<T>::type::RowsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-                std::decay<T>::type::MaxRowsAtCompileTime,
-                std::decay<T>::type::MaxColsAtCompileTime>,
-            0,
-            Eigen::InnerStride<1>> row_major(data);
-
+        using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
+        row_major_type row_major(data);
         DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(row_major.data());
         if (options.isFlush()) {
@@ -89,19 +103,11 @@ struct io_impl<
         std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
         dataset.read(data.data());
-
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }
-
-        // convert to ColMajor if needed (HDF5 always stores row-major)
-        return Eigen::Map<Eigen::Array<
-            typename T::Scalar,
-            T::RowsAtCompileTime,
-            T::ColsAtCompileTime,
-            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-            T::MaxRowsAtCompileTime,
-            T::MaxColsAtCompileTime>>(data.data(), dims[0], dims[1]);
+        using col_major = typename types<T>::col_major;
+        return col_major(data.data(), dims[0], dims[1]);
     }
 
     inline static Attribute dump_attr(File& file,
@@ -109,25 +115,15 @@ struct io_impl<
                                const std::string& key,
                                const T& data,
                                const DumpOptions& options) {
-        // use Eigen::Ref to convert to RowMajor; no action if no conversion is needed
-        Eigen::Ref<
-            const Eigen::Array<
-                typename std::decay<T>::type::Scalar,
-                std::decay<T>::type::RowsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-                std::decay<T>::type::MaxRowsAtCompileTime,
-                std::decay<T>::type::MaxColsAtCompileTime>,
-            0,
-            Eigen::InnerStride<1>> row_major(data);
-
+        using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
-        Attribute atrribute = init_attribute<value_type>(file, path, key, shape(data), options);
-        atrribute.write_raw(row_major.data());
+        row_major_type row_major(data);
+        Attribute attribute = init_attribute<value_type>(file, path, key, shape(data), options);
+        attribute.write_raw(row_major.data());
         if (options.isFlush()) {
             file.flush();
         }
-        return atrribute;
+        return attribute;
     }
 
     inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
@@ -137,19 +133,11 @@ struct io_impl<
         std::vector<typename T::Index> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
         attribute.read(data.data());
-
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }
-
-        // convert to ColMajor if needed (HDF5 always stores row-major)
-        return Eigen::Map<Eigen::Array<
-            typename T::Scalar,
-            T::RowsAtCompileTime,
-            T::ColsAtCompileTime,
-            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-            T::MaxRowsAtCompileTime,
-            T::MaxColsAtCompileTime>>(data.data(), dims[0], dims[1]);
+        using col_major = typename types<T>::col_major;
+        return col_major(data.data(), dims[0], dims[1]);
     }
 };
 

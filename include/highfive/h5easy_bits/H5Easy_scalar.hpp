@@ -47,12 +47,12 @@ struct io_impl {
                                       const std::string& key,
                                       const T& data,
                                       const DumpOptions& options) {
-        Attribute atrribute = init_attribute_scalar(file, path, key, data, options);
-        atrribute.write(data);
+        Attribute attribute = init_attribute_scalar(file, path, key, data, options);
+        attribute.write(data);
         if (options.isFlush()) {
             file.flush();
         }
-        return atrribute;
+        return attribute;
     }
 
     inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
@@ -128,7 +128,6 @@ struct io_impl {
 };
 
 }  // namespace detail
-
 }  // namespace H5Easy
 
 #endif  // H5EASY_BITS_SCALAR_HPP

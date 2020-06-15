@@ -186,7 +186,6 @@ inline Attribute init_attribute_scalar(File& file,
 }
 
 }  // namespace detail
-
 }  // namespace H5Easy
 
 #endif  // H5EASY_BITS_MISC_HPP
