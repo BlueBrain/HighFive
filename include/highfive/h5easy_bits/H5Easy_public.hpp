@@ -50,7 +50,7 @@ inline void DumpOptions::set(Flush mode)
 
 inline void DumpOptions::set(Compression level)
 {
-    if (level == Compression::None) {
+    if (level == Compression::False) {
         m_compress = false;
     }
     else if (level == Compression::Medium || level == Compression::High) {
@@ -111,13 +111,13 @@ inline unsigned DumpOptions::getDeflateLevel() const
     return m_deflate_level;
 }
 
-inline bool DumpOptions::isAutomaticChunkSize() const
+inline bool DumpOptions::isChunkSize() const
 {
     if (m_chunk_size.size() == 0) {
-        return true;
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 inline std::vector<hsize_t> DumpOptions::getChunkSize() const

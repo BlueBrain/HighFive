@@ -96,7 +96,7 @@ struct io_impl {
         const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
         std::vector<hsize_t> chunks(idx.size(), 10);
-        if (!options.isAutomaticChunkSize()) {
+        if (options.isChunkSize()) {
             chunks = options.getChunkSize();
             if (chunks.size() != idx.size()) {
                 throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");

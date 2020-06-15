@@ -85,7 +85,7 @@ inline DataSet init_dataset(File& file,
             return file.createDataSet<T>(path, DataSpace(shape));
         } else {
             std::vector<hsize_t> chunks(shape.begin(), shape.end());
-            if (!options.isAutomaticChunkSize()) {
+            if (options.isChunkSize()) {
                 chunks = options.getChunkSize();
                 if (chunks.size() != shape.size()) {
                     throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");

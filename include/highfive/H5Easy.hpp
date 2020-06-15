@@ -59,7 +59,7 @@ enum class DumpMode {
 };
 
 ///
-/// \brief Enable/disable automatic flushing.
+/// \brief Enable/disable automatic flushing after write operations.
 enum class Flush
 {
     False = 0, /*!< No automatic flushing. */
@@ -70,9 +70,9 @@ enum class Flush
 /// \brief Enable/disable compression for written DataSets.
 enum class Compression
 {
-    None = 0, /*!< No compression. (default) */
-    Medium = 5, /*!< Medium compression level. */
-    High = 9 /*!< High compression level. */
+    False = 0, /*!< No compression. */
+    Medium = 5, /*!< Medium compression (deflate level 5). */
+    High = 9 /*!< High compression (deflate level 9). */
 };
 
 ///
@@ -105,7 +105,7 @@ public:
 
     ///
     /// \brief Dump-settings
-    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param Any of DumpMode, Flush, Compression, CompressionLevel in arbitrary number and order.
     template <class... Args>
     DumpOptions(Args... args)
     {
@@ -134,7 +134,7 @@ public:
 
     ///
     /// \brief Set settings.
-    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param Any of DumpMode, Flush, Compression, CompressionLevel in arbitrary number and order.
     template <class T, class... Args>
     inline void set(T arg, Args... args);
 
@@ -144,13 +144,13 @@ public:
     inline void setDeflateLevel(unsigned level);
 
     ///
-    /// \brief Set chunk-size. If the input is rank zero, automatic chunking is enabled.
+    /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
     /// \param shape: chunk size along each dimension.
     template <class T>
     inline void setChunkSize(const std::vector<T>& shape);
 
     ///
-    /// \brief Set chunk-size. If the input is rank zero, automatic chunking is enabled.
+    /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
     /// \param shape: chunk size along each dimension.
     inline void setChunkSize(std::initializer_list<size_t> shape);
 
@@ -171,8 +171,8 @@ public:
     inline unsigned getDeflateLevel() const;
 
     ///
-    /// \brief Check to compute the chunk-size automatically.
-    inline bool isAutomaticChunkSize() const;
+    /// \brief Check if chunk-size is manually set (or should be computed automatically).
+    inline bool isChunkSize() const;
 
     ///
     /// \brief Get chunk size.
