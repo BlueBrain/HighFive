@@ -255,7 +255,7 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write a scalar to a (new, extendable) DataSet in an open HDF5 file.
 ///
-/// \param file opened File (has to be writeable)
+/// \param file open File (has to be writeable)
 /// \param path path of the DataSet
 /// \param data the data to write
 /// \param idx the indices to which to write
