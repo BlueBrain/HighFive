@@ -253,7 +253,7 @@ inline DataSet dump(File& file,
                     const std::vector<size_t>& idx);
 
 ///
-/// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
+/// \brief Write a scalar to a (new, extendable) DataSet in an open HDF5 file.
 ///
 /// \param file opened File (has to be writeable)
 /// \param path path of the DataSet
