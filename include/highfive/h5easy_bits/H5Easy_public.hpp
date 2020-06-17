@@ -91,17 +91,17 @@ inline void DumpOptions::setChunkSize(std::initializer_list<size_t> shape)
     m_chunk_size = std::vector<hsize_t>(shape.begin(), shape.end());
 }
 
-inline bool DumpOptions::isOverwrite() const
+inline bool DumpOptions::overwrite() const
 {
     return m_overwrite;
 }
 
-inline bool DumpOptions::isFlush() const
+inline bool DumpOptions::flush() const
 {
     return m_flush;
 }
 
-inline bool DumpOptions::isCompress() const
+inline bool DumpOptions::compress() const
 {
     return m_compress;
 }
@@ -111,13 +111,9 @@ inline unsigned DumpOptions::getDeflateLevel() const
     return m_deflate_level;
 }
 
-inline bool DumpOptions::isChunkSize() const
+inline bool DumpOptions::isChunked() const
 {
-    if (m_chunk_size.size() == 0) {
-        return false;
-    }
-
-    return true;
+    return m_chunk_size.size() > 0;
 }
 
 inline std::vector<hsize_t> DumpOptions::getChunkSize() const

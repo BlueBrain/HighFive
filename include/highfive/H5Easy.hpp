@@ -156,15 +156,15 @@ public:
 
     ///
     /// \brief Check to overwrite.
-    inline bool isOverwrite() const;
+    inline bool overwrite() const;
 
     ///
     /// \brief Check to flush.
-    inline bool isFlush() const;
+    inline bool flush() const;
 
     ///
     /// \brief Check to compress.
-    inline bool isCompress() const;
+    inline bool compress() const;
 
     ///
     /// \brief Get deflate-level.
@@ -172,7 +172,7 @@ public:
 
     ///
     /// \brief Check if chunk-size is manually set (or should be computed automatically).
-    inline bool isChunkSize() const;
+    inline bool isChunked() const;
 
     ///
     /// \brief Get chunk size.

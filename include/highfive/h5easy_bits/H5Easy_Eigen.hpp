@@ -92,7 +92,7 @@ struct io_impl<
         row_major_type row_major(data);
         DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(row_major.data());
-        if (options.isFlush()) {
+        if (options.flush()) {
             file.flush();
         }
         return dataset;
@@ -120,7 +120,7 @@ struct io_impl<
         row_major_type row_major(data);
         Attribute attribute = init_attribute<value_type>(file, path, key, shape(data), options);
         attribute.write_raw(row_major.data());
-        if (options.isFlush()) {
+        if (options.flush()) {
             file.flush();
         }
         return attribute;

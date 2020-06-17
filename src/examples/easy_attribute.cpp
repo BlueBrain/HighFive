@@ -27,13 +27,13 @@ int main()
 {
     H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
-    std::vector<double> A = {1.0, 2.0, 3.0};
+    std::vector<double> measurement = {1.0, 2.0, 3.0};
     std::string desc = "This is an important dataset.";
-    double T = 1.234;
+    double temperature = 1.234;
 
-    H5Easy::dump(file, "/path/to/A", A);
-    H5Easy::dump_attr(file, "/path/to/A", "description", desc);
-    H5Easy::dump_attr(file, "/path/to/A", "temperature", T);
+    H5Easy::dump(file, "/path/to/measurement", measurement);
+    H5Easy::dump_attr(file, "/path/to/measurement", "description", desc);
+    H5Easy::dump_attr(file, "/path/to/measurement", "temperature", temperature);
 
 
     return 0;
