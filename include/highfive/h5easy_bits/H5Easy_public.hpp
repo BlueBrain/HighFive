@@ -51,10 +51,9 @@ inline void DumpOptions::set(Flush mode)
 inline void DumpOptions::set(Compression level)
 {
     if (level == Compression::False) {
-        m_compress = false;
+        m_deflate_level = static_cast<unsigned>(0);
     }
     else if (level == Compression::Medium || level == Compression::High) {
-        m_compress = true;
         m_deflate_level = static_cast<unsigned>(level);
     }
     else {
@@ -64,7 +63,6 @@ inline void DumpOptions::set(Compression level)
 
 inline void DumpOptions::set(const CompressionLevel& level)
 {
-    m_compress = true;
     m_deflate_level = level.get();
 }
 
@@ -103,7 +101,7 @@ inline bool DumpOptions::flush() const
 
 inline bool DumpOptions::compress() const
 {
-    return m_compress;
+    return m_deflate_level > 0;
 }
 
 inline unsigned DumpOptions::getDeflateLevel() const

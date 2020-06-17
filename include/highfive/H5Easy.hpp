@@ -181,7 +181,6 @@ public:
 private:
     bool m_overwrite = false;
     bool m_flush = true;
-    bool m_compress = false;
     unsigned m_deflate_level = 0;
     std::vector<hsize_t> m_chunk_size = {};
 };
