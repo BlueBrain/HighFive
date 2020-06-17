@@ -89,7 +89,7 @@ private:
 };
 
 ///
-/// Dump-settings.
+/// \brief Options for dumping data
 ///
 /// By default:
 /// - DumpMode::Create
