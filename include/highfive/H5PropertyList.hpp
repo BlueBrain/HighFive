@@ -9,6 +9,8 @@
 #ifndef H5PROPERTY_LIST_HPP
 #define H5PROPERTY_LIST_HPP
 
+#include <vector>
+
 #include <H5Ppublic.h>
 
 #include "H5Exception.hpp"
