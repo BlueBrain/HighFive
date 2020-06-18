@@ -33,6 +33,33 @@
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
 
+BOOST_AUTO_TEST_CASE(H5Easy_Compression)
+{
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression::High);
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 9);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression::Medium);
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 5);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression::False);
+        BOOST_CHECK_EQUAL(options.compress(), false);
+        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 0);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression(8));
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 8);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(H5Easy_scalar)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);

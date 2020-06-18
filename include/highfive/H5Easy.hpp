@@ -67,26 +67,38 @@ enum class Flush
 };
 
 ///
-/// \brief Enable/disable compression for written DataSets.
-enum class Compression
-{
-    False = 0, /*!< No compression. */
-    Medium = 5, /*!< Medium compression (deflate level 5). */
-    High = 9 /*!< High compression (deflate level 9). */
-};
-
-///
 /// \brief Set compression-level for written DataSets.
-class CompressionLevel
+class Compression
 {
 public:
-    CompressionLevel(unsigned deflate_level);
 
+    //
+    // \brief Set compression-level.
+    Compression(unsigned deflate_level);
+
+    //
+    // \brief High compression: deflate level 9
+    static const Compression High;
+
+    //
+    // \brief Medium compression: deflate level 5
+    static const Compression Medium;
+
+    //
+    // \brief No compression: deflate level 0
+    static const Compression False;
+
+    //
+    // \brief Return deflate level.
     inline unsigned get() const;
 
 private:
     unsigned m_deflate_level;
 };
+
+const Compression Compression::High{9};
+const Compression Compression::Medium{5};
+const Compression Compression::False{0};
 
 ///
 /// \brief Options for dumping data
@@ -125,12 +137,7 @@ public:
     ///
     /// \brief Set setting.
     /// \param level: Compression.
-    inline void set(Compression level);
-
-    ///
-    /// \brief Set setting.
-    /// \param level: CompressionLevel
-    inline void set(const CompressionLevel& level);
+    inline void set(const Compression& level);
 
     ///
     /// \brief Set settings.

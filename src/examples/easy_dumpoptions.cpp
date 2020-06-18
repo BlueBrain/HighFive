@@ -51,14 +51,14 @@ int main()
         std::vector<double> C = {1.0, 2.0, 3.0};
 
         H5Easy::dump(file, "/path/to/C", C,
-            H5Easy::DumpOptions(H5Easy::CompressionLevel(8)));
+            H5Easy::DumpOptions(H5Easy::Compression(8)));
     }
 
     // advanced - compression - set deflate level & chunk size
     {
         std::vector<double> D = {1.0, 2.0, 3.0};
 
-        H5Easy::DumpOptions options(H5Easy::CompressionLevel(8));
+        H5Easy::DumpOptions options(H5Easy::Compression(8));
         options.setChunkSize({3});
 
         H5Easy::dump(file, "/path/to/D", D, options);

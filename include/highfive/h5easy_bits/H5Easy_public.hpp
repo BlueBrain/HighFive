@@ -13,11 +13,11 @@
 
 namespace H5Easy {
 
-inline CompressionLevel::CompressionLevel(unsigned deflate_level) : m_deflate_level(deflate_level)
+inline Compression::Compression(unsigned deflate_level) : m_deflate_level(deflate_level)
 {
 }
 
-inline unsigned CompressionLevel::get() const
+inline unsigned Compression::get() const
 {
     return m_deflate_level;
 }
@@ -48,20 +48,7 @@ inline void DumpOptions::set(Flush mode)
     }
 }
 
-inline void DumpOptions::set(Compression level)
-{
-    if (level == Compression::False) {
-        m_deflate_level = static_cast<unsigned>(0);
-    }
-    else if (level == Compression::Medium || level == Compression::High) {
-        m_deflate_level = static_cast<unsigned>(level);
-    }
-    else {
-        throw std::runtime_error("Unknown Compression");
-    }
-}
-
-inline void DumpOptions::set(const CompressionLevel& level)
+inline void DumpOptions::set(const Compression& level)
 {
     m_deflate_level = level.get();
 }
