@@ -24,28 +24,12 @@ inline unsigned Compression::get() const
 
 inline void DumpOptions::set(DumpMode mode)
 {
-    if (mode == DumpMode::Create) {
-        m_overwrite = false;
-    }
-    else if (mode == DumpMode::Overwrite) {
-        m_overwrite = true;
-    }
-    else {
-        throw std::runtime_error("Unknown DumpMode");
-    }
+    m_overwrite = static_cast<bool>(mode);
 }
 
 inline void DumpOptions::set(Flush mode)
 {
-    if (mode == Flush::False) {
-        m_flush = false;
-    }
-    else if (mode == Flush::True) {
-        m_flush = true;
-    }
-    else {
-        throw std::runtime_error("Unknown Flush");
-    }
+    m_flush = static_cast<bool>(mode);
 }
 
 inline void DumpOptions::set(const Compression& level)

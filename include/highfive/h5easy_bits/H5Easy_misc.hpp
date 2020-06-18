@@ -81,7 +81,7 @@ inline DataSet init_dataset(File& file,
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
-        if (!options.compress()) {
+        if (!options.compress() && !options.isChunked()) {
             return file.createDataSet<T>(path, DataSpace(shape));
         } else {
             std::vector<hsize_t> chunks(shape.begin(), shape.end());
@@ -93,8 +93,10 @@ inline DataSet init_dataset(File& file,
             }
             DataSetCreateProps props;
             props.add(Chunking(chunks));
-            props.add(Shuffle());
-            props.add(Deflate(options.getDeflateLevel()));
+            if (options.compress()) {
+                props.add(Shuffle());
+                props.add(Deflate(options.getDeflateLevel()));
+            }
             return file.createDataSet<T>(path, DataSpace(shape), props);
         }
     } else if (options.overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
