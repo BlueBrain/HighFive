@@ -174,7 +174,7 @@ public:
     inline bool compress() const;
 
     ///
-    /// \brief Get deflate-level.
+    /// \brief Get deflation level.
     inline unsigned getDeflateLevel() const;
 
     ///
