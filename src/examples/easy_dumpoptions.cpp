@@ -40,13 +40,13 @@ int main()
         std::vector<double> B = {1.0, 2.0, 3.0};
 
         H5Easy::dump(file, "/path/to/B", B,
-            H5Easy::DumpOptions(H5Easy::Compression::High));
+            H5Easy::DumpOptions(H5Easy::Compression()));
 
         H5Easy::dump(file, "/path/to/B", B,
-            H5Easy::DumpOptions(H5Easy::Compression::High, H5Easy::DumpMode::Overwrite));
+            H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
     }
 
-    // advanced - compression - set deflate level
+    // advanced - compression - set compression level
     {
         std::vector<double> C = {1.0, 2.0, 3.0};
 
@@ -54,7 +54,7 @@ int main()
             H5Easy::DumpOptions(H5Easy::Compression(8)));
     }
 
-    // advanced - compression - set deflate level & chunk size
+    // advanced - compression - set compression level & chunk size
     {
         std::vector<double> D = {1.0, 2.0, 3.0};
 

@@ -95,7 +95,7 @@ inline DataSet init_dataset(File& file,
             props.add(Chunking(chunks));
             if (options.compress()) {
                 props.add(Shuffle());
-                props.add(Deflate(options.getDeflateLevel()));
+                props.add(Deflate(options.getCompressionLevel()));
             }
             return file.createDataSet<T>(path, DataSpace(shape), props);
         }

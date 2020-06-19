@@ -36,27 +36,27 @@
 BOOST_AUTO_TEST_CASE(H5Easy_Compression)
 {
     {
-        H5Easy::DumpOptions options(H5Easy::Compression::High);
+        H5Easy::DumpOptions options = H5Easy::DumpOptions(H5Easy::Compression());
         BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 9);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
     }
 
     {
-        H5Easy::DumpOptions options(H5Easy::Compression::Medium);
+        H5Easy::DumpOptions options(H5Easy::Compression(true));
         BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 5);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
     }
 
     {
-        H5Easy::DumpOptions options(H5Easy::Compression::False);
+        H5Easy::DumpOptions options(H5Easy::Compression(false));
         BOOST_CHECK_EQUAL(options.compress(), false);
-        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 0);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 0);
     }
 
     {
         H5Easy::DumpOptions options(H5Easy::Compression(8));
         BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getDeflateLevel(), 8);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 8);
     }
 }
 
@@ -115,10 +115,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
     std::vector<std::vector<size_t>> a({{0, 1}, {2, 3}, {4, 5}});
 
     H5Easy::dump(file, "/path/to/a", a,
-        H5Easy::DumpOptions(H5Easy::Compression::High));
+        H5Easy::DumpOptions(H5Easy::Compression(9)));
 
     H5Easy::dump(file, "/path/to/a", a,
-        H5Easy::DumpOptions(H5Easy::Compression::High, H5Easy::DumpMode::Overwrite));
+        H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
 
     decltype(a) a_r = H5Easy::load<decltype(a)>(file, "/path/to/a");
 
@@ -246,13 +246,13 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
     xt::xtensor<int, 2> B = A;
 
     H5Easy::dump(file, "/path/to/A", A,
-        H5Easy::DumpOptions(H5Easy::Compression::High));
+        H5Easy::DumpOptions(H5Easy::Compression()));
 
     H5Easy::dump(file, "/path/to/A", A,
-        H5Easy::DumpOptions(H5Easy::Compression::High, H5Easy::DumpMode::Overwrite));
+        H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
 
     H5Easy::dump(file, "/path/to/B", B,
-        H5Easy::DumpOptions(H5Easy::Compression::High));
+        H5Easy::DumpOptions(H5Easy::Compression()));
 
     xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");

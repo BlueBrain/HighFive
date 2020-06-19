@@ -13,13 +13,23 @@
 
 namespace H5Easy {
 
-inline Compression::Compression(unsigned deflate_level) : m_deflate_level(deflate_level)
+inline Compression::Compression(bool enable)
+{
+    if (enable) {
+        m_compression_level = 9;
+    } else {
+        m_compression_level = 0;
+    }
+}
+
+template <class T>
+inline Compression::Compression(T level) : m_compression_level(static_cast<unsigned>(level))
 {
 }
 
 inline unsigned Compression::get() const
 {
-    return m_deflate_level;
+    return m_compression_level;
 }
 
 inline void DumpOptions::set(DumpMode mode)
@@ -34,7 +44,7 @@ inline void DumpOptions::set(Flush mode)
 
 inline void DumpOptions::set(const Compression& level)
 {
-    m_deflate_level = level.get();
+    m_compression_level = level.get();
 }
 
 template <class T, class... Args>
@@ -42,11 +52,6 @@ inline void DumpOptions::set(T arg, Args... args)
 {
     set(arg);
     set(args...);
-}
-
-inline void DumpOptions::setDeflateLevel(unsigned level)
-{
-    m_deflate_level = level;
 }
 
 template <class T>
@@ -72,12 +77,12 @@ inline bool DumpOptions::flush() const
 
 inline bool DumpOptions::compress() const
 {
-    return m_deflate_level > 0;
+    return m_compression_level > 0;
 }
 
-inline unsigned DumpOptions::getDeflateLevel() const
+inline unsigned DumpOptions::getCompressionLevel() const
 {
-    return m_deflate_level;
+    return m_compression_level;
 }
 
 inline bool DumpOptions::isChunked() const

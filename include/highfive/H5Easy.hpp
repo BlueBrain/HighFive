@@ -67,38 +67,28 @@ enum class Flush
 };
 
 ///
-/// \brief Set compression-level for written DataSets.
+/// \brief Set compression level for written DataSets.
 class Compression
 {
 public:
 
     //
-    // \brief Set compression-level.
-    Compression(unsigned deflate_level);
+    // \brief Enable compression with the highest compression level (9).
+    // or disable compression (set compression level to 0).
+    explicit Compression(bool enable = true);
 
     //
-    // \brief High compression: deflate level 9
-    static const Compression High;
+    // \brief Set compression level.
+    template <class T>
+    Compression(T level);
 
     //
-    // \brief Medium compression: deflate level 5
-    static const Compression Medium;
-
-    //
-    // \brief No compression: deflate level 0
-    static const Compression False;
-
-    //
-    // \brief Return deflate level.
+    // \brief Return compression level.
     inline unsigned get() const;
 
 private:
-    unsigned m_deflate_level;
+    unsigned m_compression_level;
 };
-
-const Compression Compression::High{9};
-const Compression Compression::Medium{5};
-const Compression Compression::False{0};
 
 ///
 /// \brief Options for dumping data
@@ -106,7 +96,7 @@ const Compression Compression::False{0};
 /// By default:
 /// - DumpMode::Create
 /// - Flush::True
-/// - Compression::False
+/// - Compression: false
 /// - ChunkSize: automatic.
 class DumpOptions
 {
@@ -146,11 +136,6 @@ public:
     inline void set(T arg, Args... args);
 
     ///
-    /// \brief Set deflate level.
-    /// \param level: deflate level (0-9).
-    inline void setDeflateLevel(unsigned level);
-
-    ///
     /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
     /// \param shape: chunk size along each dimension.
     template <class T>
@@ -175,7 +160,7 @@ public:
 
     ///
     /// \brief Get deflation level.
-    inline unsigned getDeflateLevel() const;
+    inline unsigned getCompressionLevel() const;
 
     ///
     /// \brief Check if chunk-size is manually set (or should be computed automatically).
@@ -188,7 +173,7 @@ public:
 private:
     bool m_overwrite = false;
     bool m_flush = true;
-    unsigned m_deflate_level = 0;
+    unsigned m_compression_level = 0;
     std::vector<hsize_t> m_chunk_size = {};
 };
 
