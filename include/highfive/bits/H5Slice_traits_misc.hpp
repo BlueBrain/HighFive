@@ -72,21 +72,24 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
 }
 
 template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(HyperSlab& hyperslab) const {
+    const auto& slice = static_cast<const Derivate&>(*this);
+    auto space = hyperslab.apply(slice.getSpace());
+
+    return Selection(space, space, details::get_dataset(slice));
+}
+
+template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
                                                const std::vector<size_t>& count,
                                                const std::vector<size_t>& stride) const {
-    const auto& slice = static_cast<const Derivate&>(*this);
-    DataSpace space = slice.getSpace().clone();
-    HyperSlab(HyperSlab::Select(offset, count, stride)).apply(space);
-
-    return Selection(DataSpace(count), space, details::get_dataset(slice));
+    return select(HyperSlab(HyperSlab::Select(offset, count, stride)));
 }
 
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& space = slice.getSpace();
-    const DataSet& dataset = details::get_dataset(slice);
     std::vector<size_t> dims = space.getDimensions();
     std::vector<size_t> counts(dims.size());
     std::copy(dims.begin(), dims.end(), counts.begin());
@@ -98,10 +101,9 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
         offsets[offsets.size() - 1] = column;
         slab |= HyperSlab::Select(offsets, counts, std::vector<size_t>{});
     }
-    slab.apply(space);
+    slab;
 
-    dims[dims.size() - 1] = columns.size();
-    return Selection(DataSpace(dims), space, dataset);
+    return select(slab);
 }
 
 template <typename Derivate>

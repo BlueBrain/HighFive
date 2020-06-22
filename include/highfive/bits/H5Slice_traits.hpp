@@ -54,13 +54,15 @@ class HyperSlab {
     struct Select {
         Select() = default;
 
-        Select(std::vector<size_t> offset_, std::vector<size_t> count_, std::vector<size_t> stride_)
-            : offset(offset_), count(count_), stride(stride_)
+        Select(std::vector<size_t> offset_, std::vector<size_t> count_ = {}, std::vector<size_t> stride_ = {},
+               std::vector<size_t> block_ = {})
+            : offset(offset_), count(count_), stride(stride_), block(block_)
         {}
 
         std::vector<size_t> offset;
         std::vector<size_t> count;
         std::vector<size_t> stride;
+        std::vector<size_t> block;
     };
 
     HyperSlab() {
@@ -104,7 +106,18 @@ class HyperSlab {
         return *this;
     }
 
-    void apply(const DataSpace& space) {
+    HyperSlab& notA(const Select& sel) {
+        selects.emplace_back(sel, Op::NotA);
+        return *this;
+    }
+
+    HyperSlab& notB(const Select& sel) {
+        selects.emplace_back(sel, Op::NotB);
+        return *this;
+    }
+
+    DataSpace apply(const DataSpace& space_) {
+        auto space = space_.clone();
         for (const auto& sel: selects) {
             if (sel.op == Op::None) {
                 H5Sselect_none(space.getId());
@@ -112,30 +125,38 @@ class HyperSlab {
                 std::vector<hsize_t> offset_local(sel.offset.size());
                 std::vector<hsize_t> count_local(sel.count.size());
                 std::vector<hsize_t> stride_local(sel.stride.size());
+                std::vector<hsize_t> block_local(sel.stride.size());
                 std::copy(sel.offset.begin(), sel.offset.end(), offset_local.begin());
                 std::copy(sel.count.begin(), sel.count.end(), count_local.begin());
                 std::copy(sel.stride.begin(), sel.stride.end(), stride_local.begin());
-                if (H5Sselect_hyperslab(space.getId(), convert(sel.op), offset_local.data(), stride_local.empty() ? NULL : stride_local.data(), count_local.empty() ? NULL : count_local.data(), NULL) < 0) {
+                std::copy(sel.block.begin(), sel.block.end(), block_local.begin());
+                if (H5Sselect_hyperslab(space.getId(), convert(sel.op), offset_local.data(), stride_local.empty() ? nullptr : stride_local.data(), count_local.empty() ? nullptr : count_local.data(), block_local.empty() ? nullptr : block_local.data()) < 0) {
                     HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslab");
                 }
             }
         }
+        return space;
     }
 
   private:
     enum Op {
+        Noop,
         Set,
         Or,
         And,
         Xor,
         NotB,
         NotA,
+        Append,
+        Prepend,
+        Invalid,
         None,
     };
 
     H5S_seloper_t convert(Op op) {
         switch(op) {
-          case None:
+          case Noop:
+             return H5S_SELECT_NOOP;
           case Set:
             return H5S_SELECT_SET;
           case Or:
@@ -148,17 +169,24 @@ class HyperSlab {
             return H5S_SELECT_NOTB;
           case NotA:
             return H5S_SELECT_NOTA;
+          case Append:
+            return H5S_SELECT_APPEND;
+          case Prepend:
+            return H5S_SELECT_PREPEND;
+          case Invalid:
+            return H5S_SELECT_INVALID;
         }
-        return H5S_SELECT_SET;
+        return H5S_SELECT_INVALID;
     }
 
     struct Select_ {
         Select_(Select sel, Op op_)
-            : offset(sel.offset), count(sel.count), stride(sel.stride), op(op_) 
+            : offset(sel.offset), count(sel.count), stride(sel.stride), block(sel.block), op(op_) 
         {}
         std::vector<size_t> offset;
         std::vector<size_t> count;
         std::vector<size_t> stride;
+        std::vector<size_t> block;
         Op op;
     };
 
@@ -169,6 +197,10 @@ class HyperSlab {
 template <typename Derivate>
 class SliceTraits {
   public:
+    ///
+    /// \brief Select an \p hyperslab in the current Slice/Dataset
+    Selection select(HyperSlab& hyperslab) const;
+
     ///
     /// \brief Select a region in the current Slice/Dataset of \p count points at
     /// \p offset separated by \p stride. If strides are not provided they will
