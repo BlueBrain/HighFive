@@ -123,9 +123,9 @@ class NodeTraits {
     /// \param dest_path new relative path of the object to current File/Group
     /// \param parents if true necessary intermediate groups are created. Default: true
     /// \return boolean that is true if the move was successful
-    bool moveObject(const std::string& src_path,
-                    const std::string& dest_path,
-                    bool parents = true) const;
+    bool rename(const std::string& src_path,
+                const std::string& dest_path,
+                bool parents = true) const;
 
     ///
     /// \brief list all leaf objects name of the node / group
