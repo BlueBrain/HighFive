@@ -40,7 +40,7 @@ int main(void)
     std::cout << std::endl;
 
     // Move dataset with its attribute to another destination path
-    file.moveObject("/group/data", "/NewGroup/SubGroup/movedData");
+    file.rename("/group/data", "/NewGroup/SubGroup/movedData");
 
     // As you can see to reach destination path new groups were created as well
     std::cout << "dataset new path: " << dataset.getPath() << std::endl;
@@ -52,7 +52,7 @@ int main(void)
     std::cout << "attribute new name: " << attributeNew.getName() << std::endl;
 
     // move the folder with its content to other place
-    file.moveObject("/NewGroup/SubGroup", "/FinalDestination");
+    file.rename("/NewGroup/SubGroup", "/FinalDestination");
 
     // Here is the important moment. The old 'dataset' variable tells us
     // that dataset directory wasn't changed
