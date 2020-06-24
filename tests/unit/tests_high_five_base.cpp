@@ -1226,7 +1226,7 @@ BOOST_AUTO_TEST_CASE(HighFiveMove) {
         BOOST_CHECK_EQUAL("/group/data", path);
     }
 
-    file.moveObject("/group/data", "/new/group/new/data");
+    file.rename("/group/data", "/new/group/new/data");
 
     {
         DataSet dataset = file.getDataSet("/new/group/new/data");
@@ -1251,7 +1251,7 @@ BOOST_AUTO_TEST_CASE(HighFiveMoveRelative) {
         BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
     }
 
-    group.moveObject("data", "new_data");
+    group.rename("data", "new_data");
 
     {
         DataSet dataset = group.getDataSet("new_data");
