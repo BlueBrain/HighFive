@@ -9,6 +9,8 @@
 #ifndef H5DATATYPE_HPP
 #define H5DATATYPE_HPP
 
+#include <vector>
+
 #include "H5Object.hpp"
 
 namespace HighFive {
