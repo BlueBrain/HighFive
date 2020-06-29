@@ -1212,7 +1212,25 @@ typedef struct {
     CSL1 csl1;
 } CSL2;
 
-BOOST_AUTO_TEST_CASE(HighFiveMove) {
+BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
+
+    File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    int number = 100;
+    Group group = file.createGroup("group");
+    DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+    dataset.write(number);
+    std::string string_list("Very important DataSet!");
+    Attribute attribute = dataset.createAttribute<std::string>("attribute", DataSpace::From(string_list));
+    attribute.write(string_list);
+
+    BOOST_CHECK_EQUAL("/", file.getPath());
+    BOOST_CHECK_EQUAL("/group", group.getPath());
+    BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    BOOST_CHECK_EQUAL("attribute", attribute.getName());
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveRename) {
 
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
 
