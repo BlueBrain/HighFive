@@ -1256,7 +1256,7 @@ BOOST_AUTO_TEST_CASE(HighFiveRename) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(HighFiveMoveRelative) {
+BOOST_AUTO_TEST_CASE(HighFiveRenameRelative) {
 
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
     Group group = file.createGroup("group");
