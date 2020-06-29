@@ -27,8 +27,8 @@ int main(void)
     DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
     dataset.write(100);
 
-    // Now let's add a attribute to this dataset
-    std::string string_list("very important Dataset !");
+    // Let's also add a attribute to this dataset
+    std::string string_list("very important DataSet!");
     Attribute attribute = dataset.createAttribute<std::string>("attribute", DataSpace::From(string_list));
     attribute.write(string_list);
 
@@ -46,20 +46,25 @@ int main(void)
     std::cout << "dataset new path: " << dataset.getPath() << std::endl;
 
     // We can still use moved dataset
-    // let's create new attribute
+    // Let's create new attribute
     Attribute attributeNew = dataset.createAttribute<std::string>("attributeNew", DataSpace::From(string_list));
     attribute.write(string_list);
-    std::cout << "attribute new name: " << attributeNew.getName() << std::endl;
+    std::cout << "new attribute name: " << attributeNew.getName() << std::endl;
+    std::cout << std::endl;
 
-    // move the folder with its content to other place
+    // Move the folder with its content to other place
     file.rename("/NewGroup/SubGroup", "/FinalDestination");
 
     // Here is the important moment. The old 'dataset' variable tells us
     // that dataset directory wasn't changed
-    std::cout << "dataset new path wasn't changed: " << dataset.getPath() << std::endl;
+    std::cout << "DataSet's path wasn't changed?" << std::endl;
+    std::cout << "dataset path: " << dataset.getPath() << std::endl;
+    std::cout << std::endl;
 
     // But actually it was moved we just need to update variable
-    std::cout << "actually it was moved we just need to update it: " << file.getDataSet("/FinalDestination/movedData").getPath() << std::endl;
+    dataset = file.getDataSet("/FinalDestination/movedData");
+    std::cout << "Actually it was moved we just need to update it!" << std::endl;
+    std::cout << "dataset path: " << dataset.getPath() << std::endl;
     std::cout << std::endl;
 
     file.flush();

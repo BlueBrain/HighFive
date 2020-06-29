@@ -146,7 +146,7 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
     return details::get_name([&](char* buffer, hsize_t length) {
         return H5Lget_name_by_idx(
                     static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
-                    index, buffer, 256, H5P_DEFAULT);
+                    index, buffer, length, H5P_DEFAULT);
     });
 }
 
