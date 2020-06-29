@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "H5Object.hpp"
+#include "bits/H5Utils.hpp"
 
 namespace HighFive {
 
