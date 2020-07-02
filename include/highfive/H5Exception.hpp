@@ -15,8 +15,6 @@
 
 #include <H5Ipublic.h>
 
-#include "bits/H5Utils.hpp"
-
 namespace HighFive {
 
 ///

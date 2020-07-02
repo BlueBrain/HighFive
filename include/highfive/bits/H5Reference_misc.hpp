@@ -13,17 +13,14 @@
 #include <string>
 #include <H5Ppublic.h>
 
+#include "H5Utils.hpp"
+
 namespace HighFive {
 
 inline Reference::Reference(const Object& location, const Object& object)
     : parent_id(location.getId()) {
-
-    const size_t maxLength = 255;
-    char buffer[maxLength + 1];
-    if (H5Iget_name(object.getId(), buffer, maxLength) <= 0) {
-        HDF5ErrMapper::ToException<DataTypeException>("Invalid object or location");
-    }
-    obj_name = std::string(buffer);
+    obj_name = details::get_name([&](char *buffer, hsize_t length) {
+        return H5Iget_name(object.getId(), buffer, length); });
 }
 
 inline void Reference::create_ref(hobj_ref_t* refptr) const {

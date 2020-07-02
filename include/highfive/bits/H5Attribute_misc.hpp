@@ -27,6 +27,12 @@
 
 namespace HighFive {
 
+inline std::string Attribute::getName() const {
+    return details::get_name([&](char *buffer, hsize_t length) {
+        return H5Aget_name(_hid, length, buffer);
+    });
+}
+
 inline size_t Attribute::getStorageSize() const {
     return static_cast<size_t>(H5Aget_storage_size(_hid));
 }

@@ -1212,6 +1212,74 @@ typedef struct {
     CSL1 csl1;
 } CSL2;
 
+BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
+
+    File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    int number = 100;
+    Group group = file.createGroup("group");
+    DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+    dataset.write(number);
+    std::string string_list("Very important DataSet!");
+    Attribute attribute = dataset.createAttribute<std::string>("attribute", DataSpace::From(string_list));
+    attribute.write(string_list);
+
+    BOOST_CHECK_EQUAL("/", file.getPath());
+    BOOST_CHECK_EQUAL("/group", group.getPath());
+    BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    BOOST_CHECK_EQUAL("attribute", attribute.getName());
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveRename) {
+
+    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    int number = 100;
+
+    {
+        Group group = file.createGroup("group");
+        DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+        dataset.write(number);
+        std::string path = dataset.getPath();
+        BOOST_CHECK_EQUAL("/group/data", path);
+    }
+
+    file.rename("/group/data", "/new/group/new/data");
+
+    {
+        DataSet dataset = file.getDataSet("/new/group/new/data");
+        std::string path = dataset.getPath();
+        BOOST_CHECK_EQUAL("/new/group/new/data", path);
+        int read;
+        dataset.read(read);
+        BOOST_CHECK_EQUAL(number, read);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveRenameRelative) {
+
+    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("group");
+
+    int number = 100;
+
+    {
+        DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+        dataset.write(number);
+        BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    }
+
+    group.rename("data", "new_data");
+
+    {
+        DataSet dataset = group.getDataSet("new_data");
+        BOOST_CHECK_EQUAL("/group/new_data", dataset.getPath());
+        int read;
+        dataset.read(read);
+        BOOST_CHECK_EQUAL(number, read);
+    }
+}
+
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
     CompoundType t1({{"m1", AtomicType<int>{}}, {"m2", AtomicType<int>{}}, {"m3", t2}});

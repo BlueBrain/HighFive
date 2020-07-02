@@ -143,23 +143,35 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
-    const size_t maxLength = 255;
-    char buffer[maxLength + 1];
-    ssize_t retcode = H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
-        index, buffer, static_cast<hsize_t>(maxLength) + 1, H5P_DEFAULT);
-    if (retcode < 0) {
-        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    return details::get_name([&](char* buffer, hsize_t length) {
+        return H5Lget_name_by_idx(
+                    static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+                    index, buffer, length, H5P_DEFAULT);
+    });
+}
+
+template <typename Derivate>
+inline std::string NodeTraits<Derivate>::getPath() const {
+    return details::get_name([&](char* buffer, hsize_t length) {
+        return H5Iget_name(static_cast<const Derivate*>(this)->getId(), buffer, length);
+    });
+}
+
+template <typename Derivate>
+inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
+                                         const std::string& dst_path, bool parents) const {
+    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
+    if (parents) {
+        lcpl.add(H5Pset_create_intermediate_group, 1u);
     }
-    const size_t length = static_cast<std::size_t>(retcode);
-    if (length <= maxLength) {
-        return std::string(buffer, length);
+    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
+                            static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+                    std::string("Unable to move link to \"") + dst_path + "\":");
+        return false;
     }
-    std::vector<char> bigBuffer(length + 1, 0);
-    H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
-        index, bigBuffer.data(), static_cast<hsize_t>(length) + 1, H5P_DEFAULT);
-    return std::string(bigBuffer.data(), length);
+    return true;
 }
 
 template <typename Derivate>

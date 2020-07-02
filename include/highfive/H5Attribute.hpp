@@ -25,6 +25,11 @@ class Attribute : public Object {
 
     const static ObjectType type = ObjectType::Attribute;
 
+    ///
+    /// \brief return the name of the current attribute
+    /// \return the name of the attribute
+    std::string getName() const;
+
     size_t getStorageSize() const;
 
     ///
