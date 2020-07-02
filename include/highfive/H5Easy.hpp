@@ -91,23 +91,23 @@ private:
 };
 
 ///
-/// \brief Options for dumping data
+/// \brief Options for dumping data.
 ///
 /// By default:
 /// - DumpMode::Create
 /// - Flush::True
-/// - Compression: false
+/// - Compression(false)
 /// - ChunkSize: automatic.
 class DumpOptions
 {
 public:
     ///
-    /// \brief Dump-settings.
+    /// \brief Constructor: accept all defaults.
     DumpOptions() = default;
 
     ///
-    /// \brief Dump-settings
-    /// \param Any of DumpMode, Flush, Compression, CompressionLevel in arbitrary number and order.
+    /// \brief Constructor: overwrite (some of the) defaults.
+    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
     template <class... Args>
     DumpOptions(Args... args)
     {
@@ -115,35 +115,35 @@ public:
     }
 
     ///
-    /// \brief Set setting.
+    /// \brief Overwrite setting.
     /// \param mode: DumpMode.
     inline void set(DumpMode mode);
 
     ///
-    /// \brief Set setting.
-    /// \param flush: Flush.
+    /// \brief Overwrite setting.
+    /// \param flush Flush.
     inline void set(Flush mode);
 
     ///
-    /// \brief Set setting.
-    /// \param level: Compression.
+    /// \brief Overwrite setting.
+    /// \param level Compression.
     inline void set(const Compression& level);
 
     ///
-    /// \brief Set settings.
-    /// \param Any of DumpMode, Flush, Compression, CompressionLevel in arbitrary number and order.
+    /// \brief Overwrite settings.
+    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
     template <class T, class... Args>
     inline void set(T arg, Args... args);
 
     ///
     /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
-    /// \param shape: chunk size along each dimension.
+    /// \param shape Chunk size along each dimension.
     template <class T>
     inline void setChunkSize(const std::vector<T>& shape);
 
     ///
     /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
-    /// \param shape: chunk size along each dimension.
+    /// \param shape Chunk size along each dimension.
     inline void setChunkSize(std::initializer_list<size_t> shape);
 
     ///
@@ -159,7 +159,7 @@ public:
     inline bool compress() const;
 
     ///
-    /// \brief Get deflation level.
+    /// \brief Get compression level.
     inline unsigned getCompressionLevel() const;
 
     ///
