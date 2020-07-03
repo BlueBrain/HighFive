@@ -74,10 +74,10 @@ inline Exception dump_error(File& file, const std::string& path)
 
 // get a opened DataSet: nd-array
 template <class T>
-inline DataSet init_dataset(File& file,
-                            const std::string& path,
-                            const std::vector<size_t>& shape,
-                            const DumpOptions& options)
+inline DataSet initDataset(File& file,
+                           const std::string& path,
+                           const std::vector<size_t>& shape,
+                           const DumpOptions& options)
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
@@ -111,10 +111,10 @@ inline DataSet init_dataset(File& file,
 
 // get a opened DataSet: scalar
 template <class T>
-inline DataSet init_dataset_scalar(File& file,
-                                   const std::string& path,
-                                   const T& data,
-                                   const DumpOptions& options)
+inline DataSet initScalarDataset(File& file,
+                                 const std::string& path,
+                                 const T& data,
+                                 const DumpOptions& options)
 {
     if (!file.exist(path)) {
         detail::createGroupsToDataSet(file, path);
@@ -131,17 +131,17 @@ inline DataSet init_dataset_scalar(File& file,
 
 // get a opened Attribute: nd-array
 template <class T>
-inline Attribute init_attribute(File& file,
-                                const std::string& path,
-                                const std::string& key,
-                                const std::vector<size_t>& shape,
-                                const DumpOptions& options)
+inline Attribute initAttribute(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const std::vector<size_t>& shape,
+                               const DumpOptions& options)
 {
     if (!file.exist(path)) {
-        throw error(file, path, "H5Easy::dump_attr: DataSet does not exist");
+        throw error(file, path, "H5Easy::dumpAttribute: DataSet does not exist");
     }
     if (file.getObjectType(path) != ObjectType::Dataset) {
-        throw error(file, path, "H5Easy::dump_attr: path not a DataSet");
+        throw error(file, path, "H5Easy::dumpAttribute: path not a DataSet");
     }
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
@@ -150,7 +150,7 @@ inline Attribute init_attribute(File& file,
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getDimensions() != shape) {
-            throw error(file, path, "H5Easy::dump_attr: Inconsistent dimensions");
+            throw error(file, path, "H5Easy::dumpAttribute: Inconsistent dimensions");
         }
         return attribute;
     }
@@ -160,17 +160,17 @@ inline Attribute init_attribute(File& file,
 
 // get a opened Attribute: scalar
 template <class T>
-inline Attribute init_attribute_scalar(File& file,
+inline Attribute initScalarAttribute(File& file,
                                      const std::string& path,
                                      const std::string& key,
                                      const T& data,
                                      const DumpOptions& options)
 {
     if (!file.exist(path)) {
-        throw error(file, path, "H5Easy::dump_attr: DataSet does not exist");
+        throw error(file, path, "H5Easy::dumpAttribute: DataSet does not exist");
     }
     if (file.getObjectType(path) != ObjectType::Dataset) {
-        throw error(file, path, "H5Easy::dump_attr: path not a DataSet");
+        throw error(file, path, "H5Easy::dumpAttribute: path not a DataSet");
     }
     DataSet dataset = file.getDataSet(path);
     if (!dataset.hasAttribute(key)) {
@@ -179,7 +179,7 @@ inline Attribute init_attribute_scalar(File& file,
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         if (dataspace.getElementCount() != 1) {
-            throw error(file, path, "H5Easy::dump_attr: Existing field not a scalar");
+            throw error(file, path, "H5Easy::dumpAttribute: Existing field not a scalar");
         }
         return attribute;
     }

@@ -27,7 +27,7 @@ struct io_impl {
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
-        DataSet dataset = init_dataset_scalar(file, path, data, options);
+        DataSet dataset = initScalarDataset(file, path, data, options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -42,12 +42,12 @@ struct io_impl {
         return data;
     }
 
-    inline static Attribute dump_attr(File& file,
-                                      const std::string& path,
-                                      const std::string& key,
-                                      const T& data,
-                                      const DumpOptions& options) {
-        Attribute attribute = init_attribute_scalar(file, path, key, data, options);
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
+        Attribute attribute = initScalarAttribute(file, path, key, data, options);
         attribute.write(data);
         if (options.flush()) {
             file.flush();
@@ -55,7 +55,9 @@ struct io_impl {
         return attribute;
     }
 
-    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         T data;
@@ -76,7 +78,7 @@ struct io_impl {
             std::vector<size_t> shape = dims;
             if (dims.size() != idx.size()) {
                 throw detail::error(file, path,
-                    "H5Easy::dump: Rank of the index and the existing field do not match");
+                    "H5Easy::dump: Dimension of the index and the existing field do not match");
             }
             for (size_t i = 0; i < dims.size(); ++i) {
                 shape[i] = std::max(dims[i], idx[i] + 1);
@@ -99,7 +101,7 @@ struct io_impl {
         if (options.isChunked()) {
             chunks = options.getChunkSize();
             if (chunks.size() != idx.size()) {
-                throw error(file, path, "H5Easy::dump: Incorrect rank ChunkSize");
+                throw error(file, path, "H5Easy::dump: Incorrect dimension ChunkSize");
             }
         }
         for (size_t& i : shape) {

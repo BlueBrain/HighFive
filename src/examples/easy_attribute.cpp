@@ -32,8 +32,8 @@ int main()
     double temperature = 1.234;
 
     H5Easy::dump(file, "/path/to/measurement", measurement);
-    H5Easy::dump_attr(file, "/path/to/measurement", "description", desc);
-    H5Easy::dump_attr(file, "/path/to/measurement", "temperature", temperature);
+    H5Easy::dumpAttribute(file, "/path/to/measurement", "description", desc);
+    H5Easy::dumpAttribute(file, "/path/to/measurement", "temperature", temperature);
 
 
     return 0;

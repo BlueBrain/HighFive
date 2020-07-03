@@ -330,11 +330,11 @@ inline T load(const File& file, const std::string& path);
 /// \return The newly created DataSet
 ///
 template <class T>
-inline Attribute dump_attr(File& file,
-                           const std::string& path,
-                           const std::string& key,
-                           const T& data,
-                           DumpMode mode = DumpMode::Create);
+inline Attribute dumpAttribute(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               DumpMode mode = DumpMode::Create);
 
 ///
 /// \brief Write object (templated) to a (new) Attribute in an open HDF5 file.
@@ -348,11 +348,11 @@ inline Attribute dump_attr(File& file,
 /// \return The newly created DataSet
 ///
 template <class T>
-inline Attribute dump_attr(File& file,
-                           const std::string& path,
-                           const std::string& key,
-                           const T& data,
-                           const DumpOptions& options);
+inline Attribute dumpAttribute(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               const DumpOptions& options);
 
 ///
 /// \brief Load a Attribute in an open HDF5 file to an object (templated).
@@ -364,7 +364,7 @@ inline Attribute dump_attr(File& file,
 /// \return the read data
 ///
 template <class T>
-inline T load_attr(const File& file, const std::string& path, const std::string& key);
+inline T loadAttribute(const File& file, const std::string& path, const std::string& key);
 
 }  // namespace H5Easy
 

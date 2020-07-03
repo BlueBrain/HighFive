@@ -38,7 +38,7 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
                         const T& data,
                         const DumpOptions& options) {
         using value_type = typename std::decay_t<T>::value_type;
-        DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
+        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(data.data());
         if (options.flush()) {
             file.flush();
@@ -54,13 +54,13 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return data;
     }
 
-    inline static Attribute dump_attr(File& file,
-                               const std::string& path,
-                               const std::string& key,
-                               const T& data,
-                               const DumpOptions& options) {
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
         using value_type = typename std::decay_t<T>::value_type;
-        Attribute attribute = init_attribute<value_type>(file, path, key, shape(data), options);
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
         attribute.write_raw(data.data());
         if (options.flush()) {
             file.flush();
@@ -68,7 +68,9 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
         return attribute;
     }
 
-    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();

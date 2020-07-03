@@ -164,26 +164,26 @@ inline T load(const File& file, const std::string& path) {
 }
 
 template <class T>
-inline Attribute dump_attr(File& file,
-                           const std::string& path,
-                           const std::string& key,
-                           const T& data,
-                           DumpMode mode) {
-    return detail::io_impl<T>::dump_attr(file, path, key, data, DumpOptions(mode));
+inline Attribute dumpAttribute(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               DumpMode mode) {
+    return detail::io_impl<T>::dumpAttribute(file, path, key, data, DumpOptions(mode));
 }
 
 template <class T>
-inline Attribute dump_attr(File& file,
-                           const std::string& path,
-                           const std::string& key,
-                           const T& data,
-                           const DumpOptions& options) {
-    return detail::io_impl<T>::dump_attr(file, path, key, data, options);
+inline Attribute dumpAttribute(File& file,
+                               const std::string& path,
+                               const std::string& key,
+                               const T& data,
+                               const DumpOptions& options) {
+    return detail::io_impl<T>::dumpAttribute(file, path, key, data, options);
 }
 
 template <class T>
-inline T load_attr(const File& file, const std::string& path, const std::string& key) {
-    return detail::io_impl<T>::load_attr(file, path, key);
+inline T loadAttribute(const File& file, const std::string& path, const std::string& key) {
+    return detail::io_impl<T>::loadAttribute(file, path, key);
 }
 
 }  // namespace H5Easy

@@ -39,13 +39,14 @@ struct io_impl<
             0,
             Eigen::InnerStride<1>>;
 
-        using col_major = Eigen::Map<Eigen::Array<
-            typename T::Scalar,
-            T::RowsAtCompileTime,
-            T::ColsAtCompileTime,
-            T::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-            T::MaxRowsAtCompileTime,
-            T::MaxColsAtCompileTime>>;
+        using col_major = Eigen::Map<
+            Eigen::Array<
+                typename std::decay<T>::type::Scalar,
+                std::decay<T>::type::RowsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime,
+                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
+                std::decay<T>::type::MaxRowsAtCompileTime,
+                std::decay<T>::type::MaxColsAtCompileTime>>;
     };
 
     // return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"
@@ -84,13 +85,13 @@ struct io_impl<
     }
 
     inline static DataSet dump(File& file,
-                        const std::string& path,
-                        const T& data,
-                        const DumpOptions& options) {
+                               const std::string& path,
+                               const T& data,
+                               const DumpOptions& options) {
         using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
         row_major_type row_major(data);
-        DataSet dataset = init_dataset<value_type>(file, path, shape(data), options);
+        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(row_major.data());
         if (options.flush()) {
             file.flush();
@@ -110,15 +111,15 @@ struct io_impl<
         return col_major(data.data(), dims[0], dims[1]);
     }
 
-    inline static Attribute dump_attr(File& file,
-                               const std::string& path,
-                               const std::string& key,
-                               const T& data,
-                               const DumpOptions& options) {
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
         using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
         row_major_type row_major(data);
-        Attribute attribute = init_attribute<value_type>(file, path, key, shape(data), options);
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
         attribute.write_raw(row_major.data());
         if (options.flush()) {
             file.flush();
@@ -126,7 +127,9 @@ struct io_impl<
         return attribute;
     }
 
-    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();

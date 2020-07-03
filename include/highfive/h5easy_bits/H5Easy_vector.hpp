@@ -29,11 +29,11 @@ template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
     inline static DataSet dump(File& file,
-                        const std::string& path,
-                        const T& data,
-                        const DumpOptions& options) {
+                               const std::string& path,
+                               const T& data,
+                               const DumpOptions& options) {
         using value_type = typename type_of_array<T>::type;
-        DataSet dataset = init_dataset<value_type>(file, path, get_dim_vector(data), options);
+        DataSet dataset = initDataset<value_type>(file, path, get_dim_vector(data), options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -48,14 +48,14 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         return data;
     }
 
-   inline static Attribute dump_attr(File& file,
-                              const std::string& path,
-                              const std::string& key,
-                              const T& data,
-                              const DumpOptions& options) {
+   inline static Attribute dumpAttribute(File& file,
+                                         const std::string& path,
+                                         const std::string& key,
+                                         const T& data,
+                                         const DumpOptions& options) {
         using value_type = typename type_of_array<T>::type;
         std::vector<size_t> shape = get_dim_vector(data);
-        Attribute attribute = init_attribute<value_type>(file, path, key, shape, options);
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
         if (options.flush()) {
             file.flush();
@@ -63,7 +63,9 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         return attribute;
     }
 
-    inline static T load_attr(const File& file, const std::string& path, const std::string& key) {
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         T data;

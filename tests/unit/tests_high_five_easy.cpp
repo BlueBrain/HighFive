@@ -149,14 +149,14 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_scalar)
     std::string c = "12345";
 
     H5Easy::dump(file, "/path/to/a", a);
-    H5Easy::dump_attr(file, "/path/to/a", "a", a);
-    H5Easy::dump_attr(file, "/path/to/a", "a", a, H5Easy::DumpMode::Overwrite);
-    H5Easy::dump_attr(file, "/path/to/a", "b", b);
-    H5Easy::dump_attr(file, "/path/to/a", "c", c);
+    H5Easy::dumpAttribute(file, "/path/to/a", "a", a);
+    H5Easy::dumpAttribute(file, "/path/to/a", "a", a, H5Easy::DumpMode::Overwrite);
+    H5Easy::dumpAttribute(file, "/path/to/a", "b", b);
+    H5Easy::dumpAttribute(file, "/path/to/a", "c", c);
 
-    double a_r = H5Easy::load_attr<double>(file, "/path/to/a", "a");
-    int b_r = H5Easy::load_attr<int>(file, "/path/to/a", "b");
-    std::string c_r = H5Easy::load_attr<std::string>(file, "/path/to/a", "c");
+    double a_r = H5Easy::loadAttribute<double>(file, "/path/to/a", "a");
+    int b_r = H5Easy::loadAttribute<int>(file, "/path/to/a", "b");
+    std::string c_r = H5Easy::loadAttribute<std::string>(file, "/path/to/a", "c");
 
     BOOST_CHECK_EQUAL(a == a_r, true);
     BOOST_CHECK_EQUAL(b == b_r, true);
@@ -269,11 +269,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_xtensor)
     xt::xtensor<int, 2> B = A;
 
     H5Easy::dump(file, "/path/to/A", A);
-    H5Easy::dump_attr(file, "/path/to/A", "A", A);
-    H5Easy::dump_attr(file, "/path/to/A", "B", B);
+    H5Easy::dumpAttribute(file, "/path/to/A", "A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "B", B);
 
-    xt::xtensor<double,2> A_r = H5Easy::load_attr<xt::xtensor<double,2>>(file, "/path/to/A", "A");
-    xt::xtensor<int, 2> B_r = H5Easy::load_attr<xt::xtensor<int, 2>>(file, "/path/to/A", "B");
+    xt::xtensor<double,2> A_r = H5Easy::loadAttribute<xt::xtensor<double,2>>(file, "/path/to/A", "A");
+    xt::xtensor<int, 2> B_r = H5Easy::loadAttribute<xt::xtensor<int, 2>>(file, "/path/to/A", "B");
 
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
     BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
@@ -412,11 +412,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_Eigen_MatrixX)
     Eigen::MatrixXi B = A.cast<int>();
 
     H5Easy::dump(file, "/path/to/A", A);
-    H5Easy::dump_attr(file, "/path/to/A", "A", A);
-    H5Easy::dump_attr(file, "/path/to/A", "B", B);
+    H5Easy::dumpAttribute(file, "/path/to/A", "A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "B", B);
 
-    Eigen::MatrixXd A_r = H5Easy::load_attr<Eigen::MatrixXd>(file, "/path/to/A", "A");
-    Eigen::MatrixXi B_r = H5Easy::load_attr<Eigen::MatrixXi>(file, "/path/to/A", "B");
+    Eigen::MatrixXd A_r = H5Easy::loadAttribute<Eigen::MatrixXd>(file, "/path/to/A", "A");
+    Eigen::MatrixXi B_r = H5Easy::loadAttribute<Eigen::MatrixXi>(file, "/path/to/A", "B");
 
     BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
