@@ -22,6 +22,10 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
+#ifdef H5_USE_EIGEN
+#include <Eigen/Eigen>
+#endif
+
 #include "H5Object.hpp"
 #include "bits/H5_definitions.hpp"
 
@@ -155,7 +159,8 @@ class DataSpace : public Object {
     friend class File;
     friend class DataSet;
 };
-}
+
+}  // namespace HighFive
 
 // We include bits right away since DataSpace is user-constructible
 #include "bits/H5Dataspace_misc.hpp"

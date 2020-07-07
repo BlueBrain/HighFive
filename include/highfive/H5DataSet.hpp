@@ -32,6 +32,11 @@ class DataSet : public Object,
     const static ObjectType type = ObjectType::Dataset;
 
     ///
+    /// \brief return the path to the current dataset
+    /// \return the path to the dataset
+    std::string getPath() const;
+
+    ///
     /// \brief getStorageSize
     /// \return returns the amount of storage allocated for a dataset.
     ///

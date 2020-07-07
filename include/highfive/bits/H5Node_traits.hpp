@@ -113,6 +113,21 @@ class NodeTraits {
     std::string getObjectName(size_t index) const;
 
     ///
+    /// \brief return the path to the current object
+    /// \return the path to the object
+    std::string getPath() const;
+
+    ///
+    /// \brief moves an object and its content within an HDF5 file.
+    /// \param src_path relative path of the object to current File/Group
+    /// \param dest_path new relative path of the object to current File/Group
+    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \return boolean that is true if the move was successful
+    bool rename(const std::string& src_path,
+                const std::string& dest_path,
+                bool parents = true) const;
+
+    ///
     /// \brief list all leaf objects name of the node / group
     /// \return number of leaf objects
     std::vector<std::string> listObjectNames() const;
