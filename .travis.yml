@@ -152,8 +152,12 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda install -c conda-forge mamba
-  - mamba install -c conda-forge xtl xsimd xtensor
-  - mamba install -c conda-forge libopencv opencv
+  - if [ "$HIGHFIVE_USE_XTENSOR"]; then
+      mamba install -c conda-forge xtl xsimd xtensor
+    fi
+  - if [ "$HIGHFIVE_USE_OPENCV" ]; then
+      mamba install -c conda-forge libopencv opencv
+    fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       mamba install -c conda-forge boost-cpp hdf5 eigen;
     fi
