@@ -34,9 +34,9 @@ struct io_impl<T, typename std::enable_if<is_xtensor<T>::value>::type> {
     }
 
     inline static DataSet dump(File& file,
-                        const std::string& path,
-                        const T& data,
-                        const DumpOptions& options) {
+                               const std::string& path,
+                               const T& data,
+                               const DumpOptions& options) {
         using value_type = typename std::decay_t<T>::value_type;
         DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(data.data());

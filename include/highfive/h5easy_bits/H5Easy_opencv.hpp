@@ -29,18 +29,14 @@ struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
 
     inline static std::vector<size_t> shape(const T& data)
     {
-        std::vector<size_t> out(2);
-        out[0] = static_cast<size_t>(data.rows);
-        out[1] = static_cast<size_t>(data.cols);
-        return out;
+        return std::vector<size_t>{static_cast<size_t>(data.rows),
+                                   static_cast<size_t>(data.cols)};
     }
 
     inline static std::vector<int> shape(const File& file,
                                          const std::string& path,
-                                         const DataSet& dataset)
+                                         std::vector<size_t> dims)
     {
-        std::vector<size_t> dims = dataset.getDimensions();
-
         if (dims.size() == 1) {
             return std::vector<int>{static_cast<int>(dims[0]), 1ul};
         }
@@ -52,36 +48,54 @@ struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
         throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
     }
 
-    inline static DataSet write(File& file, DataSet& dataset, const T& data)
-    {
+    inline static DataSet dump(File& file,
+                               const std::string& path,
+                               const T& data,
+                               const DumpOptions& options) {
         using value_type = typename T::value_type;
-        std::vector<value_type> v (data.begin(), data.end());
+        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
+        std::vector<value_type> v(data.begin(), data.end());
         dataset.write_raw(v.data());
-        file.flush();
-        return dataset;
-    }
-
-    inline static DataSet dump(File& file, const std::string& path, const T& data) {
-        using value_type = typename T::value_type;
-        detail::createGroupsToDataSet(file, path);
-        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape(data)));
-        return write(file, dataset, data);
-    }
-
-    inline static DataSet overwrite(File& file, const std::string& path, const T& data) {
-        DataSet dataset = file.getDataSet(path);
-        if (dataset.getDimensions() != shape(data)) {
-            throw detail::error(file, path, "H5Easy::dump: Inconsistent dimensions");
+        if (options.flush()) {
+            file.flush();
         }
-        return write(file, dataset, data);
+        return dataset;
     }
 
     inline static T load(const File& file, const std::string& path) {
         using value_type = typename T::value_type;
         DataSet dataset = file.getDataSet(path);
-        std::vector<int> dims = shape(file, path, dataset);
+        std::vector<int> dims = shape(file, path, dataset.getDimensions());
         T data(dims[0], dims[1]);
         dataset.read(reinterpret_cast<value_type*>(data.data));
+        return data;
+    }
+
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
+        using value_type = typename T::value_type;
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
+        std::vector<value_type> v(data.begin(), data.end());
+        attribute.write_raw(v.data());
+        if (options.flush()) {
+            file.flush();
+        }
+        return attribute;
+    }
+
+    inline static T loadAttribute(const File& file,
+                                  const std::string& path,
+                                  const std::string& key) {
+        using value_type = typename T::value_type;
+        DataSet dataset = file.getDataSet(path);
+        Attribute attribute = dataset.getAttribute(key);
+        DataSpace dataspace = attribute.getSpace();
+        std::vector<int> dims = shape(file, path, dataspace.getDimensions());
+        T data(dims[0], dims[1]);
+        attribute.read(reinterpret_cast<value_type*>(data.data));
         return data;
     }
 };
@@ -90,5 +104,4 @@ struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
 }  // namespace H5Easy
 
 #endif  // H5_USE_OPENCV
-
 #endif  // H5EASY_BITS_OPENCV_HPP

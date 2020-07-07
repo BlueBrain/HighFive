@@ -445,12 +445,16 @@ BOOST_AUTO_TEST_CASE(H5Easy_OpenCV_Mat_)
     A(2, 3) = 11.0;
 
     H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "attr", A);
 
     T A_r = H5Easy::load<T>(file, "/path/to/A");
+    T B_r = H5Easy::loadAttribute<T>(file, "/path/to/A", "attr");
 
     std::vector<double> a(A.begin(), A.end());
     std::vector<double> a_r(A_r.begin(), A_r.end());
+    std::vector<double> b_r(A_r.begin(), A_r.end());
 
     BOOST_CHECK_EQUAL(a == a_r, true);
+    BOOST_CHECK_EQUAL(a == b_r, true);
 }
 #endif
