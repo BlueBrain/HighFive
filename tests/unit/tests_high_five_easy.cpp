@@ -33,6 +33,33 @@
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
 
+BOOST_AUTO_TEST_CASE(H5Easy_Compression)
+{
+    {
+        H5Easy::DumpOptions options = H5Easy::DumpOptions(H5Easy::Compression());
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression(true));
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression(false));
+        BOOST_CHECK_EQUAL(options.compress(), false);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 0);
+    }
+
+    {
+        H5Easy::DumpOptions options(H5Easy::Compression(8));
+        BOOST_CHECK_EQUAL(options.compress(), true);
+        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 8);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(H5Easy_scalar)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -44,6 +71,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_scalar)
     H5Easy::dump(file, "/path/to/a", a);
     H5Easy::dump(file, "/path/to/b", b);
     H5Easy::dump(file, "/path/to/c", c);
+    H5Easy::dump(file, "/path/to/c", c, H5Easy::DumpMode::Overwrite);
 
     double a_r = H5Easy::load<double>(file, "/path/to/a");
     int b_r = H5Easy::load<int>(file, "/path/to/b");
@@ -71,19 +99,28 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
-    using type = std::vector<std::vector<size_t>>;
-
-    type a(3);
-    a[0].push_back(0);
-    a[0].push_back(1);
-    a[1].push_back(2);
-    a[1].push_back(3);
-    a[2].push_back(4);
-    a[2].push_back(5);
+    std::vector<std::vector<size_t>> a({{0, 1}, {2, 3}, {4, 5}});
 
     H5Easy::dump(file, "/path/to/a", a);
 
-    type a_r = H5Easy::load<type>(file, "/path/to/a");
+    decltype(a) a_r = H5Easy::load<decltype(a)>(file, "/path/to/a");
+
+    BOOST_CHECK_EQUAL(a == a_r, true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    std::vector<std::vector<size_t>> a({{0, 1}, {2, 3}, {4, 5}});
+
+    H5Easy::dump(file, "/path/to/a", a,
+        H5Easy::DumpOptions(H5Easy::Compression(9)));
+
+    H5Easy::dump(file, "/path/to/a", a,
+        H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
+
+    decltype(a) a_r = H5Easy::load<decltype(a)>(file, "/path/to/a");
 
     BOOST_CHECK_EQUAL(a == a_r, true);
 }
@@ -94,29 +131,36 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
 
     using type = std::vector<std::vector<std::vector<size_t>>>;
 
-    type a(3);
-    a[0].resize(2);
-    a[1].resize(2);
-    a[2].resize(2);
-
-    a[0][0].push_back( 0);
-    a[0][0].push_back( 1);
-    a[0][1].push_back( 2);
-    a[0][1].push_back( 3);
-    a[1][0].push_back( 4);
-    a[1][0].push_back( 5);
-    a[1][1].push_back( 6);
-    a[1][1].push_back( 7);
-    a[2][0].push_back( 8);
-    a[2][0].push_back( 9);
-    a[2][1].push_back(10);
-    a[2][1].push_back(11);
+    type a({{{0, 1}, {2, 3}}, {{4, 5}, {6, 7}}, {{8, 9}, {10, 11}}});
 
     H5Easy::dump(file, "/path/to/a", a);
 
     type a_r = H5Easy::load<type>(file, "/path/to/a");
 
     BOOST_CHECK_EQUAL(a == a_r, true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_Attribute_scalar)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    double a = 1.2345;
+    int b = 12345;
+    std::string c = "12345";
+
+    H5Easy::dump(file, "/path/to/a", a);
+    H5Easy::dumpAttribute(file, "/path/to/a", "a", a);
+    H5Easy::dumpAttribute(file, "/path/to/a", "a", a, H5Easy::DumpMode::Overwrite);
+    H5Easy::dumpAttribute(file, "/path/to/a", "b", b);
+    H5Easy::dumpAttribute(file, "/path/to/a", "c", c);
+
+    double a_r = H5Easy::loadAttribute<double>(file, "/path/to/a", "a");
+    int b_r = H5Easy::loadAttribute<int>(file, "/path/to/a", "b");
+    std::string c_r = H5Easy::loadAttribute<std::string>(file, "/path/to/a", "c");
+
+    BOOST_CHECK_EQUAL(a == a_r, true);
+    BOOST_CHECK_EQUAL(b == b_r, true);
+    BOOST_CHECK_EQUAL(c == c_r, true);
 }
 
 #ifdef H5_USE_XTENSOR
@@ -189,6 +233,47 @@ BOOST_AUTO_TEST_CASE(H5Easy_xarray)
 
     xt::xarray<double> A_r = H5Easy::load<xt::xarray<double>>(file, "/path/to/A");
     xt::xarray<int> B_r = H5Easy::load<xt::xarray<int>>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
+    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A,
+        H5Easy::DumpOptions(H5Easy::Compression()));
+
+    H5Easy::dump(file, "/path/to/A", A,
+        H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
+
+    H5Easy::dump(file, "/path/to/B", B,
+        H5Easy::DumpOptions(H5Easy::Compression()));
+
+    xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
+    xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
+
+    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
+    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_Attribute_xtensor)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "B", B);
+
+    xt::xtensor<double,2> A_r = H5Easy::loadAttribute<xt::xtensor<double,2>>(file, "/path/to/A", "A");
+    xt::xtensor<int, 2> B_r = H5Easy::loadAttribute<xt::xtensor<int, 2>>(file, "/path/to/A", "B");
 
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
     BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
@@ -317,5 +402,23 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_Map)
     std::vector<int> A_r = H5Easy::load<std::vector<int>>(file, "/path/to/A");
 
     BOOST_CHECK_EQUAL(A == A_r, true);
+}
+
+BOOST_AUTO_TEST_CASE(H5Easy_Attribute_Eigen_MatrixX)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    Eigen::MatrixXd A = 100. * Eigen::MatrixXd::Random(20, 5);
+    Eigen::MatrixXi B = A.cast<int>();
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "B", B);
+
+    Eigen::MatrixXd A_r = H5Easy::loadAttribute<Eigen::MatrixXd>(file, "/path/to/A", "A");
+    Eigen::MatrixXi B_r = H5Easy::loadAttribute<Eigen::MatrixXi>(file, "/path/to/A", "B");
+
+    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
+    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
 #endif

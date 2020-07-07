@@ -62,6 +62,12 @@ class Attribute : public Object {
     void read(T& array) const;
 
     ///
+    /// Read the attribute into a buffer
+    ///
+    template <typename T>
+    void read(T* array) const;
+
+    ///
     /// Write the integrality N-dimension buffer to this attribute
     /// An exception is raised if the numbers of dimension of the buffer and of
     /// the attribute are different
@@ -70,6 +76,12 @@ class Attribute : public Object {
     /// dimensional array )
     template <typename T>
     void write(const T& buffer);
+
+    ///
+    /// Write a buffer to this attribute
+    ///
+    template <typename T>
+    void write_raw(const T& buffer);
 
   private:
     Attribute() = default;
