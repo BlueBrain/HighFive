@@ -422,3 +422,39 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_Eigen_MatrixX)
     BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
 }
 #endif
+
+#ifdef H5_USE_OPENCV
+BOOST_AUTO_TEST_CASE(H5Easy_OpenCV_Mat_)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    using T = typename cv::Mat_<double>;
+
+    T A(3, 4, 0.0);
+    A(0, 0) = 0.0;
+    A(0, 1) = 1.0;
+    A(0, 2) = 2.0;
+    A(0, 3) = 3.0;
+    A(1, 0) = 4.0;
+    A(1, 1) = 5.0;
+    A(1, 2) = 6.0;
+    A(1, 3) = 7.0;
+    A(2, 0) = 8.0;
+    A(2, 1) = 9.0;
+    A(2, 2) = 10.0;
+    A(2, 3) = 11.0;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dumpAttribute(file, "/path/to/A", "attr", A);
+
+    T A_r = H5Easy::load<T>(file, "/path/to/A");
+    T B_r = H5Easy::loadAttribute<T>(file, "/path/to/A", "attr");
+
+    std::vector<double> a(A.begin(), A.end());
+    std::vector<double> a_r(A_r.begin(), A_r.end());
+    std::vector<double> b_r(A_r.begin(), A_r.end());
+
+    BOOST_CHECK_EQUAL(a == a_r, true);
+    BOOST_CHECK_EQUAL(a == b_r, true);
+}
+#endif

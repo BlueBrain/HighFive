@@ -50,6 +50,7 @@ matrix:
       dist: trusty
       env:
         - HIGHFIVE_USE_XTENSOR=False
+        - HIGHFIVE_USE_OPENCV=False
         - HIGHFIVE_PARALLEL_HDF5=False
         - IS_BASE_ENVIRON=1
       addons:
@@ -67,6 +68,7 @@ matrix:
       env:
         - GCC_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
+        - HIGHFIVE_USE_OPENCV=False
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *gcc7
 
@@ -86,6 +88,7 @@ matrix:
       env:
         - CLANG_VERSION=7
         - HIGHFIVE_USE_XTENSOR=True
+        - HIGHFIVE_USE_OPENCV=False
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *clang7
 
@@ -94,6 +97,7 @@ matrix:
       osx_image: xcode10.3
       env:
         - HIGHFIVE_USE_XTENSOR=True
+        - HIGHFIVE_USE_OPENCV=True
         - HIGHFIVE_PARALLEL_HDF5=False
 
     # Mac OSX XCode 11
@@ -101,6 +105,7 @@ matrix:
       osx_image: xcode11.3
       env:
         - HIGHFIVE_USE_XTENSOR=True
+        - HIGHFIVE_USE_OPENCV=True
         - HIGHFIVE_PARALLEL_HDF5=False
         - BREW_USE_LATEST=1
 
@@ -108,6 +113,7 @@ matrix:
     - os: windows
       env:
         - HIGHFIVE_USE_XTENSOR=True
+        - HIGHFIVE_USE_OPENCV=True
         - HIGHFIVE_PARALLEL_HDF5=False
 
 env:
@@ -145,9 +151,15 @@ install:
     fi
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda install -c conda-forge xtl xsimd xtensor
+  - conda install -c conda-forge mamba
+  - if [[ "$HIGHFIVE_USE_XTENSOR" == "True" ]]; then
+      mamba install -c conda-forge xtl xsimd xtensor;
+    fi
+  - if [[ "$HIGHFIVE_USE_OPENCV" == "True" ]]; then
+      mamba install -c conda-forge libopencv opencv;
+    fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      conda install -c conda-forge boost-cpp hdf5 eigen;
+      mamba install -c conda-forge boost-cpp hdf5 eigen;
     fi
 
 before_script:
@@ -169,6 +181,7 @@ script:
     -DHIGHFIVE_PARALLEL_HDF5:BOOL=${HIGHFIVE_PARALLEL_HDF5}
     -DHIGHFIVE_USE_EIGEN:BOOL=ON
     -DHIGHFIVE_USE_XTENSOR:BOOL=${HIGHFIVE_USE_XTENSOR}
+    -DHIGHFIVE_USE_OPENCV:BOOL=${HIGHFIVE_USE_OPENCV}
     -G "${CMAKE_GENERATOR}" ../
   - cmake --build .
   - CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target ${TESTS_TARGET}

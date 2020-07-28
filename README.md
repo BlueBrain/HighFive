@@ -108,6 +108,8 @@ For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Ea
     - [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `HIGHFIVE_USE_EIGEN`),
     - [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
       (optional, enable CMake option `HIGHFIVE_USE_XTENSOR`).
+    - [cv::Mat_](https://docs.opencv.org/master/df/dfc/classcv_1_1Mat__.html)
+      (optional, enable CMake option `HIGHFIVE_USE_OPENCV`).
 
 * Getting in a single line:
 
