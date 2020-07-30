@@ -1,4 +1,4 @@
-## Version 2.2.2 - 2020/07/30
+## Version 2.2.2 - 2020-07-30
 ## New Features:
     - [H5Easy] Adding OpenCV support (#343)
     - [H5Easy] Enabling compression & Adding attributes (#337)
@@ -11,12 +11,12 @@
     - [H5Easy] Switching implementation to partial specialization based on static dispatch (#327)
     - Simplifying imports, new policy (#324)
 
-## Version 2.2.1 - 2020/04/28
+## Version 2.2.1 - 2020-04-28
 ## Improvements
     - Add a mechanism to not include target HighFive several times (#336)
     - Fix SilenceHDF5 initialization for NodeTraits (#333)
 
-## Version 2.2 - 2020/03/23
+## Version 2.2 - 2020-03-23
 ### New Features:
     - Compound Types: API to register and read/write structs (#78). Thanks to Richard Shaw.
     - Fixed-length strings. API via char[] and `FixedLenStringArray`(#277)
@@ -38,7 +38,7 @@
     - Shortcut syntax with c arrays (#273)
     - Compatibility with in MSVC (Exception messages #263 and avoid throwing in `exist` check #308)
 
-## Version 2.1 - 2019/10/30
+## Version 2.1 - 2019-10-30
 ### New Features:
     - Inspection: API to get the type of links/objects and datasets data-types (#221)
     - H5Easy: API for simple import/export to Eigen and xtensor (#141)
@@ -58,7 +58,7 @@
     - Fixed read/write of N-Dimensional data as nested vectors (#191)
     - Fixed data broadcasting for reading (#136)
 
-## Version 2.0 - 2018/07/19
+## Version 2.0 - 2018-07-19
     - First version with C++11 enforcement
     - Support for property list
     - Support for Chunking
@@ -68,14 +68,14 @@
     - Fix: several typo fixes
     - Fix: Add missing include
 
-## Version 1.5 - 2018/01/06
+## Version 1.5 - 2018-01-06
     - SliceTraits::read split in two overloads, the first one for plain C arrays
       and the second one for other types.
     - Add support for complex number
     - Add exist() method to the API
     - Will be last release before 2.0 and enforcement of C++11
 
-## Version 1.4 - 2017/08/25
+## Version 1.4 - 2017-08-25
 	- Support id selection for the `select` function
 	- Suport STL containers of const elements
 	- Support scalar values and strings management
@@ -84,16 +84,16 @@
     - Introduce SilenceHDF5 for HDF5 error report
     - Fix a unit test issue with SilenceHDF5
 
-## Version 1.3 - 2017/06/21
+## Version 1.3 - 2017-06-21
     - Minor fixes
 
-## Version 1.2 - 2017/04/03
+## Version 1.2 - 2017-04-03
 	- Add Attribute support for Dataset
 	- Extend testing of Attribute support
 	- Fix issue related to multiple definitions in default driver
 	- Add more examples about attribute support
 
-## Version 1.1 - 2017/03/23
+## Version 1.1 - 2017-03-23
     - Add support and examples for Parallel HDF5
     - Initial implementation for H5 Properties
     - Support for Attributes
