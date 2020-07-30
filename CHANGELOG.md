@@ -1,3 +1,21 @@
+## Version 2.2.2 - 2020/07/30
+## New Features:
+    - [H5Easy] Adding OpenCV support (#343)
+    - [H5Easy] Enabling compression & Adding attributes (#337)
+    - Adding missing function to H5Attribute (#337) 
+    - Add methods to retrieve Node paths or Dataset names and rename objects (#346)
+    - Add a file with the current version number of HighFive (#349)
+
+## Improvements
+    - [H5Easy] Updating error message dump (#335)
+    - [H5Easy] Switching implementation to partial specialization based on static dispatch (#327)
+    - Simplifying imports, new policy (#324)
+
+## Version 2.2.1 - 2020/04/28
+## Improvements
+    - Add a mechanism to not include target HighFive several times (#336)
+    - Fix SilenceHDF5 initialization for NodeTraits (#333)
+
 ## Version 2.2 - 2020/03/23
 ### New Features:
     - Compound Types: API to register and read/write structs (#78). Thanks to Richard Shaw.
