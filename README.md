@@ -31,8 +31,8 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 
 ### Dependencies
 - hdf5 (dev)
-- hdf5-mpi (optional, opt-in with -D*DHIGHFIVE_PARALLEL_HDF5*=ON)
-- boost >= 1.41 (recommended, opt-out with -D*DHIGHFIVE_USE_BOOST*=OFF)
+- hdf5-mpi (optional, opt-in with -D*HIGHFIVE_PARALLEL_HDF5*=ON)
+- boost >= 1.41 (recommended, opt-out with -D*HIGHFIVE_USE_BOOST*=OFF)
 - eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
 - xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
 
