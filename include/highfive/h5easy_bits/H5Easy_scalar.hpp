@@ -37,8 +37,7 @@ struct io_impl {
 
     inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
+        T data = dataset.read<T>();
         return data;
     }
 
@@ -60,8 +59,7 @@ struct io_impl {
                                   const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
-        T data;
-        attribute.read(data);
+        T data = attribute.read<T>();
         return data;
     }
 
@@ -123,8 +121,7 @@ struct io_impl {
                               const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
         DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.select(idx, ones).read(data);
+        T data = dataset.select(idx, ones).read<T>();
         return data;
     }
 };

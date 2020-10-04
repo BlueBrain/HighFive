@@ -91,8 +91,7 @@ int main(void) {
         file.flush();
 
         // Read a subset of the data back
-        std::vector<csl> result;
-        dataset.select({0}, {2}).read(result);
+        auto result = dataset.select({0}, {2}).read<std::vector<csl>>();
 
         for(size_t i = 0; i < data.size(); ++i) {
             if (result[i] != data[i]) {

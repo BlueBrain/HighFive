@@ -22,9 +22,6 @@ struct is_vector : std::false_type {};
 template <class T>
 struct is_vector<std::vector<T>> : std::true_type {};
 
-using HighFive::details::get_dim_vector;
-using HighFive::details::type_of_array;
-
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
@@ -32,8 +29,8 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
-        using value_type = typename type_of_array<T>::type;
-        DataSet dataset = initDataset<value_type>(file, path, get_dim_vector(data), options);
+        using value_type = typename HighFive::details::static_data_converter<T>::hdf5_type;
+        DataSet dataset = initDataset<value_type>(file, path, HighFive::details::static_data_converter<T>::dims(data), options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -42,10 +39,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
     }
 
     inline static T load(const File& file, const std::string& path) {
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
-        return data;
+        return file.getDataSet(path).read<T>();
     }
 
    inline static Attribute dumpAttribute(File& file,
@@ -53,7 +47,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                          const std::string& key,
                                          const T& data,
                                          const DumpOptions& options) {
-        using value_type = typename type_of_array<T>::type;
+        using value_type = typename HighFive::details::static_data_converter<T>::hdf5_type;
         std::vector<size_t> shape = get_dim_vector(data);
         Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
@@ -68,9 +62,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                   const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
-        T data;
-        attribute.read(data);
-        return data;
+        return attribute.read<T>();
     }
 };
 

@@ -58,7 +58,7 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps)
 {
     return createDataSet(dataset_name, space,
-                         create_and_check_datatype<Type>(),
+                         create_and_check_datatype<typename TransformWrite<Type>::h5_type>(),
                          createProps, accessProps);
 }
 
@@ -71,21 +71,8 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        create_and_check_datatype<typename details::type_of_array<T>::type>(),
+        create_and_check_datatype<typename TransformWrite<T>::h5_type>(),
         createProps, accessProps);
-    ds.write(data);
-    return ds;
-}
-
-template <typename Derivate>
-template <std::size_t N>
-inline DataSet
-NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                    const FixedLenStringArray<N>& data,
-                                    const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
-    DataSet ds = createDataSet<char[N]>(
-        dataset_name, DataSpace(data.size()), createProps, accessProps);
     ds.write(data);
     return ds;
 }

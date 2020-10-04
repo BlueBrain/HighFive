@@ -39,9 +39,7 @@ int main(void) {
         file.flush();
 
         // let's read it back
-        int potentially_perfect_number;
-
-        dataset.read(potentially_perfect_number);
+        auto potentially_perfect_number = dataset.read<int>();
 
         std::cout << "perfect number: " << potentially_perfect_number
                   << std::endl;

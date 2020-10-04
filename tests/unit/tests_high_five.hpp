@@ -163,7 +163,7 @@ readWriteDataset(const DataT& ndvec,
     DataSet dataset = file.createDataSet<ElemT>(DATASET_NAME, DataSpace::From(ndvec));
     dataset.write(ndvec);
 
-    dataset.read(result);
+    result = dataset.read<DataT>();
     return dataset;
 }
 

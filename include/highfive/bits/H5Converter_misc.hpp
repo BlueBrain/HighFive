@@ -6,16 +6,51 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+
+/*  INTERFACES
+struct data_converter {
+  using value_type;
+  using hdf5_type;
+  using h5_type;
+
+  data_converter(const DataSpace& space, const std::vector<size_t>& dims);
+
+  // Size for HDF5
+  static std::vector<size_t> get_size(const value_type&);
+
+  // Before reading for creating a type
+  void allocate(value_type&) const;
+
+  // Only for continuous
+  // Reading
+  static hdf5_type* get_pointer(value_type&);
+  // Writing
+  static const hdf5_type* get_pointer(const value_type&);
+
+  // Before writing non-continuous
+  inline void serialize(const value_type&, hdf5_type*);
+
+  // After reading non-continuous
+  inline void unserialize(value_type&, const hdf5_type*);
+
+  static constexpr size_t number_of_dims;
+
+  // Number of elements for C++
+  const size_t _number_of_elements;
+};
+*/
+
 #ifndef H5CONVERTER_MISC_HPP
 #define H5CONVERTER_MISC_HPP
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <functional>
 #include <numeric>
 #include <sstream>
 #include <string>
-#include <array>
+#include <type_traits>
 
 #ifdef H5_USE_BOOST
 // starting Boost 1.64, serialization header must come before ublas
@@ -28,407 +63,734 @@
 #include <H5Ppublic.h>
 
 #include "../H5Reference.hpp"
+#include "../H5DataType.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive {
 
 namespace details {
-
-inline bool is_1D(const std::vector<size_t>& dims) {
-    return std::count_if(dims.begin(), dims.end(), [](size_t i){ return i > 1; }) < 2;
-}
-
-inline size_t compute_total_size(const std::vector<size_t>& dims) {
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u},
-                           std::multiplies<size_t>());
-}
-
-inline void check_dimensions_vector(size_t size_vec, size_t size_dataset,
-                                    size_t dimension) {
-    if (size_vec != size_dataset) {
-        std::ostringstream ss;
-        ss << "Mismatch between vector size (" << size_vec
-           << ") and dataset size (" << size_dataset;
-        ss << ") on dimension " << dimension;
-        throw DataSetException(ss.str());
-    }
-}
-
-
-// Buffer converters
-// =================
-
-// copy multi dimensional vector in C++ in one C-style multi dimensional buffer
 template <typename T>
-inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
-                                     const std::vector<size_t>& dims,
-                                     const size_t current_dim,
-                                     std::vector<T>& buffer) {
+struct h5_pod :
+    std::is_pod<T> {};
 
-    check_dimensions_vector(vec_single_dim.size(), dims[current_dim], current_dim);
-    buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
-}
-
-
-template <typename T, typename U = typename type_of_array<T>::type>
-inline void
-vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
-                         const std::vector<size_t>& dims,
-                         size_t current_dim,
-                         std::vector<U>& buffer) {
-
-    check_dimensions_vector(vec_multi_dim.size(), dims[current_dim], current_dim);
-    for (const auto& it : vec_multi_dim) {
-        vectors_to_single_buffer(it, dims, current_dim + 1, buffer);
-    }
-}
-
-// copy single buffer to multi dimensional vector, following specified dimensions
-template <typename T>
-inline typename std::vector<T>::const_iterator
-single_buffer_to_vectors(typename std::vector<T>::const_iterator begin_buffer,
-                         typename std::vector<T>::const_iterator end_buffer,
-                         const std::vector<size_t>& dims,
-                         const size_t current_dim,
-                         std::vector<T>& vec_single_dim) {
-    const auto n_elems = static_cast<long>(dims[current_dim]);
-    const auto end_copy_iter = std::min(begin_buffer + n_elems, end_buffer);
-    vec_single_dim.assign(begin_buffer, end_copy_iter);
-    return end_copy_iter;
-}
-
-template <typename T, typename U = typename type_of_array<T>::type>
-inline typename std::vector<U>::const_iterator
-single_buffer_to_vectors(typename std::vector<U>::const_iterator begin_buffer,
-                         typename std::vector<U>::const_iterator end_buffer,
-                         const std::vector<size_t>& dims,
-                         const size_t current_dim,
-                         std::vector<std::vector<T>>& vec_multi_dim) {
-    const size_t n_elems = dims[current_dim];
-    vec_multi_dim.resize(n_elems);
-
-    for (auto& subvec : vec_multi_dim) {
-        begin_buffer = single_buffer_to_vectors(
-            begin_buffer, end_buffer, dims, current_dim + 1, subvec);
-    }
-    return begin_buffer;
-}
-
-
-// DATA CONVERTERS
-// ===============
-
-// apply conversion operations to basic scalar type
-template <typename Scalar, class Enable>
-struct data_converter {
-    inline data_converter(const DataSpace&) noexcept {
-
-        static_assert((std::is_arithmetic<Scalar>::value ||
-                       std::is_enum<Scalar>::value ||
-                       std::is_same<std::string, Scalar>::value),
-                      "supported datatype should be an arithmetic value, a "
-                      "std::string or a container/array");
-    }
-
-    inline Scalar* transform_read(Scalar& datamem) const noexcept {
-        return &datamem;
-    }
-
-    inline const Scalar* transform_write(const Scalar& datamem) const noexcept {
-        return &datamem;
-    }
-
-    inline void process_result(Scalar&) const noexcept {}
-};
-
-
-// apply conversion operations to the incoming data
-// if they are a cstyle array
-template <typename CArray>
-struct data_converter<CArray,
-                      typename std::enable_if<(is_c_array<CArray>::value)>::type> {
-    inline data_converter(const DataSpace&) noexcept {}
-
-    inline CArray& transform_read(CArray& datamem) const noexcept {
-        return datamem;
-    }
-
-    inline const CArray& transform_write(const CArray& datamem) const noexcept {
-        return datamem;
-    }
-
-    inline void process_result(CArray&) const noexcept {}
-};
-
-// Generic container converter
-template <typename Container, typename T = typename type_of_array<Container>::type>
-struct container_converter {
-    typedef T value_type;
-
-    inline container_converter(const DataSpace& space)
-        : _space(space) {}
-
-    // Ship (pseudo)1D implementation
-    inline value_type* transform_read(Container& vec) const {
-        auto&& dims = _space.getDimensions();
-        if (!is_1D(dims))
-            throw DataSpaceException("Dataset cant be converted to 1D");
-        vec.resize(compute_total_size(dims));
-        return vec.data();
-    }
-
-    inline const value_type* transform_write(const Container& vec) const noexcept {
-        return vec.data();
-    }
-
-    inline void process_result(Container&) const noexcept {}
-
-    const DataSpace& _space;
-};
-
-
-// apply conversion for vectors 1D
-template <typename T>
-struct data_converter<
-    std::vector<T>,
-    typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value &&
-        !std::is_same<T, Reference>::value
-        )>::type>
-    : public container_converter<std::vector<T>> {
-
-    using container_converter<std::vector<T>>::container_converter;
-};
-
-
-// apply conversion to std::array
-template <typename T, std::size_t S>
-struct data_converter<
-    std::array<T, S>,
-    typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value)>::type>
-    : public container_converter<std::array<T, S>> {
-
-    inline data_converter(const DataSpace& space)
-        : container_converter<std::array<T, S>>(space)
-    {
-        auto&& dims = space.getDimensions();
-        if (!is_1D(dims)) {
-            throw DataSpaceException("Only 1D std::array supported currently.");
-        }
-        if (compute_total_size(dims) != S) {
-            std::ostringstream ss;
-            ss << "Impossible to pair DataSet with " << compute_total_size(dims)
-               << " elements into an array with " << S << " elements.";
-            throw DataSpaceException(ss.str());
-        }
-    }
-
-    inline T* transform_read(std::array<T, S>& vec) const noexcept {
-        return vec.data();
-    }
-};
-
-
-#ifdef H5_USE_BOOST
-// apply conversion to boost multi array
-template <typename T, std::size_t Dims>
-struct data_converter<boost::multi_array<T, Dims>, void>
-    : public container_converter<boost::multi_array<T, Dims>> {
-    using MultiArray = boost::multi_array<T, Dims>;
-    using value_type = typename type_of_array<T>::type;
-    using container_converter<MultiArray>::container_converter;
-
-    inline value_type* transform_read(MultiArray& array) {
-        auto&& dims = this->_space.getDimensions();
-        if (std::equal(dims.begin(), dims.end(), array.shape()) == false) {
-            boost::array<typename MultiArray::index, Dims> ext;
-            std::copy(dims.begin(), dims.end(), ext.begin());
-            array.resize(ext);
-        }
-        return array.data();
-    }
-};
-
-
-// apply conversion to boost matrix ublas
-template <typename T>
-struct data_converter<boost::numeric::ublas::matrix<T>, void>
-    : public container_converter<boost::numeric::ublas::matrix<T>> {
-    using Matrix = boost::numeric::ublas::matrix<T>;
-    using value_type = typename type_of_array<T>::type;
-
-    inline data_converter(const DataSpace& space) : container_converter<Matrix>(space) {
-        assert(space.getDimensions().size() == 2);
-    }
-
-    inline value_type* transform_read(Matrix& array) {
-        boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
-        auto&& _dims = this->_space.getDimensions();
-        if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
-            array.resize(_dims[0], _dims[1], false);
-            array(0, 0) = 0; // force initialization
-        }
-        return &(array(0, 0));
-    }
-
-    inline const value_type* transform_write(const Matrix& array) const noexcept {
-        return &(array(0, 0));
-    }
-};
-#endif
-
-
-// apply conversion for vectors nested vectors
-template <typename T>
-struct data_converter<std::vector<T>,
-                      typename std::enable_if<(is_container<T>::value)>::type> {
-    using value_type = typename type_of_array<T>::type;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {}
-
-    inline value_type* transform_read(std::vector<T>&) {
-        _vec_align.resize(compute_total_size(_dims));
-        return _vec_align.data();
-    }
-
-    inline const value_type* transform_write(const std::vector<T>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
-        vectors_to_single_buffer<T>(vec, _dims, 0, _vec_align);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<T>& vec) const {
-        single_buffer_to_vectors(
-            _vec_align.cbegin(), _vec_align.cend(), _dims, 0, vec);
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<typename type_of_array<T>::type> _vec_align;
-};
-
-
-// apply conversion to scalar string
 template <>
-struct data_converter<std::string, void> {
-    using value_type = const char*;  // char data is const, mutable pointer
+struct h5_pod<bool> :
+    std::false_type {};
 
-    inline data_converter(const DataSpace& space) noexcept
-        : _c_vec(nullptr)
-        , _space(space) {}
+// contiguous pair of T
+// template <typename T>
+// struct h5_pod<std::complex<T>> :
+//     std::true_type {};
 
-    // create a C vector adapted to HDF5
-    // fill last element with NULL to identify end
-    inline value_type* transform_read(std::string&) noexcept {
-        return &_c_vec;
+template <typename T>
+struct h5_continuous :
+    std::false_type {};
+
+template <typename S>
+struct h5_continuous<std::vector<S>> :
+    std::integral_constant<bool, h5_pod<S>::value> {};
+
+template <typename T, size_t N>
+struct h5_continuous<T[N]> :
+    std::integral_constant<bool, h5_pod<T>::value> {};
+
+template <typename S, size_t N>
+struct h5_continuous<std::array<S, N>> :
+    std::integral_constant<bool, h5_pod<S>::value> {};
+
+template <typename T, size_t Dims>
+struct h5_continuous<boost::multi_array<T, Dims>> :
+    std::integral_constant<bool, h5_pod<T>::value> {};
+
+template <typename T>
+struct h5_continuous<boost::numeric::ublas::matrix<T>> :
+    std::integral_constant<bool, h5_pod<T>::value> {};
+
+template <typename T>
+struct h5_non_continuous :
+    std::integral_constant< bool, !h5_continuous<T>::value> {};
+
+size_t get_number_of_elements(const std::vector<size_t>& dims) {
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
+}
+
+template <typename T>
+struct manipulator {
+    using type = T;
+    using hdf5_type = T;
+    using h5_type = type;
+
+    static type from_hdf5(const hdf5_type* data) {
+        return type(*data);
     }
 
-    inline const value_type* transform_write(const std::string& str) noexcept {
-        _c_vec = str.c_str();
-        return &_c_vec;
+    static void to_hdf5(const type& scalar, hdf5_type* data) {
+        *data = scalar;
     }
 
-    inline void process_result(std::string& str) {
-        assert(_c_vec != nullptr);
-        str = std::string(_c_vec);
-
-        if (_c_vec != nullptr) {
-            AtomicType<std::string> str_type;
-            (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
-                                  &_c_vec);
-        }
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{};
     }
 
-    value_type _c_vec;
-    const DataSpace& _space;
+    static size_t flat_size(const type& val) {
+        return 1;
+    }
+
+    static hdf5_type* first(type& val) {
+        return &val;
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return &val;
+    }
+
+    static hdf5_type* data(type& val) {
+        return &val;
+    }
+
+    static const hdf5_type* data(const type& val) {
+        return &val;
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        // Nothing to do
+    }
+
+    static const size_t n_dims = 0;
 };
 
-// apply conversion for vectors of string (dereference)
+template <typename T>
+struct manipulator<std::complex<T>> {
+    using type = std::complex<T>;
+    using hdf5_type = std::complex<T>;
+    using h5_type = type;
+
+    static type from_hdf5(const hdf5_type* data) {
+        return type(*data);
+    }
+
+    static void to_hdf5(const type& scalar, hdf5_type* data) {
+        *data = scalar;
+    }
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{};
+    }
+
+    static size_t flat_size(const type& val) {
+        return 1;
+    }
+
+    static hdf5_type* first(type& val) {
+        return nullptr;
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return nullptr;
+    }
+
+    static hdf5_type* data(type& val) {
+        // .data() return a const pointer until c++17
+        throw std::string("Invalid get_pointer on std::string");
+    }
+
+    static const hdf5_type* data(const type& val) {
+        static hdf5_type _c_str = val.c_str();
+        return &_c_str;
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        // Nothing to do
+    }
+
+    static const size_t n_dims = 0;
+    static const size_t rn_dims = n_dims;
+};
+
+template <size_t N>
+struct manipulator<FixedLengthString<N>> {
+    using type = FixedLengthString<N>;
+    using hdf5_type = char;
+    using h5_type = std::array<char, N>;
+
+    static type from_hdf5(const hdf5_type* data) {
+        return type(*data);
+    }
+
+    static void to_hdf5(const type& scalar, hdf5_type* data) {
+        *data = scalar.data();
+    }
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{};
+    }
+
+    static size_t flat_size(const type& val) {
+        return N;
+    }
+
+    static hdf5_type* first(type& val) {
+        return nullptr;
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return nullptr;
+    }
+
+    static hdf5_type* data(type& val) {
+        return val.data();
+    }
+
+    static const hdf5_type* data(const type& val) {
+        return val.data();
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        // cannot resize a fixed length
+    }
+
+    static const size_t n_dims = 0;
+    static const size_t rn_dims = n_dims;
+};
 template <>
-struct data_converter<std::vector<std::string>, void> {
-    using value_type = const char*;
+struct manipulator<std::string> {
+    using type = std::string;
+    using hdf5_type = const char*;
+    using h5_type = type;
 
-    inline data_converter(const DataSpace& space) noexcept
-        : _space(space) {}
-
-    // create a C vector adapted to HDF5
-    // fill last element with NULL to identify end
-    inline value_type* transform_read(std::vector<std::string>&) {
-        _c_vec.resize(_space.getDimensions()[0], NULL);
-        return _c_vec.data();
+    static type from_hdf5(const hdf5_type* data) {
+        return type(*data);
     }
 
-    inline const value_type* transform_write(const std::vector<std::string>& vec) {
-        _c_vec.resize(vec.size() + 1, NULL);
-        std::transform(vec.begin(), vec.end(), _c_vec.begin(),
-                       [](const std::string& str){ return str.c_str(); });
-        return _c_vec.data();
+    static void to_hdf5(const type& scalar, hdf5_type* data) {
+        hdf5_type _c_str = scalar.c_str();
+        *data = _c_str;
     }
 
-    inline void process_result(std::vector<std::string>& vec) {
-        vec.resize(_c_vec.size());
-        for (size_t i = 0; i < vec.size(); ++i) {
-            vec[i] = std::string(_c_vec[i]);
-        }
-
-        if (_c_vec.empty() == false && _c_vec[0] != NULL) {
-            AtomicType<std::string> str_type;
-            (void)H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT,
-                                  &(_c_vec[0]));
-        }
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{};
     }
 
-    std::vector<value_type> _c_vec;
-    const DataSpace& _space;
-};
+    static size_t flat_size(const type& val) {
+        return val.size();
+    }
 
+    static hdf5_type* first(type& val) {
+        return nullptr;
+    }
 
+    static const hdf5_type* first(const type& val) {
+        return nullptr;
+    }
 
-// apply conversion for fixed-string. Implements container interface
-template <std::size_t N>
-struct data_converter<FixedLenStringArray<N>, void>
-    : public container_converter<FixedLenStringArray<N>, char> {
-    using container_converter<FixedLenStringArray<N>, char>::container_converter;
+    static hdf5_type* data(type& val) {
+        // .data() return a const pointer until c++17
+        throw std::string("Invalid get_pointer on std::string");
+    }
+
+    static const hdf5_type* data(const type& val) {
+        static hdf5_type _c_str = val.c_str();
+        return &_c_str;
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        // Nothing to do
+    }
+
+    static const size_t n_dims = 0;
+    static const size_t rn_dims = n_dims;
 };
 
 template <>
-struct data_converter<std::vector<Reference>, void> {
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {
-        if (!is_1D(_dims)) {
-            throw DataSpaceException("Only 1D std::array supported currently.");
-        }
+struct manipulator<Reference> {
+    using type = Reference;
+    using hdf5_type = hobj_ref_t;
+    using h5_type = type;
+
+    static type from_hdf5(const hdf5_type* data) {
+        return type(*data);
     }
 
-    inline hobj_ref_t* transform_read(std::vector<Reference>& vec) {
-        auto total_size = compute_total_size(_dims);
-        _vec_align.resize(total_size);
-        vec.resize(total_size);
-        return _vec_align.data();
+    static void to_hdf5(const type& scalar, hdf5_type* data) {
+        scalar.create_ref(data);
     }
 
-    inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
-        for (size_t i = 0; i < vec.size(); ++i) {
-            vec[i].create_ref(&_vec_align[i]);
-        }
-        return _vec_align.data();
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{};
     }
 
-    inline void process_result(std::vector<Reference>& vec) const {
-        auto* href = const_cast<hobj_ref_t*>(_vec_align.data());
-        for (auto& ref : vec) {
-            ref = Reference(*(href++));
-        }
+    static size_t flat_size(const type& val) {
+        return 1;
     }
 
-    std::vector<size_t> _dims;
-    std::vector<typename type_of_array<hobj_ref_t>::type> _vec_align;
+    static hdf5_type* first(type& val) {
+        return nullptr;
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return nullptr;
+    }
+
+    static hdf5_type* data(type& val) {
+        return nullptr;
+    }
+
+    static const hdf5_type* data(const type& val) {
+        return nullptr;
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        // Nothing to do
+    }
+
+    static const size_t n_dims = 0;
+    static const size_t rn_dims = n_dims;
 };
 
+template <typename T>
+struct manipulator<std::vector<T>> {
+    using type = std::vector<T>;
+    using value_type = typename type::value_type;
+    using hdf5_type = typename manipulator<value_type>::hdf5_type;
+    using h5_type = typename manipulator<value_type>::h5_type;
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{val.size()};
+    }
+
+    static size_t flat_size(const type& val) {
+        return val.size();
+    }
+
+    static hdf5_type* first(type& val) {
+        return manipulator<value_type>::first(val[0]);
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return manipulator<value_type>::first(val[0]);
+    }
+
+    static value_type* data(type& val) {
+        return val.data();
+    }
+
+    static const value_type* data(const type& val) {
+        return val.data();
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        val.resize(count[0]);
+    }
+
+    static const size_t n_dims = 1;
+    static const size_t rn_dims = n_dims + manipulator<value_type>::n_dims;
+};
+
+template <typename T, size_t N>
+struct manipulator<std::array<T, N>> {
+    using type = std::array<T, N>;
+    using value_type = typename type::value_type;
+    using hdf5_type = typename manipulator<value_type>::hdf5_type;
+    using h5_type = typename manipulator<value_type>::h5_type;
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>{val.size()};
+    }
+
+    static size_t flat_size(const type& val) {
+        return val.size();
+    }
+
+    static hdf5_type* first(type& val) {
+        return manipulator<value_type>::first(val[0]);
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return manipulator<value_type>::first(val[0]);
+    }
+
+    static value_type* data(type& val) {
+        return val.data();
+    }
+
+    static const value_type* data(const type& val) {
+        return val.data();
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+        assert(count[0] == N);
+    }
+
+    static const size_t n_dims = 1;
+    static const size_t rn_dims = n_dims + manipulator<value_type>::n_dims;
+};
+
+template <typename T, size_t Dims>
+struct manipulator<boost::multi_array<T, Dims>> {
+    using type = boost::multi_array<T, Dims>;
+    using value_type = typename type::element;
+    using hdf5_type = typename manipulator<value_type>::hdf5_type;
+    using h5_type = typename manipulator<value_type>::h5_type;
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>(val.shape(), val.shape() + Dims);
+    }
+
+    static size_t flat_size(const type& val) {
+        return val.num_elements();
+    }
+
+    static hdf5_type* first(type& val) {
+        return manipulator<value_type>::first(val.data()[0]);
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return manipulator<value_type>::first(val.data()[0]);
+    }
+
+    static value_type* data(type& val) {
+        return val.data();
+    }
+
+    static const value_type* data(const type& val) {
+        return val.data();
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+
+        boost::array<typename type::index, Dims> ext;
+        std::copy(count.begin(), count.end(), ext.begin());
+        val.resize(ext);
+    }
+
+    static const size_t n_dims = Dims;
+    static const size_t rn_dims = n_dims + manipulator<value_type>::n_dims;
+};
+
+template <typename T>
+struct manipulator<boost::numeric::ublas::matrix<T>> {
+    using type = boost::numeric::ublas::matrix<T>;
+    using value_type = typename type::value_type;
+    using hdf5_type = typename manipulator<value_type>::hdf5_type;
+    using h5_type = typename manipulator<value_type>::h5_type;
+
+    static std::vector<size_t> size(const type& val) {
+        return std::vector<size_t>(val.size1(), val.size2());
+    }
+
+    static size_t flat_size(const type& val) {
+        return val.size1() * val.size2();
+    }
+
+    static hdf5_type* first(type& val) {
+        return manipulator<value_type>::first(val(0, 0));
+    }
+
+    static const hdf5_type* first(const type& val) {
+        return manipulator<value_type>::first(val(0, 0));
+    }
+
+    static value_type* data(type& val) {
+        return &val(0, 0);
+    }
+
+    static const value_type* data(const type& val) {
+        return &val(0, 0);
+    }
+
+    static void resize(type& val, const std::vector<size_t>& count) {
+        assert(count.size() == n_dims);
+
+        val.resize(count[0], count[1], false);
+        val(0, 0) = 0;
+    }
+
+    static const size_t n_dims = 2;
+    static const size_t rn_dims = n_dims + manipulator<value_type>::n_dims;
+};
+
+template <typename T, size_t N>
+struct read_data_converter {
+    using manip = manipulator<T>;
+    using inner_converter = read_data_converter<typename manip::value_type, manipulator<typename manip::value_type>::n_dims>;
+
+    using type = typename manip::type;
+    using hdf5_type = typename manip::hdf5_type;
+
+    void resize(type& val, const std::vector<size_t>& dims) {
+        manip::resize(val, std::vector<size_t>(dims.begin(), dims.begin() + manip::n_dims));
+        for (unsigned int i = 0; i < manip::flat_size(val); ++i) {
+            _inner_converter.resize(manip::data(val)[i], std::vector<size_t>(dims.begin() + manip::n_dims, dims.end()));
+        }
+    }
+
+    inline void unserialize(type& vec, const hdf5_type* data) {
+        const size_t inner_size = manipulator<typename manip::value_type>::flat_size(manip::data(vec)[0]);
+        for (unsigned int i = 0; i < manip::flat_size(vec); ++i) {
+            _inner_converter.unserialize(manip::data(vec)[i], data + inner_size * i); 
+        }
+    }
+
+    hdf5_type* data(type& val) {
+        return manip::first(val);
+    }
+
+    inner_converter _inner_converter;
+};
+
+template <typename T>
+struct read_data_converter<T, 0> {
+    using manip = manipulator<T>;
+
+    using type = typename manip::type;
+    using hdf5_type = typename manip::hdf5_type;
+
+    void resize(type& val, const std::vector<size_t>& dims) {
+        manip::resize(val, std::vector<size_t>(dims.begin(), dims.begin() + manip::n_dims));
+    }
+
+    inline void unserialize(type& scalar, const hdf5_type* data) {
+        scalar = manip::from_hdf5(data);
+    }
+
+    hdf5_type* data(type& val) {
+        return manip::first(val);
+    }
+};
+
+template <typename T>
+struct static_data_converter {
+    using manip = manipulator<T>;
+    using hdf5_type = typename manip::hdf5_type;
+    using h5_type = typename manip::h5_type;
+
+    static std::vector<size_t> dims(const T& val) {
+        return manip::size(val);
+    }
+
+    static constexpr size_t n_dims = manip::n_dims;
+    static constexpr size_t rn_dims = manip::n_dims;
+};
+
+template <typename T, size_t N>
+struct write_data_converter {
+    using manip = manipulator<T>;
+    using inner_converter = write_data_converter<typename manip::value_type, manipulator<typename manip::value_type>::n_dims>;
+
+    using type = typename manip::type;
+    using hdf5_type = typename manip::hdf5_type;
+
+    inline void serialize(const type& scalar, hdf5_type* data) {
+        const size_t inner_size = manipulator<typename manip::value_type>::flat_size(manip::data(scalar)[0]);
+        for (size_t i = 0; i < manip::flat_size(scalar); ++i) {
+            _inner_converter.serialize(manip::data(scalar)[i], data + inner_size * i);
+        }
+    }
+
+    const hdf5_type* data(const type& val) {
+        return manip::first(val);
+    }
+
+    inner_converter _inner_converter;
+};
+
+template <typename T>
+struct write_data_converter<T, 0> {
+    using manip = manipulator<T>;
+
+    using type = typename manip::type;
+    using hdf5_type = typename manip::hdf5_type;
+
+    inline void serialize(const type& scalar, hdf5_type* data) {
+        manip::to_hdf5(scalar, data);
+    }
+
+    const hdf5_type* data(const type& val) {
+        return manip::data(val);
+    }
+};
 }  // namespace details
 
+std::vector<size_t> real_dims(const std::vector<size_t>& from, size_t to_size) {
+    if (from.size() <= to_size) { // We can do nothing
+        return from;
+    }
+
+    auto distance = static_cast<long int>(from.size() - to_size);
+    bool correct = true;
+    for (long int i = 0; i < distance; ++i) {
+        if (from[static_cast<size_t>(i)] != 1) {
+            correct = false;
+            break;
+        }
+    }
+    if (correct) {
+        return std::vector<size_t>(from.begin() + distance, from.end());
+    }
+
+    correct = true;
+    for (long int i = distance; i > 0; --i) {
+        if (from[static_cast<size_t>(i)] != 1) {
+            correct = false;
+            break;
+        }
+    }
+    if (correct) {
+        return std::vector<size_t>(from.begin(), from.end() - distance);
+    }
+    return from;
+}
+
+template <typename T, typename Enable = void>
+class TransformRead;
+
+template <typename T>
+class TransformRead<T, typename std::enable_if<details::h5_non_continuous<T>::value>::type> {
+  public:
+    using hdf5_type = typename details::static_data_converter<T>::hdf5_type;
+    using Conv = details::read_data_converter<T, n_dims>;
+    using h5_type = typename details::static_data_converter<T>::h5_type;
+
+    TransformRead(const DataSpace& space)
+        : _space(space)
+        , _dims(real_dims(space.getDimensions(), n_dims))
+    {
+#ifdef H5_ENABLE_ERROR_ON_COPY
+#error You are using a non contiguous data type and so data will be copied
+#endif
+    }
+
+    hdf5_type* get_pointer() {
+        _vec.resize(details::get_number_of_elements(_dims));
+        return _vec.data();
+    }
+
+    T transform_read() {
+        T _data;
+        _converter.resize(_data, _dims);
+        _converter.unserialize(_data, _vec.data());
+        return _data;
+    }
+
+    DataType _h5_type = create_and_check_datatype<h5_type>();
+    static constexpr size_t n_dims = details::static_data_converter<T>::n_dims;
+
+  private:
+    // Continuous vector for data
+    std::vector<hdf5_type> _vec;
+
+    const DataSpace& _space;
+    std::vector<size_t> _dims;
+    Conv _converter;
+};
+
+template<typename T>
+class TransformRead<T, typename std::enable_if<details::h5_continuous<T>::value>::type> {
+  public:
+    using hdf5_type = typename details::static_data_converter<T>::hdf5_type;
+    using Conv = details::read_data_converter<T, details::manipulator<T>::n_dims>;
+    using h5_type = typename details::static_data_converter<T>::h5_type;
+
+    TransformRead(const DataSpace& space)
+        : _space(space)
+        , _dims(real_dims(space.getDimensions(), n_dims))
+    {}
+
+    hdf5_type* get_pointer() {
+        _converter.resize(_data, _dims);
+        return _converter.data(_data);
+    }
+
+    T transform_read() {
+        return _data;
+    }
+
+    DataType _h5_type = create_and_check_datatype<h5_type>();
+    static constexpr size_t n_dims = details::static_data_converter<T>::n_dims;
+
+  private:
+    T _data;
+    const DataSpace& _space;
+    std::vector<size_t> _dims;
+    Conv _converter;
+};
+
+template <typename T, typename Enable = void>
+class TransformWrite;
+
+template <typename T>
+class TransformWrite<T, typename std::enable_if<details::h5_non_continuous<T>::value>::type> {
+  public:
+    using hdf5_type = typename details::static_data_converter<T>::hdf5_type;
+    using Conv = details::write_data_converter<T, details::manipulator<T>::n_dims>;
+    using h5_type = typename details::static_data_converter<T>::h5_type;
+
+    TransformWrite(const DataSpace& space, const T& value)
+        : _dims(real_dims(space.getDimensions(), n_dims))
+    {
+#ifdef H5_ENABLE_ERROR_ON_COPY
+#error You are using a non contiguous data type and so data will be copied
+#endif
+        _vec.resize(details::get_number_of_elements(_dims));
+        _converter.serialize(value, _vec.data());
+    }
+
+    const hdf5_type* get_pointer() const {
+        return _vec.data();
+    }
+
+  private:
+    std::vector<size_t> _dims;
+    Conv _converter;
+    std::vector<hdf5_type> _vec;
+  public:
+    static constexpr size_t n_dims = details::static_data_converter<T>::n_dims;
+    DataType _h5_type = create_and_check_datatype<h5_type>();
+};
+
+template <typename T>
+class TransformWrite<T, typename std::enable_if<details::h5_continuous<T>::value>::type> {
+  public:
+    using hdf5_type = typename details::static_data_converter<T>::hdf5_type;
+    using Conv = details::write_data_converter<T, details::manipulator<T>::n_dims>;
+    using h5_type = typename details::static_data_converter<T>::h5_type;
+
+    TransformWrite(const DataSpace& space, const T& value)
+        : _dims(real_dims(space.getDimensions(), n_dims))
+        , _data(value)
+    {}
+
+    const hdf5_type* get_pointer() {
+        return _converter.data(_data);
+    }
+
+  private:
+    std::vector<size_t> _dims;
+    Conv _converter;
+    const T& _data;
+  public:
+    static constexpr size_t n_dims = details::static_data_converter<T>::n_dims;
+    DataType _h5_type = create_and_check_datatype<h5_type>();
+};
+
+// Wrappers to have template deduction, that are not available with class before C++17
+template <typename T>
+TransformWrite<T> make_transform_write(const DataSpace& space, const T& value) {
+    return TransformWrite<T>{space, value};
+}
+
+template <typename T>
+TransformRead<T> make_transform_read(const DataSpace& space) {
+    return TransformRead<T>{space};
+}
 }  // namespace HighFive
 
 #ifdef H5_USE_EIGEN

@@ -71,14 +71,6 @@ class NodeTraits {
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
                   const DataSetAccessProps& accessProps = DataSetAccessProps());
 
-
-    template <std::size_t N>
-    DataSet
-    createDataSet(const std::string& dataset_name,
-                  const FixedLenStringArray<N>& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
-
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name

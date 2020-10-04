@@ -59,7 +59,7 @@ class Attribute : public Object {
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
     /// dimensional array )
     template <typename T>
-    void read(T& array) const;
+    T read() const;
 
     ///
     /// Read the attribute into a buffer

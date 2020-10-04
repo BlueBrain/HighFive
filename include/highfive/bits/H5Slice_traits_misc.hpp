@@ -155,77 +155,52 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
 
 template <typename Derivate>
 template <typename T>
-inline void SliceTraits<Derivate>::read(T& array) const {
+inline T SliceTraits<Derivate>::read() const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
-    const details::BufferInfo<T> buffer_info(slice.getDataType());
+    auto converter = make_transform_read<T>(mem_space);
 
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
-        std::ostringstream ss;
-        ss << "Impossible to read DataSet of dimensions "
-           << mem_space.getNumberDimensions() << " into arrays of dimensions "
-           << buffer_info.n_dimensions;
-        throw DataSpaceException(ss.str());
-    }
-    details::data_converter<T> converter(mem_space);
-    read(converter.transform_read(array), buffer_info.data_type);
-    // re-arrange results
-    converter.process_result(array);
+    read(converter.get_pointer(), converter._h5_type);
+
+    return converter.transform_read();
 }
-
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype) const {
-    static_assert(!std::is_const<T>::value,
-                  "read() requires a non-const structure to read data into");
     const auto& slice = static_cast<const Derivate&>(*this);
-    using element_type = typename details::type_of_array<T>::type;
-
-    // Auto-detect mem datatype if not provided
-    const DataType& mem_datatype =
-            dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
+    const DataType& mem_datatype = dtype.empty() ? create_and_check_datatype<T>() : dtype;
 
     if (H5Dread(details::get_dataset(slice).getId(),
                 mem_datatype.getId(),
                 details::get_memspace_id(slice),
-                slice.getSpace().getId(), H5P_DEFAULT, static_cast<void*>(array)) < 0) {
+                slice.getSpace().getId(), H5P_DEFAULT, array) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read: ");
     }
 }
-
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
-    const details::BufferInfo<T> buffer_info(slice.getDataType());
-
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
-        std::ostringstream ss;
-        ss << "Impossible to write buffer of dimensions " << buffer_info.n_dimensions
-           << " into dataset of dimensions " << mem_space.getNumberDimensions();
-        throw DataSpaceException(ss.str());
-    }
-    details::data_converter<T> converter(mem_space);
-    write_raw(converter.transform_write(buffer), buffer_info.data_type);
+    auto converter = make_transform_write(mem_space, buffer);
+    // FIXME check size
+    write_raw(converter.get_pointer(), converter._h5_type);
 }
-
 
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dtype) {
-    using element_type = typename details::type_of_array<T>::type;
     const auto& slice = static_cast<const Derivate&>(*this);
-    const auto& mem_datatype =
-        dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
+
+    const auto& mem_datatype = dtype.empty() ? create_and_check_datatype<T>() : dtype;
 
     if (H5Dwrite(details::get_dataset(slice).getId(),
                  mem_datatype.getId(),
                  details::get_memspace_id(slice),
                  slice.getSpace().getId(), H5P_DEFAULT,
-                 static_cast<const void*>(buffer)) < 0) {
+                 buffer) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
 }

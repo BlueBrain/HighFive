@@ -45,13 +45,11 @@ void read_dataset() {
     // we open the existing hdf5 file we created before
     File file(FILE_NAME, File::ReadOnly);
 
-    std::vector<int> read_data;
-
     // we get the dataset
     DataSet dataset = file.getDataSet(DATASET_NAME);
 
     // we convert the hdf5 dataset to a single dimension vector
-    dataset.read(read_data);
+    auto read_data = dataset.read<std::vector<int>>();
 
     for (size_t i = 0; i < read_data.size(); ++i) {
         std::cout << read_data[i] << " ";

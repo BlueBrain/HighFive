@@ -45,8 +45,7 @@ int main(void) {
         dataset.write(string_list);
 
         // now we read it back
-        std::vector<std::string> result_string_list;
-        dataset.read(result_string_list);
+        auto result_string_list = dataset.read<std::vector<std::string>>();
 
         for (size_t i = 0; i < result_string_list.size(); ++i) {
             std::cout << ":" << i << " " << result_string_list[i] << "\n";

@@ -36,7 +36,7 @@ int main(void) {
                              {11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
 
         // write it
-        dataset.write(data);
+        dataset.write_raw(&data[0][0]);
 
     } catch (Exception& err) {
         // catch and print any HDF5 error

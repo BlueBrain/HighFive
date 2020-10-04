@@ -30,6 +30,15 @@ namespace HighFive {
 ///
 class Reference {
   public:
+    /// \brief Create a Reference from a low-level HDF5 object reference
+    inline explicit Reference(const hobj_ref_t h5_ref)
+        : href(h5_ref) {};
+    /// \brief Create the low-level reference and store it at refptr
+    ///
+    /// \param refptr Pointer to a memory location where the created HDF5 reference will
+    /// be stored
+    void create_ref(hobj_ref_t* refptr) const;
+
     /// \brief Create an empty Reference to be initialized later
     Reference() = default;
 
@@ -54,15 +63,6 @@ class Reference {
     ObjectType getType(const Object& location) const;
 
   protected:
-    /// \brief Create a Reference from a low-level HDF5 object reference
-    inline explicit Reference(const hobj_ref_t h5_ref)
-        : href(h5_ref) {};
-
-    /// \brief Create the low-level reference and store it at refptr
-    ///
-    /// \param refptr Pointer to a memory location where the created HDF5 reference will
-    /// be stored
-    void create_ref(hobj_ref_t* refptr) const;
 
   private:
 
@@ -71,8 +71,6 @@ class Reference {
     hobj_ref_t href{};
     std::string obj_name{};
     hid_t parent_id{};
-
-    friend details::data_converter<std::vector<Reference>>;
 };
 
 }  // namespace HighFive

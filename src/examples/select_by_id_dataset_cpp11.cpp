@@ -45,9 +45,7 @@ int main(void) {
             DataSet dataset = file.getDataSet(DATASET_NAME);
 
             // now let's read back by cherry pick our interesting string
-            std::vector<std::string> result;
-            // we select only element N° 2 and 5
-            dataset.select(ElementSet({2, 4, 6, 7, 6, 10})).read(result);
+            auto result = dataset.select(ElementSet({2, 4, 6, 7, 6, 10})).read<std::vector<std::string>>();
 
             // and display it
             for (auto i : result) {

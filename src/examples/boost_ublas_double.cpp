@@ -50,8 +50,7 @@ int main(void) {
         dataset.write(mat);
 
         // now, let read it back
-        Matrix result;
-        dataset.read(result);
+        auto result = dataset.read<Matrix>();
 
         // print what we read
         std::cout << "Matrix result:\n" << result << std::endl;

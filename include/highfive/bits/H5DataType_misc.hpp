@@ -157,12 +157,6 @@ class AtomicType<char[StrLen]> : public DataType {
     inline AtomicType() : DataType(create_string(StrLen)) {}
 };
 
-template <size_t StrLen>
-class AtomicType<FixedLenStringArray<StrLen>> : public DataType {
-  public:
-    inline AtomicType() : DataType(create_string(StrLen)) {}
-};
-
 template <>
 inline AtomicType<std::complex<double> >::AtomicType() {
     static struct ComplexType : public Object {
@@ -179,61 +173,9 @@ inline AtomicType<std::complex<double> >::AtomicType() {
 // Other cases not supported. Fail early with a user message
 template <typename T>
 AtomicType<T>::AtomicType() {
-    static_assert(details::array_dims<T>::value == 0,
-                  "Atomic types cant be arrays, except for char[] (fixed-len strings)");
-    static_assert(details::array_dims<T>::value > 0, "Type not supported");
+    static_assert(true, "Type not supported");
 }
 
-
-// class FixedLenStringArray<N>
-
-template <std::size_t N>
-inline FixedLenStringArray<N>
-::FixedLenStringArray(const char array[][N], std::size_t length) {
-    datavec.resize(length);
-    std::memcpy(datavec[0].data(), array[0].data(), N * length);
-}
-
-template <std::size_t N>
-inline FixedLenStringArray<N>
-::FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end) {
-    datavec.resize(static_cast<std::size_t>(iter_end - iter_begin));
-    for (auto& dst_array : datavec) {
-        const char* src = (iter_begin++)->c_str();
-        const size_t length = std::min(N - 1 , std::strlen(src));
-        std::memcpy(dst_array.data(), src, length);
-        dst_array[length] = 0;
-    }
-}
-
-template <std::size_t N>
-inline FixedLenStringArray<N>
-::FixedLenStringArray(const std::vector<std::string> & vec)
-    : FixedLenStringArray(&vec.front(), &vec.back()) {}
-
-template <std::size_t N>
-inline FixedLenStringArray<N>
-::FixedLenStringArray(const std::initializer_list<std::string>& init_list)
-    : FixedLenStringArray(init_list.begin(), init_list.end()) {}
-
-template <std::size_t N>
-inline void FixedLenStringArray<N>::push_back(const std::string& src) {
-    datavec.emplace_back();
-    const size_t length = std::min(N - 1 , src.length());
-    std::memcpy(datavec.back().data(), src.c_str(), length);
-    datavec.back()[length] = 0;
-}
-
-template <std::size_t N>
-inline void FixedLenStringArray<N>::push_back(const std::array<char, N>& src) {
-    datavec.emplace_back();
-    std::copy(src.begin(), src.end(), datavec.back().data());
-}
-
-template <std::size_t N>
-inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
-    return std::string(datavec[i].data());
-}
 
 // Internal
 // Reference mapping
@@ -404,7 +346,6 @@ inline DataType create_datatype() {
 /// \brief Create a DataType instance representing type T and perform a sanity check on its size
 template <typename T>
 inline DataType create_and_check_datatype() {
-
     DataType t = create_datatype<T>();
     if (t.empty()) {
         throw DataTypeException("Type given to create_and_check_datatype is not valid");

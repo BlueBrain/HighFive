@@ -87,7 +87,7 @@ class SliceTraits {
     /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
-    void read(T& array) const;
+    T read() const;
 
     ///
     /// Read the entire dataset into a raw buffer
@@ -121,7 +121,6 @@ class SliceTraits {
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
-
 };
 
 }  // namespace HighFive

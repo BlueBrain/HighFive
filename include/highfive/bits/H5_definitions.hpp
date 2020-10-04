@@ -38,9 +38,6 @@ class AtomicType;
 template <typename Derivate>
 class AnnotateTraits;
 
-template <std::size_t N>
-class FixedLenStringArray;
-
 template <typename Derivate>
 class NodeTraits;
 
@@ -52,8 +49,8 @@ class PropertyList;
 
 namespace details {
 
-// Forward declaration of data_converter with default value of Enable
-template <typename T, typename Enable = void>
+// Forward declaration of data_converter
+template <typename T>
 struct data_converter;
 
 }

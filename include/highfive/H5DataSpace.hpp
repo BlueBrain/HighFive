@@ -107,50 +107,9 @@ class DataSpace : public Object {
     /// associated dataset maximum dimension
     std::vector<size_t> getMaxDimensions() const;
 
-    /// Create a dataspace matching a single element of a basic type
-    ///  supported type are integrals (int,long), floating points (float,double)
-    ///  and std::string
-    template <typename ScalarValue>
-    static DataSpace From(const ScalarValue& scalar_value);
-
-    /// Create a dataspace matching the container dimensions and size
-    /// Supported Containers are:
-    ///  - vector of fundamental types
-    ///  - vector of std::string
-    ///  - boost::multi_array (with H5_USE_BOOST defined)
-    template <typename Value>
-    static DataSpace From(const std::vector<Value>& container);
-
-    /// Create a dataspace matching the container dimensions for a
-    /// std::array.
-    template <typename Value, std::size_t N>
-    static DataSpace From(const std::array<Value, N>&);
-
-    template <typename ValueT, std::size_t N>
-    static DataSpace From(const ValueT(&container)[N]);
-
-    template <std::size_t N, std::size_t Width>
-    static DataSpace FromCharArrayStrings(const char(&)[N][Width]);
-
-#ifdef H5_USE_BOOST
-    template <typename Value, std::size_t Dims>
-    static DataSpace From(const boost::multi_array<Value, Dims>& container);
-
-    template <typename Value>
-    static DataSpace From(const boost::numeric::ublas::matrix<Value>& mat);
-#endif
-
-#ifdef H5_USE_EIGEN
-    template <typename Value, int M, int N>
-    static DataSpace From(const Eigen::Matrix<Value, M, N>& mat);
-
-    template <typename Value, int M, int N>
-    static DataSpace From(const std::vector<Eigen::Matrix<Value, M, N>>& vec);
-#ifdef H5_USE_BOOST
-    template <typename Value, int M, int N, size_t Dims>
-    static DataSpace From(const boost::multi_array<Eigen::Matrix<Value, M, N>, Dims>& vec);
-#endif
-#endif
+    /// Create a dataspace matching a value of any type
+    template <typename T>
+    static DataSpace From(const T& value);
 
   protected:
     DataSpace() = default;

@@ -37,8 +37,7 @@ int main(void) {
         dataset.write(values);
 
         // now we read back 2x2 values after an offset of 0x2
-        std::vector<std::vector<double>> result;
-        dataset.select({0, 2}, {2, 2}).read(result);
+        auto result = dataset.select({0, 2}, {2, 2}).read<std::vector<std::vector<double>>>();
 
         // we print out 4 values
         for (auto i : result) {

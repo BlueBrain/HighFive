@@ -134,8 +134,7 @@ struct io_impl<
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
         std::vector<typename T::Index> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
-        T data(dims[0], dims[1]);
-        attribute.read(data.data());
+        auto data = attribute.read<T>();
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }
