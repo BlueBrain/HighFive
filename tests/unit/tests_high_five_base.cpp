@@ -333,8 +333,6 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         d1_ptr.reset();
 
         double values[10][10];
-        memset(values, 255, 10 * 10);
-
         d2.read(values);
 
         for (std::size_t i = 0; i < 10; ++i) {
