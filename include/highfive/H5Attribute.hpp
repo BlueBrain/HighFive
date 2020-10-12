@@ -65,7 +65,7 @@ class Attribute : public Object {
     /// Read the attribute into a buffer
     ///
     template <typename T>
-    void read(T* array) const;
+    void read(T* array, const DataType& dtype = DataType()) const;
 
     ///
     /// Write the integrality N-dimension buffer to this attribute
@@ -81,7 +81,7 @@ class Attribute : public Object {
     /// Write a buffer to this attribute
     ///
     template <typename T>
-    void write_raw(const T& buffer);
+    void write_raw(const T* buffer, const DataType& dtype = DataType());
 
   private:
     Attribute() = default;

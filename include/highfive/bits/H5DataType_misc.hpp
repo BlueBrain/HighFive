@@ -406,10 +406,15 @@ template <typename T>
 inline DataType create_and_check_datatype() {
 
     DataType t = create_datatype<T>();
+    if (t.empty()) {
+        throw DataTypeException("Type given to create_and_check_datatype is not valid");
+    }
+
     // Skip check if the base type is a variable length string
     if (t.isVariableStr()) {
         return t;
     }
+
     // Check that the size of the template type matches the size that HDF5 is
     // expecting.
     if(!t.isReference() && (sizeof(T) != t.getSize())) {

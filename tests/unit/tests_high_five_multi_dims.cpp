@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(MultiArray3D, T, numerical_test_types) {
 
 template <typename T>
 void ublas_matrix_Test() {
-    typedef typename boost::numeric::ublas::matrix<T> Matrix;
+    using Matrix = boost::numeric::ublas::matrix<T>;
 
     std::ostringstream filename;
     filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
