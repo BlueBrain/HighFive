@@ -199,12 +199,9 @@ DataSpace::From(const Eigen::Matrix<Value, M, N>&  mat ) {
 template <typename Value, int M, int N>
 inline DataSpace
 DataSpace::From(const std::vector<Eigen::Matrix<Value, M, N>>& vec) {
-    using elem_t = Eigen::Matrix<Value, M, N>;
     std::vector<size_t> dims{
-        std::accumulate(vec.begin(), vec.end(), size_t{0u},
-                        [](size_t so_far, const elem_t& v) {
-                            return so_far + static_cast<size_t>(v.rows());
-                        }),
+        vec.size(),
+        static_cast<size_t>(vec[0].rows()),
         static_cast<size_t>(vec[0].cols())};
     return DataSpace(dims);
 }
@@ -214,7 +211,8 @@ template <typename Value, int M, int N, size_t Dims>
 inline DataSpace DataSpace::
 From(const boost::multi_array<Eigen::Matrix<Value, M, N>, Dims>& vec) {
     std::vector<size_t> dims(vec.shape(), vec.shape() + Dims);
-    dims[Dims - 1] *= static_cast<size_t>(vec.origin()->rows() * vec.origin()->cols());
+    dims.push_back(static_cast<size_t>(vec.origin()->rows()));
+    dims.push_back(static_cast<size_t>(vec.origin()->cols()));
     return DataSpace(dims);
 }
 #endif

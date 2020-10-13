@@ -38,62 +38,89 @@ class FixedLenStringArray;
 
 
 namespace details {
-
-// determine at compile time number of dimensions of in memory datasets
 template <typename T>
-struct array_dims {
-    static constexpr size_t value = 0;
+struct manipulator {
+    using type = T;
+
+    static const size_t n_dims = 0;
+    static const size_t r_n_dims = n_dims;
 };
 
-template <std::size_t N>
-struct array_dims<FixedLenStringArray<N>> {
-    static constexpr size_t value = 1;
-};
+template <size_t N>
+struct manipulator<FixedLenStringArray<N>> {
+    using type = FixedLenStringArray<N>;
 
-template <typename T>
-struct array_dims<std::vector<T> > {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-template <typename T>
-struct array_dims<T*> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-template <typename T, std::size_t N>
-struct array_dims<T[N]> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-// Only supporting 1D arrays at the moment
-template<typename T, std::size_t N>
-struct array_dims<std::array<T,N>> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-#ifdef H5_USE_BOOST
-template <typename T, std::size_t Dims>
-struct array_dims<boost::multi_array<T, Dims> > {
-    static constexpr size_t value = Dims;
+    static const size_t n_dims = 1;
+    static const size_t r_n_dims = n_dims;
 };
 
 template <typename T>
-struct array_dims<boost::numeric::ublas::matrix<T> > {
-    static constexpr size_t value = 2;
+struct manipulator<std::vector<T>> {
+    using type = std::vector<T>;
+    using value_type = T;
+
+    static const size_t n_dims = 1;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
 };
-#endif
+
+template <typename T>
+struct manipulator<T*> {
+    using type = T*;
+    using value_type = T;
+
+    static const size_t n_dims = 1;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+};
+
+template <typename T, size_t N>
+struct manipulator<T[N]> {
+    using type = T[N];
+    using value_type = T;
+
+    static const size_t n_dims = 1;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+};
+
+template <typename T, size_t N>
+struct manipulator<std::array<T, N>> {
+    using type = std::array<T, N>;
+    using value_type = T;
+
+    static const size_t n_dims = 1;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+};
 
 #ifdef H5_USE_EIGEN
-template<typename T, int M, int N>
-struct array_dims<Eigen::Matrix<T, M, N>> {
-    static constexpr size_t value = 2;
-};
+template <typename T, int M, int N>
+struct manipulator<Eigen::Matrix<T, M, N>> {
+    using type = Eigen::Matrix<T, M, N>;
+    using value_type = T;
 
-template<typename T, int M, int N>
-struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
-    static constexpr size_t value = 2;
+    static const size_t n_dims = 2;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
 };
 #endif
+
+#ifdef H5_USE_BOOST
+template <typename T, size_t Dims>
+struct manipulator<boost::multi_array<T, Dims>> {
+    using type = boost::multi_array<T, Dims>;
+    using value_type = T;
+
+    static const size_t n_dims = Dims;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+};
+
+template <typename T>
+struct manipulator<boost::numeric::ublas::matrix<T>> {
+    using type = boost::numeric::ublas::matrix<T>;
+    using value_type = T;
+
+    static const size_t n_dims = 2;
+    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+};
+#endif
+
 
 // determine recursively the size of each dimension of a N dimension vector
 template <typename T>
