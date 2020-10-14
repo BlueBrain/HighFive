@@ -39,85 +39,85 @@ class FixedLenStringArray;
 
 namespace details {
 template <typename T>
-struct manipulator {
+struct inspector {
     using type = T;
 
-    static const size_t n_dims = 0;
-    static const size_t r_n_dims = n_dims;
+    static constexpr size_t number_dimensions = 0;
+    static constexpr size_t recursive_number_dimensions = number_dimensions;
 };
 
 template <size_t N>
-struct manipulator<FixedLenStringArray<N>> {
+struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
 
-    static const size_t n_dims = 1;
-    static const size_t r_n_dims = n_dims;
+    static constexpr size_t number_dimensions = 1;
+    static constexpr size_t recursive_number_dimensions = number_dimensions;
 };
 
 template <typename T>
-struct manipulator<std::vector<T>> {
+struct inspector<std::vector<T>> {
     using type = std::vector<T>;
     using value_type = T;
 
-    static const size_t n_dims = 1;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 1;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 
 template <typename T>
-struct manipulator<T*> {
+struct inspector<T*> {
     using type = T*;
     using value_type = T;
 
-    static const size_t n_dims = 1;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 1;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 
 template <typename T, size_t N>
-struct manipulator<T[N]> {
+struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
 
-    static const size_t n_dims = 1;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 1;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 
 template <typename T, size_t N>
-struct manipulator<std::array<T, N>> {
+struct inspector<std::array<T, N>> {
     using type = std::array<T, N>;
     using value_type = T;
 
-    static const size_t n_dims = 1;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 1;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 
 #ifdef H5_USE_EIGEN
 template <typename T, int M, int N>
-struct manipulator<Eigen::Matrix<T, M, N>> {
+struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
 
-    static const size_t n_dims = 2;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 2;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 #endif
 
 #ifdef H5_USE_BOOST
 template <typename T, size_t Dims>
-struct manipulator<boost::multi_array<T, Dims>> {
+struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
 
-    static const size_t n_dims = Dims;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = Dims;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 
 template <typename T>
-struct manipulator<boost::numeric::ublas::matrix<T>> {
+struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
 
-    static const size_t n_dims = 2;
-    static const size_t r_n_dims = n_dims + manipulator<value_type>::r_n_dims;
+    static constexpr size_t number_dimensions = 2;
+    static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
 };
 #endif
 
