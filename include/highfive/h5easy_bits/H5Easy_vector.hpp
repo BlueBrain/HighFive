@@ -22,7 +22,6 @@ struct is_vector : std::false_type {};
 template <class T>
 struct is_vector<std::vector<T>> : std::true_type {};
 
-using HighFive::details::get_dim_vector;
 using HighFive::details::inspector;
 
 template <typename T>
@@ -33,7 +32,8 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                const T& data,
                                const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
-        DataSet dataset = initDataset<value_type>(file, path, get_dim_vector(data), options);
+        auto dims = inspector<T>::getDimensions(data);
+        DataSet dataset = initDataset<value_type>(file, path, std::vector<size_t>(dims.begin(), dims.end()), options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -54,7 +54,8 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                          const T& data,
                                          const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
-        std::vector<size_t> shape = get_dim_vector(data);
+        auto dims = inspector<T>::getDimensions(data);
+        std::vector<size_t> shape(dims.begin(), dims.end());
         Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
         if (options.flush()) {

@@ -49,6 +49,10 @@ struct inspector {
 
     static constexpr size_t number_dimensions = 0;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_number_dimensions>{};
+    }
 };
 
 template <size_t N>
@@ -58,6 +62,10 @@ struct inspector<FixedLenStringArray<N>> {
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        return std::array<size_t, recursive_number_dimensions>{val.size()};
+    }
 };
 
 template <typename T>
@@ -68,6 +76,15 @@ struct inspector<std::vector<T>> {
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes{val.size()};
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
 template <typename T>
@@ -78,6 +95,10 @@ struct inspector<T*> {
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& /* val */) {
+        throw std::string("Not possible to have size of a T*");
+    }
 };
 
 template <typename T, size_t N>
@@ -88,6 +109,15 @@ struct inspector<T[N]> {
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes{N};
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
 template <typename T, size_t N>
@@ -98,6 +128,15 @@ struct inspector<std::array<T, N>> {
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes{N};
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
 #ifdef H5_USE_EIGEN
@@ -109,6 +148,15 @@ struct inspector<Eigen::Matrix<T, M, N>> {
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 #endif
 
@@ -121,6 +169,19 @@ struct inspector<boost::multi_array<T, Dims>> {
 
     static constexpr size_t number_dimensions = Dims;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes;
+        for (size_t i = 0; i < number_dimensions; ++i) {
+            sizes[i] = val.shape()[i];
+        }
+
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
 template <typename T>
@@ -131,41 +192,17 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        std::array<size_t, recursive_number_dimensions> sizes{val.size1(), val.size2()};
+        size_t index = number_dimensions;
+        for (const auto& s: inspector<value_type>::getDimensions(val(0, 0))) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 #endif
-
-
-// determine recursively the size of each dimension of a N dimension vector
-template <typename T>
-inline void get_dim_vector_rec(const T& /*vec*/, std::vector<size_t>& /*dims*/) {}
-
-template <typename T>
-inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
-    dims.push_back(vec.size());
-    get_dim_vector_rec(vec[0], dims);
-}
-
-template <typename T>
-inline std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
-    std::vector<size_t> dims;
-    get_dim_vector_rec(vec, dims);
-    return dims;
-}
-
-// determine recursively the size of each dimension of a N dimension vector
-template <typename T, std::size_t N>
-inline void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
-    dims.push_back(N);
-    get_dim_vector_rec(vec[0], dims);
-}
-
-template <typename T, std::size_t N>
-inline std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
-    std::vector<size_t> dims;
-    get_dim_vector_rec(vec, dims);
-    return dims;
-}
-
 
 
 // Find the type of an eventual char array, otherwise void

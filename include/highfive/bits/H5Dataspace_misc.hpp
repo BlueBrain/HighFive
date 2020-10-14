@@ -150,12 +150,14 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
 
 template <typename Value>
 inline DataSpace DataSpace::From(const std::vector<Value>& container) {
-    return DataSpace(details::get_dim_vector<Value>(container));
+    auto dims = details::inspector<std::vector<Value>>::getDimensions(container);
+    return DataSpace(std::vector<size_t>(dims.begin(), dims.end()));
 }
 
 template <typename ValueT, std::size_t N>
 inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
-    return DataSpace(details::get_dim_vector(container));
+    auto dims = details::inspector<ValueT[N]>::getDimensions(container);
+    return DataSpace(std::vector<size_t>(dims.begin(), dims.end()));
 }
 
 template <std::size_t N, std::size_t Width>
