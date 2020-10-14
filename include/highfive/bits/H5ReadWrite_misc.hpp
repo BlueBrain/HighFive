@@ -17,7 +17,7 @@ namespace details {
 template <typename T>
 struct BufferInfo {
     using type_no_const = typename std::remove_const<T>::type;
-    using elem_type = typename details::inspector<type_no_const>::hdf5_type;
+    using elem_type = typename details::inspector<type_no_const>::base_type;
     using char_array_t = typename details::type_char_array<type_no_const>::type;
     static constexpr bool is_char_array = ! std::is_same<char_array_t, void>::value;
 

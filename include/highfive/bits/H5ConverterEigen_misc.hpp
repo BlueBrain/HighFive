@@ -126,7 +126,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename inspector<T>::hdf5_type> _vec_align;
+    std::vector<typename inspector<T>::base_type> _vec_align;
     const DataSpace& _space;
 };
 
@@ -179,7 +179,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
 
     std::vector<size_t> _dims;
     const DataSpace& _space;
-    std::vector<typename inspector<T>::hdf5_type> _vec_align;
+    std::vector<typename inspector<T>::base_type> _vec_align;
 };
 #endif  // H5_USE_BOOST
 

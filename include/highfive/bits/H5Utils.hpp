@@ -45,7 +45,7 @@ namespace details {
 template <typename T>
 struct inspector {
     using type = T;
-    using hdf5_type = unqualified_t<T>;
+    using base_type = unqualified_t<T>;
 
     static constexpr size_t number_dimensions = 0;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -54,7 +54,7 @@ struct inspector {
 template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
-    using hdf5_type = FixedLenStringArray<N>;
+    using base_type = FixedLenStringArray<N>;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -64,7 +64,7 @@ template <typename T>
 struct inspector<std::vector<T>> {
     using type = std::vector<T>;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -74,7 +74,7 @@ template <typename T>
 struct inspector<T*> {
     using type = T*;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -84,7 +84,7 @@ template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -94,7 +94,7 @@ template <typename T, size_t N>
 struct inspector<std::array<T, N>> {
     using type = std::array<T, N>;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -105,7 +105,7 @@ template <typename T, int M, int N>
 struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -117,7 +117,7 @@ template <typename T, size_t Dims>
 struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = Dims;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -127,7 +127,7 @@ template <typename T>
 struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
