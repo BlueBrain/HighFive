@@ -51,7 +51,7 @@ struct inspector {
     static constexpr size_t recursive_number_dimensions = number_dimensions;
 
     static std::array<size_t, recursive_number_dimensions> getDimensions(const type& /* val */) {
-        return std::array<size_t, recursive_number_dimensions>{};
+        return std::array<size_t, recursive_number_dimensions>();
     }
 };
 
