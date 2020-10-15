@@ -46,6 +46,21 @@ template <typename T>
 struct inspector {
     using type = T;
     using base_type = unqualified_t<T>;
+    using datatype = type;
+
+    static constexpr size_t number_dimensions = 0;
+    static constexpr size_t recursive_number_dimensions = number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_number_dimensions>();
+    }
+};
+
+template<>
+struct inspector<std::string> {
+    using type = std::string;
+    using base_type = const char*;
+    using datatype = type;
 
     static constexpr size_t number_dimensions = 0;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -59,6 +74,7 @@ template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
     using base_type = FixedLenStringArray<N>;
+    using datatype = type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -73,6 +89,7 @@ struct inspector<std::vector<T>> {
     using type = std::vector<T>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -92,6 +109,7 @@ struct inspector<T*> {
     using type = T*;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -101,11 +119,26 @@ struct inspector<T*> {
     }
 };
 
+template <size_t N>
+struct inspector<const char[N]> {
+    using type = char[N];
+    using base_type = type;
+    using datatype = type;
+
+    static constexpr size_t number_dimensions = 0;
+    static constexpr size_t recursive_number_dimensions = number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        return std::array<size_t, recursive_number_dimensions>();
+    }
+};
+
 template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -125,6 +158,7 @@ struct inspector<std::array<T, N>> {
     using type = std::array<T, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -145,6 +179,7 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -166,6 +201,7 @@ struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = Dims;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -189,6 +225,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using datatype = typename inspector<value_type>::datatype;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;

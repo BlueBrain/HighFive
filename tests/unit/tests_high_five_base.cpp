@@ -1466,10 +1466,11 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedString) {
     }
 
     {  // Cant convert flex-length to fixed-length
-        const char* buffer[] = {"abcd", "1234"};
-        SilenceHDF5 silencer;
-        BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
-                          HighFive::DataSetException);
+       // From now error at compilation
+       // const char* buffer[] = {"abcd", "1234"};
+       // SilenceHDF5 silencer;
+       // BOOST_CHECK_THROW(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
+       //                   HighFive::DataSetException);
     }
 
     {  // scalar char strings
