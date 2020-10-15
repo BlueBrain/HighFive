@@ -180,7 +180,7 @@ inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
     const auto& slice = static_cast<const Derivate&>(*this);
-    using element_type = typename details::type_of_array<T>::type;
+    using element_type = typename details::inspector<T>::base_type;
 
     // Auto-detect mem datatype if not provided
     const DataType& mem_datatype =
@@ -216,7 +216,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dtype) {
-    using element_type = typename details::type_of_array<T>::type;
+    using element_type = typename details::inspector<T>::base_type;
     const auto& slice = static_cast<const Derivate&>(*this);
     const auto& mem_datatype =
         dtype.empty() ? create_and_check_datatype<element_type>() : dtype;

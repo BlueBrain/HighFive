@@ -37,10 +37,15 @@ template <std::size_t N>
 class FixedLenStringArray;
 
 
+template <typename T>
+using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
+        >::type;
+
 namespace details {
 template <typename T>
 struct inspector {
     using type = T;
+    using base_type = unqualified_t<T>;
 
     static constexpr size_t number_dimensions = 0;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -49,6 +54,7 @@ struct inspector {
 template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
+    using base_type = FixedLenStringArray<N>;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions;
@@ -58,6 +64,7 @@ template <typename T>
 struct inspector<std::vector<T>> {
     using type = std::vector<T>;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -67,6 +74,7 @@ template <typename T>
 struct inspector<T*> {
     using type = T*;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -76,6 +84,7 @@ template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -85,6 +94,7 @@ template <typename T, size_t N>
 struct inspector<std::array<T, N>> {
     using type = std::array<T, N>;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 1;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -95,6 +105,7 @@ template <typename T, int M, int N>
 struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -106,6 +117,7 @@ template <typename T, size_t Dims>
 struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = Dims;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -115,6 +127,7 @@ template <typename T>
 struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
     static constexpr size_t number_dimensions = 2;
     static constexpr size_t recursive_number_dimensions = number_dimensions + inspector<value_type>::recursive_number_dimensions;
@@ -153,55 +166,6 @@ inline std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
     return dims;
 }
 
-
-template <typename T>
-using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
-        >::type;
-
-// determine at compile time recursively the basic type of the data
-template <typename T>
-struct type_of_array {
-    typedef unqualified_t<T> type;
-};
-
-template <typename T>
-struct type_of_array<std::vector<T>> {
-    typedef typename type_of_array<T>::type type;
-};
-
-template <typename T, std::size_t N>
-struct type_of_array<std::array<T, N>> {
-    typedef typename type_of_array<T>::type type;
-};
-
-#ifdef H5_USE_BOOST
-template <typename T, std::size_t Dims>
-struct type_of_array<boost::multi_array<T, Dims>> {
-    typedef typename type_of_array<T>::type type;
-};
-
-template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T>> {
-    typedef typename type_of_array<T>::type type;
-};
-#endif
-
-#ifdef H5_USE_EIGEN
-template<typename T, int M, int N>
-struct type_of_array<Eigen::Matrix<T, M, N>> {
-    typedef T type;
-};
-#endif
-
-template <typename T>
-struct type_of_array<T*> {
-    typedef typename type_of_array<T>::type type;
-};
-
-template <typename T, std::size_t N>
-struct type_of_array<T[N]> {
-    typedef typename type_of_array<T>::type type;
-};
 
 
 // Find the type of an eventual char array, otherwise void

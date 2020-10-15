@@ -51,7 +51,7 @@ AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
     Attribute att = createAttribute(
         attribute_name, 
         DataSpace::From(data),
-        create_and_check_datatype<typename details::type_of_array<T>::type>());
+        create_and_check_datatype<typename details::inspector<T>::base_type>());
     att.write(data);
     return att;
 }

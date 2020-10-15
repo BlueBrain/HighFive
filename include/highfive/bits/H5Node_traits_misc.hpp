@@ -71,7 +71,7 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        create_and_check_datatype<typename details::type_of_array<T>::type>(),
+        create_and_check_datatype<typename details::inspector<T>::base_type>(),
         createProps, accessProps);
     ds.write(data);
     return ds;

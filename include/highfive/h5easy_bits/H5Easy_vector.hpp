@@ -23,7 +23,7 @@ template <class T>
 struct is_vector<std::vector<T>> : std::true_type {};
 
 using HighFive::details::get_dim_vector;
-using HighFive::details::type_of_array;
+using HighFive::details::inspector;
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
@@ -32,7 +32,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
-        using value_type = typename type_of_array<T>::type;
+        using value_type = typename inspector<T>::base_type;
         DataSet dataset = initDataset<value_type>(file, path, get_dim_vector(data), options);
         dataset.write(data);
         if (options.flush()) {
@@ -53,7 +53,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                          const std::string& key,
                                          const T& data,
                                          const DumpOptions& options) {
-        using value_type = typename type_of_array<T>::type;
+        using value_type = typename inspector<T>::base_type;
         std::vector<size_t> shape = get_dim_vector(data);
         Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
         attribute.write(data);
