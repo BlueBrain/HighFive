@@ -58,20 +58,20 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSetAccessProps& accessProps)
 {
     return createDataSet(dataset_name, space,
-                         create_and_check_datatype<Type>(),
+                         create_and_check_datatype<typename details::inspector<Type>::datatype>(),
                          createProps, accessProps);
 }
 
 template <typename Derivate>
-template <typename T>
+template <typename Type>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                    const T& data,
+                                    const Type& data,
                                     const DataSetCreateProps& createProps,
                                     const DataSetAccessProps& accessProps) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        create_and_check_datatype<typename details::inspector<T>::base_type>(),
+        create_and_check_datatype<typename details::inspector<Type>::datatype>(),
         createProps, accessProps);
     ds.write(data);
     return ds;

@@ -64,10 +64,10 @@ class NodeTraits {
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
     /// \return DataSet Object
-    template <typename T>
+    template <typename Type>
     DataSet
     createDataSet(const std::string& dataset_name,
-                  const T& data,
+                  const Type& data,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
                   const DataSetAccessProps& accessProps = DataSetAccessProps());
 
