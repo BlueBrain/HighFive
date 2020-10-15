@@ -120,10 +120,24 @@ struct inspector<T*> {
 };
 
 template <size_t N>
-struct inspector<const char[N]> {
+struct inspector<char[N]> {
     using type = char[N];
     using base_type = type;
     using datatype = type;
+
+    static constexpr size_t number_dimensions = 0;
+    static constexpr size_t recursive_number_dimensions = number_dimensions;
+
+    static std::array<size_t, recursive_number_dimensions> getDimensions(const type& val) {
+        return std::array<size_t, recursive_number_dimensions>();
+    }
+};
+
+template <size_t N>
+struct inspector<const char[N]> {
+    using type = const char[N];
+    using base_type = type;
+    using datatype = char[N];
 
     static constexpr size_t number_dimensions = 0;
     static constexpr size_t recursive_number_dimensions = number_dimensions;

@@ -58,9 +58,7 @@ inline static DataType getDataType(const DataType&, bool ds_fixed_str) {
 template <typename T>
 BufferInfo<T>::BufferInfo(const DataType& dtype)
     : is_fixed_len_string(dtype.isFixedLenStr())
-    // In case we are using Fixed-len strings we need to subtract one dimension
-    , n_dimensions(details::inspector<type_no_const>::recursive_number_dimensions -
-                   ((is_fixed_len_string && is_char_array) ? 1 : 0))
+    , n_dimensions(details::inspector<type_no_const>::recursive_number_dimensions)
     , data_type(string_type_checker<char_array_t>::getDataType(
             create_datatype<elem_type>(), is_fixed_len_string)) {
     if (is_fixed_len_string && std::is_same<elem_type, std::string>::value) {
