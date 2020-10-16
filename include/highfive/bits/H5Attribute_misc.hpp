@@ -59,7 +59,7 @@ inline void Attribute::read(T& array) const {
     static_assert(!std::is_const<typename std::remove_reference<T>::type>::value,
                   "read() requires a non-const array to read into");
     using element_type = typename details::inspector<T>::base_type;
-    const size_t dim_array = details::inspector<T>::r_ndims;
+    const size_t dim_array = details::inspector<T>::recursive_ndim;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 
@@ -102,7 +102,7 @@ inline void Attribute::read(T* array, const DataType& dtype) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     using element_type = typename details::inspector<T>::base_type;
-    const size_t dim_buffer = details::inspector<T>::r_ndims;
+    const size_t dim_buffer = details::inspector<T>::recursive_ndim;
     DataSpace space = getSpace();
     DataSpace mem_space = getMemSpace();
 

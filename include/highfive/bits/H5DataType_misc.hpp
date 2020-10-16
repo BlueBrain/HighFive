@@ -179,9 +179,9 @@ inline AtomicType<std::complex<double> >::AtomicType() {
 // Other cases not supported. Fail early with a user message
 template <typename T>
 AtomicType<T>::AtomicType() {
-    static_assert(details::inspector<T>::r_ndims == 0,
+    static_assert(details::inspector<T>::recursive_ndim == 0,
                   "Atomic types cant be arrays, except for char[] (fixed-len strings)");
-    static_assert(details::inspector<T>::r_ndims > 0, "Type not supported");
+    static_assert(details::inspector<T>::recursive_ndim > 0, "Type not supported");
 }
 
 

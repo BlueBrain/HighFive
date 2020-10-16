@@ -47,11 +47,11 @@ struct inspector {
     using type = T;
     using base_type = unqualified_t<T>;
 
-    static constexpr size_t ndims = 0;
-    static constexpr size_t r_ndims = ndims;
+    static constexpr size_t ndim = 0;
+    static constexpr size_t recursive_ndim = ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& /* val */) {
-        return std::array<size_t, r_ndims>();
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_ndim>();
     }
 };
 
@@ -60,11 +60,11 @@ struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
     using base_type = FixedLenStringArray<N>;
 
-    static constexpr size_t ndims = 1;
-    static constexpr size_t r_ndims = ndims;
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        return std::array<size_t, r_ndims>{val.size()};
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        return std::array<size_t, recursive_ndim>{val.size()};
     }
 };
 
@@ -74,12 +74,12 @@ struct inspector<std::vector<T>> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 1;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes{val.size()};
-        size_t index = ndims;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{val.size()};
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
             sizes[index++] = s;
         }
@@ -93,10 +93,10 @@ struct inspector<T*> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 1;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& /* val */) {
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         throw std::string("Not possible to have size of a T*");
     }
 };
@@ -107,12 +107,12 @@ struct inspector<T[N]> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 1;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes{N};
-        size_t index = ndims;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{N};
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
             sizes[index++] = s;
         }
@@ -126,12 +126,12 @@ struct inspector<std::array<T, N>> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 1;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes{N};
-        size_t index = ndims;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{N};
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
             sizes[index++] = s;
         }
@@ -146,12 +146,12 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 2;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 2;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
-        size_t index = ndims;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
             sizes[index++] = s;
         }
@@ -167,16 +167,16 @@ struct inspector<boost::multi_array<T, Dims>> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = Dims;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = Dims;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes;
-        for (size_t i = 0; i < ndims; ++i) {
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes;
+        for (size_t i = 0; i < ndim; ++i) {
             sizes[i] = val.shape()[i];
         }
 
-        size_t index = ndims;
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
             sizes[index++] = s;
         }
@@ -190,12 +190,12 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
-    static constexpr size_t ndims = 2;
-    static constexpr size_t r_ndims = ndims + inspector<value_type>::r_ndims;
+    static constexpr size_t ndim = 2;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-    static std::array<size_t, r_ndims> getDimensions(const type& val) {
-        std::array<size_t, r_ndims> sizes{val.size1(), val.size2()};
-        size_t index = ndims;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{val.size1(), val.size2()};
+        size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val(0, 0))) {
             sizes[index++] = s;
         }
