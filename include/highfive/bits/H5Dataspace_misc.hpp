@@ -23,6 +23,10 @@ namespace HighFive {
 inline DataSpace::DataSpace(const std::vector<size_t>& dims)
     : DataSpace(dims.begin(), dims.end()) {}
 
+template <size_t N>
+inline DataSpace::DataSpace(const std::array<size_t, N>& dims)
+    : DataSpace(dims.begin(), dims.end()) {}
+
 inline DataSpace::DataSpace(const std::initializer_list<size_t>& items)
     : DataSpace(std::vector<size_t>(items)) {}
 
@@ -151,13 +155,13 @@ inline DataSpace DataSpace::From(const ScalarValue& scalar) {
 template <typename Value>
 inline DataSpace DataSpace::From(const std::vector<Value>& container) {
     auto dims = details::inspector<std::vector<Value>>::getDimensions(container);
-    return DataSpace(std::vector<size_t>(dims.begin(), dims.end()));
+    return DataSpace(dims);
 }
 
 template <typename ValueT, std::size_t N>
 inline DataSpace DataSpace::From(const ValueT(&container)[N]) {
     auto dims = details::inspector<ValueT[N]>::getDimensions(container);
-    return DataSpace(std::vector<size_t>(dims.begin(), dims.end()));
+    return DataSpace(dims);
 }
 
 template <std::size_t N, std::size_t Width>
