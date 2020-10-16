@@ -55,6 +55,10 @@ class DataSpace : public Object {
     ///  etc...
     explicit DataSpace(const std::vector<size_t>& dims);
 
+    // create a dataspace of N-dimensions
+    template <size_t N>
+    explicit DataSpace(const std::array<size_t, N>& dims);
+
     /// Make sure that DataSpace({1,2,3}) works on GCC. This is
     /// the shortcut form of the vector initializer, but one some compilers (gcc)
     /// this does not resolve correctly without this constructor.
