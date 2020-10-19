@@ -35,7 +35,7 @@ option(HIGHFIVE_USE_OPENCV "Enable OpenCV testing" ${USE_OPENCV})
 option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
-option(HIGHFIVE_DOC "Enable documentation building" ON)
+option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 
 # In deplomyents we probably don't want/cant have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
@@ -115,6 +115,6 @@ if(HIGHFIVE_UNIT_TESTS)
   add_subdirectory(tests/unit)
 endif()
 
-if(HIGHFIVE_DOC)
+if(HIGHFIVE_BUILD_DOCS)
   add_subdirectory(doc)
 endif()
