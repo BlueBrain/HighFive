@@ -161,24 +161,24 @@ struct data_converter<CArray,
 };
 
 // Generic container converter
-template <typename Container, typename T = typename inspector<Container>::base_type>
+template <typename Container, typename T = typename inspector<Container>::element_type>
 struct container_converter {
-    typedef T value_type;
+    using value_type = T;
 
     inline container_converter(const DataSpace& space)
         : _space(space) {}
 
-    // Ship (pseudo)1D implementation
     inline value_type* transform_read(Container& vec) const {
         auto&& dims = _space.getDimensions();
-        if (!is_1D(dims))
-            throw DataSpaceException("Dataset cant be converted to 1D");
-        vec.resize(compute_total_size(dims));
-        return vec.data();
+        if (is_1D(dims)) { // This is a bad things, but keep for compatibility
+            dims = std::vector<size_t>{compute_total_size(dims)};
+        }
+        inspector<Container>::resize(vec, dims);
+        return inspector<Container>::first(vec);
     }
 
     inline const value_type* transform_write(const Container& vec) const noexcept {
-        return vec.data();
+        return inspector<Container>::first(vec);
     }
 
     inline void process_result(Container&) const noexcept {}
@@ -223,10 +223,6 @@ struct data_converter<
             throw DataSpaceException(ss.str());
         }
     }
-
-    inline T* transform_read(std::array<T, S>& vec) const noexcept {
-        return vec.data();
-    }
 };
 
 
@@ -236,18 +232,7 @@ template <typename T, std::size_t Dims>
 struct data_converter<boost::multi_array<T, Dims>, void>
     : public container_converter<boost::multi_array<T, Dims>> {
     using MultiArray = boost::multi_array<T, Dims>;
-    using value_type = typename inspector<T>::base_type;
     using container_converter<MultiArray>::container_converter;
-
-    inline value_type* transform_read(MultiArray& array) {
-        auto&& dims = this->_space.getDimensions();
-        if (std::equal(dims.begin(), dims.end(), array.shape()) == false) {
-            boost::array<typename MultiArray::index, Dims> ext;
-            std::copy(dims.begin(), dims.end(), ext.begin());
-            array.resize(ext);
-        }
-        return array.data();
-    }
 };
 
 
@@ -256,24 +241,9 @@ template <typename T>
 struct data_converter<boost::numeric::ublas::matrix<T>, void>
     : public container_converter<boost::numeric::ublas::matrix<T>> {
     using Matrix = boost::numeric::ublas::matrix<T>;
-    using value_type = typename inspector<T>::base_type;
 
     inline data_converter(const DataSpace& space) : container_converter<Matrix>(space) {
         assert(space.getDimensions().size() == 2);
-    }
-
-    inline value_type* transform_read(Matrix& array) {
-        boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
-        auto&& _dims = this->_space.getDimensions();
-        if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
-            array.resize(_dims[0], _dims[1], false);
-            array(0, 0) = 0; // force initialization
-        }
-        return &(array(0, 0));
-    }
-
-    inline const value_type* transform_write(const Matrix& array) const noexcept {
-        return &(array(0, 0));
     }
 };
 #endif

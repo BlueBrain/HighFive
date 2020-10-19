@@ -46,9 +46,18 @@ template <typename T>
 struct inspector {
     using type = T;
     using base_type = unqualified_t<T>;
+    using element_type = base_type;
 
     static constexpr size_t ndim = 0;
     static constexpr size_t recursive_ndim = ndim;
+
+    static void resize(type&, const std::vector<size_t>& dims) {
+        // if (dims.size() != 0) {
+        //     std::ostringstream ss;
+        //     ss << "Size mismatch for T";
+        //     throw DataSpaceException(ss.str());
+        // }
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         return std::array<size_t, recursive_ndim>();
@@ -59,9 +68,28 @@ template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
     using base_type = FixedLenStringArray<N>;
+    using element_type = char;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        if (dims.size() != 1) {
+            std::ostringstream ss;
+            ss << "Size mismatch for FixedLenStringArray";
+            throw DataSpaceException(ss.str());
+        }
+
+        value.resize(dims[0]);
+    }
+
+    static const element_type* first(const type& value) {
+        return value.data();
+    }
+
+    static element_type* first(type& value) {
+        return value.data();
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         return std::array<size_t, recursive_ndim>{val.size()};
@@ -73,9 +101,30 @@ struct inspector<std::vector<T>> {
     using type = std::vector<T>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        if (dims.size() < 1) {
+            std::ostringstream ss;
+            ss << "Size mismatch for std::vector";
+            throw DataSpaceException(ss.str());
+        }
+        value.resize(dims[0]);
+        for (auto& v: value) {
+            inspector<value_type>::resize(v, std::vector<size_t>(dims.begin() + ndim, dims.end()));
+        }
+    }
+
+    static const element_type* first(const type& value) {
+        return value.data();
+    }
+
+    static element_type* first(type& value) {
+        return value.data();
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{val.size()};
@@ -92,6 +141,7 @@ struct inspector<T*> {
     using type = T*;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -106,6 +156,7 @@ struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -125,9 +176,29 @@ struct inspector<std::array<T, N>> {
     using type = std::array<T, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        if (dims.size() < 1 || dims[0] != N) {
+            std::ostringstream ss;
+            ss << "Size mismatch for std::array";
+            throw DataSpaceException(ss.str());
+        }
+        for (auto& v: value) {
+            inspector<value_type>::resize(v, std::vector<size_t>(dims.begin() + ndim, dims.end()));
+        }
+    }
+
+    static const element_type* first(const type& value) {
+        return value.data();
+    }
+
+    static element_type* first(type& value) {
+        return value.data();
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{N};
@@ -145,9 +216,35 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        if (dims.size() != ndim) {
+            std::ostringstream ss;
+            ss << "Size mismatch for Eigen::Matrix";
+            throw DataSpaceException(ss.str());
+        }
+        if (dims[0] != static_cast<size_t>(value.rows()) ||
+            dims[1] != static_cast<size_t>(value.cols())) {
+            value.resize(static_cast<typename type::Index>(dims[0]),
+                         static_cast<typename type::Index>(dims[1]));
+        }
+
+        for (typename type::Index i = 0; i < static_cast<typename type::Index>(dims[0] * dims[1]); ++i) {
+            inspector<value_type>::resize(value(i), std::vector<size_t>(dims.begin() + ndim, dims.end()));
+        }
+    }
+
+    static const element_type* first(const type& value) {
+        return value.data();
+    }
+
+    static element_type* first(type& value) {
+        return value.data();
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
@@ -166,9 +263,26 @@ struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = Dims;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        if (!std::equal(dims.begin(), dims.end(), value.shape())) {
+            boost::array<typename type::index, Dims> ext;
+            std::copy(dims.begin(), dims.end(), ext.begin());
+            value.resize(ext);
+        }
+    }
+
+    static const element_type* first(const type& value) {
+        return value.data();
+    }
+
+    static element_type* first(type& value) {
+        return value.data();
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes;
@@ -189,9 +303,26 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using element_type = typename inspector<value_type>::element_type;
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void resize(type& value, const std::vector<size_t>& dims) {
+        boost::array<std::size_t, 2> sizes = {{value.size1(), value.size2()}};
+        if (std::equal(dims.begin(), dims.end(), sizes.begin()) == false) {
+            value.resize(dims[0], dims[1], false);
+            value(0, 0) = 0; // force initialization
+        }
+    }
+
+    static const element_type* first(const type& value) {
+        return &value(0, 0);
+    }
+
+    static element_type* first(type& value) {
+        return &value(0, 0);
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{val.size1(), val.size2()};
