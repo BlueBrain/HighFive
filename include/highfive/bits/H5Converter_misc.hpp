@@ -27,8 +27,8 @@
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
-#include "../H5Reference.hpp"
 #include "H5Utils.hpp"
+#include "../H5Reference.hpp"
 
 namespace HighFive {
 
@@ -253,7 +253,7 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void>
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
-    using value_type = typename inspector<T>::base_type;
+    using value_type = typename inspector<T>::element_type;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {}
@@ -275,14 +275,14 @@ struct data_converter<std::vector<T>,
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename inspector<T>::base_type> _vec_align;
+    std::vector<value_type> _vec_align;
 };
 
 
 // apply conversion to scalar string
 template <>
 struct data_converter<std::string, void> {
-    using value_type = const char*;  // char data is const, mutable pointer
+    using value_type = typename inspector<std::string>::element_type;  // char data is const, mutable pointer
 
     inline data_converter(const DataSpace& space) noexcept
         : _c_vec(nullptr)
@@ -317,7 +317,7 @@ struct data_converter<std::string, void> {
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
-    using value_type = const char*;
+    using value_type = typename inspector<std::vector<std::string>>::element_type;
 
     inline data_converter(const DataSpace& space) noexcept
         : _space(space) {}
@@ -362,8 +362,27 @@ struct data_converter<FixedLenStringArray<N>, void>
     using container_converter<FixedLenStringArray<N>, char>::container_converter;
 };
 
+template <typename T>
+struct storage {
+    void resize(size_t size) {
+        _vec_align.resize(size);
+    };
+
+    T* pointer() {
+        return _vec_align.data();
+    }
+
+    const T* pointer() const {
+        return _vec_align.data();
+    }
+
+    std::vector<T> _vec_align;
+};
+
 template <>
 struct data_converter<std::vector<Reference>, void> {
+    using element_type = typename inspector<std::vector<Reference>>::element_type;
+
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
         if (!is_1D(_dims)) {
@@ -371,30 +390,25 @@ struct data_converter<std::vector<Reference>, void> {
         }
     }
 
-    inline hobj_ref_t* transform_read(std::vector<Reference>& vec) {
+    inline element_type* transform_read(std::vector<Reference>& vec) {
         auto total_size = compute_total_size(_dims);
+        inspector<std::vector<Reference>>::resize(vec, std::vector<size_t>{total_size});
         _vec_align.resize(total_size);
-        vec.resize(total_size);
-        return _vec_align.data();
+        return _vec_align.pointer();
     }
 
-    inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
-        for (size_t i = 0; i < vec.size(); ++i) {
-            vec[i].create_ref(&_vec_align[i]);
-        }
-        return _vec_align.data();
+    inline const element_type* transform_write(const std::vector<Reference>& vec) {
+        _vec_align.resize(compute_total_size(_dims));
+        inspector<std::vector<Reference>>::to_file(vec, _vec_align.pointer());
+        return _vec_align.pointer();
     }
 
     inline void process_result(std::vector<Reference>& vec) const {
-        auto* href = const_cast<hobj_ref_t*>(_vec_align.data());
-        for (auto& ref : vec) {
-            ref = Reference(*(href++));
-        }
+        inspector<std::vector<Reference>>::from_file(_vec_align.pointer(), vec);
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename inspector<hobj_ref_t>::base_type> _vec_align;
+    storage<element_type> _vec_align;
 };
 
 }  // namespace details

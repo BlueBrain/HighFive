@@ -64,6 +64,33 @@ inline Object Reference::get_ref(const Object& location) const {
     return Object(res);
 }
 
+namespace details {
+template <>
+struct inspector<Reference> {
+    using type = Reference;
+    using base_type = type;
+    using element_type = hobj_ref_t;
+
+    static constexpr size_t ndim = 0;
+    static constexpr size_t recursive_ndim = ndim;
+
+    static void to_file(const type& from, element_type* to) {
+        from.create_ref(to);
+    }
+
+    static void from_file(const element_type* from, type& to) {
+        to = Reference(*from);
+    }
+
+    static void resize(type&, const std::vector<size_t>&) {
+    }
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_ndim>();
+    }
+};
+}  // namespace details
+
 }  // namespace HighFive
 
 #endif  // H5REFERENCE_MISC_HPP

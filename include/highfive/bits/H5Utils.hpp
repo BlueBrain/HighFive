@@ -28,6 +28,9 @@
 
 #include <H5public.h>
 
+// For hobj_ref_t
+#include <H5Rpublic.h>
+
 #include "../H5Exception.hpp"
 
 namespace HighFive {
@@ -58,6 +61,20 @@ struct inspector {
         //     throw DataSpaceException(ss.str());
         // }
     }
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_ndim>();
+    }
+};
+
+template <>
+struct inspector<std::string> {
+    using type = std::string;
+    using base_type = type;
+    using element_type = const char*;
+
+    static constexpr size_t ndim = 0;
+    static constexpr size_t recursive_ndim = ndim;
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         return std::array<size_t, recursive_ndim>();
@@ -105,6 +122,19 @@ struct inspector<std::vector<T>> {
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static void to_file(const type& from, element_type* to) {
+        for (size_t i = 0; i < from.size(); ++i) {
+            inspector<value_type>::to_file(from[i], to + i);
+        }
+    }
+
+    // to is already allocated to the right size!
+    static void from_file(const element_type* from, type& to) {
+        for (size_t i = 0; i < to.size(); ++i) {
+            inspector<value_type>::from_file(from + i, to[i]);
+        }
+    }
 
     static void resize(type& value, const std::vector<size_t>& dims) {
         if (dims.size() < 1) {
