@@ -72,7 +72,7 @@ class Reference {
     std::string obj_name{};
     hid_t parent_id{};
 
-    friend details::inspector<Reference>;
+    friend class details::inspector<Reference>;
 };
 
 }  // namespace HighFive
