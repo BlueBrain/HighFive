@@ -16,6 +16,10 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
+// undefine the macro on windows platform
+#ifdef _WIN32
+#undef max
+#endif
 
 namespace HighFive {
 
