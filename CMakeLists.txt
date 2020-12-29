@@ -22,7 +22,7 @@ include(BlueGenePortability)
 
 # OPTIONS
 # Compat within Highfive 2.x series
-set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
+set(USE_BOOST OFF CACHE BOOL "Enable Boost Support")
 set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
 set(USE_XTENSOR OFF CACHE BOOL "Enable xtensor testing")
 set(USE_OPENCV OFF CACHE BOOL "Enable OpenCV testing")
