@@ -39,8 +39,7 @@ inline unsigned convert_open_flag(unsigned openFlags) {
 
 
 inline File::File(const std::string& filename, unsigned openFlags,
-                  const FileAccessProps& fileAccessProps)
-    : _filename(filename) {
+                  const FileAccessProps& fileAccessProps){
 
     openFlags = convert_open_flag(openFlags);
 
@@ -56,7 +55,7 @@ inline File::File(const std::string& filename, unsigned openFlags,
         std::unique_ptr<SilenceHDF5> silencer;
         if (openOrCreate) silencer.reset(new SilenceHDF5());
 
-        _hid = H5Fopen(_filename.c_str(), openMode, fileAccessProps.getId());
+        _hid = H5Fopen(filename.c_str(), openMode, fileAccessProps.getId());
 
         if (isValid()) return;  // Done
 
@@ -65,14 +64,14 @@ inline File::File(const std::string& filename, unsigned openFlags,
             createMode = H5F_ACC_EXCL;
         } else {
             HDF5ErrMapper::ToException<FileException>(
-                std::string("Unable to open file " + _filename));
+                std::string("Unable to open file " + filename));
         }
     }
 
-    if ((_hid = H5Fcreate(_filename.c_str(), createMode, H5P_DEFAULT,
+    if ((_hid = H5Fcreate(filename.c_str(), createMode, H5P_DEFAULT,
                           fileAccessProps.getId())) < 0) {
         HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to create file " + _filename));
+            std::string("Unable to create file " + filename));
     }
 }
 
@@ -90,26 +89,24 @@ inline File::File(const hid_t& id){
         return;
     }
 
+    _hid = id;
+}
+
+inline const std::string& File::getName() const noexcept {
     char name[256];
-    ssize_t st = H5Fget_name(id, name, 256 );
+    ssize_t st = H5Fget_name(_hid, name, 256 );
     if (st < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to retrieve filename"));
         return;
     }
-
-    _hid = id;
-    _filename = name;
-}
-
-inline const std::string& File::getName() const noexcept {
-    return _filename;
+    return name;
 }
 
 inline void File::flush() {
     if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
         HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to flush file " + _filename));
+            std::string("Unable to flush file " + getName()));
     }
 }
 

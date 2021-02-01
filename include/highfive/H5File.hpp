@@ -75,7 +75,6 @@ class File : public Object,
     friend class DataType;
  private:
     explicit File(const hid_t& id);
-    std::string _filename;
 };
 
 }  // namespace HighFive
