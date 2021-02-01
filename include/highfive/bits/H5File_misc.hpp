@@ -76,6 +76,25 @@ inline File::File(const std::string& filename, unsigned openFlags,
     }
 }
 
+inline File::File(hid_t& id){
+    if (id < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to open file"));
+        return;
+    }
+
+    char name[256];
+    ssize_t st = H5Fget_name(id, name, 256 );
+    if (st < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to retrieve filename"));
+        return;
+    }
+
+    _hid = id;
+    _filename = name;
+}
+
 inline const std::string& File::getName() const noexcept {
     return _filename;
 }

@@ -23,6 +23,10 @@ class Group : public Object,
               public AnnotateTraits<Group> {
   public:
     const static ObjectType type = ObjectType::Group;
+    File getFile(){
+      hid_t file_id = H5Iget_file_id(_hid);
+      return File(file_id);
+    };
 
   protected:
     using Object::Object;

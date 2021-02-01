@@ -69,7 +69,12 @@ class File : public Object,
     ///
     void flush();
 
+    friend class DataSet;
+    friend class Attribute;
+    friend class Group;
+    friend class DataType;
  private:
+    explicit File(hid_t& id);
     std::string _filename;
 };
 

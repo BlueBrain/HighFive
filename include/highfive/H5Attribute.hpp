@@ -51,6 +51,8 @@ class Attribute : public Object {
     ///
     DataSpace getMemSpace() const;
 
+    File getFile();
+
     ///
     /// Read the attribute into a buffer
     /// An exception is raised if the numbers of dimension of the buffer and of

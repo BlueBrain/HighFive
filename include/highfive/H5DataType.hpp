@@ -14,6 +14,7 @@
 #include "H5Object.hpp"
 #include "bits/H5Utils.hpp"
 
+
 namespace HighFive {
 
 
@@ -82,6 +83,8 @@ class DataType : public Object {
 
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
+
+    //File getFile();
 
   protected:
     using Object::Object;

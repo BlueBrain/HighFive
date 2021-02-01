@@ -21,6 +21,8 @@
 
 namespace HighFive {
 
+  class File;
+
 ///
 /// \brief Class representing a dataset.
 ///
@@ -66,6 +68,8 @@ class DataSet : public Object,
     /// class
     ///
     DataSpace getMemSpace() const;
+
+    File getFile();
 
 
     /// \brief Change the size of the dataset
