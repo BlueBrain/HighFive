@@ -82,7 +82,7 @@ inline File::File(const hid_t& id){
         return;
     }
 
-    H5I_type_t objType = H5Iget_type(attr.getId());
+    H5I_type_t objType = H5Iget_type(id);
     if (objType != H5I_FILE){
         HDF5ErrMapper::ToException<FileException>(
             std::string("Given id is not a File"));
@@ -98,7 +98,7 @@ inline const std::string& File::getName() const noexcept {
     if (st < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to retrieve filename"));
-        return;
+        return std::string();
     }
     return name;
 }

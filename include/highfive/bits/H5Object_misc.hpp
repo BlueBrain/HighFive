@@ -96,7 +96,7 @@ inline ObjectInfo Object::getInfo() const {
     return info;
 }
 
-Object::File getFile(){
+inline File Object::getFile(){
     hid_t file_id = H5Iget_file_id(_hid);
     return File(file_id);
 }
