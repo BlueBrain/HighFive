@@ -76,10 +76,17 @@ inline File::File(const std::string& filename, unsigned openFlags,
     }
 }
 
-inline File::File(hid_t& id){
+inline File::File(const hid_t& id){
     if (id < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to open file"));
+        return;
+    }
+
+    H5I_type_t objType = H5Iget_type(attr.getId());
+    if (objType != H5I_FILE){
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Given id is not a File"));
         return;
     }
 

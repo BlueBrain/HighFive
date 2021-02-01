@@ -80,8 +80,7 @@ inline void DataSet::resize(const std::vector<size_t>& dims) {
 }
 
 File DataSet::getFile(){
-    hid_t file_id = H5Iget_file_id(_hid);
-    return File(file_id);
+    return Object::getFile();
 }
 
 } // namespace HighFive

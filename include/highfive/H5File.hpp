@@ -74,7 +74,7 @@ class File : public Object,
     friend class Group;
     friend class DataType;
  private:
-    explicit File(hid_t& id);
+    explicit File(const hid_t& id);
     std::string _filename;
 };
 

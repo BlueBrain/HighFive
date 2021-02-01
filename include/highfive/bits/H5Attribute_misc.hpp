@@ -87,8 +87,7 @@ inline void Attribute::read(T& array) const {
 }
 
 File Attribute::getFile(){
-    hid_t file_id = H5Iget_file_id(_hid);
-    return File(file_id);
+    return Object::getFile();
 }
 
 template <typename T>

@@ -63,8 +63,7 @@ inline bool DataType::isReference() const {
 }
 
 //File DataType::getFile(){
-//    hid_t file_id = H5Iget_file_id(_hid);
-//    return File(file_id);
+//    return Object::getFile();
 //}
 
 inline std::string DataType::string() const {

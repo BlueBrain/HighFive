@@ -76,6 +76,8 @@ class Object {
     // Init with an low-level object id
     explicit Object(hid_t);
 
+    File getFile();
+
     Object& operator=(const Object& other);
 
     hid_t _hid;

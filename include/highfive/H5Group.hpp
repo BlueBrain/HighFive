@@ -24,8 +24,7 @@ class Group : public Object,
   public:
     const static ObjectType type = ObjectType::Group;
     File getFile(){
-      hid_t file_id = H5Iget_file_id(_hid);
-      return File(file_id);
+      return Object::getFile();
     };
 
   protected:
