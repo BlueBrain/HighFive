@@ -10,12 +10,30 @@
 #define H5OBJECT_MISC_HPP
 
 #include <iostream>
+#include <H5Fpublic.h>
 
 namespace HighFive {
 
+ObjectType _convert_object_type(const H5I_type_t& h5type);
+
 inline Object::Object() : _hid(H5I_INVALID_HID) {}
 
-inline Object::Object(hid_t hid) : _hid(hid) {}
+inline Object::Object(const hid_t& hid, const ObjectType& objType) {
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Invalid id to initialize the object"));
+        return;
+    }
+
+    ObjectType objType_from_id = _convert_object_type(H5Iget_type(hid));
+    if (objType_from_id != objType){
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Given id doesn't belong to the requested type"));
+        return;
+    }
+
+    _hid = hid;
+}
 
 inline Object::Object(const Object& other) : _hid(other._hid) {
     if (other.isValid() && H5Iinc_ref(_hid) < 0) {
@@ -56,6 +74,53 @@ inline hid_t Object::getId() const noexcept {
     return _hid;
 }
 
+inline hid_t Object::getFileId() const noexcept {
+    return H5Iget_file_id(_hid);
+}
+
+inline bool Object::operator==(const Object& other) const {
+
+    if (getInfo().getAddress() != other.getInfo().getAddress())
+        return false;
+
+    /* I would better implement this block to check file equality
+     * but `H5Fget_fileno` was introduced only since hdf5 1.12.0 */
+
+//    unsigned long num, num_other;
+//    herr_t err = H5Fget_fileno(getFileId(), &num);
+//    if (err < 0)
+//        return false;
+
+//    err = H5Fget_fileno(other.getId(), &num_other);
+//    if (err < 0)
+//        return false;
+
+//    return num == num_other;
+
+    /* But for now I have to compare filenames */
+
+    char name[256];
+    ssize_t st = H5Fget_name(getFileId(), name, 256);
+    if (st < 0)
+        return false;
+    std::string str_name = std::string{name};
+
+    st = H5Fget_name(other.getFileId(), name, 256);
+    if (st < 0)
+        return false;
+    std::string str_name_other = std::string{name};
+
+    int val = str_name.compare(str_name_other);
+    if (val != 0)
+        return false;
+    
+    return true;
+}
+
+inline bool Object::operator!=(const Object& other) const {
+    return !(*this == other);
+}
+
 static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
     switch (h5type) {
         case H5I_FILE:
@@ -72,6 +137,25 @@ static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
             return ObjectType::Attribute;
         default:
             return ObjectType::Other;
+    }
+}
+
+static inline H5I_type_t _convert_object_type_back(const ObjectType& type) {
+    switch (type) {
+        case ObjectType::File:
+            return H5I_FILE;
+        case ObjectType::Group:
+            return H5I_GROUP;
+        case ObjectType::UserDataType:
+            return H5I_DATATYPE;
+        case ObjectType::DataSpace:
+            return H5I_DATASPACE;
+        case ObjectType::Dataset:
+            return H5I_DATASET;
+        case ObjectType::Attribute:
+            return H5I_ATTR;
+        default:
+            return H5I_BADID;
     }
 }
 
@@ -96,17 +180,13 @@ inline ObjectInfo Object::getInfo() const {
     return info;
 }
 
-inline File Object::getFile(){
-    hid_t file_id = H5Iget_file_id(_hid);
-    return File(file_id);
-}
-
 inline haddr_t ObjectInfo::getAddress() const noexcept {
     return raw_info.addr;
 }
 inline size_t ObjectInfo::getRefCount() const noexcept {
     return raw_info.rc;
 }
+
 inline time_t ObjectInfo::getCreationTime() const noexcept {
     return raw_info.btime;
 }

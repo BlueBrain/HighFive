@@ -51,6 +51,8 @@ class Object {
     ///
     hid_t getId() const noexcept;
 
+    hid_t getFileId() const noexcept;
+
     ///
     /// \brief Retrieve several infos about the current object (address, dates, etc)
     ///
@@ -63,6 +65,10 @@ class Object {
     ///
     ObjectType getType() const;
 
+    bool operator==(const Object& other) const;
+
+    bool operator!=(const Object& other) const;
+
   protected:
     // empty constructor
     Object();
@@ -74,9 +80,7 @@ class Object {
     Object(Object&& other) noexcept;
 
     // Init with an low-level object id
-    explicit Object(hid_t);
-
-    File getFile();
+    explicit Object(const hid_t&, const ObjectType&);
 
     Object& operator=(const Object& other);
 
@@ -87,6 +91,12 @@ class Object {
     template <typename Derivate> friend class NodeTraits;
     template <typename Derivate> friend class AnnotateTraits;
     friend class Reference;
+    friend class DataSpace;
+    friend class File;
+    friend class Group;
+    friend class DataSet;
+    friend class Attribute;
+    friend class DataType;
 };
 
 

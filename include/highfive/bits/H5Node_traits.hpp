@@ -163,7 +163,8 @@ class NodeTraits {
 
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
+                 const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                 const ObjectType& objType = ObjectType::Other) const;
 };
 
 

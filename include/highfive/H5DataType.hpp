@@ -84,9 +84,13 @@ class DataType : public Object {
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
 
-    //File getFile();
+  static DataType FromId(const hid_t& id){
+    Object obj = Object(id, ObjectType::UserDataType);
+    return DataType(obj);
+  };
 
-  protected:
+protected:
+  DataType(const Object& obj) : Object(obj){};
     using Object::Object;
 
     friend class Attribute;

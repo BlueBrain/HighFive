@@ -21,74 +21,80 @@ namespace HighFive {
 /// \brief Class representing an attribute of a dataset or group
 ///
 class Attribute : public Object {
-  public:
+public:
 
-    const static ObjectType type = ObjectType::Attribute;
+  const static ObjectType type = ObjectType::Attribute;
 
-    ///
-    /// \brief return the name of the current attribute
-    /// \return the name of the attribute
-    std::string getName() const;
+  ///
+  /// \brief return the name of the current attribute
+  /// \return the name of the attribute
+  std::string getName() const;
 
-    size_t getStorageSize() const;
+  size_t getStorageSize() const;
 
-    ///
-    /// \brief getDataType
-    /// \return return the datatype associated with this dataset
-    ///
-    DataType getDataType() const;
+  ///
+  /// \brief getDataType
+  /// \return return the datatype associated with this dataset
+  ///
+  DataType getDataType() const;
 
-    ///
-    /// \brief getSpace
-    /// \return return the dataspace associated with this dataset
-    ///
-    DataSpace getSpace() const;
+  ///
+  /// \brief getSpace
+  /// \return return the dataspace associated with this dataset
+  ///
+  DataSpace getSpace() const;
 
-    ///
-    /// \brief getMemSpace
-    /// \return same than getSpace for DataSet, compatibility with Selection
-    /// class
-    ///
-    DataSpace getMemSpace() const;
+  ///
+  /// \brief getMemSpace
+  /// \return same than getSpace for DataSet, compatibility with Selection
+  /// class
+  ///
+  DataSpace getMemSpace() const;
 
-    File getFile();
+  ///
+  /// Read the attribute into a buffer
+  /// An exception is raised if the numbers of dimension of the buffer and of
+  /// the attribute are different
+  ///
+  /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+  /// dimensional array )
+  template <typename T>
+  void read(T& array) const;
 
-    ///
-    /// Read the attribute into a buffer
-    /// An exception is raised if the numbers of dimension of the buffer and of
-    /// the attribute are different
-    ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
-    /// dimensional array )
-    template <typename T>
-    void read(T& array) const;
+  ///
+  /// Read the attribute into a buffer
+  ///
+  template <typename T>
+  void read(T* array, const DataType& dtype = DataType()) const;
 
-    ///
-    /// Read the attribute into a buffer
-    ///
-    template <typename T>
-    void read(T* array, const DataType& dtype = DataType()) const;
+  ///
+  /// Write the integrality N-dimension buffer to this attribute
+  /// An exception is raised if the numbers of dimension of the buffer and of
+  /// the attribute are different
+  ///
+  /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
+  /// dimensional array )
+  template <typename T>
+  void write(const T& buffer);
 
-    ///
-    /// Write the integrality N-dimension buffer to this attribute
-    /// An exception is raised if the numbers of dimension of the buffer and of
-    /// the attribute are different
-    ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
-    /// dimensional array )
-    template <typename T>
-    void write(const T& buffer);
+  ///
+  /// Write a buffer to this attribute
+  ///
+  template <typename T>
+  void write_raw(const T* buffer, const DataType& dtype = DataType());
 
-    ///
-    /// Write a buffer to this attribute
-    ///
-    template <typename T>
-    void write_raw(const T* buffer, const DataType& dtype = DataType());
+  static Attribute FromId(const hid_t& id){
+    Object obj = Object(id, ObjectType::Attribute);
+    return Attribute(obj);
+  };
 
-  private:
-    Attribute() = default;
+protected:
+  Attribute(const Object& obj) : Object(obj){};
 
-    template <typename Derivate> friend class ::HighFive::AnnotateTraits;
+private:
+  Attribute() = default;
+
+  template <typename Derivate> friend class ::HighFive::AnnotateTraits;
 };
 
 }  // namespace HighFive

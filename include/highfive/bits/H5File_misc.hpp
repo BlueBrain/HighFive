@@ -75,32 +75,15 @@ inline File::File(const std::string& filename, unsigned openFlags,
     }
 }
 
-inline File::File(const hid_t& id){
-    if (id < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to open file"));
-        return;
-    }
-
-    H5I_type_t objType = H5Iget_type(id);
-    if (objType != H5I_FILE){
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Given id is not a File"));
-        return;
-    }
-
-    _hid = id;
-}
-
-inline const std::string& File::getName() const noexcept {
+inline std::string File::getName() const noexcept {
     char name[256];
-    ssize_t st = H5Fget_name(_hid, name, 256 );
+    ssize_t st = H5Fget_name(_hid, name, 256);
     if (st < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to retrieve filename"));
         return std::string();
     }
-    return name;
+    return std::string{name};
 }
 
 inline void File::flush() {

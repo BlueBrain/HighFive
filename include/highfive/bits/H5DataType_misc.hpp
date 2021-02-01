@@ -62,10 +62,6 @@ inline bool DataType::isReference() const {
     return H5Tequal(_hid, H5T_STD_REF_OBJ) > 0;
 }
 
-//File DataType::getFile(){
-//    return Object::getFile();
-//}
-
 inline std::string DataType::string() const {
     return type_class_string(getClass()) + std::to_string(getSize() * 8);
 }

@@ -86,10 +86,6 @@ inline void Attribute::read(T& array) const {
     converter.process_result(array);
 }
 
-File Attribute::getFile(){
-    return Object::getFile();
-}
-
 template <typename T>
 inline void Attribute::read(T* array, const DataType& dtype) const {
     static_assert(!std::is_const<T>::value,
