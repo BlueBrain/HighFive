@@ -140,20 +140,6 @@ inline DataSpace DataSpace::FromCharArrayStrings(const char(&)[N][Width]) {
     return DataSpace(N);
 }
 
-inline bool DataSpace::operator==(const DataSpace& other) const {
-    std::vector<size_t> v = getDimensions();
-    std::vector<size_t> v_other = other.getDimensions();
-
-    if (v.size() != v_other.size())
-        return false;
-
-    return std::equal(v.begin(), v.end(), v_other.begin());
-}
-
-inline bool DataSpace::operator!=(const DataSpace& other) const {
-    return !(*this == other);
-}
-
 namespace details {
 
 /// dimension checks @internal

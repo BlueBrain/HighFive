@@ -61,7 +61,7 @@ inline Object Reference::get_ref(const Object& location) const {
         HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
     }
 #endif
-    return Object(res, ObjectType::Other);
+    return Object(res);
 }
 
 }  // namespace HighFive

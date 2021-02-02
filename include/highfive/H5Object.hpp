@@ -65,10 +65,6 @@ class Object {
     ///
     ObjectType getType() const;
 
-    bool operator==(const Object& other) const;
-
-    bool operator!=(const Object& other) const;
-
   protected:
     // empty constructor
     Object();
@@ -80,6 +76,7 @@ class Object {
     Object(Object&& other) noexcept;
 
     // Init with an low-level object id
+    explicit Object(hid_t);
     explicit Object(const hid_t&, const ObjectType&);
 
     Object& operator=(const Object& other);

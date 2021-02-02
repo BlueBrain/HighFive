@@ -14,7 +14,6 @@
 #include "H5Object.hpp"
 #include "bits/H5Utils.hpp"
 
-
 namespace HighFive {
 
 
@@ -84,13 +83,13 @@ class DataType : public Object {
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
 
-  static DataType FromId(const hid_t& id){
-    Object obj = Object(id, ObjectType::UserDataType);
-    return DataType(obj);
-  };
+    static DataType FromId(const hid_t& id){
+        Object obj = Object(id, ObjectType::UserDataType);
+        return DataType(obj);
+    };
 
-protected:
-  DataType(const Object& obj) : Object(obj){};
+  protected:
+    DataType(const Object& obj) : Object(obj){};
     using Object::Object;
 
     friend class Attribute;
@@ -109,6 +108,14 @@ class AtomicType : public DataType {
     AtomicType();
 
     typedef T basic_type;
+
+    static AtomicType FromId(const hid_t& id){
+        DataType obj = DataType::FromId(id);
+        return AtomicType(obj);
+    };
+
+  protected:
+    AtomicType(const DataType& obj) : DataType(obj){};
 };
 
 
@@ -158,6 +165,14 @@ public:
     inline const std::vector<member_def>& getMembers() const noexcept {
         return members;
     }
+
+    static CompoundType FromId(const hid_t& id){
+        DataType obj = DataType::FromId(id);
+        return CompoundType(obj);
+    };
+
+protected:
+    CompoundType(const DataType& obj) : DataType(obj){};
 
 private:
 
@@ -218,6 +233,14 @@ public:
     /// \param object Location to commit object into
     /// \param name Name to give the datatype
     void commit(const Object& object, const std::string& name) const;
+
+    static EnumType FromId(const hid_t& id){
+        DataType obj = DataType::FromId(id);
+        return EnumType(obj);
+    };
+
+protected:
+    EnumType(const DataType& obj) : DataType(obj){};
 
 private:
     std::vector<member_def> members;

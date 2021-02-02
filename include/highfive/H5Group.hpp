@@ -19,26 +19,25 @@ namespace HighFive {
 ///
 /// \brief Represents an hdf5 group
 class Group : public Object,
-    public NodeTraits<Group>,
-    public AnnotateTraits<Group> {
-public:
-
-  const static ObjectType type = ObjectType::Group;
+              public NodeTraits<Group>,
+              public AnnotateTraits<Group> {
+  public:
+    const static ObjectType type = ObjectType::Group;
 
   static Group FromId(const hid_t& id){
     Object obj = Object(id, ObjectType::Group);
     return Group(obj);
   };
+  
+  protected:
+    Group(const Object& obj) : Object(obj){};
+    using Object::Object;
 
-protected:
-  Group(const Object& obj) : Object(obj){};
-  using Object::Object;
+    inline Group(Object&& o) noexcept : Object(std::move(o)) {};
 
-  inline Group(Object&& o) noexcept : Object(std::move(o)) {};
-
-  friend class File;
-  friend class Reference;
-  template <typename Derivate> friend class ::HighFive::NodeTraits;
+    friend class File;
+    friend class Reference;
+    template <typename Derivate> friend class ::HighFive::NodeTraits;
 };
 
 }  // namespace HighFive

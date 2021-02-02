@@ -10,13 +10,37 @@
 #define H5OBJECT_MISC_HPP
 
 #include <iostream>
-#include <H5Fpublic.h>
 
 namespace HighFive {
 
-ObjectType _convert_object_type(const H5I_type_t& h5type);
+static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
+    switch (h5type) {
+        case H5I_FILE:
+            return ObjectType::File;
+        case H5I_GROUP:
+            return ObjectType::Group;
+        case H5I_DATATYPE:
+            return ObjectType::UserDataType;
+        case H5I_DATASPACE:
+            return ObjectType::DataSpace;
+        case H5I_DATASET:
+            return ObjectType::Dataset;
+        case H5I_ATTR:
+            return ObjectType::Attribute;
+        default:
+            return ObjectType::Other;
+    }
+}
 
 inline Object::Object() : _hid(H5I_INVALID_HID) {}
+
+inline Object::Object(hid_t hid) : _hid(hid) {}
+
+inline Object::Object(const Object& other) : _hid(other._hid) {
+    if (other.isValid() && H5Iinc_ref(_hid) < 0) {
+        throw ObjectException("Reference counter increase failure");
+    }
+}
 
 inline Object::Object(const hid_t& hid, const ObjectType& objType) {
     if (hid < 0) {
@@ -33,12 +57,6 @@ inline Object::Object(const hid_t& hid, const ObjectType& objType) {
     }
 
     _hid = hid;
-}
-
-inline Object::Object(const Object& other) : _hid(other._hid) {
-    if (other.isValid() && H5Iinc_ref(_hid) < 0) {
-        throw ObjectException("Reference counter increase failure");
-    }
 }
 
 inline Object::Object(Object&& other) noexcept
@@ -78,87 +96,6 @@ inline hid_t Object::getFileId() const noexcept {
     return H5Iget_file_id(_hid);
 }
 
-inline bool Object::operator==(const Object& other) const {
-
-//    if (getInfo().getAddress() != other.getInfo().getAddress())
-//        return false;
-
-    /* I would better implement this block to check file equality
-     * but `H5Fget_fileno` was introduced only since hdf5 1.12.0 */
-
-//    unsigned long num, num_other;
-//    herr_t err = H5Fget_fileno(getFileId(), &num);
-//    if (err < 0)
-//        return false;
-
-//    err = H5Fget_fileno(other.getId(), &num_other);
-//    if (err < 0)
-//        return false;
-
-//    return num == num_other;
-
-    /* But for now I have to compare filenames */
-
-    char name[256];
-    ssize_t st = H5Fget_name(getFileId(), name, 256);
-    if (st < 0)
-        return false;
-    std::string str_name = std::string{name};
-
-    st = H5Fget_name(other.getFileId(), name, 256);
-    if (st < 0)
-        return false;
-    std::string str_name_other = std::string{name};
-
-    int val = str_name.compare(str_name_other);
-    if (val != 0)
-        return false;
-    
-    return true;
-}
-
-inline bool Object::operator!=(const Object& other) const {
-    return !(*this == other);
-}
-
-inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
-    switch (h5type) {
-        case H5I_FILE:
-            return ObjectType::File;
-        case H5I_GROUP:
-            return ObjectType::Group;
-        case H5I_DATATYPE:
-            return ObjectType::UserDataType;
-        case H5I_DATASPACE:
-            return ObjectType::DataSpace;
-        case H5I_DATASET:
-            return ObjectType::Dataset;
-        case H5I_ATTR:
-            return ObjectType::Attribute;
-        default:
-            return ObjectType::Other;
-    }
-}
-
-inline H5I_type_t _convert_object_type_back(const ObjectType& type) {
-    switch (type) {
-        case ObjectType::File:
-            return H5I_FILE;
-        case ObjectType::Group:
-            return H5I_GROUP;
-        case ObjectType::UserDataType:
-            return H5I_DATATYPE;
-        case ObjectType::DataSpace:
-            return H5I_DATASPACE;
-        case ObjectType::Dataset:
-            return H5I_DATASET;
-        case ObjectType::Attribute:
-            return H5I_ATTR;
-        default:
-            return H5I_BADID;
-    }
-}
-
 inline ObjectType Object::getType() const {
     // H5Iget_type is a very lightweight func which extracts the type from the id
     H5I_type_t h5type;
@@ -186,7 +123,6 @@ inline haddr_t ObjectInfo::getAddress() const noexcept {
 inline size_t ObjectInfo::getRefCount() const noexcept {
     return raw_info.rc;
 }
-
 inline time_t ObjectInfo::getCreationTime() const noexcept {
     return raw_info.btime;
 }
