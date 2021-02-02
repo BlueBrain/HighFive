@@ -1228,6 +1228,52 @@ BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
     BOOST_CHECK_EQUAL("attribute", attribute.getName());
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveFilename) {
+
+    File file("getFileName.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    BOOST_CHECK_EQUAL("getFileName.h5", file.getName());
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveCheckIdFunctionality) {
+    // Retrieve file ID from objects and compare it with original
+    File file("getFileName.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("group");
+    DataSpace dataSpace = DataSpace(1);
+    DataSet dataset = group.createDataSet<int>("data", dataSpace);
+    Attribute attr = dataset.createAttribute<int>("attr", dataSpace);
+        std::vector<CompoundType::member_def> t_members({
+        {"real", AtomicType<int>{}},
+        {"imag", AtomicType<int>{}}});
+    CompoundType t(t_members);
+
+    BOOST_CHECK_EQUAL(file.getId(), file.getFileId()); // getFileId() uses HDF5 native functionality
+    BOOST_CHECK_EQUAL(file.getId(), group.getFileId());
+    BOOST_CHECK_EQUAL(file.getId(), dataset.getFileId());
+    BOOST_CHECK_EQUAL(file.getId(), attr.getFileId());
+    BOOST_CHECK(dataSpace.getFileId() < 0); // dataspace doesn't belong to any file
+    BOOST_CHECK(t.getFileId() < 0); // CompoundType doesn't belong to any file yet
+
+    t.commit(file, "new_type1");
+
+    BOOST_CHECK_EQUAL(file.getId(), t.getFileId());
+
+    // Create objects from ID
+    File file2 = File::FromId(file.getId());
+    Group group2 = Group::FromId(group.getId());
+    DataSpace dataSpace2 = DataSpace::FromId(dataSpace.getId());
+    DataSet dataset2 = DataSet::FromId(dataset.getId());
+    Attribute attr2 = Attribute::FromId(attr.getId());
+    CompoundType t2 = CompoundType::FromId(t.getId());
+
+    BOOST_CHECK(file2.isValid());
+    BOOST_CHECK(group2.isValid());
+    BOOST_CHECK(dataSpace2.isValid());
+    BOOST_CHECK(dataset2.isValid());
+    BOOST_CHECK(attr2.isValid());
+    BOOST_CHECK(t2.isValid());
+}
+
 BOOST_AUTO_TEST_CASE(HighFiveRename) {
 
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
