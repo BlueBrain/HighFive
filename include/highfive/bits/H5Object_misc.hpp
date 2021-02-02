@@ -80,8 +80,8 @@ inline hid_t Object::getFileId() const noexcept {
 
 inline bool Object::operator==(const Object& other) const {
 
-    if (getInfo().getAddress() != other.getInfo().getAddress())
-        return false;
+//    if (getInfo().getAddress() != other.getInfo().getAddress())
+//        return false;
 
     /* I would better implement this block to check file equality
      * but `H5Fget_fileno` was introduced only since hdf5 1.12.0 */
