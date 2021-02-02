@@ -121,7 +121,7 @@ inline bool Object::operator!=(const Object& other) const {
     return !(*this == other);
 }
 
-static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
+inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
     switch (h5type) {
         case H5I_FILE:
             return ObjectType::File;
@@ -140,7 +140,7 @@ static inline ObjectType _convert_object_type(const H5I_type_t& h5type) {
     }
 }
 
-static inline H5I_type_t _convert_object_type_back(const ObjectType& type) {
+inline H5I_type_t _convert_object_type_back(const ObjectType& type) {
     switch (type) {
         case ObjectType::File:
             return H5I_FILE;
