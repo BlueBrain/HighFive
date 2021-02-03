@@ -75,17 +75,15 @@ inline File::File(const std::string& filename, unsigned openFlags,
     }
 }
 
-inline const std::string& File::getName() const noexcept {
-    std::string name_str;
+inline const std::string File::getName() const noexcept {
     char name[256];
     ssize_t st = H5Fget_name(_hid, name, 256);
     if (st < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to retrieve filename"));
-        return name_str;
+        return std::string();
     }
-    name_str = name;
-    return name_str;
+    return std::string{name};
 }
 
 inline void File::flush() {
