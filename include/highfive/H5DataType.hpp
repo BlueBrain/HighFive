@@ -41,6 +41,7 @@ enum class DataTypeClass {
 ///
 class DataType : public Object {
   public:
+    DataType(){};
 
     bool operator==(const DataType& other) const;
 
