@@ -76,6 +76,7 @@ inline File::File(const std::string& filename, unsigned openFlags,
 }
 
 inline const std::string& File::getName() const noexcept {
+    std::string name_str;
     char name[256];
     ssize_t st = H5Fget_name(_hid, name, 256);
     if (st < 0) {
@@ -83,7 +84,8 @@ inline const std::string& File::getName() const noexcept {
             std::string("Unable to retrieve filename"));
         return std::string();
     }
-    return std::string{name};
+    name_str = name;
+    return name_str;
 }
 
 inline void File::flush() {
