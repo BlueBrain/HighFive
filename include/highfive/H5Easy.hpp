@@ -107,8 +107,8 @@ private:
 /// By default:
 /// - DumpMode::Create
 /// - Flush::True
-/// - Compression(false)
-/// - ChunkSize: automatic.
+/// - Compression: false
+/// - ChunkSize: automatic
 class DumpOptions
 {
 public:
@@ -118,7 +118,7 @@ public:
 
     ///
     /// \brief Constructor: overwrite (some of the) defaults.
-    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param args any of DumpMode, Flush, Compression in arbitrary number and order.
     template <class... Args>
     DumpOptions(Args... args)
     {
@@ -126,23 +126,24 @@ public:
     }
 
     ///
-    /// \brief Overwrite setting.
+    /// \brief Overwrite H5Easy::DumpMode setting.
     /// \param mode: DumpMode.
     inline void set(DumpMode mode);
 
     ///
-    /// \brief Overwrite setting.
-    /// \param flush Flush.
+    /// \brief Overwrite H5Easy::Flush setting.
+    /// \param mode Flush.
     inline void set(Flush mode);
 
     ///
-    /// \brief Overwrite setting.
+    /// \brief Overwrite H5Easy::Compression setting.
     /// \param level Compression.
     inline void set(const Compression& level);
 
     ///
     /// \brief Overwrite settings.
-    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param arg any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param args any of DumpMode, Flush, Compression in arbitrary number and order.
     template <class T, class... Args>
     inline void set(T arg, Args... args);
 
@@ -307,7 +308,7 @@ inline DataSet dump(File& file,
                     const DumpOptions& options);
 
 ///
-/// \brief Load entry "(i,j)" from a rank-two DataSet in an open HDF5 file to a scalar.
+/// \brief Load entry ``{i, j, ...}`` from a DataSet in an open HDF5 file to a scalar.
 ///
 /// \param file opened File (has to be writeable)
 /// \param idx the indices to load
