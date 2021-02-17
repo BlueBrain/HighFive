@@ -24,6 +24,7 @@
 
 #ifdef H5_USE_XTENSOR
 #include <xtensor/xrandom.hpp>
+#include <xtensor/xview.hpp>
 #endif
 
 
@@ -214,7 +215,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor)
     H5Easy::dump(file, "/path/to/A", A);
     H5Easy::dump(file, "/path/to/B", B);
 
-    xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
+    xt::xtensor<double, 2> A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
 
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
@@ -238,6 +239,20 @@ BOOST_AUTO_TEST_CASE(H5Easy_xarray)
     BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
 }
 
+BOOST_AUTO_TEST_CASE(H5Easy_view)
+{
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
+    auto a = xt::view(A, xt::range(0, 10), xt::range(0, 10));
+
+    H5Easy::dump(file, "/path/to/a", a);
+
+    xt::xtensor<double, 2> a_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/a");
+
+    BOOST_CHECK_EQUAL(xt::allclose(a, a_r), true);
+}
+
 BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
@@ -254,7 +269,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
     H5Easy::dump(file, "/path/to/B", B,
         H5Easy::DumpOptions(H5Easy::Compression()));
 
-    xt::xtensor<double,2> A_r = H5Easy::load<xt::xtensor<double,2>>(file, "/path/to/A");
+    xt::xtensor<double, 2> A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
 
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
@@ -272,7 +287,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_xtensor)
     H5Easy::dumpAttribute(file, "/path/to/A", "A", A);
     H5Easy::dumpAttribute(file, "/path/to/A", "B", B);
 
-    xt::xtensor<double,2> A_r = H5Easy::loadAttribute<xt::xtensor<double,2>>(file, "/path/to/A", "A");
+    xt::xtensor<double, 2> A_r = H5Easy::loadAttribute<xt::xtensor<double, 2>>(file, "/path/to/A", "A");
     xt::xtensor<int, 2> B_r = H5Easy::loadAttribute<xt::xtensor<int, 2>>(file, "/path/to/A", "B");
 
     BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
