@@ -31,8 +31,9 @@ jobs:
         auto-activate-base: false
 
     - name: Run doxygen
-      working-directory: build
       run: |
+        mkdir build
+        cd build
         cmake .. -DHIGHFIVE_USE_BOOST=0
         make doc
 
