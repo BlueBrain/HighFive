@@ -6,6 +6,15 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+
+/// \brief
+/// Read/dump DataSets or Attribute using a minimalistic syntax.
+/// To this end, the functions are templated, and accept:
+/// - Any type accepted by HighFive
+/// - Eigen objects
+/// - xtensor objects
+/// - OpenCV objects
+
 #ifndef H5EASY_HPP
 #define H5EASY_HPP
 
@@ -70,7 +79,7 @@ enum class DumpMode {
 };
 
 ///
-/// \brief Enable/disable automatic flushing after write operations.
+/// \brief Signal to enable/disable automatic flushing after write operations.
 enum class Flush
 {
     False = 0, /*!< No automatic flushing. */
@@ -78,23 +87,27 @@ enum class Flush
 };
 
 ///
-/// \brief Set compression level for written DataSets.
+/// \brief Signal to set compression level for written DataSets.
 class Compression
 {
 public:
 
-    //
-    // \brief Enable compression with the highest compression level (9).
-    // or disable compression (set compression level to 0).
+    ///
+    /// \brief Enable compression with the highest compression level (9).
+    /// or disable compression (set compression level to 0).
+    ///
+    /// \param enable ``true`` to enable with highest compression level
     explicit Compression(bool enable = true);
 
-    //
-    // \brief Set compression level.
+    ///
+    /// \brief Set compression level.
+    ///
+    /// \param level the compression level
     template <class T>
     Compression(T level);
 
-    //
-    // \brief Return compression level.
+    ///
+    /// \brief Return compression level.
     inline unsigned get() const;
 
 private:
@@ -102,7 +115,7 @@ private:
 };
 
 ///
-/// \brief Options for dumping data.
+/// \brief Define options for dumping data.
 ///
 /// By default:
 /// - DumpMode::Create
@@ -113,12 +126,12 @@ class DumpOptions
 {
 public:
     ///
-    /// \brief Constructor: accept all defaults.
+    /// \brief Constructor: accept all default settings.
     DumpOptions() = default;
 
     ///
     /// \brief Constructor: overwrite (some of the) defaults.
-    /// \param args any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \param args any of DumpMode(), Flush(), Compression() in arbitrary number and order.
     template <class... Args>
     DumpOptions(Args... args)
     {
@@ -141,9 +154,9 @@ public:
     inline void set(const Compression& level);
 
     ///
-    /// \brief Overwrite settings.
-    /// \param arg any of DumpMode, Flush, Compression in arbitrary number and order.
-    /// \param args any of DumpMode, Flush, Compression in arbitrary number and order.
+    /// \brief Overwrite any setting(s).
+    /// \param arg any of DumpMode(), Flush(), Compression in arbitrary number and order.
+    /// \param args any of DumpMode(), Flush(), Compression in arbitrary number and order.
     template <class T, class... Args>
     inline void set(T arg, Args... args);
 
@@ -159,27 +172,34 @@ public:
     inline void setChunkSize(std::initializer_list<size_t> shape);
 
     ///
-    /// \brief Check to overwrite.
+    /// \brief Get overwrite-mode.
+    /// \return bool
     inline bool overwrite() const;
 
     ///
-    /// \brief Check to flush.
+    /// \brief Get flush-mode.
+    /// \return bool
     inline bool flush() const;
 
     ///
-    /// \brief Check to compress.
+    /// \brief Get compress-mode.
+    /// \return bool
     inline bool compress() const;
 
     ///
     /// \brief Get compression level.
+    /// \return [0..9]
     inline unsigned getCompressionLevel() const;
 
     ///
-    /// \brief Check if chunk-size is manually set (or should be computed automatically).
+    /// \brief Get chunking mode: ``true`` is manually set, ``false`` if chunk-size should be
+    /// computed automatically.
+    /// \return bool
     inline bool isChunked() const;
 
     ///
-    /// \brief Get chunk size.
+    /// \brief Get chunk size. Use DumpOptions::getChunkSize to check if chunk-size should
+    /// be automatically computed.
     inline std::vector<hsize_t> getChunkSize() const;
 
 private:
@@ -192,8 +212,8 @@ private:
 ///
 /// \brief Get the size of an existing DataSet in an open HDF5 file.
 ///
-/// \param file A readable opened file
-/// \param path Path of the DataSet
+/// \param file opened file (has to be readable)
+/// \param path path of the DataSet
 ///
 /// \return Size of the DataSet
 inline size_t getSize(const File& file, const std::string& path);
@@ -201,7 +221,7 @@ inline size_t getSize(const File& file, const std::string& path);
 ///
 /// \brief Get the shape of an existing DataSet in an readable file.
 ///
-/// \param file A readable opened file
+/// \param file opened file (has to be readable)
 /// \param path Path of the DataSet
 ///
 /// \return the shape of the DataSet
@@ -210,10 +230,10 @@ inline std::vector<size_t> getShape(const File& file, const std::string& path);
 ///
 /// \brief Write object (templated) to a (new) DataSet in an open HDF5 file.
 ///
-/// \param file Writeable opened file
-/// \param path Path of the DataSet
-/// \param data Data to write
-/// \param mode Write mode
+/// \param file opened file (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write (any supported type)
+/// \param mode write mode
 ///
 /// \return The newly created DataSet
 ///
@@ -226,10 +246,10 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write object (templated) to a (new) DataSet in an open HDF5 file.
 ///
-/// \param file Writeable opened file
-/// \param path Path of the DataSet
-/// \param data Data to write
-/// \param options Dump options
+/// \param file opened file (has to be writeable)
+/// \param path path of the DataSet
+/// \param data the data to write (any supported type)
+/// \param options dump options
 ///
 /// \return The newly created DataSet
 ///
@@ -242,9 +262,9 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param path path of the DataSet
-/// \param data the data to write
+/// \param data the data to write (any supported type)
 /// \param idx the indices to which to write
 ///
 /// \return The newly created DataSet
@@ -260,7 +280,7 @@ inline DataSet dump(File& file,
 ///
 /// \param file open File (has to be writeable)
 /// \param path path of the DataSet
-/// \param data the data to write
+/// \param data the data to write (any supported type)
 /// \param idx the indices to which to write
 ///
 /// \return The newly created DataSet
@@ -274,11 +294,11 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param path path of the DataSet
-/// \param data the data to write
+/// \param data the data to write (any supported type)
 /// \param idx the indices to which to write
-/// \param options Dump options
+/// \param options dump options
 ///
 /// \return The newly created DataSet
 ///
@@ -292,11 +312,11 @@ inline DataSet dump(File& file,
 ///
 /// \brief Write a scalar to a (new, extendible) DataSet in an open HDF5 file.
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param path path of the DataSet
-/// \param data the data to write
+/// \param data the data to write (any supported type)
 /// \param idx the indices to which to write
-/// \param options Dump options
+/// \param options dump options
 ///
 /// \return The newly created DataSet
 ///
@@ -310,11 +330,11 @@ inline DataSet dump(File& file,
 ///
 /// \brief Load entry ``{i, j, ...}`` from a DataSet in an open HDF5 file to a scalar.
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param idx the indices to load
 /// \param path path of the DataSet
 ///
-/// \return the read data
+/// \return The read data
 ///
 template <class T>
 inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx);
@@ -322,10 +342,10 @@ inline T load(const File& file, const std::string& path, const std::vector<size_
 ///
 /// \brief Load a DataSet in an open HDF5 file to an object (templated).
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param path path of the DataSet
 ///
-/// \return the read data
+/// \return The read data
 ///
 template <class T>
 inline T load(const File& file, const std::string& path);
@@ -333,11 +353,11 @@ inline T load(const File& file, const std::string& path);
 ///
 /// \brief Write object (templated) to a (new) Attribute in an open HDF5 file.
 ///
-/// \param file Writeable opened file
-/// \param path Path of the DataSet
-/// \param key Name of the attribute
-/// \param data Data to write
-/// \param mode Write mode
+/// \param file opened file (has to be writeable)
+/// \param path path of the DataSet
+/// \param key name of the attribute
+/// \param data the data to write (any supported type)
+/// \param mode write mode
 ///
 /// \return The newly created DataSet
 ///
@@ -351,11 +371,11 @@ inline Attribute dumpAttribute(File& file,
 ///
 /// \brief Write object (templated) to a (new) Attribute in an open HDF5 file.
 ///
-/// \param file Writeable opened file
-/// \param path Path of the DataSet
-/// \param key Name of the attribute
-/// \param data Data to write
-/// \param options Dump options
+/// \param file opened file (has to be writeable)
+/// \param path path of the DataSet
+/// \param key name of the attribute
+/// \param data the data to write (any supported type)
+/// \param options dump options
 ///
 /// \return The newly created DataSet
 ///
@@ -369,11 +389,11 @@ inline Attribute dumpAttribute(File& file,
 ///
 /// \brief Load a Attribute in an open HDF5 file to an object (templated).
 ///
-/// \param file opened File (has to be writeable)
+/// \param file opened file (has to be writeable)
 /// \param path path of the DataSet
-/// \param key Name of the attribute
+/// \param key name of the attribute
 ///
-/// \return the read data
+/// \return The read data
 ///
 template <class T>
 inline T loadAttribute(const File& file, const std::string& path, const std::string& key);
