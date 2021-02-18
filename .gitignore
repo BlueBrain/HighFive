@@ -5,3 +5,5 @@ tests/test_project
 .vs/
 build-MSVC2019-Release
 build-MSVC2019-Debug
+.vscode
+CMakeLists.txt.user
