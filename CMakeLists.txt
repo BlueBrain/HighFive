@@ -7,6 +7,20 @@ endif()
 
 project(HighFive VERSION 2.2.2)
 
+if(WIN32)
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(Boost_USE_DEBUG_LIBS ON)
+    set(Boost_USE_RELEASE_LIBS OFF)
+  elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(Boost_USE_DEBUG_LIBS OFF)
+    set(Boost_USE_RELEASE_LIBS ON)
+  endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+  set(Boost_USE_STATIC_LIBS ON)
+  set(Boost_USE_MULTITHREADED ON)
+  set(Boost_USE_STATIC_RUNTIME OFF)
+endif(WIN32)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
 # INCLUDES

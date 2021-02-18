@@ -3,3 +3,5 @@ tests/test_project
 .idea
 
 .vs/
+build-MSVC2019-Release
+build-MSVC2019-Debug

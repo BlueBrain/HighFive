@@ -84,7 +84,7 @@ class Attribute : public Object {
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
     static Attribute FromId(const hid_t& id){
-      return Attribute(Object(id, ObjectType::Attribute););
+      return Attribute(Object(id, ObjectType::Attribute));
     };
 
   protected:

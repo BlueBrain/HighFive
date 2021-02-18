@@ -81,7 +81,6 @@ inline const std::string File::getName() const noexcept {
     if (st < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to retrieve filename"));
-        return std::string();
     }
     return std::string{name};
 }
