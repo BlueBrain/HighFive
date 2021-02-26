@@ -197,7 +197,7 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
                                          bool raise_errors) const {
-    SilenceHDF5 silencer{!raise_errors};
+    SilenceHDF5 silencer{};
     const auto val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                                node_name.c_str(), H5P_DEFAULT);
     if (val < 0) {
