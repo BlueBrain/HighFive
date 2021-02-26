@@ -24,8 +24,8 @@ A clear and concise description of what you expected to happen.
 If applicable, add a stacktrace and error messages to help explain your problem.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. linux, macos]
- - Version [e.g. ubuntu 20.10, 10.15]
+ - OS: [e.g. ubuntu 20.10, macos 10.15]
+ - Version [e.g. master branch]
 
 **Additional context**
 Add any other context about the problem here.
