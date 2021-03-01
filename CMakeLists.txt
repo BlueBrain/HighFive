@@ -7,8 +7,6 @@ endif()
 
 project(HighFive VERSION 2.2.2)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/modules)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
 # INCLUDES
@@ -38,7 +36,6 @@ option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
-option(HIGHFIVE_BUILD_HighFivePY "Enable HighFive for python building" ON)
 
 # In deplomyents we probably don't want/cant have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
@@ -120,9 +117,4 @@ endif()
 
 if(HIGHFIVE_BUILD_DOCS)
   add_subdirectory(doc)
-endif()
-
-if(HIGHFIVE_BUILD_HighFivePY)
-  # Setup HighFivePY to be used in 3rd party project using exports. Create a HighFivePY target
-  include(${PROJECT_SOURCE_DIR}/CMake/HighFivePYTargetExport.cmake)
 endif()

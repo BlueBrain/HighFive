@@ -21,42 +21,42 @@ namespace HighFive {
 /// A Selection is valid only if its parent dataset is valid
 ///
 class Selection : public SliceTraits<Selection> {
-public:
-  ///
-  /// \brief getSpace
-  /// \return Dataspace associated with this selection
-  ///
-  DataSpace getSpace() const noexcept;
+  public:
+    ///
+    /// \brief getSpace
+    /// \return Dataspace associated with this selection
+    ///
+    DataSpace getSpace() const noexcept;
 
-  ///
-  /// \brief getMemSpace
-  /// \return Dataspace associated with the memory representation of this
-  /// selection
-  ///
-  DataSpace getMemSpace() const noexcept;
+    ///
+    /// \brief getMemSpace
+    /// \return Dataspace associated with the memory representation of this
+    /// selection
+    ///
+    DataSpace getMemSpace() const noexcept;
 
-  ///
-  /// \brief getDataSet
-  /// \return parent dataset of this selection
-  ///
-  DataSet& getDataset() noexcept;
-  const DataSet& getDataset() const noexcept;
+    ///
+    /// \brief getDataSet
+    /// \return parent dataset of this selection
+    ///
+    DataSet& getDataset() noexcept;
+    const DataSet& getDataset() const noexcept;
 
-  ///
-  /// \brief return the datatype of the selection
-  /// \return return the datatype of the selection
-  const DataType getDataType() const;
+    ///
+    /// \brief return the datatype of the selection
+    /// \return return the datatype of the selection
+    const DataType getDataType() const;
 
-private:
-  Selection(const DataSpace& memspace,
-            const DataSpace& file_space,
-            const DataSet& set);
+  private:
+    Selection(const DataSpace& memspace,
+              const DataSpace& file_space,
+              const DataSet& set);
 
-  DataSpace _mem_space, _file_space;
-  DataSet _set;
+    DataSpace _mem_space, _file_space;
+    DataSet _set;
 
-  template <typename Derivate> friend class ::HighFive::SliceTraits;
-  // absolute namespace naming due to GCC bug 52625
+    template <typename Derivate> friend class ::HighFive::SliceTraits;
+    // absolute namespace naming due to GCC bug 52625
 };
 
 }  // namespace HighFive

@@ -25,13 +25,13 @@ class MPIOFileAccess
 {
 public:
   MPIOFileAccess(Comm comm, Info info)
-    : _comm(comm)
-    , _info(info)
+      : _comm(comm)
+      , _info(info)
   {}
 
   void apply(const hid_t list) const {
     if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
-      HDF5ErrMapper::ToException<FileException>(
+        HDF5ErrMapper::ToException<FileException>(
             "Unable to set-up MPIO Driver configuration");
     }
   }
@@ -44,7 +44,7 @@ private:
 
 template <typename Comm, typename Info>
 inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
-  add(MPIOFileAccess<Comm, Info>(comm, info));
+    add(MPIOFileAccess<Comm, Info>(comm, info));
 }
 
 } // namespace HighFive

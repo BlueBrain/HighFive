@@ -19,57 +19,25 @@ namespace HighFive {
 ///
 /// \brief Represents an hdf5 group
 class Group : public Object,
-    public NodeTraits<Group>,
-    public AnnotateTraits<Group> {
-public:
+              public NodeTraits<Group>,
+              public AnnotateTraits<Group> {
+  public:
+    const static ObjectType type = ObjectType::Group;
 
-  // this makes available to use both
-  // Object::getObjectType and NodeTraits<T>::getObjectType
-  using Object::getObjectType;
-  using NodeTraits<Group>::getObjectType;
-
-  const static ObjectType type = ObjectType::Group;
-
-  LinkInfo getLinkInfo() const {
-    return Object::getLinkInfo();
-  }
-
-  ///
-  /// \brief getTargetPath For soft link that returns path to target that
-  /// link points to. Otherwise it works the same way as `getPath()`
-  /// \param accessProp
-  /// \return
-  ///
-  std::string getTargetPath(
-      const LinkAccessProps& accessProp = LinkAccessProps()) const{
-    if (getLinkInfo().getLinkType() == LinkType::Soft){
-      char str[256];
-
-      if (H5Lget_val(getId(false), getPath().c_str(),
-                     &str, 255, accessProp.getId(false)) < 0){
-        HDF5ErrMapper::ToException<GroupException>(
-              std::string("Can't get path to which the link points to"));
-      }
-      return std::string{str};
-    }
-
-    return getPath();
-  }
-
-  static Group FromId(const hid_t& id, const bool& increaseRefCount){
-    Object obj = Object(id, ObjectType::Group, increaseRefCount);
+  static Group FromId(const hid_t& id){
+    Object obj = Object(id, ObjectType::Group);
     return Group(obj);
   };
+  
+  protected:
+    Group(const Object& obj) : Object(obj){};
+    using Object::Object;
 
-protected:
-  Group(const Object& obj) : Object(obj){};
-  using Object::Object;
+    inline Group(Object&& o) noexcept : Object(std::move(o)) {};
 
-  inline Group(Object&& o) noexcept : Object(std::move(o)) {};
-
-  friend class File;
-  friend class Reference;
-  template <typename Derivate> friend class ::HighFive::NodeTraits;
+    friend class File;
+    friend class Reference;
+    template <typename Derivate> friend class ::HighFive::NodeTraits;
 };
 
 }  // namespace HighFive

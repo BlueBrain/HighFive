@@ -28,7 +28,6 @@ class FileDriver;
 class Group;
 class Object;
 class ObjectInfo;
-class LinkInfo;
 class Reference;
 class Selection;
 class SilenceHDF5;

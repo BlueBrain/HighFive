@@ -52,28 +52,29 @@ namespace H5Easy {
 
 using HighFive::Attribute;
 using HighFive::AtomicType;
+using HighFive::Chunking;
 using HighFive::DataSet;
 using HighFive::DataSetCreateProps;
 using HighFive::DataSpace;
+using HighFive::Deflate;
 using HighFive::Exception;
 using HighFive::File;
 using HighFive::ObjectType;
-using HighFive::LinkCreateProps;
-using HighFive::LinkAccessProps;
+using HighFive::Shuffle;
 
 ///
 /// \brief Write mode for DataSets
 enum class DumpMode {
-  Create = 0, /*!< Dump only if DataSet does not exist, otherwise throw. */
-  Overwrite = 1 /*!< Create or overwrite if DataSet of correct shape exists, otherwise throw. */
+    Create = 0, /*!< Dump only if DataSet does not exist, otherwise throw. */
+    Overwrite = 1 /*!< Create or overwrite if DataSet of correct shape exists, otherwise throw. */
 };
 
 ///
 /// \brief Enable/disable automatic flushing after write operations.
 enum class Flush
 {
-  False = 0, /*!< No automatic flushing. */
-  True = 1 /*!< Automatic flushing. */
+    False = 0, /*!< No automatic flushing. */
+    True = 1 /*!< Automatic flushing. */
 };
 
 ///
@@ -82,22 +83,22 @@ class Compression
 {
 public:
 
-  //
-  // \brief Enable compression with the highest compression level (9).
-  // or disable compression (set compression level to 0).
-  explicit Compression(bool enable = true);
+    //
+    // \brief Enable compression with the highest compression level (9).
+    // or disable compression (set compression level to 0).
+    explicit Compression(bool enable = true);
 
-  //
-  // \brief Set compression level.
-  template <class T>
-  Compression(T level);
+    //
+    // \brief Set compression level.
+    template <class T>
+    Compression(T level);
 
-  //
-  // \brief Return compression level.
-  inline unsigned get() const;
+    //
+    // \brief Return compression level.
+    inline unsigned get() const;
 
 private:
-  unsigned m_compression_level;
+    unsigned m_compression_level;
 };
 
 ///
@@ -111,80 +112,80 @@ private:
 class DumpOptions
 {
 public:
-  ///
-  /// \brief Constructor: accept all defaults.
-  DumpOptions() = default;
+    ///
+    /// \brief Constructor: accept all defaults.
+    DumpOptions() = default;
 
-  ///
-  /// \brief Constructor: overwrite (some of the) defaults.
-  /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
-  template <class... Args>
-  DumpOptions(Args... args)
-  {
-    set(args...);
-  }
+    ///
+    /// \brief Constructor: overwrite (some of the) defaults.
+    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    template <class... Args>
+    DumpOptions(Args... args)
+    {
+        set(args...);
+    }
 
-  ///
-  /// \brief Overwrite setting.
-  /// \param mode: DumpMode.
-  inline void set(DumpMode mode);
+    ///
+    /// \brief Overwrite setting.
+    /// \param mode: DumpMode.
+    inline void set(DumpMode mode);
 
-  ///
-  /// \brief Overwrite setting.
-  /// \param flush Flush.
-  inline void set(Flush mode);
+    ///
+    /// \brief Overwrite setting.
+    /// \param flush Flush.
+    inline void set(Flush mode);
 
-  ///
-  /// \brief Overwrite setting.
-  /// \param level Compression.
-  inline void set(const Compression& level);
+    ///
+    /// \brief Overwrite setting.
+    /// \param level Compression.
+    inline void set(const Compression& level);
 
-  ///
-  /// \brief Overwrite settings.
-  /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
-  template <class T, class... Args>
-  inline void set(T arg, Args... args);
+    ///
+    /// \brief Overwrite settings.
+    /// \param Any of DumpMode, Flush, Compression in arbitrary number and order.
+    template <class T, class... Args>
+    inline void set(T arg, Args... args);
 
-  ///
-  /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
-  /// \param shape Chunk size along each dimension.
-  template <class T>
-  inline void setChunkSize(const std::vector<T>& shape);
+    ///
+    /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
+    /// \param shape Chunk size along each dimension.
+    template <class T>
+    inline void setChunkSize(const std::vector<T>& shape);
 
-  ///
-  /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
-  /// \param shape Chunk size along each dimension.
-  inline void setChunkSize(std::initializer_list<size_t> shape);
+    ///
+    /// \brief Set chunk-size. If the input is rank (size) zero, automatic chunking is enabled.
+    /// \param shape Chunk size along each dimension.
+    inline void setChunkSize(std::initializer_list<size_t> shape);
 
-  ///
-  /// \brief Check to overwrite.
-  inline bool overwrite() const;
+    ///
+    /// \brief Check to overwrite.
+    inline bool overwrite() const;
 
-  ///
-  /// \brief Check to flush.
-  inline bool flush() const;
+    ///
+    /// \brief Check to flush.
+    inline bool flush() const;
 
-  ///
-  /// \brief Check to compress.
-  inline bool compress() const;
+    ///
+    /// \brief Check to compress.
+    inline bool compress() const;
 
-  ///
-  /// \brief Get compression level.
-  inline unsigned getCompressionLevel() const;
+    ///
+    /// \brief Get compression level.
+    inline unsigned getCompressionLevel() const;
 
-  ///
-  /// \brief Check if chunk-size is manually set (or should be computed automatically).
-  inline bool isChunked() const;
+    ///
+    /// \brief Check if chunk-size is manually set (or should be computed automatically).
+    inline bool isChunked() const;
 
-  ///
-  /// \brief Get chunk size.
-  inline std::vector<hsize_t> getChunkSize() const;
+    ///
+    /// \brief Get chunk size.
+    inline std::vector<hsize_t> getChunkSize() const;
 
 private:
-  bool m_overwrite = false;
-  bool m_flush = true;
-  unsigned m_compression_level = 0;
-  std::vector<hsize_t> m_chunk_size = {};
+    bool m_overwrite = false;
+    bool m_flush = true;
+    unsigned m_compression_level = 0;
+    std::vector<hsize_t> m_chunk_size = {};
 };
 
 ///

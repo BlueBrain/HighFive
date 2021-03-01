@@ -26,71 +26,57 @@
 
 namespace HighFive {
 
+inline std::string DataSet::getPath() const {
+    return details::get_name([&](char *buffer, hsize_t length) {
+        return H5Iget_name(_hid, buffer, length);
+    });
+}
+
 inline uint64_t DataSet::getStorageSize() const {
-  return H5Dget_storage_size(_hid);
+    return H5Dget_storage_size(_hid);
 }
 
 inline DataType DataSet::getDataType() const {
-  return DataType(H5Dget_type(_hid));
-}
-
-inline LinkInfo DataSet::getLinkInfo() const {
-  return Object::getLinkInfo();
+    return DataType(H5Dget_type(_hid));
 }
 
 inline DataSpace DataSet::getSpace() const {
-  DataSpace space;
-  if ((space._hid = H5Dget_space(_hid)) < 0) {
-    HDF5ErrMapper::ToException<DataSetException>(
-          "Unable to get DataSpace out of DataSet");
-  }
-  return space;
+    DataSpace space;
+    if ((space._hid = H5Dget_space(_hid)) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Unable to get DataSpace out of DataSet");
+    }
+    return space;
 }
 
 inline DataSpace DataSet::getMemSpace() const {
-  return getSpace();
-}
-
-inline std::string DataSet::getTargetPath(
-    const LinkAccessProps& accessProp) const{
-  if (getLinkInfo().getLinkType() == LinkType::Soft){
-    char str[256];
-
-    if (H5Lget_val(getId(false), getPath().c_str(),
-                   &str, 255, accessProp.getId(false)) < 0){
-      HDF5ErrMapper::ToException<GroupException>(
-            std::string("Can't get path to which the link points to"));
-    }
-    return std::string{str};
-  }
-
-  return getPath();
+    return getSpace();
 }
 
 inline uint64_t DataSet::getOffset() const {
-  uint64_t addr = H5Dget_offset(_hid);
-  if (addr == HADDR_UNDEF) {
-    HDF5ErrMapper::ToException<DataSetException>(
-          "Cannot get offset of DataSet.");
-  }
-  return addr;
+    uint64_t addr = H5Dget_offset(_hid);
+    if (addr == HADDR_UNDEF) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Cannot get offset of DataSet.");
+    }
+    return addr;
 }
 
 inline void DataSet::resize(const std::vector<size_t>& dims) {
 
-  const size_t numDimensions = getSpace().getDimensions().size();
-  if (dims.size() != numDimensions) {
-    HDF5ErrMapper::ToException<DataSetException>(
-          "Invalid dataspace dimensions, got " + std::to_string(dims.size()) +
-          " expected " + std::to_string(numDimensions));
-  }
+    const size_t numDimensions = getSpace().getDimensions().size();
+    if (dims.size() != numDimensions) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Invalid dataspace dimensions, got " + std::to_string(dims.size()) +
+            " expected " + std::to_string(numDimensions));
+    }
 
-  std::vector<hsize_t> real_dims(dims.begin(), dims.end());
+    std::vector<hsize_t> real_dims(dims.begin(), dims.end());
 
-  if (H5Dset_extent(getId(false), real_dims.data()) < 0) {
-    HDF5ErrMapper::ToException<DataSetException>(
-          "Could not resize dataset.");
-  }
+    if (H5Dset_extent(getId(), real_dims.data()) < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Could not resize dataset.");
+    }
 }
 
 } // namespace HighFive
