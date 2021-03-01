@@ -8,10 +8,7 @@ target_include_directories(libheaders INTERFACE
 
 # Combined HighFive
 add_library(HighFive INTERFACE)
-target_compile_definitions(HighFive
-  INTERFACE MPI_NO_CPPBIND  # No c++ bindings
-  INTERFACE H5_MAX_PATH_LEN
-  )
+target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND) # No c++ bindings
 target_link_libraries(HighFive INTERFACE libheaders libdeps)
 
 # Generate ${PROJECT_NAME}Config.cmake
