@@ -22,11 +22,11 @@ class FileDriver : public FileAccessProps {};
 /// \brief MPIIO Driver for Parallel HDF5
 ///
 class MPIOFileDriver : public FileDriver {
-  public:
-    template <typename Comm, typename Info>
-    inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);
+public:
+  template <typename Comm, typename Info>
+  inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);
 
-  private:
+private:
 };
 
 }  // namespace HighFive

@@ -29,50 +29,50 @@ namespace HighFive {
 /// file in datasets themselves.
 ///
 class Reference {
-  public:
-    /// \brief Create an empty Reference to be initialized later
-    Reference() = default;
+public:
+  /// \brief Create an empty Reference to be initialized later
+  Reference() = default;
 
-    /// \brief Create a Reference to an object residing at a given location
-    ///
-    /// \param location A File or Group where the object being referenced to resides
-    /// \param object A Dataset or Group to be referenced
-    Reference(const Object& location, const Object& object);
+  /// \brief Create a Reference to an object residing at a given location
+  ///
+  /// \param location A File or Group where the object being referenced to resides
+  /// \param object A Dataset or Group to be referenced
+  Reference(const Object& location, const Object& object);
 
-    /// \brief Retrieve the Object being referenced by the Reference
-    ///
-    /// \tparam T the appropriate HighFive Container (either DataSet or Group)
-    /// \param location the location where the referenced object is to be found (a File)
-    /// \return the dereferenced Object (either a Group or DataSet)
-    template <typename T>
-    T dereference(const Object& location) const;
+  /// \brief Retrieve the Object being referenced by the Reference
+  ///
+  /// \tparam T the appropriate HighFive Container (either DataSet or Group)
+  /// \param location the location where the referenced object is to be found (a File)
+  /// \return the dereferenced Object (either a Group or DataSet)
+  template <typename T>
+  T dereference(const Object& location) const;
 
-    /// \brief Get only the type of the referenced Object
-    ///
-    /// \param location the location where the referenced object is to be found (a File)
-    /// \return the ObjectType of the referenced object
-    ObjectType getType(const Object& location) const;
+  /// \brief Get only the type of the referenced Object
+  ///
+  /// \param location the location where the referenced object is to be found (a File)
+  /// \return the ObjectType of the referenced object
+  ObjectType getType(const Object& location) const;
 
-  protected:
-    /// \brief Create a Reference from a low-level HDF5 object reference
-    inline explicit Reference(const hobj_ref_t h5_ref)
-        : href(h5_ref) {};
+protected:
+  /// \brief Create a Reference from a low-level HDF5 object reference
+  inline explicit Reference(const hobj_ref_t h5_ref)
+    : href(h5_ref) {};
 
-    /// \brief Create the low-level reference and store it at refptr
-    ///
-    /// \param refptr Pointer to a memory location where the created HDF5 reference will
-    /// be stored
-    void create_ref(hobj_ref_t* refptr) const;
+  /// \brief Create the low-level reference and store it at refptr
+  ///
+  /// \param refptr Pointer to a memory location where the created HDF5 reference will
+  /// be stored
+  void create_ref(hobj_ref_t* refptr) const;
 
-  private:
+private:
 
-    Object get_ref(const Object& location) const;
+  Object get_ref(const Object& location) const;
 
-    hobj_ref_t href{};
-    std::string obj_name{};
-    hid_t parent_id{};
+  hobj_ref_t href{};
+  std::string obj_name{};
+  hid_t parent_id{};
 
-    friend details::data_converter<std::vector<Reference>>;
+  friend details::data_converter<std::vector<Reference>>;
 };
 
 }  // namespace HighFive

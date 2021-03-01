@@ -3,7 +3,7 @@ tests/test_project
 .idea
 
 .vs/
-build-MSVC2019-Release
-build-MSVC2019-Debug
 .vscode
-CMakeLists.txt.user
+build-MSVC2019-Debug
+build-MSVC2019-Release
+stubs

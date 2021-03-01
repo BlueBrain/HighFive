@@ -27,52 +27,52 @@ using HighFive::details::inspector;
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
-    inline static DataSet dump(File& file,
-                               const std::string& path,
-                               const T& data,
-                               const DumpOptions& options) {
-        using value_type = typename inspector<T>::base_type;
-        auto dims = inspector<T>::getDimensions(data);
-        DataSet dataset = initDataset<value_type>(file, path, std::vector<size_t>(dims.begin(), dims.end()), options);
-        dataset.write(data);
-        if (options.flush()) {
-            file.flush();
-        }
-        return dataset;
+  inline static DataSet dump(File& file,
+                             const std::string& path,
+                             const T& data,
+                             const DumpOptions& options) {
+    using value_type = typename inspector<T>::base_type;
+    auto dims = inspector<T>::getDimensions(data);
+    DataSet dataset = initDataset<value_type>(file, path, std::vector<size_t>(dims.begin(), dims.end()), options);
+    dataset.write(data);
+    if (options.flush()) {
+      file.flush();
     }
+    return dataset;
+  }
 
-    inline static T load(const File& file, const std::string& path) {
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
-        return data;
-    }
+  inline static T load(const File& file, const std::string& path) {
+    DataSet dataset = file.getDataSet(path);
+    T data;
+    dataset.read(data);
+    return data;
+  }
 
-   inline static Attribute dumpAttribute(File& file,
-                                         const std::string& path,
-                                         const std::string& key,
-                                         const T& data,
-                                         const DumpOptions& options) {
-        using value_type = typename inspector<T>::base_type;
-        auto dims = inspector<T>::getDimensions(data);
-        std::vector<size_t> shape(dims.begin(), dims.end());
-        Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
-        attribute.write(data);
-        if (options.flush()) {
-            file.flush();
-        }
-        return attribute;
+  inline static Attribute dumpAttribute(File& file,
+                                        const std::string& path,
+                                        const std::string& key,
+                                        const T& data,
+                                        const DumpOptions& options) {
+    using value_type = typename inspector<T>::base_type;
+    auto dims = inspector<T>::getDimensions(data);
+    std::vector<size_t> shape(dims.begin(), dims.end());
+    Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
+    attribute.write(data);
+    if (options.flush()) {
+      file.flush();
     }
+    return attribute;
+  }
 
-    inline static T loadAttribute(const File& file,
-                                  const std::string& path,
-                                  const std::string& key) {
-        DataSet dataset = file.getDataSet(path);
-        Attribute attribute = dataset.getAttribute(key);
-        T data;
-        attribute.read(data);
-        return data;
-    }
+  inline static T loadAttribute(const File& file,
+                                const std::string& path,
+                                const std::string& key) {
+    DataSet dataset = file.getDataSet(path);
+    Attribute attribute = dataset.getAttribute(key);
+    T data;
+    attribute.read(data);
+    return data;
+  }
 };
 
 }  // namespace detail
