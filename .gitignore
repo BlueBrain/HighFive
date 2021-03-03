@@ -3,8 +3,3 @@ tests/test_project
 .idea
 
 .vs/
-.vscode/
-build-MSVC2019-Release
-build-MSVC2019-Debug
-pybind11
-CMakeLists.txt.user
