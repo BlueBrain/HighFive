@@ -99,7 +99,9 @@ inline hid_t Object::getFileId() const noexcept {
 }
 
 inline std::string Object::getFileName() const {
-  return details::get_name(std::bind(H5Fget_name, _hid, _1, _2));
+    return details::get_name([&](char *buffer, hsize_t length) {
+        return H5Fget_name(_hid, buffer, length);
+    });
 }
 
 inline ObjectType Object::getType() const {
