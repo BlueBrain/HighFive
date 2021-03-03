@@ -39,7 +39,7 @@ inline unsigned convert_open_flag(unsigned openFlags) {
 
 
 inline File::File(const std::string& filename, unsigned openFlags,
-                  const FileAccessProps& fileAccessProps){
+                  const FileAccessProps& fileAccessProps) {
 
     openFlags = convert_open_flag(openFlags);
 

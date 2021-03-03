@@ -83,7 +83,7 @@ class Attribute : public Object {
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
-    static Attribute FromId(const hid_t& id){
+    static Attribute FromId(const hid_t& id) {
       return Attribute(Object(id, ObjectType::Attribute));
     };
 

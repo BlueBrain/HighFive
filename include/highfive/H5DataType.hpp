@@ -41,7 +41,7 @@ enum class DataTypeClass {
 ///
 class DataType : public Object {
   public:
-    DataType(){};
+    DataType() = default;
 
     bool operator==(const DataType& other) const;
 
@@ -84,14 +84,15 @@ class DataType : public Object {
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
 
-    static DataType FromId(const hid_t& id){
+    static DataType FromId(const hid_t& id) {
         Object obj = Object(id, ObjectType::UserDataType);
         return DataType(obj);
     };
 
   protected:
-    DataType(const Object& obj) : Object(obj){};
     using Object::Object;
+
+    DataType(const Object& obj) : Object(obj){};
 
     friend class Attribute;
     friend class File;
@@ -110,7 +111,7 @@ class AtomicType : public DataType {
 
     typedef T basic_type;
 
-    static AtomicType FromId(const hid_t& id){
+    static AtomicType FromId(const hid_t& id) {
         DataType obj = DataType::FromId(id);
         return AtomicType(obj);
     };
@@ -167,7 +168,7 @@ public:
         return members;
     }
 
-    static CompoundType FromId(const hid_t& id){
+    static CompoundType FromId(const hid_t& id) {
         DataType obj = DataType::FromId(id);
         return CompoundType(obj);
     };
@@ -235,7 +236,7 @@ public:
     /// \param name Name to give the datatype
     void commit(const Object& object, const std::string& name) const;
 
-    static EnumType FromId(const hid_t& id){
+    static EnumType FromId(const hid_t& id) {
         DataType obj = DataType::FromId(id);
         return EnumType(obj);
     };

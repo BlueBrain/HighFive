@@ -118,7 +118,7 @@ class DataSpace : public Object {
     template <std::size_t N, std::size_t Width>
     static DataSpace FromCharArrayStrings(const char(&)[N][Width]);
 
-    static DataSpace FromId(const hid_t& id){
+    static DataSpace FromId(const hid_t& id) {
       Object obj = Object(id, ObjectType::DataSpace);
       return DataSpace(obj);
     };

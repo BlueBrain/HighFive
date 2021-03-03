@@ -93,16 +93,17 @@ class DataSet : public Object,
         return getSpace().getElementCount();
     }
 
-    static DataSet FromId(const hid_t& id){
+    static DataSet FromId(const hid_t& id) {
         Object obj = Object(id, ObjectType::Dataset);
         return DataSet(obj);
     };
 
   protected:
-    DataSet(const Object& obj) : Object(obj){};
     using Object::Object;
 
     inline DataSet(Object&& o) noexcept : Object(std::move(o)) {}
+
+    DataSet(const Object& obj) : Object(obj){};
 
     friend class Reference;
     template <typename Derivate> friend class NodeTraits;

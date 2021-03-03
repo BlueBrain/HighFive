@@ -24,16 +24,17 @@ class Group : public Object,
   public:
     const static ObjectType type = ObjectType::Group;
 
-  static Group FromId(const hid_t& id){
+  static Group FromId(const hid_t& id) {
     Object obj = Object(id, ObjectType::Group);
     return Group(obj);
   };
   
   protected:
-    Group(const Object& obj) : Object(obj){};
     using Object::Object;
 
     inline Group(Object&& o) noexcept : Object(std::move(o)) {};
+
+    Group(const Object& obj) : Object(obj){};
 
     friend class File;
     friend class Reference;

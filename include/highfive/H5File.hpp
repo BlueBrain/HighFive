@@ -64,12 +64,12 @@ class File : public Object,
     ///
     void flush();
 
-    static File FromId(const hid_t& id){
+    static File FromId(const hid_t& id) {
         Object obj = Object(id, ObjectType::File);
         return File(obj);
     };
 
-protected:
+  protected:
     File(const Object& obj) : Object(obj){};
 };
 
