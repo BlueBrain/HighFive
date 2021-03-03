@@ -409,7 +409,7 @@ struct data_converter<std::vector<Reference>, void> {
     }
 
     inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
+        _vec_align.resize(compute_total_size(_dims));
         for (size_t i = 0; i < vec.size(); ++i) {
             vec[i].create_ref(&_vec_align[i]);
         }
