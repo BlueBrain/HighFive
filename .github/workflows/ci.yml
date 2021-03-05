@@ -1,0 +1,77 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - live-debug*
+      - ci_test
+      - release/**
+  pull_request:
+    branches:
+      - master
+      - release/**
+    paths-ignore:
+      - '**.md'
+      - '**.rst'
+      - 'docs/**'
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: 1  # for reproducibility, dont autoupdate
+  BUILD_TYPE: RelWithDebInfo
+  INSTALL_DIR: install
+  HIGHFIVE_USE_XTENSOR: False
+  HIGHFIVE_USE_OPENCV: False
+  HIGHFIVE_PARALLEL_HDF5: False
+  MINCONDA_VERSION: latest
+  MINCONDA_LINUX: Linux-x86_64
+  MINCONDA_OSX: MacOSX-x86_64
+
+jobs:
+  CI:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest]
+        compilers_eval: ["", "CC=clang-8 CXX=clang++-8"]
+        include:
+          - os: macos-10.15
+          - os: ubuntu-16.04
+          - os: ubuntu-18.04
+            compilers_eval: "CC=gcc-8 CXX=g++-8"
+          - os: ubuntu-20.04
+            compilers_eval: "CC=gcc-10 CXX=g++-10"
+          - os: ubuntu-20.04
+            compilers_eval: "CC=clang-10 CXX=clang++-10"
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries (OSX)"
+      if: startsWith(matrix.os, 'macos')
+      run: brew install boost hdf5 eigen
+
+    - name: "Install libraries (Linux)"
+      if: startsWith(matrix.os, 'ubuntu')
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-openmpi-dev libeigen3-dev
+
+    - name: Prepare Build Environment
+      run: |
+        eval export ${{matrix.compilers_eval}}
+        $CC --version || $CC -v || echo $CC
+        cmake --version
+        cmake -E make_directory ${{github.workspace}}/build
+        cd ${{github.workspace}}/build
+        cmake $GITHUB_WORKSPACE \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+          -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF
+
+    - name: Build
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest --output-on-failure -C $BUILD_TYPE
