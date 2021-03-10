@@ -1,0 +1,124 @@
+name: HighFive_CI
+
+on:
+  push:
+    branches:
+      - ci_test
+      - release/**
+  pull_request:
+    branches:
+      - master
+      - release/**
+    paths-ignore:
+      - '**.md'
+      - '**.rst'
+      - 'doc/**'
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: 1  # for reproducibility, dont autoupdate
+  BUILD_TYPE: RelWithDebInfo
+  INSTALL_DIR: install
+
+jobs:
+
+  # Plan for testing compiling on several Linux systems + MPI
+  # =========================================================
+  Linux_MPI:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+
+    - name: "Install libraries"
+      shell: bash -l {0}  # required to activate conda
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libhdf5-openmpi-dev libeigen3-dev
+        conda install -y -c conda-forge xtl xsimd xtensor
+
+    - name: Build
+      env:
+        CMAKE_OPTIONS: "\
+          -DHIGHFIVE_PARALLEL_HDF5:BOOL=ON \
+          -DHIGHFIVE_USE_XTENSOR:BOOL=ON"
+      shell: bash -l {0}  # required to activate conda
+      run: source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure -C $BUILD_TYPE
+
+
+  # Plan for testing several compilers on a stable Linux
+  # ====================================================
+  Linux_Compilers:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        env: [
+          {CC: clang-8, CXX: clang++-8},
+          {CC: clang-9, CXX: clang++-9},
+          {CC: gcc-8, CXX: g++-8},
+          {CC: gcc-9, CXX: g++-9},
+          {CC: gcc-10, CXX: g++-10},
+        ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries"
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
+
+    - name: Build
+      env: ${{matrix.env}}
+      run: source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure -C $BUILD_TYPE
+
+
+  # Plan for testing in OSX
+  # =======================
+  OSX:
+    runs-on: macOS-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries (OSX)"
+      run: brew install boost hdf5 eigen
+
+    - name: Build
+      run: source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure -C $BUILD_TYPE
+
+
+  # Plan for testing in Windows
+  # ===========================
+  Windows:
+    runs-on: Windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+
+    - name: "Install libraries"
+      run: conda install -y -c conda-forge boost-cpp hdf5 eigen xtl xsimd xtensor
+
+    - name: Build
+      shell: bash -l {0}
+      run: |
+        CMAKE_OPTIONS="-DHIGHFIVE_USE_XTENSOR:BOOL=ON"
+        source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash -l {0}
+      run: ctest --output-on-failure -C $BUILD_TYPE
