@@ -151,13 +151,6 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 }
 
 template <typename Derivate>
-inline std::string NodeTraits<Derivate>::getPath() const {
-    return details::get_name([&](char* buffer, hsize_t length) {
-        return H5Iget_name(static_cast<const Derivate*>(this)->getId(), buffer, length);
-    });
-}
-
-template <typename Derivate>
 inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
                                          const std::string& dst_path, bool parents) const {
     RawPropertyList<PropertyType::LINK_CREATE> lcpl;

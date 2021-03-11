@@ -1226,6 +1226,17 @@ BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
     BOOST_CHECK_EQUAL("/group", group.getPath());
     BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
     BOOST_CHECK_EQUAL("attribute", attribute.getName());
+    BOOST_CHECK_EQUAL("/group/data", attribute.getPath());
+
+    BOOST_CHECK(file == dataset.getFile());
+    BOOST_CHECK(file == attribute.getFile());
+
+    // Destroy file early (it should live inside Dataset/Group)
+    std::unique_ptr<File> f2(new File("getpath.h5"));
+    const auto& d2 = f2->getDataSet("/group/data");
+    f2.reset(nullptr);
+    BOOST_CHECK_EQUAL(d2.getFile().getPath(), "/");
+
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveRename) {

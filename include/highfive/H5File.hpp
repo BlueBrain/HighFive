@@ -62,6 +62,12 @@ class File : public Object,
     ///
     const std::string& getName() const noexcept;
 
+
+    /// \bried Object path of a File is always "/"
+    std::string getPath() const noexcept {
+        return "/";
+    }
+
     ///
     /// \brief flush
     ///
@@ -70,7 +76,11 @@ class File : public Object,
     void flush();
 
  private:
+    using Object::Object;
+
     std::string _filename;
+
+    template <typename> friend class PathTraits;
 };
 
 }  // namespace HighFive
@@ -79,5 +89,6 @@ class File : public Object,
 #include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5File_misc.hpp"
 #include "bits/H5Node_traits_misc.hpp"
+#include "bits/H5Path_traits_misc.hpp"
 
 #endif  // H5FILE_HPP

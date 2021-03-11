@@ -25,14 +25,14 @@ inline Attribute
 AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                           const DataSpace& space,
                                           const DataType& dtype) {
-    Attribute attribute;
-    if ((attribute._hid = H5Acreate2(
-             static_cast<Derivate*>(this)->getId(), attribute_name.c_str(),
-             dtype._hid, space._hid, H5P_DEFAULT, H5P_DEFAULT)) < 0) {
+    auto attr_id = H5Acreate2(static_cast<Derivate*>(this)->getId(),
+                              attribute_name.c_str(),
+                              dtype._hid, space._hid, H5P_DEFAULT, H5P_DEFAULT);
+    if (attr_id < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
             std::string("Unable to create the attribute \"") + attribute_name + "\":");
     }
-    return attribute;
+    return Attribute(attr_id);
 }
 
 template <typename Derivate>
@@ -49,7 +49,7 @@ inline Attribute
 AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                           const T& data) {
     Attribute att = createAttribute(
-        attribute_name, 
+        attribute_name,
         DataSpace::From(data),
         create_and_check_datatype<typename details::inspector<T>::base_type>());
     att.write(data);
@@ -68,14 +68,13 @@ AnnotateTraits<Derivate>::deleteAttribute(const std::string& attribute_name) {
 template <typename Derivate>
 inline Attribute AnnotateTraits<Derivate>::getAttribute(
     const std::string& attribute_name) const {
-    Attribute attribute;
-    if ((attribute._hid = H5Aopen(static_cast<const Derivate*>(this)->getId(),
-                                  attribute_name.c_str(), H5P_DEFAULT)) < 0) {
+    const auto attr_id = H5Aopen(static_cast<const Derivate*>(this)->getId(),
+                                 attribute_name.c_str(), H5P_DEFAULT);
+    if (attr_id < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to open the attribute \"") + attribute_name +
-            "\":");
+            std::string("Unable to open the attribute \"") + attribute_name + "\":");
     }
-    return attribute;
+    return Attribute(attr_id);
 }
 
 template <typename Derivate>
