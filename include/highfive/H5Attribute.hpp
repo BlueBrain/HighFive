@@ -85,10 +85,11 @@ class Attribute : public Object,
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
+    // No empty attributes
+    Attribute() = delete;
+
   private:
     using Object::Object;
-
-    Attribute() = default;
 
     template <typename Derivate> friend class ::HighFive::AnnotateTraits;
 };

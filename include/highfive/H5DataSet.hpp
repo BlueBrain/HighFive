@@ -90,10 +90,13 @@ class DataSet : public Object,
         return getSpace().getElementCount();
     }
 
-  protected:
-    using Object::Object;
+    // No empty datasets
+    DataSet() = delete;
 
-    inline DataSet(Object&& o) noexcept : Object(std::move(o)) {}
+  protected:
+    using Object::Object;  // bring DataSet(hid_t)
+
+    DataSet(Object&& o) noexcept : Object(std::move(o)) {}
 
     friend class Reference;
     template <typename Derivate> friend class NodeTraits;

@@ -26,10 +26,13 @@ class Group : public Object,
   public:
     const static ObjectType type = ObjectType::Group;
 
+    // No empty groups
+    Group() = delete;
+
   protected:
     using Object::Object;
 
-    inline Group(Object&& o) noexcept : Object(std::move(o)) {};
+    Group(Object&& o) noexcept : Object(std::move(o)) {};
 
     friend class File;
     friend class Reference;

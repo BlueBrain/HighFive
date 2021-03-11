@@ -7,11 +7,17 @@ namespace HighFive{
 
 template <typename Derivate>
 inline PathTraits<Derivate>::PathTraits() {
-    const hid_t hid = static_cast<Derivate*>(this)->getId();
-    hid_t file_id = H5Iget_file_id(hid);
-    if (file_id > 0 and file_id != hid) {
-        _file_obj.reset(new File(file_id));
+    static_assert(std::is_same<Derivate, Group>::value
+                  || std::is_same<Derivate, DataSet>::value
+                  || std::is_same<Derivate, Attribute>::value,
+                  "PathTraits can only be applied to Group, DataSet and Attribute");
+
+    const hid_t file_id = H5Iget_file_id(static_cast<Derivate*>(this)->getId());
+    if (file_id < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "getFile(): Could not obtain file of object");
     }
+    _file_obj.reset(new File(file_id));
 }
 
 template <typename Derivate>
