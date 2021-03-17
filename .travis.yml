@@ -18,30 +18,6 @@ addons: &gcc7
     sources:
       - ubuntu-toolchain-r-test
 
-addons: &clang6
-  apt:
-    packages:
-      - clang-6.0
-      - libboost-all-dev
-      - libhdf5-openmpi-dev
-      - libeigen3-dev
-      - ninja-build
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-xenial-6.0
-
-addons: &clang7
-  apt:
-    packages:
-      - clang-7
-      - libboost-all-dev
-      - libhdf5-openmpi-dev
-      - libeigen3-dev
-      - ninja-build
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-xenial-7
-
 matrix:
   include:
     # Older linux (trusty) with default gcc
@@ -72,26 +48,6 @@ matrix:
         - HIGHFIVE_PARALLEL_HDF5=True
       addons: *gcc7
 
-    # Linux clang-6.0
-    # Install parallel hdf5 + build serial
-    - os: linux
-      dist: xenial
-      env:
-        - CLANG_VERSION=6.0
-        - HIGHFIVE_PARALLEL_HDF5=False
-      addons: *clang6
-
-    # Linux clang-7
-    # Install parallel hdf5, build parallel
-    - os: linux
-      dist: xenial
-      env:
-        - CLANG_VERSION=7
-        - HIGHFIVE_USE_XTENSOR=True
-        - HIGHFIVE_USE_OPENCV=False
-        - HIGHFIVE_PARALLEL_HDF5=True
-      addons: *clang7
-
     # Mac OSX XCode 10
     - os: osx
       osx_image: xcode10.3
@@ -99,15 +55,6 @@ matrix:
         - HIGHFIVE_USE_XTENSOR=True
         - HIGHFIVE_USE_OPENCV=True
         - HIGHFIVE_PARALLEL_HDF5=False
-
-    # Mac OSX XCode 11
-    - os: osx
-      osx_image: xcode11.3
-      env:
-        - HIGHFIVE_USE_XTENSOR=True
-        - HIGHFIVE_USE_OPENCV=True
-        - HIGHFIVE_PARALLEL_HDF5=False
-        - BREW_USE_LATEST=1
 
     # Windows
     - os: windows
