@@ -126,11 +126,11 @@ jobs:
   # Plan for preoducing code coverage report
   # =========================================
   Code_coverage:
-    runs-on: ubuntu-18.04
+    runs-on: macOS-10.15
 
     steps:
     - name: "Install libraries"
-      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev lcov
+      run: brew install boost hdf5 eigen lcov
 
     - uses: actions/checkout@v2
       with:
