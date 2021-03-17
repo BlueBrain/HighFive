@@ -123,7 +123,6 @@ jobs:
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
 
-
   # Plan for preoducing code coverage report
   # =========================================
   Code_coverage:
@@ -131,7 +130,7 @@ jobs:
 
     steps:
     - name: "Install libraries"
-      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev lcov
 
     - uses: actions/checkout@v2
       with:
