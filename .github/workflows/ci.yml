@@ -137,9 +137,6 @@ jobs:
         fetch-depth: 2
 
     - name: Build and test for coverage
-      env:
-        CC: clang-9
-        CXX: clang++-9
       run: |
         cmake -E make_directory $GITHUB_WORKSPACE/build
         cd $GITHUB_WORKSPACE/build
