@@ -43,7 +43,7 @@ jobs:
     - name: Build
       shell: bash -l {0}  # required to activate conda
       run: |
-        CMAKE_OPTIONS: (-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
