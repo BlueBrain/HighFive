@@ -123,8 +123,8 @@ jobs:
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
 
-  # Job preoducing code coverage report
-  # =========================================
+  # Job producing code coverage report
+  # ==================================
   Code_coverage:
     runs-on: macOS-10.15
 
@@ -138,15 +138,8 @@ jobs:
 
     - name: Build and test for code coverage
       run: |
-        cmake -E make_directory $GITHUB_WORKSPACE/build
-        cd $GITHUB_WORKSPACE/build
-        cmake $GITHUB_WORKSPACE \
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-          -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-          -DHIGHFIVE_USE_EIGEN:BOOL=TRUE \
-          -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE \
-          -DCMAKE_CXX_FLAGS="-coverage -O0"
-        make
+        CMAKE_OPTIONS="-DHIGHFIVE_BUILD_DOCS:BOOL=FALSE -DCMAKE_CXX_FLAGS='-coverage -O0'"
+        source $GITHUB_WORKSPACE/.github/build.sh
         (cd $GITHUB_WORKSPACE;  lcov --capture  --initial --directory . --no-external --output-file build/coverage-base.info)
         make test
         (cd $GITHUB_WORKSPACE; lcov --capture  --directory . --no-external --output-file build/coverage-run.info)
