@@ -21,7 +21,7 @@ env:
 
 jobs:
 
-  # Plan for testing compiling on several Linux systems + MPI
+  # Job testing compiling on several Linux systems + MPI
   # =========================================================
   Linux_MPI:
     runs-on: ${{matrix.os}}
@@ -53,7 +53,7 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing several compilers on a stable Linux
+  # Job testing several compilers on a stable Linux
   # ====================================================
   Linux_Compilers:
     runs-on: ubuntu-18.04
@@ -82,7 +82,7 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing in OSX
+  # Job testing in OSX
   # =======================
   OSX:
     runs-on: macOS-10.15
@@ -101,7 +101,7 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing in Windows
+  # Job testing in Windows
   # ===========================
   Windows:
     runs-on: Windows-latest
@@ -123,7 +123,7 @@ jobs:
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
 
-  # Plan for preoducing code coverage report
+  # Job preoducing code coverage report
   # =========================================
   Code_coverage:
     runs-on: macOS-10.15
