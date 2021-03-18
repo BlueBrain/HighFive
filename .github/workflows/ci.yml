@@ -41,12 +41,10 @@ jobs:
         conda install -y -c conda-forge xtl xsimd xtensor
 
     - name: Build
-      env:
-        CMAKE_OPTIONS: "\
-          -DHIGHFIVE_PARALLEL_HDF5:BOOL=ON \
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON"
       shell: bash -l {0}  # required to activate conda
-      run: source $GITHUB_WORKSPACE/.github/build.sh
+      run: |
+        CMAKE_OPTIONS: (-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -115,7 +113,7 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        CMAKE_OPTIONS="-DHIGHFIVE_USE_XTENSOR:BOOL=ON"
+        CMAKE_OPTIONS=(-DHIGHFIVE_USE_XTENSOR:BOOL=ON)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
@@ -138,7 +136,7 @@ jobs:
 
     - name: Build and test for code coverage
       run: |
-        CMAKE_OPTIONS="-DHIGHFIVE_BUILD_DOCS:BOOL=FALSE -DCMAKE_CXX_FLAGS='-coverage -O0'"
+        CMAKE_OPTIONS=(-DHIGHFIVE_BUILD_DOCS:BOOL=FALSE -DCMAKE_CXX_FLAGS="-coverage -O0")
         source $GITHUB_WORKSPACE/.github/build.sh
         (cd $GITHUB_WORKSPACE;  lcov --capture  --initial --directory . --no-external --output-file build/coverage-base.info)
         make test
