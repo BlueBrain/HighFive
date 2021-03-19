@@ -21,7 +21,7 @@ env:
 
 jobs:
 
-  # Plan for testing compiling on several Linux systems + MPI
+  # Job testing compiling on several Linux systems + MPI
   # =========================================================
   Linux_MPI:
     runs-on: ${{matrix.os}}
@@ -41,19 +41,17 @@ jobs:
         conda install -y -c conda-forge xtl xsimd xtensor
 
     - name: Build
-      env:
-        CMAKE_OPTIONS: "\
-          -DHIGHFIVE_PARALLEL_HDF5:BOOL=ON \
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON"
       shell: bash -l {0}  # required to activate conda
-      run: source $GITHUB_WORKSPACE/.github/build.sh
+      run: |
+        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing several compilers on a stable Linux
+  # Job testing several compilers on a stable Linux
   # ====================================================
   Linux_Compilers:
     runs-on: ubuntu-18.04
@@ -82,7 +80,7 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing in OSX
+  # Job testing in OSX
   # =======================
   OSX:
     runs-on: macOS-10.15
@@ -101,7 +99,7 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
-  # Plan for testing in Windows
+  # Job testing in Windows
   # ===========================
   Windows:
     runs-on: Windows-latest
@@ -115,10 +113,33 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        CMAKE_OPTIONS="-DHIGHFIVE_USE_XTENSOR:BOOL=ON"
+        CMAKE_OPTIONS=(-DHIGHFIVE_USE_XTENSOR:BOOL=ON)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
+
+  # Job producing code coverage report
+  # ==================================
+  Code_coverage:
+    runs-on: macOS-10.15
+
+    steps:
+    - name: "Install libraries"
+      run: brew install boost hdf5 eigen lcov
+
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
+    - name: Build and test for code coverage
+      run: |
+        CMAKE_OPTIONS=(-DHIGHFIVE_BUILD_DOCS:BOOL=FALSE -DCMAKE_CXX_FLAGS="-coverage -O0")
+        source $GITHUB_WORKSPACE/.github/build.sh
+        (cd $GITHUB_WORKSPACE;  lcov --capture  --initial --directory . --no-external --output-file build/coverage-base.info)
+        make test
+        (cd $GITHUB_WORKSPACE; lcov --capture  --directory . --no-external --output-file build/coverage-run.info)
+        lcov --add-tracefile coverage-base.info --add-tracefile coverage-run.info --output-file coverage-combined.info
+        bash <(curl -s https://codecov.io/bash) -f coverage-combined.info
