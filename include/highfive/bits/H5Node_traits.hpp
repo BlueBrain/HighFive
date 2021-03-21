@@ -155,8 +155,7 @@ class NodeTraits {
     Group createLink(
         const Node& target, const std::string& linkName, const LinkType& linkType,
         const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
-        const GroupAccessProps& groupAccessProps = GroupAccessProps());
+        const LinkAccessProps& linkAccessProps = LinkAccessProps());
 
     // Fake <- make it templated is needed by pybind11 to allow py::overload_cast<>()
     template<typename Fake = void>

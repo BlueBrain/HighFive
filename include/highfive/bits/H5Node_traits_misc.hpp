@@ -275,8 +275,7 @@ inline Group NodeTraits<Derivate>::createLink(
     const std::string& linkName,
     const LinkType& linkType,
     const LinkCreateProps& linkCreateProps,
-    const LinkAccessProps& linkAccessProps,
-    const GroupAccessProps& groupAccessProps)
+    const LinkAccessProps& linkAccessProps)
 {
     _createLink(target, linkName, linkType, linkCreateProps, linkAccessProps);
     return static_cast<const Derivate*>(this)->getGroup(
