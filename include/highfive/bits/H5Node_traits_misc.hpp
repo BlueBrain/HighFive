@@ -334,7 +334,7 @@ inline void NodeTraits<Derivate>::_createLink(
             linkName.c_str(), linkCreateProps.getId(), linkAccessProps.getId());
     } else if (linkType == LinkType::External){
         status = H5Lcreate_external(
-            target.getFileName().c_str(),
+            target.getFile.getName()..c_str(),
             target.getPath().c_str(),
             static_cast<const Derivate*>(this)->getId(),
             linkName.c_str(), linkCreateProps.getId(), linkAccessProps.getId());
