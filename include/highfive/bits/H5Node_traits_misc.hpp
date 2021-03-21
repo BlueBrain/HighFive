@@ -265,6 +265,38 @@ inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_na
     return _open(node_name).getType();
 }
 
+template <typename Derivate>
+template<typename Node,
+         typename std::enable_if<
+            std::is_same<Node, File>::value |
+            std::is_same<Node, Group>::value>::type*>
+inline Group NodeTraits<Derivate>::createLink(
+    const Node& target,
+    const std::string& linkName,
+    const LinkType& linkType,
+    const LinkCreateProps& linkCreateProps,
+    const LinkAccessProps& linkAccessProps,
+    const GroupAccessProps& groupAccessProps)
+{
+    _createLink(target, linkName, linkType, linkCreateProps, linkAccessProps);
+    return static_cast<const Derivate*>(this)->getGroup(
+        linkName, groupAccessProps);
+}
+
+template <typename Derivate>
+template<typename Fake>
+inline DataSet NodeTraits<Derivate>::createLink(
+    const DataSet& target,
+    const std::string& linkName,
+    const LinkType& linkType,
+    const LinkCreateProps& linkCreateProps,
+    const LinkAccessProps& linkAccessProps,
+    const DataSetAccessProps& dsetAccessProps)
+{
+    _createLink(target, linkName, linkType, linkCreateProps, linkAccessProps);
+    return static_cast<const Derivate*>(this)->getDataSet(linkName, dsetAccessProps);
+}
+
 
 template <typename Derivate>
 inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
@@ -277,6 +309,41 @@ inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
             std::string("Unable to open \"") + node_name + "\":");
     }
     return Object(id);
+}
+
+template <typename Derivate>
+template <typename T>
+inline void NodeTraits<Derivate>::_createLink(
+    T& target, const std::string& linkName,
+    const LinkType& linkType,
+    const LinkCreateProps& linkCreateProps,
+    const LinkAccessProps& linkAccessProps)
+{
+    herr_t status = -1;
+
+    if (linkType == LinkType::Soft){
+        status = H5Lcreate_soft(
+            target.getPath().c_str(),
+            static_cast<const Derivate*>(this)->getId(false),
+            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+    } else if (linkType == LinkType::Hard){
+        status = H5Lcreate_hard(
+            target.getId(false),
+            target.getPath().c_str(),
+            static_cast<const Derivate*>(this)->getId(false),
+            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+    } else if (linkType == LinkType::External){
+        status = H5Lcreate_external(
+            target.getFileName().c_str(),
+            target.getPath().c_str(),
+            static_cast<const Derivate*>(this)->getId(false),
+            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+    }
+
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create link"));
+    }
 }
 
 

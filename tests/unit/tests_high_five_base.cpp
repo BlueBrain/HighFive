@@ -1239,6 +1239,128 @@ BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
 
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveSoftLink) {
+    int val_in = 371;
+    int val_out = 0;
+
+    File file("link_soft.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("path/to/group");
+
+    // Dataset
+    DataSet dset = group.createDataSet<int>("data", DataSpace(1));
+    dset.write(val_in);
+
+    DataSet dset_out = file.createLink<DataSet>(dset, "myDsetLink", LinkType::Soft);
+
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(dset_out.getLinkInfo().getLinkType(), LinkType::Soft);
+    // BOOST_CHECK_EQUAL(dset_out.getTargetPath(), "/path/to/group/data");
+    // BOOST_CHECK_EQUAL(dset_out.getPath(), "/myDsetLink");
+    // BOOST_CHECK_EQUAL(dset_out.getFileName(), "link_soft.h5");
+
+    dset_out.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    // Group
+    Group group_out = file.createLink(group, "myGroupLink", LinkType::Soft);
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(group_out.getLinkInfo().getLinkType(), LinkType::Soft);
+
+    DataSet group_out_dset = group_out.getDataSet("data");
+    BOOST_CHECK_EQUAL(group_out_dset.isValid(), true);
+
+    val_out = 0;
+    group_out_dset.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    // Change the value of an existing original dset
+    val_in = 717;
+    dset.write(val_in);
+
+    val_out = 0;
+    dset_out.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    val_out = 0;
+    group_out_dset.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveHardLink) {
+    int val_in = 371;
+    int val_out = 0;
+
+    File file("link_hard.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("path/to/group");
+
+    // Dataset
+    DataSet dset = group.createDataSet<int>("data", DataSpace(1));
+    dset.write(val_in);
+
+    DataSet dset_out = file.createLink(dset, "myDsetLink", LinkType::Hard);
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(dset_out.getLinkInfo().getLinkType(), LinkType::Hard);
+    // BOOST_CHECK_EQUAL(dset_out.getTargetPath(), "/myDsetLink");
+    BOOST_CHECK_EQUAL(dset_out.getPath(), "/myDsetLink");
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(dset_out.getFileName(), "link_hard.h5");
+    // BOOST_CHECK_EQUAL(dset.getObjectInfo().getHardLinkRefCount(), 2);
+    // BOOST_CHECK_EQUAL(dset_out.getObjectInfo().getHardLinkRefCount(), 2);
+
+    dset_out.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    // Group
+    Group group_out = file.createLink(group, "myGroupLink", LinkType::Hard);
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(group_out.getLinkInfo().getLinkType(), LinkType::Hard);
+
+    DataSet group_out_dset = group_out.getDataSet("data");
+    BOOST_CHECK_EQUAL(group_out_dset.isValid(), true);
+
+    val_out = 0;
+    group_out_dset.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    // Change the value of an existing original dset
+    val_in = 717;
+    dset.write(val_in);
+
+    val_out = 0;
+    dset_out.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+
+    val_out = 0;
+    group_out_dset.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveExternalLink) {
+    int val_in = 371;
+    int val_out = 0;
+
+    File file1("link_external_from.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file1.createGroup("path/to");
+    DataSet dset1 = group.createDataSet<int>("data", DataSpace(1));
+
+    File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group2 = file2.createLink(group, "myExternalLink", LinkType::External);
+
+    // When you get object via External link then you get original object (Hard linked object)
+    // and there is nothing left from that External link
+    // Disabled until HighFive community decides about implementing class LinkInfo (similar to ObjectInfo)
+    // BOOST_CHECK_EQUAL(group2.getLinkInfo().getLinkType(), LinkType::Hard);
+    // BOOST_CHECK_EQUAL(group2.getTargetPath(), "/path/to");
+    BOOST_CHECK_EQUAL(group2.getPath(), "/path/to");
+    // BOOST_CHECK_EQUAL(group2.getFileName().empty(), false);
+
+    DataSet dset2 = group2.getDataSet("data");
+
+    dset1.write(val_in);
+    dset2.read(val_out);
+    BOOST_CHECK_EQUAL(val_out, val_in);
+}
+
 BOOST_AUTO_TEST_CASE(HighFiveRename) {
 
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);

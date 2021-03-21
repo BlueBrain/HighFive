@@ -148,6 +148,24 @@ class NodeTraits {
     /// \param node_name The entry to check, path relative to the current group
     inline ObjectType getObjectType(const std::string& node_name) const;
 
+    template<typename Node,
+            typename std::enable_if<
+                std::is_same<Node, File>::value |
+                std::is_same<Node, Group>::value>::type* = nullptr>
+    Group createLink(
+        const Node& target, const std::string& linkName, const LinkType& linkType,
+        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
+        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
+        const GroupAccessProps& groupAccessProps = GroupAccessProps());
+
+    // Fake <- make it templated is needed by pybind11 to allow py::overload_cast<>()
+    template<typename Fake = void>
+    DataSet createLink(
+        const DataSet& target, const std::string& linkName, const LinkType& linkType,
+        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
+        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
+        const DataSetAccessProps& dsetAccessProps = DataSetAccessProps());
+
   private:
     typedef Derivate derivate_type;
 
@@ -159,17 +177,12 @@ class NodeTraits {
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
                  const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
-};
 
-
-///
-/// \brief The possible types of group entries (link concept)
-///
-enum class LinkType {
-    Hard,
-    Soft,
-    External,
-    Other  // Reserved or User-defined
+    template<typename T>
+    void _createLink(
+        T& target, const std::string& linkName, const LinkType& linkType,
+        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
+        const LinkAccessProps& linkAccessProps = LinkAccessProps());
 };
 
 

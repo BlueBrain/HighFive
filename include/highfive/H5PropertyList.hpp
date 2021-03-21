@@ -79,6 +79,11 @@ typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps ;
 typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
 typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
 typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
+typedef PropertyList<PropertyType::GROUP_CREATE> GroupCreateProps;
+typedef PropertyList<PropertyType::GROUP_ACCESS> GroupAccessProps;
+typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
+typedef PropertyList<PropertyType::LINK_ACCESS> LinkAccessProps;
+
 
 ///
 /// RawPropertieLists are to be used when advanced H5 properties
