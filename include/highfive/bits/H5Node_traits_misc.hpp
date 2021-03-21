@@ -324,20 +324,20 @@ inline void NodeTraits<Derivate>::_createLink(
     if (linkType == LinkType::Soft){
         status = H5Lcreate_soft(
             target.getPath().c_str(),
-            static_cast<const Derivate*>(this)->getId(false),
-            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+            static_cast<const Derivate*>(this)->getId(),
+            linkName.c_str(), linkCreateProps.getId(), linkAccessProps.getId());
     } else if (linkType == LinkType::Hard){
         status = H5Lcreate_hard(
-            target.getId(false),
+            target.getId(),
             target.getPath().c_str(),
-            static_cast<const Derivate*>(this)->getId(false),
-            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+            static_cast<const Derivate*>(this)->getId(),
+            linkName.c_str(), linkCreateProps.getId(), linkAccessProps.getId());
     } else if (linkType == LinkType::External){
         status = H5Lcreate_external(
             target.getFileName().c_str(),
             target.getPath().c_str(),
-            static_cast<const Derivate*>(this)->getId(false),
-            linkName.c_str(), linkCreateProps.getId(false), linkAccessProps.getId(false));
+            static_cast<const Derivate*>(this)->getId(),
+            linkName.c_str(), linkCreateProps.getId(), linkAccessProps.getId());
     }
 
     if (status < 0) {
