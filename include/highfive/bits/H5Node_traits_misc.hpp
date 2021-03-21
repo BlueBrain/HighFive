@@ -280,7 +280,7 @@ inline Group NodeTraits<Derivate>::createLink(
 {
     _createLink(target, linkName, linkType, linkCreateProps, linkAccessProps);
     return static_cast<const Derivate*>(this)->getGroup(
-        linkName, groupAccessProps);
+        linkName);
 }
 
 template <typename Derivate>
