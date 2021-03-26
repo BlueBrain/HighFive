@@ -149,6 +149,13 @@ inline void Caching::apply(const hid_t hid) const {
     }
 }
 
+inline void CreateIntermediateGroup::apply(const hid_t hid) const {
+    if (H5Pset_create_intermediate_group(hid, _create ? 1 : 0) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting property for create intermediate groups");
+    }
+}
+
 }  // namespace HighFive
 
 #endif  // H5PROPERTY_LIST_HPP

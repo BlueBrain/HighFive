@@ -104,10 +104,9 @@ NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
 template <typename Derivate>
 inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
                                                bool parents) {
-    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
-    if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1u);
-    }
+
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
     const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
                                 group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT);
     if (hid < 0) {
@@ -151,10 +150,8 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
                                          const std::string& dst_path, bool parents) const {
-    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
-    if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1u);
-    }
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
     herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
                             static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
     if (status < 0) {
