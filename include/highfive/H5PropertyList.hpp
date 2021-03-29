@@ -74,11 +74,13 @@ class PropertyList {
     hid_t _hid;
 };
 
+typedef PropertyList<PropertyType::OBJECT_CREATE> ObjectCreateProps;
 typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
 typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps ;
 typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
 typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
 typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
+typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
 
 ///
 /// RawPropertieLists are to be used when advanced H5 properties
@@ -153,6 +155,19 @@ class Caching {
     const size_t _numSlots;
     const size_t _cacheSize;
     const double _w0;
+};
+
+class CreateIntermediateGroup {
+  public:
+    explicit CreateIntermediateGroup(bool create)
+        : _create(create)
+    {}
+
+  private:
+    friend ObjectCreateProps;
+    friend LinkCreateProps;
+    void apply(hid_t hid) const;
+    const bool _create;
 };
 
 }  // namespace HighFive
