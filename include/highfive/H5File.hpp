@@ -78,7 +78,7 @@ class File : public Object,
  private:
     using Object::Object;
 
-    std::string _filename;
+    mutable std::string _filename{};
 
     template <typename> friend class PathTraits;
 };
