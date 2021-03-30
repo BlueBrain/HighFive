@@ -41,6 +41,7 @@ inline std::string getParentName(const std::string& path) {
 /// \param file opened File
 /// \param path path of the DataSet
 ///
+H5_DEPRECATED("Deprecated since HighFive 2.3, use `parents` argument now.")
 inline void createGroupsToDataSet(File& file, const std::string& path) {
     std::string group_name = getParentName(path);
     if (!file.exist(group_name)) {
@@ -80,9 +81,8 @@ inline DataSet initDataset(File& file,
                            const DumpOptions& options)
 {
     if (!file.exist(path)) {
-        detail::createGroupsToDataSet(file, path);
         if (!options.compress() && !options.isChunked()) {
-            return file.createDataSet<T>(path, DataSpace(shape));
+            return file.createDataSet<T>(path, DataSpace(shape), {}, {}, true);
         } else {
             std::vector<hsize_t> chunks(shape.begin(), shape.end());
             if (options.isChunked()) {
@@ -97,7 +97,7 @@ inline DataSet initDataset(File& file,
                 props.add(Shuffle());
                 props.add(Deflate(options.getCompressionLevel()));
             }
-            return file.createDataSet<T>(path, DataSpace(shape), props);
+            return file.createDataSet<T>(path, DataSpace(shape), props, {}, true);
         }
     } else if (options.overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
@@ -117,8 +117,7 @@ inline DataSet initScalarDataset(File& file,
                                  const DumpOptions& options)
 {
     if (!file.exist(path)) {
-        detail::createGroupsToDataSet(file, path);
-        return file.createDataSet<T>(path, DataSpace::From(data));
+        return file.createDataSet<T>(path, DataSpace::From(data), {}, {}, true);
     } else if (options.overwrite() && file.getObjectType(path) == ObjectType::Dataset) {
         DataSet dataset = file.getDataSet(path);
         if (dataset.getElementCount() != 1) {
