@@ -1,5 +1,5 @@
 /*
- *  Copyright (c), 2017, Adrien Devresse
+ *   Copyright (c), 2021 Blue Brain Project - EPFL
  *
  *  Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE_1_0.txt or copy at
@@ -15,41 +15,28 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5Reference.hpp>
 
-// const std::string FILE_NAME("dataset_integer.h5");
-//const std::string SOURCE_INT_DATASET_NAME("source_dateset");
-//const std::string REFERENCE_DATASET_NAME("reference_dataset");
-//const size_t size_dataset = 20;
-
 // create a dataset 1D from a vector of int
 void write_dataset() {
 
     // we create a new hdf5 file
-    HighFive::File file("dataset_integer.h5", HighFive::File::ReadWrite |
-                                                  HighFive::File::Create |
-                                                  HighFive::File::Truncate);
+    HighFive::File file("dataset_integer.h5", HighFive::File::Overwrite);
 
     // we create a new group
     HighFive::Group group = file.createGroup("a_group");
 
     std::vector<int> data(20);
-    for (size_t i = 0; i < data.size(); ++i) {
-        data[i] = int(i);
-    }
+    std::iota(data.begin(), data.end(), 0);
 
     // let's create a dataset of native integer with the size of the vector
     // 'data' inside the group
-    HighFive::DataSet dataset = group.createDataSet<int>("source_dateset",
-                                                         HighFive::DataSpace::From(data));
-    dataset.write(data);
+    auto dataset = group.createDataSet("source_dataset", data);
 
     // create a reference to the dateset containing the integers
     HighFive::Reference ref = HighFive::Reference(group, dataset);
     std::vector<HighFive::Reference> ref_container{ref};
 
     // in similar fashion, we store as dataset the vector of reference that we want
-    HighFive::DataSet ref_set = group.createDataSet<HighFive::Reference>(
-        "reference_dataset", HighFive::DataSpace::From(ref_container));
-    ref_set.write(ref_container);
+    HighFive::DataSet ref_set = group.createDataSet("reference_dataset", ref_container);
 }
 
 // read our data back
@@ -83,15 +70,13 @@ void read_dataset() {
 }
 
 int main() {
-
     try {
         write_dataset();
         read_dataset();
 
-    } catch (HighFive::Exception& err) {
+    } catch (const HighFive::Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }
-
     return 0;  // successfully terminated
 }
