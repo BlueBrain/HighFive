@@ -75,7 +75,7 @@ class PropertyList : public PropertyListBase {
     void add(const P& property);
 
     /// Return always the same Default property type object
-    static const auto& Default() {
+    static const PropertyList<T>& Default() {
         return static_cast<const PropertyList<T>&>(h5p_default);
     }
 
