@@ -31,7 +31,7 @@ void write_dataset() {
     // 'data' inside the group
     auto dataset = group.createDataSet("source_dataset", data);
 
-    // create a reference to the dateset containing the integers
+    // create a reference to the dataset containing the integers
     HighFive::Reference ref = HighFive::Reference(group, dataset);
     std::vector<HighFive::Reference> ref_container{ref};
 
