@@ -8,6 +8,7 @@
  */
 #pragma once
 
+#include "H5Tpublic.h"
 #include "H5Utils.hpp"
 
 namespace HighFive {
@@ -32,27 +33,46 @@ struct BufferInfo {
 // details implementation
 template <typename SrcStrT>
 struct string_type_checker {
-    static DataType getDataType(const DataType&, bool);
+    static DataType getDataType(const DataType&, const DataType&);
 };
 
 template <>
 struct string_type_checker<void> {
-inline static DataType getDataType(const DataType& element_type, bool) {
-    return element_type;
+inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
+    // TEMP. CHANGE: Ensure that the character set is properly configured to prevent
+    // converter issues on HDF5 <=v1.12.0 when loading ASCII strings first.
+    // See https://github.com/HDFGroup/hdf5/issues/544 for further information.
+    const auto dtype_cset = H5Tget_cset(dtype.getId());
+    if (H5Tget_class(element_type.getId()) == H5T_STRING && dtype_cset == H5T_CSET_ASCII) {
+        H5Tset_cset(element_type.getId(), dtype_cset);
+    }
+    return std::move(element_type);
 }};
 
 template <std::size_t FixedLen>
 struct string_type_checker<char[FixedLen]> {
-inline static DataType getDataType(const DataType& element_type, bool ds_fixed_str) {
-    return ds_fixed_str ? AtomicType<char[FixedLen]>() : element_type;
+inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
+    auto return_type = (dtype.isFixedLenStr()) ? AtomicType<char[FixedLen]>() : element_type;
+    // TEMP. CHANGE: See string_type_checker<void> definition
+    const auto dtype_cset = H5Tget_cset(dtype.getId());
+    if (dtype_cset == H5T_CSET_ASCII) {
+        H5Tset_cset(return_type.getId(), dtype_cset);
+    }
+    return std::move(return_type);
 }};
 
 template <>
 struct string_type_checker<char*> {
-inline static DataType getDataType(const DataType&, bool ds_fixed_str) {
-    if (ds_fixed_str)
+inline static DataType getDataType(const DataType&, const DataType& dtype) {
+    if (dtype.isFixedLenStr())
         throw DataSetException("Can't output variable-length to fixed-length strings");
-    return AtomicType<std::string>();
+    // TEMP. CHANGE: See string_type_checker<void> definition
+    auto return_type = AtomicType<std::string>();
+    const auto dtype_cset = H5Tget_cset(dtype.getId());
+    if (dtype_cset == H5T_CSET_ASCII) {
+        H5Tset_cset(return_type.getId(), dtype_cset);
+    }
+    return std::move(return_type);
 }};
 
 template <typename T>
@@ -62,7 +82,7 @@ BufferInfo<T>::BufferInfo(const DataType& dtype)
     , n_dimensions(details::inspector<type_no_const>::recursive_ndim -
                    ((is_fixed_len_string && is_char_array) ? 1 : 0))
     , data_type(string_type_checker<char_array_t>::getDataType(
-            create_datatype<elem_type>(), is_fixed_len_string)) {
+            create_datatype<elem_type>(), dtype)) {
     if (is_fixed_len_string && std::is_same<elem_type, std::string>::value) {
         throw DataSetException("Can't output std::string as fixed-length. "
                                "Use raw arrays or FixedLenStringArray");
