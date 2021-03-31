@@ -93,7 +93,6 @@ struct io_impl {
             return dataset;
         }
 
-        detail::createGroupsToDataSet(file, path);
         std::vector<size_t> shape = idx;
         const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
@@ -110,7 +109,7 @@ struct io_impl {
         DataSpace dataspace = DataSpace(shape, unlim_shape);
         DataSetCreateProps props;
         props.add(Chunking(chunks));
-        DataSet dataset = file.createDataSet(path, dataspace, AtomicType<T>(), props);
+        DataSet dataset = file.createDataSet(path, dataspace, AtomicType<T>(), props, {}, true);
         dataset.select(idx, ones).write(data);
         if (options.flush()) {
             file.flush();

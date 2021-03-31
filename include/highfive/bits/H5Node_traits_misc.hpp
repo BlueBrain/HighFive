@@ -37,10 +37,13 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataType& dtype,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(), dtype._hid, space._hid,
-                                H5P_DEFAULT, createProps.getId(), accessProps.getId());
+                                lcpl.getId(), createProps.getId(), accessProps.getId());
     if (hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to create the dataset \"") + dataset_name + "\":");
@@ -54,10 +57,11 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     return createDataSet(dataset_name, space,
                          create_and_check_datatype<Type>(),
-                         createProps, accessProps);
+                         createProps, accessProps, parents);
 }
 
 template <typename Derivate>
@@ -66,11 +70,12 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const T& data,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
         create_and_check_datatype<typename details::inspector<T>::base_type>(),
-        createProps, accessProps);
+        createProps, accessProps, parents);
     ds.write(data);
     return ds;
 }
@@ -81,9 +86,10 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const FixedLenStringArray<N>& data,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     DataSet ds = createDataSet<char[N]>(
-        dataset_name, DataSpace(data.size()), createProps, accessProps);
+        dataset_name, DataSpace(data.size()), createProps, accessProps, parents);
     ds.write(data);
     return ds;
 }

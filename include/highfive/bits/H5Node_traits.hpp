@@ -37,7 +37,8 @@ class NodeTraits {
                   const DataSpace& space,
                   const DataType& type,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -53,7 +54,8 @@ class NodeTraits {
     createDataSet(const std::string& dataset_name,
                   const DataSpace& space,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file and
@@ -69,7 +71,8 @@ class NodeTraits {
     createDataSet(const std::string& dataset_name,
                   const T& data,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  bool parents = true);
 
 
     template <std::size_t N>
@@ -77,7 +80,8 @@ class NodeTraits {
     createDataSet(const std::string& dataset_name,
                   const FixedLenStringArray<N>& data,
                   const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  bool parents = true);
 
     ///
     /// \brief get an existing dataset in the current file
