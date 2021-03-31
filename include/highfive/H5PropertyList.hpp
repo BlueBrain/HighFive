@@ -39,26 +39,32 @@ enum class PropertyType : int {
     LINK_ACCESS,
 };
 
+
 ///
-/// \brief Base HDF5 property List
+/// \brief Class Base for Property lists
+class PropertyListBase : public Object {
+
+  public:
+    PropertyListBase() noexcept;
+
+  protected:
+    static const PropertyListBase h5p_default;
+
+};
+
+
+///
+/// \brief HDF5 property Lists
 ///
 template <PropertyType T>
-class PropertyList {
+class PropertyList : public PropertyListBase {
   public:
-    ~PropertyList();
 
-    PropertyList(const PropertyList<T>&) = delete;
-    PropertyList& operator=(const PropertyList<T>&) = delete;
-    PropertyList(PropertyList&& other) noexcept;
-    PropertyList& operator=(PropertyList&& other) noexcept;
-    constexpr PropertyType getType() const { return T; }
-
-    hid_t getId() const { return _hid; }
-
-    PropertyList() noexcept;
-
-    template <typename P>
-    PropertyList(const std::initializer_list<P>&);
+    ///
+    /// \brief return the type of this PropertyList
+    constexpr PropertyType getType() const noexcept {
+        return T;
+    }
 
     ///
     /// Add a property to this property list.
@@ -68,10 +74,14 @@ class PropertyList {
     template <typename P>
     void add(const P& property);
 
+    /// Return always the same Default property type object
+    static const auto& Default() {
+        return static_cast<const PropertyList<T>&>(h5p_default);
+    }
+
   protected:
     void _initializeIfNeeded();
 
-    hid_t _hid;
 };
 
 typedef PropertyList<PropertyType::OBJECT_CREATE> ObjectCreateProps;
@@ -167,7 +177,7 @@ class Caching {
 
 class CreateIntermediateGroup {
   public:
-    explicit CreateIntermediateGroup(bool create)
+    explicit CreateIntermediateGroup(bool create=true)
         : _create(create)
     {}
 

@@ -36,8 +36,8 @@ class NodeTraits {
     createDataSet(const std::string& dataset_name,
                   const DataSpace& space,
                   const DataType& type,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                   bool parents = true);
 
     ///
@@ -53,8 +53,8 @@ class NodeTraits {
     DataSet
     createDataSet(const std::string& dataset_name,
                   const DataSpace& space,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                   bool parents = true);
 
     ///
@@ -70,8 +70,8 @@ class NodeTraits {
     DataSet
     createDataSet(const std::string& dataset_name,
                   const T& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                   bool parents = true);
 
 
@@ -79,8 +79,8 @@ class NodeTraits {
     DataSet
     createDataSet(const std::string& dataset_name,
                   const FixedLenStringArray<N>& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps(),
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                   bool parents = true);
 
     ///
@@ -90,7 +90,7 @@ class NodeTraits {
     /// \return return the named dataset, or throw exception if not found
     DataSet getDataSet(
         const std::string& dataset_name,
-        const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
+        const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
 
     ///
     /// \brief create a new group, and eventually intermediate groups
@@ -162,7 +162,7 @@ class NodeTraits {
 
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
+                 const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
 };
 
 
