@@ -34,21 +34,6 @@ inline std::string getParentName(const std::string& path) {
     }
 }
 
-///
-/// \brief Recursively create groups in an open HDF5 file such that a
-/// \a DataSet can be created (see ``getParentName``).
-///
-/// \param file opened File
-/// \param path path of the DataSet
-///
-H5_DEPRECATED("Deprecated since HighFive 2.3, use `parents` argument now.")
-inline void createGroupsToDataSet(File& file, const std::string& path) {
-    std::string group_name = getParentName(path);
-    if (!file.exist(group_name)) {
-        file.createGroup(group_name);
-    }
-}
-
 // Generate error-stream and return "Exception" (not yet thrown).
 inline Exception error(const File& file,
                        const std::string& path,
