@@ -15,25 +15,6 @@ namespace H5Easy {
 
 namespace detail {
 
-///
-/// Get the parent of a path.
-/// For example for ``path = "/path/to/dataset"`` this function returns
-/// ``"/path/to"``.
-///
-/// \param path path to a DataSet
-///
-/// \return group the path of the group above the DataSet
-inline std::string getParentName(const std::string& path) {
-    std::size_t idx = path.find_last_of("/\\");
-    if (idx == std::string::npos) {
-        return "/";
-    } else if (idx == 0) {
-        return "/";
-    } else {
-        return path.substr(0, idx);
-    }
-}
-
 // Generate error-stream and return "Exception" (not yet thrown).
 inline Exception error(const File& file,
                        const std::string& path,
