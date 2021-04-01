@@ -41,14 +41,16 @@ enum class PropertyType : int {
 
 
 ///
-/// \brief Class Base for Property lists
+/// \brief Base Class for Property lists, providing global default
 class PropertyListBase : public Object {
 
   public:
     PropertyListBase() noexcept;
 
-  protected:
-    static const PropertyListBase h5p_default;
+    static const PropertyListBase& Default() noexcept {
+        static const PropertyListBase plist{};
+        return plist;
+    }
 
 };
 
@@ -74,9 +76,10 @@ class PropertyList : public PropertyListBase {
     template <typename P>
     void add(const P& property);
 
-    /// Return always the same Default property type object
-    static const PropertyList<T>& Default() {
-        return static_cast<const PropertyList<T>&>(h5p_default);
+    ///
+    /// Return the Default property type object
+    static const PropertyList<T>& Default() noexcept {
+        return static_cast<const PropertyList<T>&>(PropertyListBase::Default());
     }
 
   protected:

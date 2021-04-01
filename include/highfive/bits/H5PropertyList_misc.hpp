@@ -56,7 +56,6 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
 
 }  // namespace
 
-const PropertyListBase PropertyListBase::h5p_default{};
 
 inline PropertyListBase::PropertyListBase() noexcept
     : Object(H5P_DEFAULT) {}
