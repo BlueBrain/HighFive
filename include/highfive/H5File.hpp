@@ -55,7 +55,7 @@ class File : public Object,
     ///
     /// Open or create a new HDF5 file
     explicit File(const std::string& filename, unsigned openFlags = ReadOnly,
-                  const FileAccessProps& fileAccessProps = FileDriver());
+                  const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
     /// \brief Return the name of the file
