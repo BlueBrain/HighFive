@@ -1,0 +1,41 @@
+name: HighFive_Integration_tests
+
+on:
+  push:
+    branches:
+      - ci_test
+      - release/**
+  pull_request:
+    branches:
+      - master
+      - release/**
+    paths-ignore:
+      - '**.md'
+      - '**.rst'
+      - 'doc/**'
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+  INSTALL_DIR: ${{github.workspace}}/install
+
+jobs:
+
+  Linux_Compilers:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Install libraries"
+      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
+
+    - name: Build
+      run: source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: |
+        make install
+        git clone https://github.com/BlueBrain/MorphIO.git --recursive
+        cd MorphIO
+        sh ci/cpp_test.sh "-DCMAKE_PREFIX_PATH=$INSTALL_DIR -DEXTERNAL_HIGHFIVE=True"
