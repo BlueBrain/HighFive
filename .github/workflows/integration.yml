@@ -38,4 +38,4 @@ jobs:
         make install
         git clone https://github.com/BlueBrain/MorphIO.git --recursive
         cd MorphIO
-        sh ci/cpp_test.sh "-DCMAKE_PREFIX_PATH=$INSTALL_DIR -DEXTERNAL_HIGHFIVE=True"
+        bash ci/cpp_test.sh "-DCMAKE_PREFIX_PATH=$INSTALL_DIR -DEXTERNAL_HIGHFIVE=True"
