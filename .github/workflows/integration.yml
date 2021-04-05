@@ -30,8 +30,9 @@ jobs:
       run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev
 
     - name: Build
-      CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False -DHIGHFIVE_UNIT_TESTS:BOOL=False)
-      run: source $GITHUB_WORKSPACE/.github/build.sh
+      run: |
+        CMAKE_OPTIONS=(-DHIGHFIVE_EXAMPLES:BOOL=False -DHIGHFIVE_UNIT_TESTS:BOOL=False)
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
