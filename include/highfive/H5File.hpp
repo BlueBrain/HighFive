@@ -63,7 +63,7 @@ class File : public Object,
     const std::string& getName() const noexcept;
 
 
-    /// \bried Object path of a File is always "/"
+    /// \brief Object path of a File is always "/"
     std::string getPath() const noexcept {
         return "/";
     }

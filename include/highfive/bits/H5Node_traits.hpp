@@ -26,11 +26,11 @@ class NodeTraits {
     /// \brief createDataSet Create a new dataset in the current file of
     /// datatype type and of size space
     /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// informations
+    /// \param space Associated DataSpace, see \ref DataSpace for more information
     /// \param type Type of Data
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     DataSet
     createDataSet(const std::string& dataset_name,
@@ -44,10 +44,10 @@ class NodeTraits {
     /// \brief createDataSet create a new dataset in the current file with a
     /// size specified by space
     /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// information
+    /// \param space Associated DataSpace, see \ref DataSpace for more information
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename Type>
     DataSet
@@ -65,6 +65,7 @@ class NodeTraits {
     /// \ref DataSpace for more information
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename T>
     DataSet
@@ -95,8 +96,7 @@ class NodeTraits {
     ///
     /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
-    /// \param parents Whether it shall create intermediate groups if
-    ///      necessary. Default: true
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return the group object
     Group createGroup(const std::string& group_name, bool parents = true);
 
@@ -120,7 +120,7 @@ class NodeTraits {
     /// \brief moves an object and its content within an HDF5 file.
     /// \param src_path relative path of the object to current File/Group
     /// \param dest_path new relative path of the object to current File/Group
-    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return boolean that is true if the move was successful
     bool rename(const std::string& src_path,
                 const std::string& dest_path,
