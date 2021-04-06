@@ -21,8 +21,11 @@ inline PathTraits<Derivate>::PathTraits() {
                   || std::is_same<Derivate, DataSet>::value
                   || std::is_same<Derivate, Attribute>::value,
                   "PathTraits can only be applied to Group, DataSet and Attribute");
-
-    const hid_t file_id = H5Iget_file_id(static_cast<Derivate*>(this)->getId());
+    const auto& obj = static_cast<const Derivate&>(*this);
+    if(!obj.isValid()) {
+        return;
+    }
+    const hid_t file_id = H5Iget_file_id(obj.getId());
     if (file_id < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "getFile(): Could not obtain file of object");
