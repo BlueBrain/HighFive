@@ -138,6 +138,21 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSetDefaultCtr) {
+    const std::string FILE_NAME("h5_group_test.h5");
+    const std::string DATASET_NAME("dset");
+    File file(FILE_NAME, File::Truncate);
+    auto ds = file.createDataSet(DATASET_NAME, std::vector<int>{1, 2, 3, 4, 5});
+
+    DataSet d2;  // deprecated as it constructs unsafe objects
+    // d2.getFile();  // runtime error
+    BOOST_CHECK_EQUAL(d2.isValid(), false);
+    d2 = ds;  // copy
+    BOOST_CHECK_EQUAL(d2.isValid(), true);
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
