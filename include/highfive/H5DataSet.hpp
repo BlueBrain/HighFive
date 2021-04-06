@@ -90,7 +90,7 @@ class DataSet : public Object,
         return getSpace().getElementCount();
     }
 
-    H5_DEPRECATED("Default ctor creates unsafe uninitialized objects")
+    H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
     DataSet() = default;
 
   protected:
