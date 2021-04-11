@@ -37,7 +37,7 @@ option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 
-# In deplomyents we probably don't want/cant have dynamic dependencies
+# In deployments we probably don't want/cant have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 
@@ -66,7 +66,7 @@ endif()
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 
-# Setup HighFive to be used in 3rd party project using exports. Create a HighFive target
+# Set-up HighFive to be used in 3rd party project using exports. Create a HighFive target
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
 # Installation of headers (HighFive is only interface)

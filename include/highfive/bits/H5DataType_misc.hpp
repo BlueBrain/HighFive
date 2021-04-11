@@ -180,7 +180,7 @@ inline AtomicType<std::complex<double> >::AtomicType() {
 template <typename T>
 AtomicType<T>::AtomicType() {
     static_assert(details::inspector<T>::recursive_ndim == 0,
-                  "Atomic types cant be arrays, except for char[] (fixed-len strings)");
+                  "Atomic types cant be arrays, except for char[] (fixed-length strings)");
     static_assert(details::inspector<T>::recursive_ndim > 0, "Type not supported");
 }
 
