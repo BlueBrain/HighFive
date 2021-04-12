@@ -1143,7 +1143,7 @@ void readWriteSzipTest() {
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, numerical_test_types) {
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, dataset_test_types) {
     readWriteSzipTest<T>();
 }
 
