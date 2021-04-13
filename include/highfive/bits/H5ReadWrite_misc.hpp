@@ -46,19 +46,19 @@ inline static DataType getDataType(const DataType& element_type, const DataType&
     if (H5Tget_class(element_type.getId()) == H5T_STRING && dtype_cset == H5T_CSET_ASCII) {
         H5Tset_cset(element_type.getId(), dtype_cset);
     }
-    return std::move(element_type);
+    return element_type;
 }};
 
 template <std::size_t FixedLen>
 struct string_type_checker<char[FixedLen]> {
 inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
-    auto return_type = (dtype.isFixedLenStr()) ? AtomicType<char[FixedLen]>() : element_type;
+    DataType return_type = (dtype.isFixedLenStr()) ? AtomicType<char[FixedLen]>() : element_type;
     // TEMP. CHANGE: See string_type_checker<void> definition
     const auto dtype_cset = H5Tget_cset(dtype.getId());
     if (dtype_cset == H5T_CSET_ASCII) {
         H5Tset_cset(return_type.getId(), dtype_cset);
     }
-    return std::move(return_type);
+    return return_type;
 }};
 
 template <>
@@ -67,12 +67,12 @@ inline static DataType getDataType(const DataType&, const DataType& dtype) {
     if (dtype.isFixedLenStr())
         throw DataSetException("Can't output variable-length to fixed-length strings");
     // TEMP. CHANGE: See string_type_checker<void> definition
-    auto return_type = AtomicType<std::string>();
+    DataType return_type = AtomicType<std::string>();
     const auto dtype_cset = H5Tget_cset(dtype.getId());
     if (dtype_cset == H5T_CSET_ASCII) {
         H5Tset_cset(return_type.getId(), dtype_cset);
     }
-    return std::move(return_type);
+    return return_type;
 }};
 
 template <typename T>
