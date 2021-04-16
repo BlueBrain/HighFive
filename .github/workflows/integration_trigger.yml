@@ -1,0 +1,15 @@
+name: Integration Test Trigger
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  merge-PR:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger integration tests on BlueBrain/HighFive-testing
+        run: |
+          curl -X POST https://api.github.com/repos/BlueBrain/HighFive-testing/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.ACCESS_TOKEN }} \
+          --data '{"event_type": "merge", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
