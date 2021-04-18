@@ -90,8 +90,8 @@ class DataSet : public Object,
         return getSpace().getElementCount();
     }
 
-    // No empty datasets
-    DataSet() = delete;
+    H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
+    DataSet() = default;
 
   protected:
     using Object::Object;  // bring DataSet(hid_t)

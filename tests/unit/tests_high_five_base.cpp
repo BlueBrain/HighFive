@@ -138,6 +138,21 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSetDefaultCtr) {
+    const std::string FILE_NAME("h5_group_test.h5");
+    const std::string DATASET_NAME("dset");
+    File file(FILE_NAME, File::Truncate);
+    auto ds = file.createDataSet(DATASET_NAME, std::vector<int>{1, 2, 3, 4, 5});
+
+    DataSet d2;  // deprecated as it constructs unsafe objects
+    // d2.getFile();  // runtime error
+    BOOST_CHECK_EQUAL(d2.isValid(), false);
+    d2 = ds;  // copy
+    BOOST_CHECK_EQUAL(d2.isValid(), true);
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
@@ -1200,15 +1215,6 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
 }
 
-typedef struct {
-    int m1;
-    int m2;
-    int m3;
-} CSL1;
-
-typedef struct {
-    CSL1 csl1;
-} CSL2;
 
 BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
 
@@ -1350,6 +1356,39 @@ BOOST_AUTO_TEST_CASE(HighFiveRenameRelative) {
         BOOST_CHECK_EQUAL(number, read);
     }
 }
+
+BOOST_AUTO_TEST_CASE(HighFivePropertyObjects) {
+    const auto& plist1 = FileCreateProps::Default();  // get const-ref, otherwise copies
+    BOOST_CHECK_EQUAL(plist1.getId(), H5P_DEFAULT);
+    BOOST_CHECK_EQUAL(plist1.isValid(), false);       // not valid -> no inc_ref
+    auto plist2 = plist1;  // copy  (from Object)
+    BOOST_CHECK_EQUAL(plist2.getId(), H5P_DEFAULT);
+
+    // Underlying object is same (singleton holder of H5P_DEFAULT)
+    const auto& other_plist_type = LinkCreateProps::Default();
+    BOOST_CHECK_EQUAL((void*)&plist1, (void*)&other_plist_type);
+
+    LinkCreateProps plist_g;
+    BOOST_CHECK_EQUAL(plist_g.getId(), H5P_DEFAULT);
+    BOOST_CHECK_EQUAL(plist_g.isValid(), false);
+
+    plist_g.add(CreateIntermediateGroup());
+    BOOST_CHECK(plist_g.isValid());
+    auto plist_g2 = plist_g;
+    BOOST_CHECK(plist_g2.isValid());
+}
+
+
+typedef struct {
+    int m1;
+    int m2;
+    int m3;
+} CSL1;
+
+typedef struct {
+    CSL1 csl1;
+} CSL2;
+
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();

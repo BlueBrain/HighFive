@@ -21,7 +21,7 @@ class FileDriver : public FileAccessProps {};
 ///
 /// \brief MPIIO Driver for Parallel HDF5
 ///
-class MPIOFileDriver : public FileDriver {
+class MPIOFileDriver : public FileAccessProps {
   public:
     template <typename Comm, typename Info>
     inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);

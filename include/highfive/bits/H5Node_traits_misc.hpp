@@ -34,64 +34,64 @@ namespace HighFive {
 template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                   const DataSpace& space,
-                                   const DataType& dtype,
-                                   const DataSetCreateProps& createProps,
-                                   const DataSetAccessProps& accessProps,
-                                   bool parents) {
-   LinkCreateProps lcpl;
-   lcpl.add(CreateIntermediateGroup(parents));
-   const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
-                               dataset_name.c_str(), dtype._hid, space._hid,
-                               lcpl.getId(), createProps.getId(), accessProps.getId());
-   if (hid < 0) {
-       HDF5ErrMapper::ToException<DataSetException>(
-           std::string("Unable to create the dataset \"") + dataset_name + "\":");
-   }
-   return DataSet(hid);
+                                    const DataSpace& space,
+                                    const DataType& dtype,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
+                                dataset_name.c_str(), dtype._hid, space._hid,
+                                lcpl.getId(), createProps.getId(), accessProps.getId());
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            std::string("Unable to create the dataset \"") + dataset_name + "\":");
+    }
+    return DataSet(hid);
 }
 
 template <typename Derivate>
 template <typename Type>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                   const DataSpace& space,
-                                   const DataSetCreateProps& createProps,
-                                   const DataSetAccessProps& accessProps,
-                                   bool parents) {
-   return createDataSet(dataset_name, space,
-                        create_and_check_datatype<Type>(),
-                        createProps, accessProps, parents);
+                                    const DataSpace& space,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    return createDataSet(dataset_name, space,
+                         create_and_check_datatype<Type>(),
+                         createProps, accessProps, parents);
 }
 
 template <typename Derivate>
 template <typename T>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                   const T& data,
-                                   const DataSetCreateProps& createProps,
-                                   const DataSetAccessProps& accessProps,
-                                   bool parents) {
-   DataSet ds = createDataSet(
-       dataset_name, DataSpace::From(data),
-       create_and_check_datatype<typename details::inspector<T>::base_type>(),
-       createProps, accessProps, parents);
-   ds.write(data);
-   return ds;
+                                    const T& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    DataSet ds = createDataSet(
+        dataset_name, DataSpace::From(data),
+        create_and_check_datatype<typename details::inspector<T>::base_type>(),
+        createProps, accessProps, parents);
+    ds.write(data);
+    return ds;
 }
 
 template <typename Derivate>
 template <std::size_t N>
 inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                   const FixedLenStringArray<N>& data,
-                                   const DataSetCreateProps& createProps,
-                                   const DataSetAccessProps& accessProps,
-                                   bool parents) {
-   DataSet ds = createDataSet<char[N]>(
-       dataset_name, DataSpace(data.size()), createProps, accessProps, parents);
-   ds.write(data);
-   return ds;
+                                    const FixedLenStringArray<N>& data,
+                                    const DataSetCreateProps& createProps,
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    DataSet ds = createDataSet<char[N]>(
+        dataset_name, DataSpace(data.size()), createProps, accessProps, parents);
+    ds.write(data);
+    return ds;
 }
 
 template <typename Derivate>
@@ -109,17 +109,17 @@ NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
 
 template <typename Derivate>
 inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
-                                              bool parents) {
+                                               bool parents) {
 
-   LinkCreateProps lcpl;
-   lcpl.add(CreateIntermediateGroup(parents));
-   const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                               group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT);
-   if (hid < 0) {
-       HDF5ErrMapper::ToException<GroupException>(
-           std::string("Unable to create the group \"") + group_name + "\":");
-   }
-   return Group(hid);
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
+                                group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT);
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create the group \"") + group_name + "\":");
+    }
+    return Group(hid);
 }
 
 template <typename Derivate>
@@ -155,17 +155,17 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
-                                        const std::string& dst_path, bool parents) const {
-   LinkCreateProps lcpl;
-   lcpl.add(CreateIntermediateGroup(parents));
-   herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
-                           static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
-   if (status < 0) {
-       HDF5ErrMapper::ToException<GroupException>(
-                   std::string("Unable to move link to \"") + dst_path + "\":");
-       return false;
-   }
-   return true;
+                                         const std::string& dst_path, bool parents) const {
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
+                            static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+                    std::string("Unable to move link to \"") + dst_path + "\":");
+        return false;
+    }
+    return true;
 }
 
 template <typename Derivate>
@@ -210,14 +210,14 @@ inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
-   // When there are slashes, first check everything is fine
-   // so that subsequent errors are only due to missing intermediate groups
-   if (group_path.find('/') != std::string::npos) {
-       _exist("/");  // Shall not throw under normal circumstances
-       // Unless "/" (already checked), verify path exists (not throwing errors)
-       return (group_path == "/") ? true : _exist(group_path, false);
-   }
-   return _exist(group_path);
+    // When there are slashes, first check everything is fine
+    // so that subsequent errors are only due to missing intermediate groups
+    if (group_path.find('/') != std::string::npos) {
+        _exist("/");  // Shall not throw under normal circumstances
+        // Unless "/" (already checked), verify path exists (not throwing errors)
+        return (group_path == "/") ? true : _exist(group_path, false);
+    }
+    return _exist(group_path);
 }
 
 

@@ -22,8 +22,8 @@ class ElementSet {
     ///
     /// \brief Create a list of points of N-dimension for selection.
     ///
-    /// \param list List of continuous coordinates (eg.: in 2 dimensions space `ElementSet{1, 2, 3 ,4}` create points
-    /// `(1, 2)` and `(3, 4)`).
+    /// \param list List of continuous coordinates (e.g.: in 2 dimensions space
+    /// `ElementSet{1, 2, 3 ,4}` creates points `(1, 2)` and `(3, 4)`).
     explicit ElementSet(std::initializer_list<std::size_t> list);
     ///
     /// \brief Create a list of points of N-dimension for selection.
@@ -33,8 +33,8 @@ class ElementSet {
     ///
     /// \brief Create a list of points of N-dimension for selection.
     ///
-    /// \param element_ids List of continuous coordinates (eg.: in 2 dimensions space `ElementSet{1, 2, 3 ,4}` create points
-    /// `(1, 2)` and `(3, 4)`).
+    /// \param element_ids List of continuous coordinates (e.g.: in 2 dimensions space
+    /// `ElementSet{1, 2, 3 ,4}` creates points `(1, 2)` and `(3, 4)`).
     explicit ElementSet(const std::vector<std::size_t>& element_ids);
     ///
     /// \brief Create a list of points of N-dimension for selection.

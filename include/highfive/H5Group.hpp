@@ -26,8 +26,8 @@ class Group : public Object,
   public:
     const static ObjectType type = ObjectType::Group;
 
-    // No empty groups
-    Group() = delete;
+    H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
+    Group() = default;
 
   protected:
     using Object::Object;
