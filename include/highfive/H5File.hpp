@@ -55,7 +55,7 @@ class File : public Object,
     ///
     /// Open or create a new HDF5 file
     explicit File(const std::string& filename, unsigned openFlags = ReadOnly,
-                  const FileAccessProps& fileAccessProps = FileDriver());
+                  const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
     /// \brief Return the name of the file
@@ -63,7 +63,7 @@ class File : public Object,
     const std::string& getName() const noexcept;
 
 
-    /// \bried Object path of a File is always "/"
+    /// \brief Object path of a File is always "/"
     std::string getPath() const noexcept {
         return "/";
     }
@@ -78,7 +78,7 @@ class File : public Object,
  private:
     using Object::Object;
 
-    std::string _filename;
+    mutable std::string _filename{};
 
     template <typename> friend class PathTraits;
 };

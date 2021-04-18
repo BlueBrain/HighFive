@@ -32,16 +32,6 @@ enum class ObjectType {
     Other  // Internal/custom object type
 };
 
-///
-/// \brief The possible types of group entries (link concept)
-///
-enum class LinkType {
-    Hard,
-    Soft,
-    External,
-    Other  // Reserved or User-defined
-};
-
 
 class Object {
   public:

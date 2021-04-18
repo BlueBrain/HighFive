@@ -26,34 +26,36 @@ class NodeTraits {
     /// \brief createDataSet Create a new dataset in the current file of
     /// datatype type and of size space
     /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// informations
+    /// \param space Associated DataSpace, see \ref DataSpace for more information
     /// \param type Type of Data
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     DataSet
     createDataSet(const std::string& dataset_name,
                   const DataSpace& space,
                   const DataType& type,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                  bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
     /// size specified by space
     /// \param dataset_name identifier of the dataset
-    /// \param space Associated DataSpace, see \ref DataSpace for more
-    /// information
+    /// \param space Associated DataSpace, see \ref DataSpace for more information
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename Type>
     DataSet
     createDataSet(const std::string& dataset_name,
                   const DataSpace& space,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                  bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file and
@@ -63,21 +65,24 @@ class NodeTraits {
     /// \ref DataSpace for more information
     /// \param createProps A property list with data set creation properties
     /// \param accessProps A property list with data set access properties
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename T>
     DataSet
     createDataSet(const std::string& dataset_name,
                   const T& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                  bool parents = true);
 
 
     template <std::size_t N>
     DataSet
     createDataSet(const std::string& dataset_name,
                   const FixedLenStringArray<N>& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps());
+                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                  bool parents = true);
 
     ///
     /// \brief get an existing dataset in the current file
@@ -86,13 +91,12 @@ class NodeTraits {
     /// \return return the named dataset, or throw exception if not found
     DataSet getDataSet(
         const std::string& dataset_name,
-        const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
+        const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
 
     ///
     /// \brief create a new group, and eventually intermediate groups
     /// \param group_name
-    /// \param parents Whether it shall create intermediate groups if
-    ///      necessary. Default: true
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return the group object
     Group createGroup(const std::string& group_name, bool parents = true);
 
@@ -116,7 +120,7 @@ class NodeTraits {
     /// \brief moves an object and its content within an HDF5 file.
     /// \param src_path relative path of the object to current File/Group
     /// \param dest_path new relative path of the object to current File/Group
-    /// \param parents if true necessary intermediate groups are created. Default: true
+    /// \param parents Create intermediate groups if needed. Default: true.
     /// \return boolean that is true if the move was successful
     bool rename(const std::string& src_path,
                 const std::string& dest_path,
@@ -148,22 +152,16 @@ class NodeTraits {
     /// \param node_name The entry to check, path relative to the current group
     inline ObjectType getObjectType(const std::string& node_name) const;
 
-    template<typename Node,
-            typename std::enable_if<
-                std::is_same<Node, File>::value |
-                std::is_same<Node, Group>::value>::type* = nullptr>
-    Group createLink(
-        const Node& target, const std::string& linkName, const LinkType& linkType,
-        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-        const LinkAccessProps& linkAccessProps = LinkAccessProps());
+    void createSoftLink(const std::string& objPath,
+                        const std::string& linkName,
+                        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
+                        const LinkAccessProps& linkAccessProps = LinkAccessProps());
 
-    // Fake <- make it templated is needed by pybind11 to allow py::overload_cast<>()
-    template<typename Fake = void>
-    DataSet createLink(
-        const DataSet& target, const std::string& linkName, const LinkType& linkType,
-        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
-        const DataSetAccessProps& dsetAccessProps = DataSetAccessProps());
+    void createExternalLink(const std::string& h5file,
+                            const std::string& objPath,
+                            const std::string& linkName,
+                            const LinkCreateProps& linkCreateProps = LinkCreateProps(),
+                            const LinkAccessProps& linkAccessProps = LinkAccessProps());
 
   private:
     typedef Derivate derivate_type;
@@ -175,13 +173,18 @@ class NodeTraits {
 
     // Opens an arbitrary object to obtain info
     Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps = DataSetAccessProps()) const;
+                 const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
+};
 
-    template<typename T>
-    void _createLink(
-        T& target, const std::string& linkName, const LinkType& linkType,
-        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-        const LinkAccessProps& linkAccessProps = LinkAccessProps());
+
+///
+/// \brief The possible types of group entries (link concept)
+///
+enum class LinkType {
+    Hard,
+    Soft,
+    External,
+    Other  // Reserved or User-defined
 };
 
 
