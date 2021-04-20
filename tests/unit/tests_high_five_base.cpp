@@ -1144,7 +1144,12 @@ void readWriteSzipTest() {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, dataset_test_types) {
-    readWriteSzipTest<T>();
+    // SZIP is not consistently available across distributions.
+    if (H5Zfilter_avail(H5Z_FILTER_SZIP)) {
+        readWriteSzipTest<T>();
+    } else {
+        BOOST_CHECK_THROW(readWriteSzipTest<T>(), PropertyException);
+    }
 }
 
 // Broadcasting is supported
