@@ -35,35 +35,32 @@ endif()
 
 # If the user sets this flag, all dependencies are preserved.
 # Useful in central deployments where dependencies are not prepared later
-option(HIGHFIVE_USE_INSTALL_DEPS "Use original Highfive dependencies" @HIGHFIVE_USE_INSTALL_DEPS@)
+set(HIGHFIVE_USE_INSTALL_DEPS @HIGHFIVE_USE_INSTALL_DEPS@ CACHE BOOL "Use original Highfive dependencies")
 if(HIGHFIVE_USE_INSTALL_DEPS)
   # If enabled in the deploy config, request c++14
   if(@HIGHFIVE_USE_XTENSOR@ AND NOT CMAKE_VERSION VERSION_LESS 3.8)
     set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_FEATURES cxx_std_14)
   endif()
-  message("HIGHFIVE @PROJECT_VERSION@: Using original dependencies (HIGHFIVE_USE_INSTALL_DEPS=YES)")
+  message(STATUS "HIGHFIVE @PROJECT_VERSION@: Using original dependencies (HIGHFIVE_USE_INSTALL_DEPS=YES)")
   copy_interface_properties(HighFive HighFive_HighFive)
   return()
 endif()
 
 # When not using the pre-built dependencies, give user options
-option(HIGHFIVE_USE_BOOST "Enable Boost Support" ON)
-option(HIGHFIVE_USE_EIGEN "Enable Eigen testing" OFF)
-option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" OFF)
-
-# Options when used from external projects. Keep defaults
-if(NOT DEFINED HIGHFIVE_PARALLEL_HDF5)
-  option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" @HIGHFIVE_PARALLEL_HDF5@)
+if(DEFINED HIGHFIVE_USE_BOOST)
+  set(HIGHFIVE_USE_BOOST ${HIGHFIVE_USE_BOOST} CACHE BOOL "Enable Boost Support")
+else()
+  set(HIGHFIVE_USE_BOOST @HIGHFIVE_USE_BOOST@ CACHE BOOL "Enable Boost Support")
 endif()
-if(NOT DEFINED HIGHFIVE_USE_BOOST)
-  option(HIGHFIVE_USE_BOOST "Enable Boost Support" @HIGHFIVE_USE_BOOST@)
-endif()
+set(HIGHFIVE_USE_EIGEN "${HIGHFIVE_USE_EIGEN}" CACHE BOOL "Enable Eigen testing")
+set(HIGHFIVE_USE_XTENSOR "${HIGHFIVE_USE_XTENSOR}" CACHE BOOL "Enable xtensor testing")
+set(HIGHFIVE_PARALLEL_HDF5 @HIGHFIVE_PARALLEL_HDF5@ CACHE BOOL "Enable Parallel HDF5 support")
 
 if(HIGHFIVE_USE_XTENSOR AND NOT CMAKE_VERSION VERSION_LESS 3.8)
   set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_FEATURES cxx_std_14)
 endif()
 
-message("HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
+message(STATUS "HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
 include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
 foreach(dependency HighFive_libheaders libdeps)
     copy_interface_properties(HighFive ${dependency})
