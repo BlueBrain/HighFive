@@ -1084,6 +1084,74 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) 
     readWriteShuffleDeflateTest<T>();
 }
 
+template <typename T>
+void readWriteSzipTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_szip_" << typeNameHelper<T>() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+    const size_t x_size = 128;
+    const size_t y_size = 32;
+    const size_t x_chunk = 8;
+    const size_t y_chunk = 4;
+
+    const int options_mask = H5_SZIP_NN_OPTION_MASK;
+    const int pixels_per_block = 8;
+
+    T array[x_size][y_size];
+
+    // write a compressed file
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims{x_size, y_size};
+
+        DataSpace dataspace(dims);
+
+        // Use chunking
+        DataSetCreateProps props;
+        props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
+
+        // Enable szip
+        props.add(Szip(options_mask, pixels_per_block));
+
+        // Create a dataset with arbitrary type
+        DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
+
+        ContentGenerate<T> generator;
+        generate2D(array, x_size, y_size, generator);
+
+        dataset.write(array);
+
+        file.flush();
+    }
+
+    // read it back
+    {
+        File file_read(filename.str(), File::ReadOnly);
+        DataSet dataset_read = file_read.getDataSet("/" + DATASET_NAME);
+
+        T result[x_size][y_size];
+
+        dataset_read.read(result);
+
+        for (size_t i = 0; i < x_size; ++i) {
+            for (size_t j = 0; i < y_size; ++i) {
+                BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, dataset_test_types) {
+    // SZIP is not consistently available across distributions.
+    if (H5Zfilter_avail(H5Z_FILTER_SZIP)) {
+        readWriteSzipTest<T>();
+    } else {
+        BOOST_CHECK_THROW(readWriteSzipTest<T>(), PropertyException);
+    }
+}
+
 // Broadcasting is supported
 BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
 

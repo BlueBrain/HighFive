@@ -107,6 +107,18 @@ inline void Deflate::apply(const hid_t hid) const {
     }
 }
 
+inline void Szip::apply(const hid_t hid) const {
+    if (!H5Zfilter_avail(H5Z_FILTER_SZIP)) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting szip property");
+    }
+
+    if (H5Pset_szip(hid, _options_mask, _pixels_per_block) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting szip property");
+    }
+}
+
 inline void Shuffle::apply(const hid_t hid) const {
     if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE)) {
         HDF5ErrMapper::ToException<PropertyException>(

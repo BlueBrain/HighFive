@@ -148,6 +148,21 @@ class Deflate {
     const unsigned _level;
 };
 
+class Szip {
+  public:
+    explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK, 
+                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
+        : _options_mask(options_mask)
+        , _pixels_per_block(pixels_per_block)
+    {}
+
+    private:
+      friend DataSetCreateProps;
+      void apply(hid_t hid) const;
+      const unsigned _options_mask;
+      const unsigned _pixels_per_block;
+};
+
 class Shuffle {
   public:
     Shuffle() = default;
