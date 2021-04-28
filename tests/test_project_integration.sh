@@ -11,7 +11,6 @@ test_install() {
     local builddir="${BUILDDIR}/${project}/${2}"
     shift
     shift
-    find "${TESTDIR}/"
     ln -s ../../.. "${TESTDIR}/${project}/deps/HighFive"
     rm -rf "${builddir}"
     mkdir -p "${builddir}"
