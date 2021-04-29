@@ -182,17 +182,6 @@ class NodeTraits {
                             const LinkAccessProps& linkAccessProps = LinkAccessProps(),
                             const bool parents = true);
 
-    void createSoftLink(const std::string& objPath,
-                        const std::string& linkName,
-                        const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-                        const LinkAccessProps& linkAccessProps = LinkAccessProps());
-
-    void createExternalLink(const std::string& h5file,
-                            const std::string& objPath,
-                            const std::string& linkName,
-                            const LinkCreateProps& linkCreateProps = LinkCreateProps(),
-                            const LinkAccessProps& linkAccessProps = LinkAccessProps());
-
   private:
     typedef Derivate derivate_type;
 
