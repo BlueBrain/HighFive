@@ -1691,6 +1691,28 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
     }
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayAttribute) {
+    const std::string FILE_NAME("fixed_array_attr.h5");
+    // Create a new file using the default property lists.
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        FixedLenStringArray<10> arr{"Hello", "world"};
+        file.createAttribute("str", arr);
+    }
+    // Re-read it
+    {
+        File file(FILE_NAME);
+        FixedLenStringArray<8> arr;  // notice the output strings can be smaller
+        file.getAttribute("str").read(arr);
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("Hello"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("world"));
+    }
+
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveReference) {
     const std::string FILE_NAME("h5_ref_test.h5");
     const std::string DATASET1_NAME("dset1");
