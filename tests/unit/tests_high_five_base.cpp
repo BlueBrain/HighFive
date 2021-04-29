@@ -1313,6 +1313,36 @@ BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
 
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveSoftLinks) {
+    const std::string FILE_NAME("softlinks.h5");
+    const std::string DS_PATH("/hard_link/dataset");
+    const std::string LINK_PATH("/soft_link/to_ds");
+    const std::vector<int> data{11, 22, 33};
+
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        auto dset = file.createDataSet(DS_PATH, data);
+        file.createSoftLink(LINK_PATH, dset);
+    }
+
+    {
+        File file(FILE_NAME, File::ReadWrite);
+        std::vector<int> data_out;
+        file.getDataSet(LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
+
+    {
+        const std::string EXTERNAL_LINK_PATH("/external_link/to_ds");
+        File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
+        file2.createExternalLink(EXTERNAL_LINK_PATH, FILE_NAME, DS_PATH);
+
+        std::vector<int> data_out;
+        file2.getDataSet(EXTERNAL_LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(HighFiveRename) {
 
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);

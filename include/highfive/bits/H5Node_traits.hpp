@@ -150,7 +150,37 @@ class NodeTraits {
     ///
     /// \brief A shorthand to get the kind of object pointed to (group, dataset, type...)
     /// \param node_name The entry to check, path relative to the current group
-    inline ObjectType getObjectType(const std::string& node_name) const;
+    ObjectType getObjectType(const std::string& node_name) const;
+
+    ///
+    /// \brief A shorthand to create softlink to any object which provides `getPath`
+    /// The link will be created with default properties along with required parent groups
+    template <typename T, typename = decltype(&T::getPath)>
+    void createSoftLink(const std::string& linkName, const T& obj) {
+        static_assert(!std::is_same<T, Attribute>::value,
+                      "hdf5 doesn't support soft links to Attributes");
+        createSoftLink(linkName, obj.getPath());
+    }
+
+    ///
+    /// \brief Creates softlinks
+    /// \param link_name The name of the link
+    /// \param obj_path The target object path
+    /// \param linkCreateProps A Link_Create property list. Notice "parents=true" overrides
+    /// \param linkAccessProps The Link_Access property list
+    /// \param parents Whether parent groups should be created: Default: true
+    void createSoftLink(const std::string& link_name,
+                        const std::string& obj_path,
+                        LinkCreateProps linkCreateProps = LinkCreateProps(),
+                        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
+                        const bool parents = true);
+
+    void createExternalLink(const std::string& link_name,
+                            const std::string& h5_file,
+                            const std::string& obj_path,
+                            LinkCreateProps linkCreateProps = LinkCreateProps(),
+                            const LinkAccessProps& linkAccessProps = LinkAccessProps(),
+                            const bool parents = true);
 
   private:
     typedef Derivate derivate_type;
