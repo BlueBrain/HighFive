@@ -155,7 +155,8 @@ inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
-                                         const std::string& dst_path, bool parents) const {
+                                         const std::string& dst_path,
+                                         bool parents) const {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
     herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
@@ -266,6 +267,48 @@ inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) 
 template <typename Derivate>
 inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_name) const {
     return _open(node_name).getType();
+}
+
+
+template <typename Derivate>
+inline void NodeTraits<Derivate>::createSoftLink(const std::string& link_name,
+                                                 const std::string& obj_path,
+                                                 LinkCreateProps linkCreateProps,
+                                                 const LinkAccessProps& linkAccessProps,
+                                                 const bool parents) {
+    if (parents) {
+        linkCreateProps.add(CreateIntermediateGroup{});
+    }
+    auto status = H5Lcreate_soft(obj_path.c_str(),
+                                 static_cast<const Derivate*>(this)->getId(),
+                                 link_name.c_str(),
+                                 linkCreateProps.getId(), linkAccessProps.getId());
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create soft link: "));
+    }
+}
+
+
+template <typename Derivate>
+inline void NodeTraits<Derivate>::createExternalLink(const std::string& link_name,
+                                                     const std::string& h5_file,
+                                                     const std::string& obj_path,
+                                                     LinkCreateProps linkCreateProps,
+                                                     const LinkAccessProps& linkAccessProps,
+                                                     const bool parents) {
+    if (parents) {
+        linkCreateProps.add(CreateIntermediateGroup{});
+    }
+    auto status = H5Lcreate_external(h5_file.c_str(),
+                                     obj_path.c_str(),
+                                     static_cast<const Derivate*>(this)->getId(),
+                                     link_name.c_str(),
+                                     linkCreateProps.getId(), linkAccessProps.getId());
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create external link: "));
+    }
 }
 
 
