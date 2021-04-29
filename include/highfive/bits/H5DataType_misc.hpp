@@ -417,7 +417,10 @@ inline DataType create_and_check_datatype() {
 
     // Check that the size of the template type matches the size that HDF5 is
     // expecting.
-    if(!t.isReference() && (sizeof(T) != t.getSize())) {
+    if (t.isReference() || t.isFixedLenStr()) {
+        return t;
+    }
+    if (sizeof(T) != t.getSize()) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(T)
            << " != that of memory datatype " << t.getSize()

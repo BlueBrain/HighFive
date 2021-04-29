@@ -1084,6 +1084,74 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) 
     readWriteShuffleDeflateTest<T>();
 }
 
+template <typename T>
+void readWriteSzipTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_szip_" << typeNameHelper<T>() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+    const size_t x_size = 128;
+    const size_t y_size = 32;
+    const size_t x_chunk = 8;
+    const size_t y_chunk = 4;
+
+    const int options_mask = H5_SZIP_NN_OPTION_MASK;
+    const int pixels_per_block = 8;
+
+    T array[x_size][y_size];
+
+    // write a compressed file
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims{x_size, y_size};
+
+        DataSpace dataspace(dims);
+
+        // Use chunking
+        DataSetCreateProps props;
+        props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
+
+        // Enable szip
+        props.add(Szip(options_mask, pixels_per_block));
+
+        // Create a dataset with arbitrary type
+        DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
+
+        ContentGenerate<T> generator;
+        generate2D(array, x_size, y_size, generator);
+
+        dataset.write(array);
+
+        file.flush();
+    }
+
+    // read it back
+    {
+        File file_read(filename.str(), File::ReadOnly);
+        DataSet dataset_read = file_read.getDataSet("/" + DATASET_NAME);
+
+        T result[x_size][y_size];
+
+        dataset_read.read(result);
+
+        for (size_t i = 0; i < x_size; ++i) {
+            for (size_t j = 0; i < y_size; ++i) {
+                BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, dataset_test_types) {
+    // SZIP is not consistently available across distributions.
+    if (H5Zfilter_avail(H5Z_FILTER_SZIP)) {
+        readWriteSzipTest<T>();
+    } else {
+        BOOST_CHECK_THROW(readWriteSzipTest<T>(), PropertyException);
+    }
+}
+
 // Broadcasting is supported
 BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
 
@@ -1245,66 +1313,34 @@ BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
 
 }
 
-BOOST_AUTO_TEST_CASE(HighFiveSoftLink) {
-    int val_in = 371;
-    int val_out = 0;
+BOOST_AUTO_TEST_CASE(HighFiveSoftLinks) {
+    const std::string FILE_NAME("softlinks.h5");
+    const std::string DS_PATH("/hard_link/dataset");
+    const std::string LINK_PATH("/soft_link/to_ds");
+    const std::vector<int> data{11, 22, 33};
 
-    File file("link_soft.h5", File::ReadWrite | File::Create | File::Truncate);
-    Group group = file.createGroup("path/to/group");
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        auto dset = file.createDataSet(DS_PATH, data);
+        file.createSoftLink(LINK_PATH, dset);
+    }
 
-    // Dataset
-    DataSet dset = group.createDataSet<int>("data", DataSpace(1));
-    dset.write(val_in);
+    {
+        File file(FILE_NAME, File::ReadWrite);
+        std::vector<int> data_out;
+        file.getDataSet(LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
 
-    file.createSoftLink(dset.getPath(), "myDsetLink");
-    DataSet dset_out = file.getDataSet("myDsetLink");
+    {
+        const std::string EXTERNAL_LINK_PATH("/external_link/to_ds");
+        File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
+        file2.createExternalLink(EXTERNAL_LINK_PATH, FILE_NAME, DS_PATH);
 
-    dset_out.read(val_out);
-    BOOST_CHECK_EQUAL(val_out, val_in);
-
-    // Group
-    file.createSoftLink(group.getPath(), "myGroupLink");
-    Group group_out = file.getGroup("myGroupLink");
-
-    DataSet group_out_dset = group_out.getDataSet("data");
-    BOOST_CHECK_EQUAL(group_out_dset.isValid(), true);
-
-    val_out = 0;
-    group_out_dset.read(val_out);
-    BOOST_CHECK_EQUAL(val_out, val_in);
-
-    // Change the value of an existing original dset
-    val_in = 717;
-    dset.write(val_in);
-
-    val_out = 0;
-    dset_out.read(val_out);
-    BOOST_CHECK_EQUAL(val_out, val_in);
-
-    val_out = 0;
-    group_out_dset.read(val_out);
-    BOOST_CHECK_EQUAL(val_out, val_in);
-}
-
-BOOST_AUTO_TEST_CASE(HighFiveExternalLink) {
-    int val_in = 371;
-    int val_out = 0;
-
-    File file1("link_external_from.h5", File::ReadWrite | File::Create | File::Truncate);
-    Group group = file1.createGroup("path/to");
-    DataSet dset1 = group.createDataSet<int>("data", DataSpace(1));
-
-    File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
-    file2.createExternalLink(file1.getName(), group.getPath(), "myExternalLink");
-    Group group2 = file2.getGroup("myExternalLink");
-
-    BOOST_CHECK_EQUAL(group2.getPath(), "/path/to");
-
-    DataSet dset2 = group2.getDataSet("data");
-
-    dset1.write(val_in);
-    dset2.read(val_out);
-    BOOST_CHECK_EQUAL(val_out, val_in);
+        std::vector<int> data_out;
+        file2.getDataSet(EXTERNAL_LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(HighFiveRename) {
@@ -1684,6 +1720,28 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
         BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
     }
 }
+
+
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayAttribute) {
+    const std::string FILE_NAME("fixed_array_attr.h5");
+    // Create a new file using the default property lists.
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        FixedLenStringArray<10> arr{"Hello", "world"};
+        file.createAttribute("str", arr);
+    }
+    // Re-read it
+    {
+        File file(FILE_NAME);
+        FixedLenStringArray<8> arr;  // notice the output strings can be smaller
+        file.getAttribute("str").read(arr);
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("Hello"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("world"));
+    }
+
+}
+
 
 BOOST_AUTO_TEST_CASE(HighFiveReference) {
     const std::string FILE_NAME("h5_ref_test.h5");
