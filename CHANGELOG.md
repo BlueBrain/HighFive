@@ -1,10 +1,13 @@
 ## Version 2.2.3 - 2021-04-05
 ### New Features:
+    - Add SZIP support (#435)
     - Add option *parents* to createDataSet (#425)
     - Implementing getting the filename dynamically (#424)
+    - Ability to create soft and external links (#421)
     - Generalizing getPath and adding getFile as PathTraits (#417)
 
 ### Improvements:
+    - Unified reading/writing attributes and datasets (#450)
     - Old compilers have been removed from docker image (#430)
     - Cleaning up and improving property lists (#429)
     - An example using hdf5 references (#396) (#397)
