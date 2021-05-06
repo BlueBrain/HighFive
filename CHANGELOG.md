@@ -1,4 +1,4 @@
-## Version 2.2.3 - 2021-04-05
+## Version 2.3 - 2021-05-07
 ### New Features:
     - Add SZIP support (#435)
     - Add option *parents* to createDataSet (#425)
