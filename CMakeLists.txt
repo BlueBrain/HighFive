@@ -43,9 +43,6 @@ mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 # Check compiler cxx_std requirements
 # -----------------------------------
 
-if(NOT COMPILER_SUPPORTS_CXX11)
-  message(FATAL_ERROR "HighFive version >= 2.0 requires c++ standard >= c++11")
-endif()
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -53,11 +50,8 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
 endif()
 
 if(HIGHFIVE_USE_XTENSOR)
-  if(NOT COMPILER_SUPPORTS_CXX14)
-    message(SEND_ERROR "C++ compiler does not support standard c++14, required to support xtensor.")
-  else()
     set(CMAKE_CXX_STANDARD 14)
-  endif()
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 
