@@ -17,8 +17,6 @@ list(APPEND CMAKE_MODULE_PATH
 
 include(CompilerFlagsHelpers)
 include(ReleaseDebugAutoFlags)
-include(CheckCXXStandardSupport)
-include(BlueGenePortability)
 
 # OPTIONS
 # Compat within Highfive 2.x series
@@ -101,7 +99,7 @@ if(HIGHFIVE_UNIT_TESTS)
 endif()
 
 
-if(CMAKE_CXX_COMPILER_IS_ICC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
   # ICC gets mad if we shorten "int"s
   add_definitions("-wd1682")
 endif()
