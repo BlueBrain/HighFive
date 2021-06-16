@@ -144,6 +144,10 @@ public:
         create(size);
     }
 
+    ///
+    /// \brief Initializes a compound type from a hdf id
+    /// \param hid
+    //
     inline CompoundType(const hid_t hid) {
         _hid = hid;
         if (getClass() != DataTypeClass::Compound) {
