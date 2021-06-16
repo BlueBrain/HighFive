@@ -146,6 +146,11 @@ public:
 
     inline CompoundType(const hid_t hid) {
         _hid = hid;
+        if (getClass() != DataTypeClass::Compound) {
+            std::ostringstream ss;
+            ss << "hid " << hid << " does not refer to a compound data type";
+            throw DataTypeException(ss.str());
+        }
         int result = H5Tget_nmembers(hid);
         if (result < 0) {
             throw DataTypeException("Could not get members of compound datatype");
