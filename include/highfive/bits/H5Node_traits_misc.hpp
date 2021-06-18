@@ -37,16 +37,18 @@ NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataType& dtype,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
-    DataSet ds{H5Dcreate2(static_cast<Derivate*>(this)->getId(),
-                          dataset_name.c_str(), dtype._hid, space._hid,
-                          H5P_DEFAULT, createProps.getId(), accessProps.getId())};
-    if (ds._hid  < 0) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
+                                dataset_name.c_str(), dtype._hid, space._hid,
+                                lcpl.getId(), createProps.getId(), accessProps.getId());
+    if (hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
-            std::string("Unable to create the dataset \"") + dataset_name +
-            "\":");
+            std::string("Unable to create the dataset \"") + dataset_name + "\":");
     }
-    return ds;
+    return DataSet(hid);
 }
 
 template <typename Derivate>
@@ -55,11 +57,11 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const DataSpace& space,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps)
-{
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     return createDataSet(dataset_name, space,
                          create_and_check_datatype<Type>(),
-                         createProps, accessProps);
+                         createProps, accessProps, parents);
 }
 
 template <typename Derivate>
@@ -68,11 +70,12 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const T& data,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     DataSet ds = createDataSet(
         dataset_name, DataSpace::From(data),
-        create_and_check_datatype<typename details::type_of_array<T>::type>(),
-        createProps, accessProps);
+        create_and_check_datatype<typename details::inspector<T>::base_type>(),
+        createProps, accessProps, parents);
     ds.write(data);
     return ds;
 }
@@ -83,9 +86,10 @@ inline DataSet
 NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                     const FixedLenStringArray<N>& data,
                                     const DataSetCreateProps& createProps,
-                                    const DataSetAccessProps& accessProps) {
+                                    const DataSetAccessProps& accessProps,
+                                    bool parents) {
     DataSet ds = createDataSet<char[N]>(
-        dataset_name, DataSpace(data.size()), createProps, accessProps);
+        dataset_name, DataSpace(data.size()), createProps, accessProps, parents);
     ds.write(data);
     return ds;
 }
@@ -94,41 +98,40 @@ template <typename Derivate>
 inline DataSet
 NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                  const DataSetAccessProps& accessProps) const {
-    DataSet ds{H5Dopen2(static_cast<const Derivate*>(this)->getId(),
-                        dataset_name.c_str(), accessProps.getId())};
-    if (ds._hid < 0) {
+    const auto hid = H5Dopen2(static_cast<const Derivate*>(this)->getId(),
+                              dataset_name.c_str(), accessProps.getId());
+    if (hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Unable to open the dataset \"") + dataset_name + "\":");
     }
-    return ds;
+    return DataSet(hid);
 }
 
 template <typename Derivate>
 inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
                                                bool parents) {
-    RawPropertyList<PropertyType::LINK_CREATE> lcpl;
-    if (parents) {
-        lcpl.add(H5Pset_create_intermediate_group, 1u);
-    }
-    Group group{H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                           group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT)};
-    if (group._hid < 0) {
+
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
+                                group_name.c_str(), lcpl.getId(), H5P_DEFAULT, H5P_DEFAULT);
+    if (hid < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to create the group \"") + group_name + "\":");
     }
-    return group;
+    return Group(hid);
 }
 
 template <typename Derivate>
 inline Group
 NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
-    Group group{H5Gopen2(static_cast<const Derivate*>(this)->getId(),
-                         group_name.c_str(), H5P_DEFAULT)};
-    if (group._hid < 0) {
+    const auto hid = H5Gopen2(static_cast<const Derivate*>(this)->getId(),
+                              group_name.c_str(), H5P_DEFAULT);
+    if (hid < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to open the group \"") + group_name + "\":");
     }
-    return group;
+    return Group(hid);
 }
 
 template <typename Derivate>
@@ -143,23 +146,27 @@ inline size_t NodeTraits<Derivate>::getNumberObjects() const {
 
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
-    const size_t maxLength = 255;
-    char buffer[maxLength + 1];
-    ssize_t retcode = H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
-        index, buffer, static_cast<hsize_t>(maxLength) + 1, H5P_DEFAULT);
-    if (retcode < 0) {
-        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    return details::get_name([&](char* buffer, hsize_t length) {
+        return H5Lget_name_by_idx(
+                    static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
+                    index, buffer, length, H5P_DEFAULT);
+    });
+}
+
+template <typename Derivate>
+inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
+                                         const std::string& dst_path,
+                                         bool parents) const {
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(), src_path.c_str(),
+                            static_cast<const Derivate*>(this)->getId(), dst_path.c_str(), lcpl.getId(), H5P_DEFAULT);
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+                    std::string("Unable to move link to \"") + dst_path + "\":");
+        return false;
     }
-    const size_t length = static_cast<std::size_t>(retcode);
-    if (length <= maxLength) {
-        return std::string(buffer, length);
-    }
-    std::vector<char> bigBuffer(length + 1, 0);
-    H5Lget_name_by_idx(
-        static_cast<const Derivate*>(this)->getId(), ".", H5_INDEX_NAME, H5_ITER_INC,
-        index, bigBuffer.data(), static_cast<hsize_t>(length) + 1, H5P_DEFAULT);
-    return std::string(bigBuffer.data(), length);
+    return true;
 }
 
 template <typename Derivate>
@@ -185,7 +192,7 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name,
                                          bool raise_errors) const {
-    SilenceHDF5 silencer{!raise_errors};
+    SilenceHDF5 silencer{};
     const auto val = H5Lexists(static_cast<const Derivate*>(this)->getId(),
                                node_name.c_str(), H5P_DEFAULT);
     if (val < 0) {
@@ -208,7 +215,7 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
     // so that subsequent errors are only due to missing intermediate groups
     if (group_path.find('/') != std::string::npos) {
         _exist("/");  // Shall not throw under normal circumstances
-        // Unless "/" (already checked), verify path exists (not thowing errors)
+        // Unless "/" (already checked), verify path exists (not throwing errors)
         return (group_path == "/") ? true : _exist(group_path, false);
     }
     return _exist(group_path);
@@ -264,11 +271,53 @@ inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_na
 
 
 template <typename Derivate>
+inline void NodeTraits<Derivate>::createSoftLink(const std::string& link_name,
+                                                 const std::string& obj_path,
+                                                 LinkCreateProps linkCreateProps,
+                                                 const LinkAccessProps& linkAccessProps,
+                                                 const bool parents) {
+    if (parents) {
+        linkCreateProps.add(CreateIntermediateGroup{});
+    }
+    auto status = H5Lcreate_soft(obj_path.c_str(),
+                                 static_cast<const Derivate*>(this)->getId(),
+                                 link_name.c_str(),
+                                 linkCreateProps.getId(), linkAccessProps.getId());
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create soft link: "));
+    }
+}
+
+
+template <typename Derivate>
+inline void NodeTraits<Derivate>::createExternalLink(const std::string& link_name,
+                                                     const std::string& h5_file,
+                                                     const std::string& obj_path,
+                                                     LinkCreateProps linkCreateProps,
+                                                     const LinkAccessProps& linkAccessProps,
+                                                     const bool parents) {
+    if (parents) {
+        linkCreateProps.add(CreateIntermediateGroup{});
+    }
+    auto status = H5Lcreate_external(h5_file.c_str(),
+                                     obj_path.c_str(),
+                                     static_cast<const Derivate*>(this)->getId(),
+                                     link_name.c_str(),
+                                     linkCreateProps.getId(), linkAccessProps.getId());
+    if (status < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create external link: "));
+    }
+}
+
+
+template <typename Derivate>
 inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
                                           const DataSetAccessProps& accessProps) const {
-    hid_t id = H5Oopen(static_cast<const Derivate*>(this)->getId(),
-                       node_name.c_str(),
-                       accessProps.getId());
+   const auto id = H5Oopen(static_cast<const Derivate*>(this)->getId(),
+                           node_name.c_str(),
+                           accessProps.getId());
     if (id < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to open \"") + node_name + "\":");

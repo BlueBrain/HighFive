@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/BlueBrain/HighFive.svg?branch=master)](https://travis-ci.org/BlueBrain/HighFive)
 [![Coverity Statys](https://scan.coverity.com/projects/13635/badge.svg)](https://scan.coverity.com/projects/highfive)
+[![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg)](https://BlueBrain.github.io/HighFive)
+[![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
 
 ## Brief
 
@@ -31,8 +33,8 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 
 ### Dependencies
 - hdf5 (dev)
-- hdf5-mpi (optional, opt-in with -D*DHIGHFIVE_PARALLEL_HDF5*=ON)
-- boost >= 1.41 (recommended, opt-out with -D*DHIGHFIVE_USE_BOOST*=OFF)
+- hdf5-mpi (optional, opt-in with -D*HIGHFIVE_PARALLEL_HDF5*=ON)
+- boost >= 1.41 (recommended, opt-out with -D*HIGHFIVE_USE_BOOST*=OFF)
 - eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
 - xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
 
@@ -108,6 +110,8 @@ For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Ea
     - [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `HIGHFIVE_USE_EIGEN`),
     - [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
       (optional, enable CMake option `HIGHFIVE_USE_XTENSOR`).
+    - [cv::Mat_](https://docs.opencv.org/master/df/dfc/classcv_1_1Mat__.html)
+      (optional, enable CMake option `HIGHFIVE_USE_OPENCV`).
 
 * Getting in a single line:
 

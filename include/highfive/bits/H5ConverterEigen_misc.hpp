@@ -18,16 +18,13 @@ namespace details {
 //compute size for single Eigen Matrix
 template <typename T, int M, int N>
 inline size_t compute_total_size(const Eigen::Matrix<T,M,N>& matrix) {
-    return matrix.rows() * matrix.cols();
+    return static_cast<size_t>(matrix.rows()) * static_cast<size_t>(matrix.cols());
 }
 
 //compute size for  std::vector of Eigens
 template <typename T, int M, int N>
 inline size_t compute_total_size(const std::vector<Eigen::Matrix<T,M,N>>& vec) {
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
-        [](size_t so_far, const Eigen::Matrix<T,M,N>& v) {
-            return so_far + static_cast<size_t>(v.rows()) * static_cast<size_t>(v.cols());
-        });
+    return vec.size() * compute_total_size(vec[0]);
 }
 
 #ifdef H5_USE_BOOST
@@ -40,16 +37,6 @@ inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
         });
 }
 #endif
-
-//compute total row size for std::vector of Eigens
-template <typename T, int M, int N>
-inline size_t compute_total_row_size(const std::vector<Eigen::Matrix<T,M,N>>& vec) {
-    return std::accumulate(vec.begin(), vec.end(), size_t{0u},
-        [](size_t so_far, const Eigen::Matrix<T,M,N>& v) {
-            return so_far + static_cast<size_t>(v.rows());
-        });
-}
-
 
 // apply conversion to eigen matrix
 template <typename T, int M, int N>
@@ -87,7 +74,7 @@ inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T,M,N>>& ve
                                      const size_t current_dim,
                                      std::vector<T>& buffer) {
 
-    check_dimensions_vector(compute_total_row_size(vec), dims[current_dim], current_dim);
+    check_dimensions_vector(vec.size(), dims[current_dim], current_dim);
     for (const auto& k : vec) {
         std::copy(k.data(), k.data() + k.size(), std::back_inserter(buffer));
     }
@@ -101,7 +88,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()), _space(space) {
-        assert(_dims.size() == 2);
+        assert(_dims.size() == 3);
     }
 
     inline T * transform_read(std::vector<MatrixTMN>& /* vec */) {
@@ -131,7 +118,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
             throw DataSetException(ss.str());
         }
         else {
-            for (size_t i = 0; i < _dims[0] / static_cast<size_t>(M); ++i) {
+            for (size_t i = 0; i < _dims[0]; ++i) {
                 vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
                 start += M * N;
             }
@@ -139,7 +126,7 @@ struct data_converter<std::vector<Eigen::Matrix<T,M,N>>, void> {
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename type_of_array<T>::type> _vec_align;
+    std::vector<typename inspector<T>::base_type> _vec_align;
     const DataSpace& _space;
 };
 
@@ -151,7 +138,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions())
         , _space(space) {
-        assert(_dims.size() == Dims);
+        assert(_dims.size() == Dims + 2);
     }
 
     inline T* transform_read(const MultiArrayEigen& /*array*/) {
@@ -192,7 +179,7 @@ struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
 
     std::vector<size_t> _dims;
     const DataSpace& _space;
-    std::vector<typename type_of_array<T>::type> _vec_align;
+    std::vector<typename inspector<T>::base_type> _vec_align;
 };
 #endif  // H5_USE_BOOST
 

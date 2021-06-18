@@ -1,4 +1,3 @@
-
 #include <iostream>
 
 #include <highfive/H5File.hpp>
@@ -26,7 +25,7 @@ bool operator!=(csl x, csl y) {
 }
 
 // Tell HighFive how to create the HDF5 datatype for this base type by
-// using the HIGHFUVE_REGISTER_TYPE macro
+// using the HIGHFIVE_REGISTER_TYPE macro
 CompoundType create_compound_csl() {
     return {{"u1", AtomicType<unsigned char>{}},
             {"u2", AtomicType<short>{}},

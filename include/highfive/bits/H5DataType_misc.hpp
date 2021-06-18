@@ -179,9 +179,9 @@ inline AtomicType<std::complex<double> >::AtomicType() {
 // Other cases not supported. Fail early with a user message
 template <typename T>
 AtomicType<T>::AtomicType() {
-    static_assert(details::array_dims<T>::value == 0,
-                  "Atomic types cant be arrays, except for char[] (fixed-len strings)");
-    static_assert(details::array_dims<T>::value > 0, "Type not supported");
+    static_assert(details::inspector<T>::recursive_ndim == 0,
+                  "Atomic types cant be arrays, except for char[] (fixed-length strings)");
+    static_assert(details::inspector<T>::recursive_ndim > 0, "Type not supported");
 }
 
 
@@ -406,13 +406,21 @@ template <typename T>
 inline DataType create_and_check_datatype() {
 
     DataType t = create_datatype<T>();
+    if (t.empty()) {
+        throw DataTypeException("Type given to create_and_check_datatype is not valid");
+    }
+
     // Skip check if the base type is a variable length string
     if (t.isVariableStr()) {
         return t;
     }
+
     // Check that the size of the template type matches the size that HDF5 is
     // expecting.
-    if(!t.isReference() && (sizeof(T) != t.getSize())) {
+    if (t.isReference() || t.isFixedLenStr()) {
+        return t;
+    }
+    if (sizeof(T) != t.getSize()) {
         std::ostringstream ss;
         ss << "Size of array type " << sizeof(T)
            << " != that of memory datatype " << t.getSize()

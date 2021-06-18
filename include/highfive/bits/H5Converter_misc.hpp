@@ -70,7 +70,7 @@ inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
 }
 
 
-template <typename T, typename U = typename type_of_array<T>::type>
+template <typename T, typename U = typename inspector<T>::base_type>
 inline void
 vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
                          const std::vector<size_t>& dims,
@@ -97,7 +97,7 @@ single_buffer_to_vectors(typename std::vector<T>::const_iterator begin_buffer,
     return end_copy_iter;
 }
 
-template <typename T, typename U = typename type_of_array<T>::type>
+template <typename T, typename U = typename inspector<T>::base_type>
 inline typename std::vector<U>::const_iterator
 single_buffer_to_vectors(typename std::vector<U>::const_iterator begin_buffer,
                          typename std::vector<U>::const_iterator end_buffer,
@@ -161,7 +161,7 @@ struct data_converter<CArray,
 };
 
 // Generic container converter
-template <typename Container, typename T = typename type_of_array<Container>::type>
+template <typename Container, typename T = typename inspector<Container>::base_type>
 struct container_converter {
     typedef T value_type;
 
@@ -192,7 +192,7 @@ template <typename T>
 struct data_converter<
     std::vector<T>,
     typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value &&
+        std::is_same<T, typename inspector<T>::base_type>::value &&
         !std::is_same<T, Reference>::value
         )>::type>
     : public container_converter<std::vector<T>> {
@@ -206,7 +206,7 @@ template <typename T, std::size_t S>
 struct data_converter<
     std::array<T, S>,
     typename std::enable_if<(
-        std::is_same<T, typename type_of_array<T>::type>::value)>::type>
+        std::is_same<T, typename inspector<T>::base_type>::value)>::type>
     : public container_converter<std::array<T, S>> {
 
     inline data_converter(const DataSpace& space)
@@ -236,7 +236,7 @@ template <typename T, std::size_t Dims>
 struct data_converter<boost::multi_array<T, Dims>, void>
     : public container_converter<boost::multi_array<T, Dims>> {
     using MultiArray = boost::multi_array<T, Dims>;
-    using value_type = typename type_of_array<T>::type;
+    using value_type = typename inspector<T>::base_type;
     using container_converter<MultiArray>::container_converter;
 
     inline value_type* transform_read(MultiArray& array) {
@@ -256,7 +256,7 @@ template <typename T>
 struct data_converter<boost::numeric::ublas::matrix<T>, void>
     : public container_converter<boost::numeric::ublas::matrix<T>> {
     using Matrix = boost::numeric::ublas::matrix<T>;
-    using value_type = typename type_of_array<T>::type;
+    using value_type = typename inspector<T>::base_type;
 
     inline data_converter(const DataSpace& space) : container_converter<Matrix>(space) {
         assert(space.getDimensions().size() == 2);
@@ -283,7 +283,7 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void>
 template <typename T>
 struct data_converter<std::vector<T>,
                       typename std::enable_if<(is_container<T>::value)>::type> {
-    using value_type = typename type_of_array<T>::type;
+    using value_type = typename inspector<T>::base_type;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {}
@@ -305,7 +305,7 @@ struct data_converter<std::vector<T>,
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename type_of_array<T>::type> _vec_align;
+    std::vector<typename inspector<T>::base_type> _vec_align;
 };
 
 
@@ -409,7 +409,7 @@ struct data_converter<std::vector<Reference>, void> {
     }
 
     inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
+        _vec_align.resize(compute_total_size(_dims));
         for (size_t i = 0; i < vec.size(); ++i) {
             vec[i].create_ref(&_vec_align[i]);
         }
@@ -424,7 +424,7 @@ struct data_converter<std::vector<Reference>, void> {
     }
 
     std::vector<size_t> _dims;
-    std::vector<typename type_of_array<hobj_ref_t>::type> _vec_align;
+    std::vector<typename inspector<hobj_ref_t>::base_type> _vec_align;
 };
 
 }  // namespace details

@@ -138,6 +138,21 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSetDefaultCtr) {
+    const std::string FILE_NAME("h5_group_test.h5");
+    const std::string DATASET_NAME("dset");
+    File file(FILE_NAME, File::Truncate);
+    auto ds = file.createDataSet(DATASET_NAME, std::vector<int>{1, 2, 3, 4, 5});
+
+    DataSet d2;  // deprecated as it constructs unsafe objects
+    // d2.getFile();  // runtime error
+    BOOST_CHECK_EQUAL(d2.isValid(), false);
+    d2 = ds;  // copy
+    BOOST_CHECK_EQUAL(d2.isValid(), true);
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
@@ -333,8 +348,6 @@ BOOST_AUTO_TEST_CASE(HighFiveRefCountMove) {
         d1_ptr.reset();
 
         double values[10][10];
-        memset(values, 255, 10 * 10);
-
         d2.read(values);
 
         for (std::size_t i = 0; i < 10; ++i) {
@@ -1071,6 +1084,74 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteShuffleDeflate, T, numerical_test_types) 
     readWriteShuffleDeflateTest<T>();
 }
 
+template <typename T>
+void readWriteSzipTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_szip_" << typeNameHelper<T>() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+    const size_t x_size = 128;
+    const size_t y_size = 32;
+    const size_t x_chunk = 8;
+    const size_t y_chunk = 4;
+
+    const int options_mask = H5_SZIP_NN_OPTION_MASK;
+    const int pixels_per_block = 8;
+
+    T array[x_size][y_size];
+
+    // write a compressed file
+    {
+        File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+        // Create the data space for the dataset.
+        std::vector<size_t> dims{x_size, y_size};
+
+        DataSpace dataspace(dims);
+
+        // Use chunking
+        DataSetCreateProps props;
+        props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
+
+        // Enable szip
+        props.add(Szip(options_mask, pixels_per_block));
+
+        // Create a dataset with arbitrary type
+        DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
+
+        ContentGenerate<T> generator;
+        generate2D(array, x_size, y_size, generator);
+
+        dataset.write(array);
+
+        file.flush();
+    }
+
+    // read it back
+    {
+        File file_read(filename.str(), File::ReadOnly);
+        DataSet dataset_read = file_read.getDataSet("/" + DATASET_NAME);
+
+        T result[x_size][y_size];
+
+        dataset_read.read(result);
+
+        for (size_t i = 0; i < x_size; ++i) {
+            for (size_t j = 0; i < y_size; ++i) {
+                BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWriteSzip, T, dataset_test_types) {
+    // SZIP is not consistently available across distributions.
+    if (H5Zfilter_avail(H5Z_FILTER_SZIP)) {
+        readWriteSzipTest<T>();
+    } else {
+        BOOST_CHECK_THROW(readWriteSzipTest<T>(), PropertyException);
+    }
+}
+
 // Broadcasting is supported
 BOOST_AUTO_TEST_CASE(ReadInBroadcastDims) {
 
@@ -1202,6 +1283,138 @@ BOOST_AUTO_TEST_CASE(HighFiveInspect) {
     BOOST_CHECK(ds.getInfo().getRefCount() == 1);
 }
 
+
+BOOST_AUTO_TEST_CASE(HighFiveGetPath) {
+
+    File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    int number = 100;
+    Group group = file.createGroup("group");
+    DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+    dataset.write(number);
+    std::string string_list("Very important DataSet!");
+    Attribute attribute = dataset.createAttribute<std::string>("attribute", DataSpace::From(string_list));
+    attribute.write(string_list);
+
+    BOOST_CHECK_EQUAL("/", file.getPath());
+    BOOST_CHECK_EQUAL("/group", group.getPath());
+    BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    BOOST_CHECK_EQUAL("attribute", attribute.getName());
+    BOOST_CHECK_EQUAL("/group/data", attribute.getPath());
+
+    BOOST_CHECK(file == dataset.getFile());
+    BOOST_CHECK(file == attribute.getFile());
+
+    // Destroy file early (it should live inside Dataset/Group)
+    std::unique_ptr<File> f2(new File("getpath.h5"));
+    const auto& d2 = f2->getDataSet("/group/data");
+    f2.reset(nullptr);
+    BOOST_CHECK_EQUAL(d2.getFile().getPath(), "/");
+
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveSoftLinks) {
+    const std::string FILE_NAME("softlinks.h5");
+    const std::string DS_PATH("/hard_link/dataset");
+    const std::string LINK_PATH("/soft_link/to_ds");
+    const std::vector<int> data{11, 22, 33};
+
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        auto dset = file.createDataSet(DS_PATH, data);
+        file.createSoftLink(LINK_PATH, dset);
+    }
+
+    {
+        File file(FILE_NAME, File::ReadWrite);
+        std::vector<int> data_out;
+        file.getDataSet(LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
+
+    {
+        const std::string EXTERNAL_LINK_PATH("/external_link/to_ds");
+        File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
+        file2.createExternalLink(EXTERNAL_LINK_PATH, FILE_NAME, DS_PATH);
+
+        std::vector<int> data_out;
+        file2.getDataSet(EXTERNAL_LINK_PATH).read(data_out);
+        BOOST_CHECK(data == data_out);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveRename) {
+
+    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+
+    int number = 100;
+
+    {
+        Group group = file.createGroup("group");
+        DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+        dataset.write(number);
+        std::string path = dataset.getPath();
+        BOOST_CHECK_EQUAL("/group/data", path);
+    }
+
+    file.rename("/group/data", "/new/group/new/data");
+
+    {
+        DataSet dataset = file.getDataSet("/new/group/new/data");
+        std::string path = dataset.getPath();
+        BOOST_CHECK_EQUAL("/new/group/new/data", path);
+        int read;
+        dataset.read(read);
+        BOOST_CHECK_EQUAL(number, read);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFiveRenameRelative) {
+
+    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+    Group group = file.createGroup("group");
+
+    int number = 100;
+
+    {
+        DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+        dataset.write(number);
+        BOOST_CHECK_EQUAL("/group/data", dataset.getPath());
+    }
+
+    group.rename("data", "new_data");
+
+    {
+        DataSet dataset = group.getDataSet("new_data");
+        BOOST_CHECK_EQUAL("/group/new_data", dataset.getPath());
+        int read;
+        dataset.read(read);
+        BOOST_CHECK_EQUAL(number, read);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(HighFivePropertyObjects) {
+    const auto& plist1 = FileCreateProps::Default();  // get const-ref, otherwise copies
+    BOOST_CHECK_EQUAL(plist1.getId(), H5P_DEFAULT);
+    BOOST_CHECK_EQUAL(plist1.isValid(), false);       // not valid -> no inc_ref
+    auto plist2 = plist1;  // copy  (from Object)
+    BOOST_CHECK_EQUAL(plist2.getId(), H5P_DEFAULT);
+
+    // Underlying object is same (singleton holder of H5P_DEFAULT)
+    const auto& other_plist_type = LinkCreateProps::Default();
+    BOOST_CHECK_EQUAL((void*)&plist1, (void*)&other_plist_type);
+
+    LinkCreateProps plist_g;
+    BOOST_CHECK_EQUAL(plist_g.getId(), H5P_DEFAULT);
+    BOOST_CHECK_EQUAL(plist_g.isValid(), false);
+
+    plist_g.add(CreateIntermediateGroup());
+    BOOST_CHECK(plist_g.isValid());
+    auto plist_g2 = plist_g;
+    BOOST_CHECK(plist_g2.isValid());
+}
+
+
 typedef struct {
     int m1;
     int m2;
@@ -1211,6 +1424,7 @@ typedef struct {
 typedef struct {
     CSL1 csl1;
 } CSL2;
+
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
@@ -1506,6 +1720,28 @@ BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayStructure) {
         BOOST_CHECK_EQUAL(arr2[0], std::string("0000000"));
     }
 }
+
+
+BOOST_AUTO_TEST_CASE(HighFiveFixedLenStringArrayAttribute) {
+    const std::string FILE_NAME("fixed_array_attr.h5");
+    // Create a new file using the default property lists.
+    {
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        FixedLenStringArray<10> arr{"Hello", "world"};
+        file.createAttribute("str", arr);
+    }
+    // Re-read it
+    {
+        File file(FILE_NAME);
+        FixedLenStringArray<8> arr;  // notice the output strings can be smaller
+        file.getAttribute("str").read(arr);
+        BOOST_CHECK_EQUAL(arr.size(), 2);
+        BOOST_CHECK_EQUAL(arr[0], std::string("Hello"));
+        BOOST_CHECK_EQUAL(arr[1], std::string("world"));
+    }
+
+}
+
 
 BOOST_AUTO_TEST_CASE(HighFiveReference) {
     const std::string FILE_NAME("h5_ref_test.h5");

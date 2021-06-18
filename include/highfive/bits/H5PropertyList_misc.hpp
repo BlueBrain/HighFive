@@ -56,32 +56,10 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
 
 }  // namespace
 
-template <PropertyType T>
-inline PropertyList<T>::PropertyList() noexcept
-    : _hid(H5P_DEFAULT) {}
 
-template <PropertyType T>
-inline PropertyList<T>::PropertyList(PropertyList<T>&& other) noexcept
-    : _hid(other._hid) {
-    other._hid = H5P_DEFAULT;
-}
+inline PropertyListBase::PropertyListBase() noexcept
+    : Object(H5P_DEFAULT) {}
 
-template <PropertyType T>
-inline PropertyList<T>& PropertyList<T>::operator=(PropertyList<T>&& other) noexcept {
-    // This code handles self-assignment without ifs
-    const auto hid = other._hid;
-    other._hid = H5P_DEFAULT;
-    _hid = hid;
-    return *this;
-}
-
-template <PropertyType T>
-inline PropertyList<T>::~PropertyList() {
-    // H5P_DEFAULT and H5I_INVALID_HID are not the same Ensuring that ~Object
-    if (_hid != H5P_DEFAULT) {
-        H5Pclose(_hid);
-    }
-}
 
 template <PropertyType T>
 inline void PropertyList<T>::_initializeIfNeeded() {
@@ -111,6 +89,9 @@ inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
     }
 }
 
+
+// Specific options to be added to Property Lists
+
 inline void Chunking::apply(const hid_t hid) const {
     if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
@@ -119,14 +100,22 @@ inline void Chunking::apply(const hid_t hid) const {
 }
 
 inline void Deflate::apply(const hid_t hid) const {
-    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE)) {
+    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE) ||
+            H5Pset_deflate(hid, _level) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting deflate property");
     }
+}
 
-    if (H5Pset_deflate(hid, _level) < 0) {
+inline void Szip::apply(const hid_t hid) const {
+    if (!H5Zfilter_avail(H5Z_FILTER_SZIP)) {
         HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting deflate property");
+            "Error setting szip property");
+    }
+
+    if (H5Pset_szip(hid, _options_mask, _pixels_per_block) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting szip property");
     }
 }
 
@@ -146,6 +135,13 @@ inline void Caching::apply(const hid_t hid) const {
     if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting dataset cache parameters");
+    }
+}
+
+inline void CreateIntermediateGroup::apply(const hid_t hid) const {
+    if (H5Pset_create_intermediate_group(hid, _create ? 1 : 0) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting property for create intermediate groups");
     }
 }
 

@@ -55,12 +55,18 @@ class File : public Object,
     ///
     /// Open or create a new HDF5 file
     explicit File(const std::string& filename, unsigned openFlags = ReadOnly,
-                  const FileAccessProps& fileAccessProps = FileDriver());
+                  const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
     /// \brief Return the name of the file
     ///
     const std::string& getName() const noexcept;
+
+
+    /// \brief Object path of a File is always "/"
+    std::string getPath() const noexcept {
+        return "/";
+    }
 
     ///
     /// \brief flush
@@ -70,7 +76,11 @@ class File : public Object,
     void flush();
 
  private:
-    std::string _filename;
+    using Object::Object;
+
+    mutable std::string _filename{};
+
+    template <typename> friend class PathTraits;
 };
 
 }  // namespace HighFive
@@ -79,5 +89,6 @@ class File : public Object,
 #include "bits/H5Annotate_traits_misc.hpp"
 #include "bits/H5File_misc.hpp"
 #include "bits/H5Node_traits_misc.hpp"
+#include "bits/H5Path_traits_misc.hpp"
 
 #endif  // H5FILE_HPP

@@ -9,6 +9,8 @@
 #ifndef H5PROPERTY_LIST_HPP
 #define H5PROPERTY_LIST_HPP
 
+#include <vector>
+
 #include <H5Ppublic.h>
 
 #include "H5Exception.hpp"
@@ -37,26 +39,34 @@ enum class PropertyType : int {
     LINK_ACCESS,
 };
 
+
 ///
-/// \brief Base HDF5 property List
+/// \brief Base Class for Property lists, providing global default
+class PropertyListBase : public Object {
+
+  public:
+    PropertyListBase() noexcept;
+
+    static const PropertyListBase& Default() noexcept {
+        static const PropertyListBase plist{};
+        return plist;
+    }
+
+};
+
+
+///
+/// \brief HDF5 property Lists
 ///
 template <PropertyType T>
-class PropertyList {
+class PropertyList : public PropertyListBase {
   public:
-    ~PropertyList();
 
-    PropertyList(const PropertyList<T>&) = delete;
-    PropertyList& operator=(const PropertyList<T>&) = delete;
-    PropertyList(PropertyList&& other) noexcept;
-    PropertyList& operator=(PropertyList&& other) noexcept;
-    constexpr PropertyType getType() const { return T; }
-
-    hid_t getId() const { return _hid; }
-
-    PropertyList() noexcept;
-
-    template <typename P>
-    PropertyList(const std::initializer_list<P>&);
+    ///
+    /// \brief return the type of this PropertyList
+    constexpr PropertyType getType() const noexcept {
+        return T;
+    }
 
     ///
     /// Add a property to this property list.
@@ -66,17 +76,32 @@ class PropertyList {
     template <typename P>
     void add(const P& property);
 
+    ///
+    /// Return the Default property type object
+    static const PropertyList<T>& Default() noexcept {
+        return static_cast<const PropertyList<T>&>(PropertyListBase::Default());
+    }
+
   protected:
     void _initializeIfNeeded();
 
-    hid_t _hid;
 };
 
+typedef PropertyList<PropertyType::OBJECT_CREATE> ObjectCreateProps;
 typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
 typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps ;
 typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
 typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
 typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
+typedef PropertyList<PropertyType::GROUP_CREATE> GroupCreateProps;
+typedef PropertyList<PropertyType::GROUP_ACCESS> GroupAccessProps;
+typedef PropertyList<PropertyType::DATATYPE_CREATE> DataTypeCreateProps;
+typedef PropertyList<PropertyType::DATATYPE_ACCESS> DataTypeAccessProps;
+typedef PropertyList<PropertyType::STRING_CREATE> StringCreateProps;
+typedef PropertyList<PropertyType::ATTRIBUTE_CREATE> AttributeCreateProps;
+typedef PropertyList<PropertyType::OBJECT_COPY> ObjectCopyProps;
+typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
+typedef PropertyList<PropertyType::LINK_ACCESS> LinkAccessProps;
 
 ///
 /// RawPropertieLists are to be used when advanced H5 properties
@@ -123,6 +148,21 @@ class Deflate {
     const unsigned _level;
 };
 
+class Szip {
+  public:
+    explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK, 
+                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
+        : _options_mask(options_mask)
+        , _pixels_per_block(pixels_per_block)
+    {}
+
+    private:
+      friend DataSetCreateProps;
+      void apply(hid_t hid) const;
+      const unsigned _options_mask;
+      const unsigned _pixels_per_block;
+};
+
 class Shuffle {
   public:
     Shuffle() = default;
@@ -151,6 +191,19 @@ class Caching {
     const size_t _numSlots;
     const size_t _cacheSize;
     const double _w0;
+};
+
+class CreateIntermediateGroup {
+  public:
+    explicit CreateIntermediateGroup(bool create=true)
+        : _create(create)
+    {}
+
+  private:
+    friend ObjectCreateProps;
+    friend LinkCreateProps;
+    void apply(hid_t hid) const;
+    const bool _create;
 };
 
 }  // namespace HighFive

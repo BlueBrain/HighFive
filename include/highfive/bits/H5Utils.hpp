@@ -28,6 +28,8 @@
 
 #include <H5public.h>
 
+#include "../H5Exception.hpp"
+
 namespace HighFive {
 
 // If ever used, recognize dimensions of FixedLenStringArray
@@ -35,144 +37,172 @@ template <std::size_t N>
 class FixedLenStringArray;
 
 
-namespace details {
-
-// determine at compile time number of dimensions of in memory datasets
-template <typename T>
-struct array_dims {
-    static constexpr size_t value = 0;
-};
-
-template <std::size_t N>
-struct array_dims<FixedLenStringArray<N>> {
-    static constexpr size_t value = 1;
-};
-
-template <typename T>
-struct array_dims<std::vector<T> > {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-template <typename T>
-struct array_dims<T*> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-template <typename T, std::size_t N>
-struct array_dims<T[N]> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-// Only supporting 1D arrays at the moment
-template<typename T, std::size_t N>
-struct array_dims<std::array<T,N>> {
-    static constexpr size_t value = 1 + array_dims<T>::value;
-};
-
-#ifdef H5_USE_BOOST
-template <typename T, std::size_t Dims>
-struct array_dims<boost::multi_array<T, Dims> > {
-    static constexpr size_t value = Dims;
-};
-
-template <typename T>
-struct array_dims<boost::numeric::ublas::matrix<T> > {
-    static constexpr size_t value = 2;
-};
-#endif
-
-#ifdef H5_USE_EIGEN
-template<typename T, int M, int N>
-struct array_dims<Eigen::Matrix<T, M, N>> {
-    static constexpr size_t value = 2;
-};
-
-template<typename T, int M, int N>
-struct array_dims<std::vector<Eigen::Matrix<T, M, N>>> {
-    static constexpr size_t value = 2;
-};
-#endif
-
-// determine recursively the size of each dimension of a N dimension vector
-template <typename T>
-inline void get_dim_vector_rec(const T& /*vec*/, std::vector<size_t>& /*dims*/) {}
-
-template <typename T>
-inline void get_dim_vector_rec(const std::vector<T>& vec, std::vector<size_t>& dims) {
-    dims.push_back(vec.size());
-    get_dim_vector_rec(vec[0], dims);
-}
-
-template <typename T>
-inline std::vector<size_t> get_dim_vector(const std::vector<T>& vec) {
-    std::vector<size_t> dims;
-    get_dim_vector_rec(vec, dims);
-    return dims;
-}
-
-// determine recursively the size of each dimension of a N dimension vector
-template <typename T, std::size_t N>
-inline void get_dim_vector_rec(const T(&vec)[N], std::vector<size_t>& dims) {
-    dims.push_back(N);
-    get_dim_vector_rec(vec[0], dims);
-}
-
-template <typename T, std::size_t N>
-inline std::vector<size_t> get_dim_vector(const T(&vec)[N]) {
-    std::vector<size_t> dims;
-    get_dim_vector_rec(vec, dims);
-    return dims;
-}
-
-
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
         >::type;
 
-// determine at compile time recursively the basic type of the data
+namespace details {
 template <typename T>
-struct type_of_array {
-    typedef unqualified_t<T> type;
+struct inspector {
+    using type = T;
+    using base_type = unqualified_t<T>;
+
+    static constexpr size_t ndim = 0;
+    static constexpr size_t recursive_ndim = ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        return std::array<size_t, recursive_ndim>();
+    }
+};
+
+template <size_t N>
+struct inspector<FixedLenStringArray<N>> {
+    using type = FixedLenStringArray<N>;
+    using base_type = FixedLenStringArray<N>;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        return std::array<size_t, recursive_ndim>{val.size()};
+    }
 };
 
 template <typename T>
-struct type_of_array<std::vector<T>> {
-    typedef typename type_of_array<T>::type type;
-};
+struct inspector<std::vector<T>> {
+    using type = std::vector<T>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
 
-template <typename T, std::size_t N>
-struct type_of_array<std::array<T, N>> {
-    typedef typename type_of_array<T>::type type;
-};
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
-#ifdef H5_USE_BOOST
-template <typename T, std::size_t Dims>
-struct type_of_array<boost::multi_array<T, Dims>> {
-    typedef typename type_of_array<T>::type type;
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{val.size()};
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
 template <typename T>
-struct type_of_array<boost::numeric::ublas::matrix<T>> {
-    typedef typename type_of_array<T>::type type;
+struct inspector<T*> {
+    using type = T*;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        throw std::string("Not possible to have size of a T*");
+    }
 };
-#endif
+
+template <typename T, size_t N>
+struct inspector<T[N]> {
+    using type = T[N];
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{N};
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
+};
+
+template <typename T, size_t N>
+struct inspector<std::array<T, N>> {
+    using type = std::array<T, N>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{N};
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
+};
 
 #ifdef H5_USE_EIGEN
-template<typename T, int M, int N>
-struct type_of_array<Eigen::Matrix<T, M, N>> {
-    typedef T type;
+template <typename T, int M, int N>
+struct inspector<Eigen::Matrix<T, M, N>> {
+    using type = Eigen::Matrix<T, M, N>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = 2;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 #endif
 
-template <typename T>
-struct type_of_array<T*> {
-    typedef typename type_of_array<T>::type type;
+#ifdef H5_USE_BOOST
+template <typename T, size_t Dims>
+struct inspector<boost::multi_array<T, Dims>> {
+    using type = boost::multi_array<T, Dims>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = Dims;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes;
+        for (size_t i = 0; i < ndim; ++i) {
+            sizes[i] = val.shape()[i];
+        }
+
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
 
-template <typename T, std::size_t N>
-struct type_of_array<T[N]> {
-    typedef typename type_of_array<T>::type type;
+template <typename T>
+struct inspector<boost::numeric::ublas::matrix<T>> {
+    using type = boost::numeric::ublas::matrix<T>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+
+    static constexpr size_t ndim = 2;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{val.size1(), val.size2()};
+        size_t index = ndim;
+        for (const auto& s: inspector<value_type>::getDimensions(val(0, 0))) {
+            sizes[index++] = s;
+        }
+        return sizes;
+    }
 };
+#endif
 
 
 // Find the type of an eventual char array, otherwise void
@@ -243,6 +273,24 @@ inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {
 // converter function for hsize_t -> size_t when size_t == hsize_t
 inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>& vec) {
     return vec;
+}
+
+// read name from a H5 object using the specified function
+template<typename T>
+inline std::string get_name(T fct) {
+    const size_t maxLength = 255;
+    char buffer[maxLength + 1];
+    ssize_t retcode = fct(buffer, static_cast<hsize_t>(maxLength) + 1);
+    if (retcode < 0) {
+        HDF5ErrMapper::ToException<GroupException>("Error accessing object name");
+    }
+    const size_t length = static_cast<std::size_t>(retcode);
+    if (length <= maxLength) {
+        return std::string(buffer, length);
+    }
+    std::vector<char> bigBuffer(length + 1, 0);
+    fct(bigBuffer.data(), static_cast<hsize_t>(length) + 1);
+    return std::string(bigBuffer.data(), length);
 }
 
 }  // namespace details

@@ -5,7 +5,7 @@ else()
   cmake_policy(VERSION 3.13)
 endif()
 
-project(HighFive VERSION 2.2)
+project(HighFive VERSION 2.3)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
@@ -25,16 +25,19 @@ include(BlueGenePortability)
 set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
 set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
 set(USE_XTENSOR OFF CACHE BOOL "Enable xtensor testing")
+set(USE_OPENCV OFF CACHE BOOL "Enable OpenCV testing")
 mark_as_advanced(USE_BOOST USE_EIGEN USE_XTENSOR)
 
 option(HIGHFIVE_USE_BOOST "Enable Boost Support" ${USE_BOOST})
 option(HIGHFIVE_USE_EIGEN "Enable Eigen testing" ${USE_EIGEN})
 option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" ${USE_XTENSOR})
+option(HIGHFIVE_USE_OPENCV "Enable OpenCV testing" ${USE_OPENCV})
 option(HIGHFIVE_UNIT_TESTS "Enable unit tests" ON)
 option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
+option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 
-# In deplomyents we probably don't want/cant have dynamic dependencies
+# In deployments we probably don't want/cant have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
 mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 
@@ -63,7 +66,7 @@ endif()
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 
-# Setup HighFive to be used in 3rd party project using exports. Create a HighFive target
+# Set-up HighFive to be used in 3rd party project using exports. Create a HighFive target
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
 
 # Installation of headers (HighFive is only interface)
@@ -112,5 +115,6 @@ if(HIGHFIVE_UNIT_TESTS)
   add_subdirectory(tests/unit)
 endif()
 
-add_subdirectory(doc)
-
+if(HIGHFIVE_BUILD_DOCS)
+  add_subdirectory(doc)
+endif()
