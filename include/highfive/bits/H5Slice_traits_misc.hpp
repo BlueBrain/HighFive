@@ -160,6 +160,11 @@ inline void SliceTraits<Derivate>::read(T& array) const {
     const DataSpace& mem_space = slice.getMemSpace();
     const details::BufferInfo<T> buffer_info(slice.getDataType());
 
+    if (buffer_info.warning_thrown) {
+        std::cerr << "Warning triggered by \""
+                  << details::get_dataset(slice).getPath() << "\"" << std::endl;
+    }
+
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
         ss << "Impossible to read DataSet of dimensions "
@@ -201,6 +206,11 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
     const details::BufferInfo<T> buffer_info(slice.getDataType());
+
+    if (buffer_info.warning_thrown) {
+        std::cerr << "Warning triggered by \""
+                  << details::get_dataset(slice).getPath() << "\"" << std::endl;
+    }
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;

@@ -28,6 +28,7 @@ struct BufferInfo {
     const bool is_fixed_len_string;
     const size_t n_dimensions;
     const DataType data_type;
+    bool warning_thrown = false;
 };
 
 // details implementation
@@ -89,6 +90,7 @@ BufferInfo<T>::BufferInfo(const DataType& dtype)
     if (dtype.getClass() != data_type.getClass()) {
         std::cerr << "HighFive WARNING: data and hdf5 dataset have different types: "
                   << data_type.string() << " -> " << dtype.string() << std::endl;
+        warning_thrown = true;
     }
 }
 

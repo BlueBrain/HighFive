@@ -60,6 +60,11 @@ inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
     const details::BufferInfo<T> buffer_info(getDataType());
 
+    if (buffer_info.warning_thrown) {
+        std::cerr << "Warning triggered by \""
+                  << this->getName() << "\"" << std::endl;
+    }
+
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
         ss << "Impossible to read DataSet of dimensions "
@@ -93,6 +98,11 @@ template <typename T>
 inline void Attribute::write(const T& buffer) {
     const DataSpace& mem_space = getMemSpace();
     const details::BufferInfo<T> buffer_info(getDataType());
+
+    if (buffer_info.warning_thrown) {
+        std::cerr << "Warning triggered by \""
+                  << this->getName() << "\"" << std::endl;
+    }
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
