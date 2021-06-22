@@ -58,12 +58,8 @@ inline DataSpace Attribute::getMemSpace() const { return getSpace(); }
 template <typename T>
 inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
-    const details::BufferInfo<T> buffer_info(getDataType());
-
-    if (buffer_info.warning_thrown) {
-        std::cerr << "Warning triggered by \""
-                  << this->getName() << "\"" << std::endl;
-    }
+    const details::BufferInfo<T> buffer_info(getDataType(),
+        [this]() -> std::string { return this->getName(); });
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
@@ -97,12 +93,8 @@ inline void Attribute::read(T* array, const DataType& dtype) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     const DataSpace& mem_space = getMemSpace();
-    const details::BufferInfo<T> buffer_info(getDataType());
-
-    if (buffer_info.warning_thrown) {
-        std::cerr << "Warning triggered by \""
-                  << this->getName() << "\"" << std::endl;
-    }
+    const details::BufferInfo<T> buffer_info(getDataType(),
+        [this]() -> std::string { return this->getName(); });
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;

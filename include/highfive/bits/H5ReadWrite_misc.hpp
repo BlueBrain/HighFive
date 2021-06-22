@@ -22,7 +22,8 @@ struct BufferInfo {
     using char_array_t = typename details::type_char_array<type_no_const>::type;
     static constexpr bool is_char_array = ! std::is_same<char_array_t, void>::value;
 
-    BufferInfo(const DataType& dtype);
+    template <class F>
+    BufferInfo(const DataType& dtype, F getName);
 
     // member data for info depending on the destination dataset type
     const bool is_fixed_len_string;
@@ -75,7 +76,8 @@ inline static DataType getDataType(const DataType&, const DataType& dtype) {
 }};
 
 template <typename T>
-BufferInfo<T>::BufferInfo(const DataType& dtype)
+template <class F>
+BufferInfo<T>::BufferInfo(const DataType& dtype, F getName)
     : is_fixed_len_string(dtype.isFixedLenStr())
     // In case we are using Fixed-len strings we need to subtract one dimension
     , n_dimensions(details::inspector<type_no_const>::recursive_ndim -
@@ -88,7 +90,9 @@ BufferInfo<T>::BufferInfo(const DataType& dtype)
     }
     // We warn. In case they are really not convertible an exception will rise on read/write
     if (dtype.getClass() != data_type.getClass()) {
-        std::cerr << "HighFive WARNING: data and hdf5 dataset have different types: "
+        std::cerr << "HighFive WARNING \""
+                  << getName()
+                  << "\": data and hdf5 dataset have different types: "
                   << data_type.string() << " -> " << dtype.string() << std::endl;
         warning_thrown = true;
     }
