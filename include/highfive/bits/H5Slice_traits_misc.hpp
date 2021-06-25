@@ -158,7 +158,8 @@ template <typename T>
 inline void SliceTraits<Derivate>::read(T& array) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
-    const details::BufferInfo<T> buffer_info(slice.getDataType());
+    const details::BufferInfo<T> buffer_info(slice.getDataType(),
+        [slice]() -> std::string { return details::get_dataset(slice).getPath(); });
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
@@ -200,7 +201,8 @@ template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer) {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
-    const details::BufferInfo<T> buffer_info(slice.getDataType());
+    const details::BufferInfo<T> buffer_info(slice.getDataType(),
+        [slice]() -> std::string { return details::get_dataset(slice).getPath(); });
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
