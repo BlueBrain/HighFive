@@ -72,27 +72,18 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
 }
 
 template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(HyperSlab& hyperslab) const {
+    const auto& slice = static_cast<const Derivate&>(*this);
+    auto space = hyperslab.apply(slice.getSpace());
+
+    return Selection(space, space, details::get_dataset(slice));
+}
+
+template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
                                                const std::vector<size_t>& count,
                                                const std::vector<size_t>& stride) const {
-    // hsize_t type conversion
-    // TODO : normalize hsize_t type in HighFive namespace
-    const auto& slice = static_cast<const Derivate&>(*this);
-    std::vector<hsize_t> offset_local(offset.size());
-    std::vector<hsize_t> count_local(count.size());
-    std::vector<hsize_t> stride_local(stride.size());
-    std::copy(offset.begin(), offset.end(), offset_local.begin());
-    std::copy(count.begin(), count.end(), count_local.begin());
-    std::copy(stride.begin(), stride.end(), stride_local.begin());
-
-    DataSpace space = slice.getSpace().clone();
-    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
-                            stride.empty() ? NULL : stride_local.data(),
-                            count_local.data(), NULL) < 0) {
-        HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
-    }
-
-    return Selection(DataSpace(count), space, details::get_dataset(slice));
+    return select(HyperSlab(HyperSlab::Select(offset, count, stride)));
 }
 
 template <typename Derivate>
