@@ -1812,7 +1812,7 @@ BOOST_AUTO_TEST_CASE(HighFiveReadWriteConsts) {
 
     DataSet dataset = file.createDataSet<datatype>(DATASET_NAME, dataspace);
     std::vector<datatype> const t1(DIMS[0] * DIMS[1] * DIMS[2], 1);
-    auto raw_3d_vec_const = reinterpret_cast<datatype const *const *const *const>(t1.data());
+    auto raw_3d_vec_const = reinterpret_cast<datatype const *const *const *>(t1.data());
     dataset.write(raw_3d_vec_const);
 
     std::vector<std::vector<std::vector<datatype>>> result;
