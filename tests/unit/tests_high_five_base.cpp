@@ -1880,6 +1880,30 @@ BOOST_AUTO_TEST_CASE(HighFiveReference) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(HighFiveReadWriteConsts) {
+    const std::string FILE_NAME("3d_dataset_from_flat.h5");
+    const std::string DATASET_NAME("dset");
+    const std::array<std::size_t, 3> DIMS{3, 3, 3};
+    using datatype = int;
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    DataSpace dataspace = DataSpace(DIMS);
+
+    DataSet dataset = file.createDataSet<datatype>(DATASET_NAME, dataspace);
+    std::vector<datatype> const t1(DIMS[0] * DIMS[1] * DIMS[2], 1);
+    auto raw_3d_vec_const = reinterpret_cast<datatype const *const *const *>(t1.data());
+    dataset.write(raw_3d_vec_const);
+
+    std::vector<std::vector<std::vector<datatype>>> result;
+    dataset.read(result);
+    for (const auto& vec2d : result) {
+        for (const auto& vec1d : vec2d) {
+            BOOST_CHECK(vec1d == (std::vector<datatype>{1, 1, 1}));
+        }
+    }
+
+}
+
 #ifdef H5_USE_EIGEN
 
 template <typename T>
