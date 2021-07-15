@@ -9,7 +9,6 @@
 #ifndef H5DATATYPE_HPP
 #define H5DATATYPE_HPP
 
-#include <utility>
 #include <vector>
 
 #include "H5Object.hpp"
