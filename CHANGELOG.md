@@ -1,18 +1,56 @@
+## Version 2.3 - 2021-05-07
+### New Features:
+    - Add SZIP support (#435)
+    - Add option *parents* to createDataSet (#425)
+    - Implementing getting the filename dynamically (#424)
+    - Ability to create soft and external links (#421)
+    - Generalizing getPath and adding getFile as PathTraits (#417)
+
+### Improvements:
+    - Unified reading/writing attributes and datasets (#450)
+    - Old compilers have been removed from docker image (#430)
+    - Cleaning up and improving property lists (#429)
+    - An example using hdf5 references (#396) (#397)
+    - Add all property lists alias for completeness (#427)
+    - Add property CreateIntermediateGroup (#423)
+    - Add code coverage through codecov.io (#420)
+    - Introducing GitHub Actions CI (#416)
+    - Create issue and PR templates (#412)
+    - Initialize SilenceHDF5 to true in _exist (#411)
+    - Generalizing xtensor API (#407)
+    - Minor doc updates (#409)
+    - Fixing minor error in GH Action (#408)
+    - Uploading docs to gh-pages using GitHub Actions (#403)
+    - Various minor documentation updates (#405)
+    - optional documentation building in cmake (#377)
+    - From can be automatic now (#384)
+    - get_dim_vector in inspector (#383)
+    - Put type_of_array in inspector (#382)
+    - Move array_dims in the future manipulator (#381)
+    - Unify interface of H5Attribute with H5Slice_traits (#378)
+    - Use std::move in NRVO depending of version of GCC (#375)
+    - Fixed typo '-DD' to '-D' in 'Dependencies'. (#371)
+    - Changing date format (#364)
+
+### Bug fixes:
+    - Fix use before initialization (#414)
+    - Adding CMake include guard (#389)
+
 ## Version 2.2.2 - 2020-07-30
-## New Features:
+### New Features:
     - [H5Easy] Adding OpenCV support (#343)
     - [H5Easy] Enabling compression & Adding attributes (#337)
     - Adding missing function to H5Attribute (#337) 
     - Add methods to retrieve Node paths or Dataset names and rename objects (#346)
     - Add a file with the current version number of HighFive (#349)
 
-## Improvements
+### Improvements
     - [H5Easy] Updating error message dump (#335)
     - [H5Easy] Switching implementation to partial specialization based on static dispatch (#327)
     - Simplifying imports, new policy (#324)
 
 ## Version 2.2.1 - 2020-04-28
-## Improvements
+### Improvements
     - Add a mechanism to not include target HighFive several times (#336)
     - Fix SilenceHDF5 initialization for NodeTraits (#333)
 
