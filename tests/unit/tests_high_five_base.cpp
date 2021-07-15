@@ -1505,6 +1505,85 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     BOOST_ASSERT(t2 == t2_from_hid);
 }
 
+
+struct GrandChild {
+    uint32_t gcm1;
+    uint32_t gcm2;
+    uint32_t gcm3;
+};
+
+struct Child {
+    GrandChild grandChild;
+    uint32_t cm1;
+};
+
+struct Parent {
+    uint32_t pm1;
+    Child child;
+};
+
+CompoundType create_compound_GrandChild() {
+    auto t2 = AtomicType<uint32_t>();
+    CompoundType t1({{"gcm1", AtomicType<uint32_t>{}},
+                     {"gcm2", AtomicType<uint32_t>{}},
+                     {"gcm3", t2,                   }});
+    return t1;
+}
+
+CompoundType create_compound_Child() {
+    auto nestedType = create_compound_GrandChild();
+    return CompoundType{ { { "grandChild", nestedType,           },
+                           { "cm1",   AtomicType<uint32_t>{}} } };
+}
+
+CompoundType create_compound_Parent() {
+    auto nestedType = create_compound_Child();
+    return CompoundType{ { { "pm1",   AtomicType<uint32_t>{}},
+                           { "child", nestedType,           }} };
+}
+
+HIGHFIVE_REGISTER_TYPE(GrandChild, create_compound_GrandChild)
+HIGHFIVE_REGISTER_TYPE(Child,      create_compound_Child)
+HIGHFIVE_REGISTER_TYPE(Parent,     create_compound_Parent)
+
+BOOST_AUTO_TEST_CASE(HighFiveCompoundsNested) {
+    const std::string FILE_NAME("nested_compounds_test.h5");
+    const std::string DATASET_NAME("/a");
+
+    {  // Write
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+        auto type = create_compound_Parent();
+
+        auto dataset = file.createDataSet(DATASET_NAME, DataSpace(2), type);
+        BOOST_CHECK_EQUAL(dataset.getDataType().getSize(), 20);
+
+        std::vector<Parent> csl = { Parent{ 1, Child{ GrandChild{1,1,1}, 1 } },
+                                    Parent{ 2, Child{ GrandChild{3,4,5}, 6 } } };
+        dataset.write(csl);
+    }
+
+    {  // Read
+        File file(FILE_NAME, File::ReadOnly);
+        std::vector<Parent> result;
+        auto dataset = file.getDataSet(DATASET_NAME);
+        BOOST_CHECK_EQUAL(dataset.getDataType().getSize(), 20);
+        dataset.select({0}, {2}).read(result);
+
+        BOOST_CHECK_EQUAL(result.size(), 2);
+        BOOST_CHECK_EQUAL(result[0].pm1, 1);
+        BOOST_CHECK_EQUAL(result[0].child.grandChild.gcm1, 1);
+        BOOST_CHECK_EQUAL(result[0].child.grandChild.gcm2, 1);
+        BOOST_CHECK_EQUAL(result[0].child.grandChild.gcm3, 1);
+        BOOST_CHECK_EQUAL(result[0].child.cm1, 1);
+        BOOST_CHECK_EQUAL(result[1].pm1, 2);
+        BOOST_CHECK_EQUAL(result[1].child.grandChild.gcm1, 3);
+        BOOST_CHECK_EQUAL(result[1].child.grandChild.gcm2, 4);
+        BOOST_CHECK_EQUAL(result[1].child.grandChild.gcm3, 5);
+        BOOST_CHECK_EQUAL(result[1].child.cm1, 6);
+    }
+}
+
+
 enum Position {
     FIRST = 1,
     SECOND = 2,
