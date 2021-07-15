@@ -43,6 +43,10 @@ mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
 # Check compiler cxx_std requirements
 # -----------------------------------
 
+if(CMAKE_CXX_STANDARD EQUAL 98)
+    message(FATAL_ERROR "HighFive needs to be compiled with at least C++11")
+endif()
+
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
