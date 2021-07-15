@@ -9,6 +9,7 @@
 #ifndef H5DATATYPE_HPP
 #define H5DATATYPE_HPP
 
+#include <utility>
 #include <vector>
 
 #include "H5Object.hpp"
@@ -83,8 +84,6 @@ class DataType : public Object {
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
 
-    DataType() = default;
-    DataType(hid_t hid) : Object(hid) {};
   protected:
     using Object::Object;
 
@@ -145,27 +144,26 @@ public:
     }
 
     ///
-    /// \brief Initializes a compound type from a hdf id
-    /// \param hid
-    //
-    inline CompoundType(const hid_t hid) {
-        _hid = hid;
+    /// \brief Initializes a compound type from a DataType
+    /// \param type
+    inline CompoundType(DataType&& type)
+        : DataType(type) {
         if (getClass() != DataTypeClass::Compound) {
             std::ostringstream ss;
-            ss << "hid " << hid << " does not refer to a compound data type";
+            ss << "hid " << _hid << " does not refer to a compound data type";
             throw DataTypeException(ss.str());
         }
-        int result = H5Tget_nmembers(hid);
+        int result = H5Tget_nmembers(_hid);
         if (result < 0) {
             throw DataTypeException("Could not get members of compound datatype");
         }
         size_t n_members = static_cast<size_t>(result);
         members.reserve(n_members);
-        for (unsigned int i = 0; i < n_members; i ++) {
-            const char* name = H5Tget_member_name(hid, i);
-            size_t offset = H5Tget_member_offset(hid, i);
-            hid_t member_hid = H5Tget_member_type(hid, i);
-            DataType member_type(member_hid);
+        for (unsigned i = 0; i < n_members; i ++) {
+            const char* name = H5Tget_member_name(_hid, i);
+            size_t offset = H5Tget_member_offset(_hid, i);
+            hid_t member_hid = H5Tget_member_type(_hid, i);
+            DataType member_type{member_hid};
             members.emplace_back(name, member_type, offset);
         }
     }

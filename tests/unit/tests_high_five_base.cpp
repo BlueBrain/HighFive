@@ -1498,10 +1498,10 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
     }
 
     // Test the constructor from hid
-    CompoundType t1_from_hid(t1.getId());
+    CompoundType t1_from_hid(t1);
     BOOST_ASSERT(t1 == t1_from_hid);
 
-    CompoundType t2_from_hid(t2.getId());
+    CompoundType t2_from_hid(t2);
     BOOST_ASSERT(t2 == t2_from_hid);
 }
 
