@@ -89,6 +89,7 @@ class DataType : public Object {
     friend class Attribute;
     friend class File;
     friend class DataSet;
+    friend class CompoundType;
 };
 
 ///
