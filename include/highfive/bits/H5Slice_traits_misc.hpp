@@ -90,26 +90,20 @@ template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& space = slice.getSpace();
-    const DataSet& dataset = details::get_dataset(slice);
     std::vector<size_t> dims = space.getDimensions();
-    std::vector<hsize_t> counts(dims.size());
+    std::vector<size_t> counts(dims.size());
     std::copy(dims.begin(), dims.end(), counts.begin());
     counts[dims.size() - 1] = 1;
-    std::vector<hsize_t> offsets(dims.size(), 0);
+    std::vector<size_t> offsets(dims.size(), 0);
 
-    H5Sselect_none(space.getId());
-
+    HyperSlab slab{};
     for (const auto& column : columns) {
         offsets[offsets.size() - 1] = column;
-
-        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(), 0,
-                                counts.data(), 0) < 0) {
-            HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
-        }
+        slab |= HyperSlab::Select(offsets, counts, std::vector<size_t>{});
     }
+    slab;
 
-    dims[dims.size() - 1] = columns.size();
-    return Selection(DataSpace(dims), space, dataset);
+    return select(slab);
 }
 
 template <typename Derivate>
