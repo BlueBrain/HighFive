@@ -72,7 +72,7 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
 }
 
 template <typename Derivate>
-inline Selection SliceTraits<Derivate>::select(HyperSlab& hyperslab) const {
+inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyperslab) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     auto space = hyperslab.apply(slice.getSpace());
 
@@ -101,7 +101,6 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
         offsets[offsets.size() - 1] = column;
         slab |= HyperSlab::Select(offsets, counts, std::vector<size_t>{});
     }
-    slab;
 
     return select(slab);
 }

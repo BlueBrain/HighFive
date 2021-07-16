@@ -116,7 +116,7 @@ class HyperSlab {
         return *this;
     }
 
-    DataSpace apply(const DataSpace& space_) {
+    DataSpace apply(const DataSpace& space_) const {
         auto space = space_.clone();
         for (const auto& sel: selects) {
             if (sel.op == Op::None) {
@@ -153,7 +153,7 @@ class HyperSlab {
         None,
     };
 
-    H5S_seloper_t convert(Op op) {
+    H5S_seloper_t convert(Op op) const {
         switch(op) {
           case Noop:
              return H5S_SELECT_NOOP;
@@ -175,8 +175,9 @@ class HyperSlab {
             return H5S_SELECT_PREPEND;
           case Invalid:
             return H5S_SELECT_INVALID;
+          default:
+            return H5S_SELECT_INVALID;
         }
-        return H5S_SELECT_INVALID;
     }
 
     struct Select_ {
@@ -199,7 +200,7 @@ class SliceTraits {
   public:
     ///
     /// \brief Select an \p hyperslab in the current Slice/Dataset
-    Selection select(HyperSlab& hyperslab) const;
+    Selection select(const HyperSlab& hyperslab) const;
 
     ///
     /// \brief Select a region in the current Slice/Dataset of \p count points at
