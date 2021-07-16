@@ -242,33 +242,61 @@ inline AtomicType<Reference>::AtomicType() {
     _hid = H5Tcopy(H5T_STD_REF_OBJ);
 }
 
+inline size_t find_first_atomic_member_size(hid_t hid)
+{
+    // Recursive exit condition
+    if (H5Tget_class(hid) != H5T_COMPOUND) {
+        return H5Tget_size(hid);
+    }
+
+    auto number_of_members = H5Tget_nmembers(hid);
+    if (number_of_members == -1) {
+        throw DataTypeException("Cannot get members of CompoundType with hid: " +
+                                std::to_string(hid));
+    }
+    if (number_of_members == 0) {
+        throw DataTypeException("No members defined for CompoundType with hid: " +
+                                std::to_string(hid));
+    }
+
+    auto member_type = H5Tget_member_type(hid, 0);
+    auto size = find_first_atomic_member_size(member_type);
+    H5Tclose(member_type);
+    return size;
+}
 
 // Calculate the padding required to align an element of a struct
 #define _H5_STRUCT_PADDING(current_size, member_size) (((member_size) - (current_size)) % (member_size))
 
 inline void CompoundType::create(size_t size) {
     if (size == 0) {
-        size_t current_size = 0, max_type_size = 0;
+        size_t current_size = 0, max_atomic_size = 0;
 
         // Do a first pass to find the total size of the compound datatype
         for (auto& member: members) {
             size_t member_size = H5Tget_size(member.base_type.getId());
+
             if (member_size == 0) {
                 throw DataTypeException("Cannot get size of DataType with hid: " +
                                         std::to_string(member.base_type.getId()));
             }
 
+            size_t first_atomic_size = find_first_atomic_member_size(member.base_type.getId());
+
             // Set the offset of this member within the struct according to the
-            // standard alignment rules
-            member.offset = current_size + _H5_STRUCT_PADDING(current_size, member_size);
+            // standard alignment rules. The c++ standard specifies that:
+            // > objects have an alignment requirement of which their size is a multiple
+            member.offset = current_size + _H5_STRUCT_PADDING(current_size, first_atomic_size);
 
             // Set the current size to the end of the new member
             current_size = member.offset + member_size;
 
-            max_type_size = std::max(max_type_size, member_size);
+            // Keep track of the highest atomic member size because it's needed
+            // for the padding of the complete compound type.
+            max_atomic_size = std::max(max_atomic_size, first_atomic_size);
         }
 
-        size = current_size + _H5_STRUCT_PADDING(current_size, max_type_size);
+        size = current_size + _H5_STRUCT_PADDING(current_size, max_atomic_size);
     }
 
     // Create the HDF5 type

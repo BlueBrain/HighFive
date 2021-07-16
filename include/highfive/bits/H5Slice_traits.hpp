@@ -210,8 +210,7 @@ class SliceTraits {
     ///
     Selection select(const std::vector<size_t>& offset,
                      const std::vector<size_t>& count,
-                     const std::vector<size_t>& stride = std::vector<size_t>())
-        const;
+                     const std::vector<size_t>& stride = std::vector<size_t>()) const;
 
     ///
     /// \brief Select a set of columns in the last dimension of this dataset.
