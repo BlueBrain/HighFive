@@ -7,6 +7,10 @@ if(NOT Boost_USE_STATIC_LIBS)
   add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
 endif()
 
+if(MSVC)
+  add_definitions(/bigobj)
+endif()
+
 ## Base tests
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy)
   add_executable(${test_name} "${test_name}.cpp")
