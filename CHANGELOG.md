@@ -1,6 +1,6 @@
 ## Version 2.3.1 - 2021-08-04
 ### Improvements
-    - Remove old cmake files (#465)
+    - Clean cmake files from old code (#465)
     - Adding path to type warning message (#471)
     - Adding compound types example, w dataset and attr (#467)
 
