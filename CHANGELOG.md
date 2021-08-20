@@ -1,3 +1,13 @@
+## Version 2.3.1 - 2021-08-04
+### Improvements
+    - Clean cmake files from old code (#465)
+    - Adding path to type warning message (#471)
+    - Adding compound types example, w dataset and attr (#467)
+
+### Bug Fixes
+    - Resolve an issue where padding of nested compound types were being calculated incorrectly (#461) (#468)
+    - GHA: drop previous runs (#462)
+
 ## Version 2.3 - 2021-05-07
 ### New Features:
     - Add SZIP support (#435)
