@@ -101,6 +101,10 @@ struct inspector<T*> {
     }
 };
 
+template <typename T>
+struct inspector<const T*> : public inspector<T*> {};
+
+
 template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
