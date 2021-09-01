@@ -1496,6 +1496,13 @@ BOOST_AUTO_TEST_CASE(HighFiveCompounds) {
         BOOST_CHECK_EQUAL(result[1].csl1.m2, 3);
         BOOST_CHECK_EQUAL(result[1].csl1.m3, 4);
     }
+
+    // Test the constructor from hid
+    CompoundType t1_from_hid(t1);
+    BOOST_ASSERT(t1 == t1_from_hid);
+
+    CompoundType t2_from_hid(t2);
+    BOOST_ASSERT(t2 == t2_from_hid);
 }
 
 

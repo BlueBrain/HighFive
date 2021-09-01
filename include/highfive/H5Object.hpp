@@ -91,6 +91,7 @@ class Object {
     template <typename Derivate> friend class NodeTraits;
     template <typename Derivate> friend class AnnotateTraits;
     friend class Reference;
+    friend class CompoundType;
 };
 
 

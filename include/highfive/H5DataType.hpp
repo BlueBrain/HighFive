@@ -89,6 +89,7 @@ class DataType : public Object {
     friend class Attribute;
     friend class File;
     friend class DataSet;
+    friend class CompoundType;
 };
 
 ///
@@ -140,6 +141,31 @@ public:
                         size_t size = 0)
         : members(t_members) {
         create(size);
+    }
+
+    ///
+    /// \brief Initializes a compound type from a DataType
+    /// \param type
+    inline CompoundType(DataType&& type)
+        : DataType(type) {
+        if (getClass() != DataTypeClass::Compound) {
+            std::ostringstream ss;
+            ss << "hid " << _hid << " does not refer to a compound data type";
+            throw DataTypeException(ss.str());
+        }
+        int result = H5Tget_nmembers(_hid);
+        if (result < 0) {
+            throw DataTypeException("Could not get members of compound datatype");
+        }
+        size_t n_members = static_cast<size_t>(result);
+        members.reserve(n_members);
+        for (unsigned i = 0; i < n_members; i ++) {
+            const char* name = H5Tget_member_name(_hid, i);
+            size_t offset = H5Tget_member_offset(_hid, i);
+            hid_t member_hid = H5Tget_member_type(_hid, i);
+            DataType member_type{member_hid};
+            members.emplace_back(name, member_type, offset);
+        }
     }
 
     /// \brief Commit datatype into the given Object
