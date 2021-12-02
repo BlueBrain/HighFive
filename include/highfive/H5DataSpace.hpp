@@ -43,8 +43,8 @@ class DataSpace : public Object {
 
     /// dataspace type
     enum DataspaceType {
-        datascape_scalar,
-        datascape_null
+        dataspace_scalar,
+        dataspace_null
         // simple dataspace are handle directly from their dimensions
     };
 
