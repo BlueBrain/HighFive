@@ -67,15 +67,15 @@ inline DataSpace::DataSpace(const std::vector<size_t>& dims,
 inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
     H5S_class_t h5_dataspace_type;
     switch (dtype) {
-    case DataSpace::datascape_scalar:
+    case DataSpace::dataspace_scalar:
         h5_dataspace_type = H5S_SCALAR;
         break;
-    case DataSpace::datascape_null:
+    case DataSpace::dataspace_null:
         h5_dataspace_type = H5S_NULL;
         break;
     default:
         throw DataSpaceException("Invalid dataspace type: should be "
-                                 "datascape_scalar or datascape_null");
+                                 "dataspace_scalar or dataspace_null");
     }
 
     if ((_hid = H5Screate(h5_dataspace_type)) < 0) {

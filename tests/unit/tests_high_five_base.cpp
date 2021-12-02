@@ -1003,7 +1003,7 @@ BOOST_AUTO_TEST_CASE(HighFiveOutofDimension) {
         // Create a new file using the default property lists.
         File file(filename, File::ReadWrite | File::Create | File::Truncate);
 
-        DataSpace d_null(DataSpace::DataspaceType::datascape_null);
+        DataSpace d_null(DataSpace::DataspaceType::dataspace_null);
 
         DataSet d1 = file.createDataSet<double>(DATASET_NAME, d_null);
 
