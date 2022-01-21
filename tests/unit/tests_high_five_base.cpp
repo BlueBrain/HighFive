@@ -247,8 +247,8 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
     const std::string FILE_NAME("create_extensible_dataset_example.h5");
     const std::string DATASET_NAME("dset");
-    constexpr long double t1[3][1] = {{2.0}, {2.0}, {4.0}};
-    constexpr long double t2[1][3] = {{4.0, 8.0, 6.0}};
+    constexpr long double t1[3][1] = {{2.0l}, {2.0l}, {4.0l}};
+    constexpr long double t2[1][3] = {{4.0l, 8.0l, 6.0l}};
 
     {
         // Create a new file using the default property lists.
