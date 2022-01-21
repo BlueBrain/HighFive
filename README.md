@@ -5,6 +5,8 @@
 [![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg)](https://BlueBrain.github.io/HighFive)
 [![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
 
+Documentation: https://bluebrain.github.io/HighFive/
+
 ## Brief
 
 HighFive is a modern header-only C++11 friendly interface for libhdf5.
