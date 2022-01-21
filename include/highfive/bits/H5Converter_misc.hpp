@@ -187,14 +187,11 @@ struct container_converter {
 };
 
 
-// apply conversion for vectors 1D
+// apply conversion for continuous vectors
 template <typename T>
 struct data_converter<
     std::vector<T>,
-    typename std::enable_if<(
-        std::is_same<T, typename inspector<T>::base_type>::value &&
-        !std::is_same<T, Reference>::value
-        )>::type>
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type>
     : public container_converter<std::vector<T>> {
 
     using container_converter<std::vector<T>>::container_converter;
