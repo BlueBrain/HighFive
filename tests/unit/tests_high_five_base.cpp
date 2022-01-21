@@ -247,8 +247,8 @@ BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSet) {
 BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
     const std::string FILE_NAME("create_extensible_dataset_example.h5");
     const std::string DATASET_NAME("dset");
-    constexpr double t1[3][1] = {{2.0}, {2.0}, {4.0}};
-    constexpr double t2[1][3] = {{4.0, 8.0, 6.0}};
+    constexpr long double t1[3][1] = {{2.0l}, {2.0l}, {4.0l}};
+    constexpr long double t2[1][3] = {{4.0l, 8.0l, 6.0l}};
 
     {
         // Create a new file using the default property lists.
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
 
         // Create the dataset
         DataSet dataset = file.createDataSet(DATASET_NAME, dataspace,
-                                             AtomicType<double>(), props);
+                                             AtomicType<long double>(), props);
 
         // Write into the initial part of the dataset
         dataset.select({0, 0}, {3, 1}).write(t1);
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(HighFiveExtensibleDataSet) {
 
         DataSet dataset_absolute = file.getDataSet("/" + DATASET_NAME);
         const auto dims = dataset_absolute.getSpace().getDimensions();
-        double values[4][6];
+        long double values[4][6];
         dataset_absolute.read(values);
         BOOST_CHECK_EQUAL(4, dims[0]);
         BOOST_CHECK_EQUAL(6, dims[1]);

@@ -126,7 +126,7 @@ inline AtomicType<unsigned long long>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_ULLONG);
 }
 
-// float and double mapping
+// float, double and long double mapping
 template <>
 inline AtomicType<float>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_FLOAT);
@@ -135,6 +135,11 @@ inline AtomicType<float>::AtomicType() {
 template <>
 inline AtomicType<double>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_DOUBLE);
+}
+
+template <>
+inline AtomicType<long double>::AtomicType() {
+    _hid = H5Tcopy(H5T_NATIVE_LDOUBLE);
 }
 
 // boolean mapping
