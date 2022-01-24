@@ -159,13 +159,13 @@ BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
 
     {
         FileDriver driver;
-        driver.add(FileVersionBounds(H5F_LIBVER_V110, H5F_LIBVER_V110));
+        driver.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
         File file(FILE_NAME, File::Truncate, driver);
         auto fid_fapl = H5Fget_access_plist(file.getId());
         auto res = H5Pget_libver_bounds(fid_fapl, &low, &high);
         BOOST_ASSERT(res == 0);
-        BOOST_ASSERT(low == H5F_LIBVER_V110);
-        BOOST_ASSERT(high == H5F_LIBVER_V110);
+        BOOST_ASSERT(low == H5F_LIBVER_LATEST);
+        BOOST_ASSERT(high == H5F_LIBVER_LATEST);
     }
 }
 
