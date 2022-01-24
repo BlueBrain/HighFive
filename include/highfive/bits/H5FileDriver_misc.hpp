@@ -47,6 +47,13 @@ inline MPIOFileDriver::MPIOFileDriver(Comm comm, Info info) {
     add(MPIOFileAccess<Comm, Info>(comm, info));
 }
 
+inline void FileVersionBounds::apply(const hid_t list) const {
+    if (H5Pset_libver_bounds(list, _low, _high) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting file version bounds");
+    }
+}
+
 } // namespace HighFive
 
 #endif // H5FILEDRIVER_MISC_HPP

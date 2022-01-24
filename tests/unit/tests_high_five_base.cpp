@@ -6,6 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+#undef NDEBUG  // always include assert, otherwise BOOST_ASSERT is useless!
 
 #include <algorithm>
 #include <cstdio>
@@ -98,7 +99,6 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
 
 BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     const std::string FILE_NAME("openmodes.h5");
-    const std::string DATASET_NAME("dset");
 
     std::remove(FILE_NAME.c_str());
 
@@ -136,6 +136,37 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     // Last but not least, defaults should be ok
     { File file(FILE_NAME); }     // ReadOnly
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
+}
+
+
+BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
+    const std::string FILE_NAME("h5_version_bounds.h5");
+    H5F_libver_t low;
+    H5F_libver_t high;
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        File file(FILE_NAME, File::Truncate);
+        auto fid_fapl = H5Fget_access_plist(file.getId());
+        auto res = H5Pget_libver_bounds(fid_fapl, &low, &high);
+        BOOST_ASSERT(res == 0);
+        BOOST_ASSERT(low == H5F_LIBVER_EARLIEST);
+        BOOST_ASSERT(high == H5F_LIBVER_LATEST);
+    }
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        FileDriver driver;
+        driver.add(FileVersionBounds(H5F_LIBVER_V110, H5F_LIBVER_V110));
+        File file(FILE_NAME, File::Truncate, driver);
+        auto fid_fapl = H5Fget_access_plist(file.getId());
+        auto res = H5Pget_libver_bounds(fid_fapl, &low, &high);
+        BOOST_ASSERT(res == 0);
+        BOOST_ASSERT(low == H5F_LIBVER_V110);
+        BOOST_ASSERT(high == H5F_LIBVER_V110);
+    }
 }
 
 
