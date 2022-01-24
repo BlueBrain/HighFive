@@ -104,7 +104,7 @@ typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
 typedef PropertyList<PropertyType::LINK_ACCESS> LinkAccessProps;
 
 ///
-/// RawPropertieLists are to be used when advanced H5 properties
+/// RawPropertyLists are to be used when advanced H5 properties
 /// are desired and are not part of the HighFive API.
 /// Therefore this class is mainly for internal use.
 template <PropertyType T>
