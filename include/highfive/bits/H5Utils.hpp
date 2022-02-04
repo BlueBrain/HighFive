@@ -80,8 +80,10 @@ struct inspector<std::vector<T>> {
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{val.size()};
         size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-            sizes[index++] = s;
+        if(!val.empty()) {
+            for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+                sizes[index++] = s;
+            }
         }
         return sizes;
     }
