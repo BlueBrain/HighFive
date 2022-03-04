@@ -9,8 +9,19 @@
 #ifndef H5EASY_BITS_XTENSOR_HPP
 #define H5EASY_BITS_XTENSOR_HPP
 
-#include "../H5Easy.hpp"
-#include "H5Easy_misc.hpp"
+
+// optionally enable xtensor plug-in and load the library
+#ifdef XTENSOR_VERSION_MAJOR
+#ifndef H5_USE_XTENSOR
+#define H5_USE_XTENSOR
+#endif
+#endif
+
+#ifdef H5_USE_XTENSOR
+#include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
+#endif
+
 #include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_XTENSOR

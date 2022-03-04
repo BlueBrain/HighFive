@@ -9,8 +9,17 @@
 #ifndef H5EASY_BITS_EIGEN_HPP
 #define H5EASY_BITS_EIGEN_HPP
 
-#include "../H5Easy.hpp"
-#include "H5Easy_misc.hpp"
+// optionally enable Eigen plug-in and load the library
+#ifdef EIGEN_WORLD_VERSION
+#ifndef H5_USE_EIGEN
+#define H5_USE_EIGEN
+#endif
+#endif
+
+#ifdef H5_USE_EIGEN
+#include <Eigen/Eigen>
+#endif
+
 #include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_EIGEN

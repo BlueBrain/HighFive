@@ -9,7 +9,7 @@
 #ifndef H5EASY_BITS_MISC_HPP
 #define H5EASY_BITS_MISC_HPP
 
-#include "../H5Easy.hpp"
+#include "H5Easy_decl.hpp"
 
 namespace H5Easy {
 

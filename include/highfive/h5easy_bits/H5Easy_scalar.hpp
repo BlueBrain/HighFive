@@ -9,7 +9,6 @@
 #ifndef H5EASY_BITS_SCALAR_HPP
 #define H5EASY_BITS_SCALAR_HPP
 
-#include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
 
 namespace H5Easy {

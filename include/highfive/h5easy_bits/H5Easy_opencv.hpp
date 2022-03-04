@@ -9,8 +9,17 @@
 #ifndef H5EASY_BITS_OPENCV_HPP
 #define H5EASY_BITS_OPENCV_HPP
 
-#include "../H5Easy.hpp"
-#include "H5Easy_misc.hpp"
+// optionally enable OpenCV plug-in and load the library
+#ifdef CV_MAJOR_VERSION
+#ifndef H5_USE_OPENCV
+#define H5_USE_OPENCV
+#endif
+#endif
+
+#ifdef H5_USE_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 #include "H5Easy_scalar.hpp"
 
 #ifdef H5_USE_OPENCV

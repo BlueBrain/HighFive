@@ -9,7 +9,7 @@
 #ifndef H5EASY_BITS_PUBLIC_HPP
 #define H5EASY_BITS_PUBLIC_HPP
 
-#include "../H5Easy.hpp"
+#include "H5Easy_scalar.hpp"
 
 namespace H5Easy {
 

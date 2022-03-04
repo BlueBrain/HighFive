@@ -9,8 +9,6 @@
 #ifndef H5EASY_BITS_VECTOR_HPP
 #define H5EASY_BITS_VECTOR_HPP
 
-#include "../H5Easy.hpp"
-#include "H5Easy_misc.hpp"
 #include "H5Easy_scalar.hpp"
 
 namespace H5Easy {
