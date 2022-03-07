@@ -92,6 +92,13 @@ inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
 
 // Specific options to be added to Property Lists
 
+inline void EstimatedLinkInfo::apply(const hid_t hid) const {
+    if (H5Pset_est_link_info(hid, _entries, _length) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting estimated link info");
+    }
+}
+
 inline void Chunking::apply(const hid_t hid) const {
     if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(

@@ -57,6 +57,17 @@ class FileVersionBounds {
     const H5F_libver_t _high;
 };
 
+class MetadataBlockSize {
+  public:
+    MetadataBlockSize(hsize_t size)
+        : _size(size)
+    {}
+  private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const;
+    const hsize_t _size;
+};
+
 }  // namespace HighFive
 
 #include "bits/H5FileDriver_misc.hpp"

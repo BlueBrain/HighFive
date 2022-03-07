@@ -18,7 +18,7 @@ if(NOT TARGET libdeps)
   endif()
 
   target_include_directories(libdeps SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
-  target_link_libraries(libdeps INTERFACE ${HDF5_C_LIBRARIES})
+  target_link_libraries(libdeps INTERFACE ${HDF5_LIBRARIES})
   target_compile_definitions(libdeps INTERFACE ${HDF5_DEFINITIONS})
 
   # Boost

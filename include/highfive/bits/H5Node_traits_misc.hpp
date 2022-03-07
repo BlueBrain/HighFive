@@ -123,6 +123,25 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
 }
 
 template <typename Derivate>
+inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
+                                               const GroupCreateProps& createProps,
+                                               bool parents) {
+
+    LinkCreateProps lcpl;
+    lcpl.add(CreateIntermediateGroup(parents));
+    const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
+                                group_name.c_str(),
+                                lcpl.getId(),
+                                createProps.getId(),
+                                H5P_DEFAULT);
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to create the group \"") + group_name + "\":");
+    }
+    return Group(hid);
+}
+
+template <typename Derivate>
 inline Group
 NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
     const auto hid = H5Gopen2(static_cast<const Derivate*>(this)->getId(),

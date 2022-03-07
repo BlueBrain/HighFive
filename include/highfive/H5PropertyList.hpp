@@ -115,6 +115,20 @@ class RawPropertyList : public PropertyList<T> {
 };
 
 
+class EstimatedLinkInfo {
+  public:
+    explicit EstimatedLinkInfo(unsigned entries, unsigned length)
+        : _entries(entries)
+        , _length(length)
+    {}
+  private:
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+    const unsigned _entries;
+    const unsigned _length;
+};
+
+
 class Chunking {
   public:
     explicit Chunking(const std::vector<hsize_t>& dims)

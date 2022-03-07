@@ -54,6 +54,13 @@ inline void FileVersionBounds::apply(const hid_t list) const {
     }
 }
 
+inline void MetadataBlockSize::apply(const hid_t list) const {
+    if (H5Pset_meta_block_size(list, _size) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting metadata block size");
+    }
+}
+
 } // namespace HighFive
 
 #endif // H5FILEDRIVER_MISC_HPP
