@@ -84,6 +84,17 @@ inline const std::string& File::getName() const noexcept {
     return _filename;
 }
 
+std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
+    H5F_libver_t low;
+    H5F_libver_t high;
+    auto fid_fapl = H5Fget_access_plist(getId());
+    if (H5Pget_libver_bounds(fid_fapl, &low, &high) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to access file version bounds"));
+    }
+    return std::make_pair(low, high);
+}
+
 inline void File::flush() {
     if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
         HDF5ErrMapper::ToException<FileException>(

@@ -68,6 +68,9 @@ class File : public Object,
         return "/";
     }
 
+    /// \brief Returns the HDF5 version compatibility bounds
+    std::pair<H5F_libver_t, H5F_libver_t> getVersionBounds() const;
+
     ///
     /// \brief flush
     ///

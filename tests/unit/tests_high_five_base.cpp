@@ -141,18 +141,14 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
 
 BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
     const std::string FILE_NAME("h5_version_bounds.h5");
-    H5F_libver_t low;
-    H5F_libver_t high;
 
     std::remove(FILE_NAME.c_str());
 
     {
         File file(FILE_NAME, File::Truncate);
-        auto fid_fapl = H5Fget_access_plist(file.getId());
-        auto res = H5Pget_libver_bounds(fid_fapl, &low, &high);
-        BOOST_ASSERT(res == 0);
-        BOOST_ASSERT(low == H5F_LIBVER_EARLIEST);
-        BOOST_ASSERT(high == H5F_LIBVER_LATEST);
+        auto bounds = file.getVersionBounds();
+        BOOST_ASSERT(bounds.first == H5F_LIBVER_EARLIEST);
+        BOOST_ASSERT(bounds.second == H5F_LIBVER_LATEST);
     }
 
     std::remove(FILE_NAME.c_str());
@@ -161,11 +157,9 @@ BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
         FileDriver driver;
         driver.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
         File file(FILE_NAME, File::Truncate, driver);
-        auto fid_fapl = H5Fget_access_plist(file.getId());
-        auto res = H5Pget_libver_bounds(fid_fapl, &low, &high);
-        BOOST_ASSERT(res == 0);
-        BOOST_ASSERT(low == H5F_LIBVER_LATEST);
-        BOOST_ASSERT(high == H5F_LIBVER_LATEST);
+        auto bounds = file.getVersionBounds();
+        BOOST_ASSERT(bounds.first == H5F_LIBVER_LATEST);
+        BOOST_ASSERT(bounds.second == H5F_LIBVER_LATEST);
     }
 }
 
