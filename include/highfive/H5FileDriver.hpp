@@ -44,6 +44,7 @@ class MPIOFileDriver : public FileAccessProps {
 /// * \c H5F_LIBVER_NBOUNDS
 /// * \c H5F_LIBVER_LATEST currently defined as \c H5F_LIBVER_V110 within
 ///   HDF5
+///
 class FileVersionBounds {
   public:
     FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
@@ -57,6 +58,11 @@ class FileVersionBounds {
     const H5F_libver_t _high;
 };
 
+///
+/// \brief Configure the metadata block size to use writing to files
+///
+/// \param size Metadata block size in bytes
+///
 class MetadataBlockSize {
   public:
     MetadataBlockSize(hsize_t size)

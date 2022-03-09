@@ -114,7 +114,6 @@ class RawPropertyList : public PropertyList<T> {
     void add(const F& funct, const Args&... args);
 };
 
-
 class EstimatedLinkInfo {
   public:
     explicit EstimatedLinkInfo(unsigned entries, unsigned length)

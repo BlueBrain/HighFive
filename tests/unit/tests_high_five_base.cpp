@@ -164,6 +164,28 @@ BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
 }
 
 
+BOOST_AUTO_TEST_CASE(HighFiveMetadataBlockSize) {
+    const std::string FILE_NAME("h5_meta_block_size.h5");
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        File file(FILE_NAME, File::Truncate);
+        // Default for HDF5
+        BOOST_ASSERT(file.getMetadataBlockSize() == 2048);
+    }
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        FileDriver driver;
+        driver.add(MetadataBlockSize(10240));
+        File file(FILE_NAME, File::Truncate, driver);
+        BOOST_ASSERT(file.getMetadataBlockSize() == 10240);
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSetDefaultCtr) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
