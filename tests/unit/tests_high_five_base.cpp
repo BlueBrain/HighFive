@@ -186,6 +186,22 @@ BOOST_AUTO_TEST_CASE(HighFiveMetadataBlockSize) {
 }
 
 
+BOOST_AUTO_TEST_CASE(HighFiveGroupProperties) {
+    const std::string FILE_NAME("h5_group_properties.h5");
+    FileDriver adam;
+    adam.add(FileVersionBounds(H5F_LIBVER_V18, H5F_LIBVER_LATEST));
+    File file(FILE_NAME, File::Truncate, adam);
+
+    GroupCreateProps props;
+    props.add(EstimatedLinkInfo(1000, 500));
+    auto group = file.createGroup("g", props);
+    auto sizes = group.getEstimatedLinkInfo();
+
+    BOOST_ASSERT(sizes.first == 1000);
+    BOOST_ASSERT(sizes.second == 500);
+}
+
+
 BOOST_AUTO_TEST_CASE(HighFiveGroupAndDataSetDefaultCtr) {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");

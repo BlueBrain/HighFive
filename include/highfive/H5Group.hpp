@@ -29,6 +29,8 @@ class Group : public Object,
     H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
     Group() = default;
 
+    std::pair<unsigned int, unsigned int> getEstimatedLinkInfo() const;
+
   protected:
     using Object::Object;
 
@@ -38,6 +40,20 @@ class Group : public Object,
     friend class Reference;
     template <typename Derivate> friend class ::HighFive::NodeTraits;
 };
+
+#include <H5Gpublic.h>
+
+std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
+    unsigned int est_num_entries;
+    unsigned int est_name_len;
+
+    auto gid_gcpl = H5Gget_create_plist(getId());
+    if (H5Pget_est_link_info(gid_gcpl, &est_num_entries, &est_name_len) < 0) {
+        HDF5ErrMapper::ToException<GroupException>(
+            std::string("Unable to access group link size property"));
+    }
+    return std::make_pair(est_num_entries, est_name_len);
+}
 
 }  // namespace HighFive
 
