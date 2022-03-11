@@ -189,7 +189,9 @@ BOOST_AUTO_TEST_CASE(HighFiveMetadataBlockSize) {
 BOOST_AUTO_TEST_CASE(HighFiveGroupProperties) {
     const std::string FILE_NAME("h5_group_properties.h5");
     FileDriver adam;
-    adam.add(FileVersionBounds(H5F_LIBVER_V18, H5F_LIBVER_LATEST));
+    // When using hdf5 1.10.2 and later, the lower bound may be set to
+    // H5F_LIBVER_V18
+    adam.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
     File file(FILE_NAME, File::Truncate, adam);
 
     GroupCreateProps props;
