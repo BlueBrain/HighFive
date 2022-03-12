@@ -2,6 +2,9 @@ name: Auto-update doxygen-awesome
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+    - master
 
 jobs:
   check-for-updates:
@@ -21,7 +24,7 @@ jobs:
           # NOTE: In a later runs of CI we will search for PR with this exact
           #       title. Only if no such PR exists will the script create a
           #       new PR.
-          PR_TITLE="Update doxygen-awesome to ${VERSION}"
+          PR_TITLE="[docs] Update doxygen-awesome to ${VERSION}"
 
           if [[ -z "$(git status --porcelain)" ]]
           then
@@ -45,4 +48,3 @@ jobs:
           else
               echo "Old PR detected: didn't create a new one."
           fi
-
