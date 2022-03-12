@@ -2,9 +2,8 @@ name: Auto-update doxygen-awesome
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - master
+  schedule:
+  - cron: 0 2 * * 1
 
 jobs:
   check-for-updates:
