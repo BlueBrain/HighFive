@@ -114,6 +114,19 @@ class RawPropertyList : public PropertyList<T> {
     void add(const F& funct, const Args&... args);
 };
 
+class EstimatedLinkInfo {
+  public:
+    explicit EstimatedLinkInfo(unsigned entries, unsigned length)
+        : _entries(entries)
+        , _length(length)
+    {}
+  private:
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+    const unsigned _entries;
+    const unsigned _length;
+};
+
 
 class Chunking {
   public:

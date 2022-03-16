@@ -68,6 +68,12 @@ class File : public Object,
         return "/";
     }
 
+    /// \brief Returns the block size for metadata in bytes
+    hsize_t getMetadataBlockSize() const;
+
+    /// \brief Returns the HDF5 version compatibility bounds
+    std::pair<H5F_libver_t, H5F_libver_t> getVersionBounds() const;
+
     ///
     /// \brief flush
     ///

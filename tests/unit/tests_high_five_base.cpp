@@ -6,6 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+#undef NDEBUG  // always include assert, otherwise BOOST_ASSERT is useless!
 
 #include <algorithm>
 #include <cstdio>
@@ -98,7 +99,6 @@ BOOST_AUTO_TEST_CASE(HighFiveSilence) {
 
 BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     const std::string FILE_NAME("openmodes.h5");
-    const std::string DATASET_NAME("dset");
 
     std::remove(FILE_NAME.c_str());
 
@@ -136,6 +136,71 @@ BOOST_AUTO_TEST_CASE(HighFiveOpenMode) {
     // Last but not least, defaults should be ok
     { File file(FILE_NAME); }     // ReadOnly
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
+}
+
+
+BOOST_AUTO_TEST_CASE(HighFiveFileVersioning) {
+    const std::string FILE_NAME("h5_version_bounds.h5");
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        File file(FILE_NAME, File::Truncate);
+        auto bounds = file.getVersionBounds();
+        BOOST_ASSERT(bounds.first == H5F_LIBVER_EARLIEST);
+        BOOST_ASSERT(bounds.second == H5F_LIBVER_LATEST);
+    }
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        FileDriver driver;
+        driver.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+        File file(FILE_NAME, File::Truncate, driver);
+        auto bounds = file.getVersionBounds();
+        BOOST_ASSERT(bounds.first == H5F_LIBVER_LATEST);
+        BOOST_ASSERT(bounds.second == H5F_LIBVER_LATEST);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(HighFiveMetadataBlockSize) {
+    const std::string FILE_NAME("h5_meta_block_size.h5");
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        File file(FILE_NAME, File::Truncate);
+        // Default for HDF5
+        BOOST_ASSERT(file.getMetadataBlockSize() == 2048);
+    }
+
+    std::remove(FILE_NAME.c_str());
+
+    {
+        FileDriver driver;
+        driver.add(MetadataBlockSize(10240));
+        File file(FILE_NAME, File::Truncate, driver);
+        BOOST_ASSERT(file.getMetadataBlockSize() == 10240);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(HighFiveGroupProperties) {
+    const std::string FILE_NAME("h5_group_properties.h5");
+    FileDriver adam;
+    // When using hdf5 1.10.2 and later, the lower bound may be set to
+    // H5F_LIBVER_V18
+    adam.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+    File file(FILE_NAME, File::Truncate, adam);
+
+    GroupCreateProps props;
+    props.add(EstimatedLinkInfo(1000, 500));
+    auto group = file.createGroup("g", props);
+    auto sizes = group.getEstimatedLinkInfo();
+
+    BOOST_ASSERT(sizes.first == 1000);
+    BOOST_ASSERT(sizes.second == 500);
 }
 
 

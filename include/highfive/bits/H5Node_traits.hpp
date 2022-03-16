@@ -101,6 +101,14 @@ class NodeTraits {
     Group createGroup(const std::string& group_name, bool parents = true);
 
     ///
+    /// \brief create a new group, and eventually intermediate groups
+    /// \param group_name
+    /// \param createProps A property list with group creation properties
+    /// \param parents Create intermediate groups if needed. Default: true.
+    /// \return the group object
+    Group createGroup(const std::string& group_name, const GroupCreateProps& createProps, bool parents = true);
+
+    ///
     /// \brief open an existing group with the name group_name
     /// \param group_name
     /// \return the group object
