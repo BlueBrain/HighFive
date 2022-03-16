@@ -13,6 +13,11 @@
 
 #include <H5Ppublic.h>
 
+// Required by MPIOFileAccess
+#ifdef H5_HAVE_PARALLEL
+#include <H5FDmpi.h>
+#endif
+
 #include "H5Exception.hpp"
 #include "H5Object.hpp"
 
@@ -114,6 +119,91 @@ class RawPropertyList : public PropertyList<T> {
     void add(const F& funct, const Args&... args);
 };
 
+#ifdef H5_HAVE_PARALLEL
+///
+/// \brief Configure MPI access for the file
+///
+/// All further modifications to the structure of the file will have to be
+/// done with collective operations
+///
+class MPIOFileAccess
+{
+public:
+  MPIOFileAccess(MPI_Comm comm, MPI_Info info)
+      : _comm(comm)
+      , _info(info)
+  {}
+
+  void apply(const hid_t list) const {
+    if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            "Unable to set-up MPIO Driver configuration");
+    }
+  }
+private:
+  MPI_Comm _comm;
+  MPI_Info _info;
+};
+#endif
+
+///
+/// \brief Configure the version bounds for the file
+///
+/// Used to define the compatibility of objects created within HDF5 files,
+/// and affects the format of groups stored in the file.
+///
+/// See also the documentation of \c H5P_SET_LIBVER_BOUNDS in HDF5.
+///
+/// Possible values for \c low and \c high are:
+/// * \c H5F_LIBVER_EARLIEST
+/// * \c H5F_LIBVER_V18
+/// * \c H5F_LIBVER_V110
+/// * \c H5F_LIBVER_NBOUNDS
+/// * \c H5F_LIBVER_LATEST currently defined as \c H5F_LIBVER_V110 within
+///   HDF5
+///
+class FileVersionBounds {
+  public:
+    FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
+        : _low(low)
+        , _high(high)
+    {}
+  private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const {
+        if (H5Pset_libver_bounds(list, _low, _high) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Error setting file version bounds");
+        }
+    }
+    const H5F_libver_t _low;
+    const H5F_libver_t _high;
+};
+
+///
+/// \brief Configure the metadata block size to use writing to files
+///
+/// \param size Metadata block size in bytes
+///
+class MetadataBlockSize {
+  public:
+    MetadataBlockSize(hsize_t size)
+        : _size(size)
+    {}
+  private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const {
+        if (H5Pset_meta_block_size(list, _size) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Error setting metadata block size");
+        }
+    }
+    const hsize_t _size;
+};
+
+///
+/// \brief Set hints as to how many links to expect and their average length
+///
 class EstimatedLinkInfo {
   public:
     explicit EstimatedLinkInfo(unsigned entries, unsigned length)
