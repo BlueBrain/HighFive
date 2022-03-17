@@ -84,7 +84,7 @@ inline const std::string& File::getName() const noexcept {
     return _filename;
 }
 
-hsize_t File::getMetadataBlockSize() const {
+inline hsize_t File::getMetadataBlockSize() const {
     hsize_t size;
     auto fid_fapl = H5Fget_access_plist(getId());
     if (H5Pget_meta_block_size(fid_fapl, &size) < 0) {
@@ -94,7 +94,7 @@ hsize_t File::getMetadataBlockSize() const {
     return size;
 }
 
-std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
+inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     H5F_libver_t low;
     H5F_libver_t high;
     auto fid_fapl = H5Fget_access_plist(getId());
