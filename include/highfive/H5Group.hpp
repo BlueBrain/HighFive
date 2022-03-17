@@ -43,7 +43,7 @@ class Group : public Object,
 
 #include <H5Gpublic.h>
 
-std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
+inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
     unsigned int est_num_entries;
     unsigned int est_name_len;
 
