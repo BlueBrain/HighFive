@@ -385,9 +385,8 @@ class FixedLenStringArray {
 /// HIGHFIVE_REGISTER_TYPE(FooBar, create_enum_foobar)
 /// \endcode
 #define HIGHFIVE_REGISTER_TYPE(type, function) \
-    namespace HighFive {                       \
     template<>                                 \
-    DataType create_datatype<type>() {         \
+    HighFive::DataType create_datatype<type>() {         \
         return function();                     \
     }                                          \
     }
