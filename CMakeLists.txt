@@ -15,11 +15,8 @@ list(APPEND CMAKE_MODULE_PATH
   ${PROJECT_SOURCE_DIR}/CMake/portability
   ${PROJECT_SOURCE_DIR}/CMake/config)
 
-include(CompilerFlagsHelpers)
-include(ReleaseDebugAutoFlags)
-
 # OPTIONS
-# Compat within Highfive 2.x series
+# Compatibility within Highfive 2.x series
 set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
 set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
 set(USE_XTENSOR OFF CACHE BOOL "Enable xtensor testing")
@@ -79,21 +76,16 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
 # ------------------------------------------
 
 # Disable test if Boost was expressly disabled, or if HighFive is a sub-project
-if (NOT HIGHFIVE_USE_BOOST OR NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   if(HIGHFIVE_UNIT_TESTS)
-    message(WARNING "Unit tests have been DISABLED. (HIGHFIVE_USE_BOOST: ${HIGHFIVE_USE_BOOST})")
+    message(WARNING "Unit tests have been DISABLED.")
   endif()
   set(HIGHFIVE_UNIT_TESTS FALSE)
 endif()
 
 if(HIGHFIVE_UNIT_TESTS)
-  set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
-  find_package(Boost COMPONENTS system serialization unit_test_framework)
-  if (NOT Boost_FOUND)
-    message(FATAL_ERROR "\
-      Boost not found which is required for efficient multi-dimension and tests.\n\
-      To disable support please use cmake .. -DHIGHFIVE_USE_BOOST=OFF.")
-  endif()
+  add_subdirectory(deps/catch2 EXCLUDE_FROM_ALL)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/deps/catch2/contrib)
 endif()
 
 
@@ -101,6 +93,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
   # ICC gets mad if we shorten "int"s
   add_definitions("-wd1682")
 endif()
+
+# Set compile time flags _after_ including required dependencies
+include(ReleaseDebugAutoFlags)
 
 if(HIGHFIVE_EXAMPLES)
   add_subdirectory(src/examples)

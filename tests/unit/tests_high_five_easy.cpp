@@ -27,41 +27,37 @@
 #include <xtensor/xview.hpp>
 #endif
 
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
 
-#define BOOST_TEST_MAIN H5EasyTests
-
-
-#include <boost/mpl/list.hpp>
-#include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_CASE(H5Easy_Compression)
+TEST_CASE("H5Easy_Compression")
 {
     {
         H5Easy::DumpOptions options = H5Easy::DumpOptions(H5Easy::Compression());
-        BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
+        CHECK(options.compress());
+        CHECK(options.getCompressionLevel() == 9);
     }
 
     {
         H5Easy::DumpOptions options(H5Easy::Compression(true));
-        BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 9);
+        CHECK(options.compress());
+        CHECK(options.getCompressionLevel() == 9);
     }
 
     {
         H5Easy::DumpOptions options(H5Easy::Compression(false));
-        BOOST_CHECK_EQUAL(options.compress(), false);
-        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 0);
+        CHECK(!options.compress());
+        CHECK(options.getCompressionLevel() == 0);
     }
 
     {
         H5Easy::DumpOptions options(H5Easy::Compression(8));
-        BOOST_CHECK_EQUAL(options.compress(), true);
-        BOOST_CHECK_EQUAL(options.getCompressionLevel(), 8);
+        CHECK(options.compress());
+        CHECK(options.getCompressionLevel() == 8);
     }
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_scalar)
+TEST_CASE("H5Easy_scalar")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -78,12 +74,12 @@ BOOST_AUTO_TEST_CASE(H5Easy_scalar)
     int b_r = H5Easy::load<int>(file, "/path/to/b");
     std::string c_r = H5Easy::load<std::string>(file, "/path/to/c");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
-    BOOST_CHECK_EQUAL(b == b_r, true);
-    BOOST_CHECK_EQUAL(c == c_r, true);
+    CHECK(a == a_r);
+    CHECK(b == b_r);
+    CHECK(c == c_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_vector1d)
+TEST_CASE("H5Easy_vector1d")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -93,10 +89,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector1d)
 
     std::vector<size_t> a_r = H5Easy::load<std::vector<size_t>>(file, "/path/to/a");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
+    CHECK(a == a_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_vector2d)
+TEST_CASE("H5Easy_vector2d")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -106,10 +102,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d)
 
     decltype(a) a_r = H5Easy::load<decltype(a)>(file, "/path/to/a");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
+    CHECK(a == a_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
+TEST_CASE("H5Easy_vector2d_compression")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -123,10 +119,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector2d_compression)
 
     decltype(a) a_r = H5Easy::load<decltype(a)>(file, "/path/to/a");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
+    CHECK(a == a_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
+TEST_CASE("H5Easy_vector3d")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -138,10 +134,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_vector3d)
 
     type a_r = H5Easy::load<type>(file, "/path/to/a");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
+    CHECK(a == a_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Attribute_scalar)
+TEST_CASE("H5Easy_Attribute_scalar")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -159,13 +155,13 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_scalar)
     int b_r = H5Easy::loadAttribute<int>(file, "/path/to/a", "b");
     std::string c_r = H5Easy::loadAttribute<std::string>(file, "/path/to/a", "c");
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
-    BOOST_CHECK_EQUAL(b == b_r, true);
-    BOOST_CHECK_EQUAL(c == c_r, true);
+    CHECK(a == a_r);
+    CHECK(b == b_r);
+    CHECK(c == c_r);
 }
 
 #ifdef H5_USE_XTENSOR
-BOOST_AUTO_TEST_CASE(H5Easy_extend1d)
+TEST_CASE("H5Easy_extend1d")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -179,11 +175,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_extend1d)
 
     size_t Amax = H5Easy::load<size_t>(file, "/path/to/A", {9});
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(Amax == 9, true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(Amax == 9);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_extend2d)
+TEST_CASE("H5Easy_extend2d")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -201,11 +197,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_extend2d)
 
     size_t Amax = H5Easy::load<size_t>(file, "/path/to/A", {9, 4});
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(Amax == 49, true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(Amax == 49);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_xtensor)
+TEST_CASE("H5Easy_xtensor")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -218,11 +214,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor)
     xt::xtensor<double, 2> A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(xt::all(xt::equal(B, B_r)));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_xarray)
+TEST_CASE("H5Easy_xarray")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -235,11 +231,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_xarray)
     xt::xarray<double> A_r = H5Easy::load<xt::xarray<double>>(file, "/path/to/A");
     xt::xarray<int> B_r = H5Easy::load<xt::xarray<int>>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(xt::all(xt::equal(B, B_r)));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_view)
+TEST_CASE("H5Easy_view")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -250,10 +246,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_view)
 
     xt::xtensor<double, 2> a_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/a");
 
-    BOOST_CHECK_EQUAL(xt::allclose(a, a_r), true);
+    CHECK(xt::allclose(a, a_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
+TEST_CASE("H5Easy_xtensor_compress")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -272,11 +268,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_xtensor_compress)
     xt::xtensor<double, 2> A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
     xt::xtensor<int, 2> B_r = H5Easy::load<xt::xtensor<int, 2>>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(xt::all(xt::equal(B, B_r)));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Attribute_xtensor)
+TEST_CASE("H5Easy_Attribute_xtensor")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -290,13 +286,13 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_xtensor)
     xt::xtensor<double, 2> A_r = H5Easy::loadAttribute<xt::xtensor<double, 2>>(file, "/path/to/A", "A");
     xt::xtensor<int, 2> B_r = H5Easy::loadAttribute<xt::xtensor<int, 2>>(file, "/path/to/A", "B");
 
-    BOOST_CHECK_EQUAL(xt::allclose(A, A_r), true);
-    BOOST_CHECK_EQUAL(xt::all(xt::equal(B, B_r)), true);
+    CHECK(xt::allclose(A, A_r));
+    CHECK(xt::all(xt::equal(B, B_r)));
 }
 #endif
 
 #ifdef H5_USE_EIGEN
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
+TEST_CASE("H5Easy_Eigen_MatrixX")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -309,11 +305,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixX)
     Eigen::MatrixXd A_r = H5Easy::load<Eigen::MatrixXd>(file, "/path/to/A");
     Eigen::MatrixXi B_r = H5Easy::load<Eigen::MatrixXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayXX)
+TEST_CASE("H5Easy_Eigen_ArrayXX")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -326,11 +322,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayXX)
     Eigen::ArrayXXf A_r = H5Easy::load<Eigen::MatrixXf>(file, "/path/to/A");
     Eigen::ArrayXXi B_r = H5Easy::load<Eigen::MatrixXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayX)
+TEST_CASE("H5Easy_Eigen_ArrayX")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -343,12 +339,12 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_ArrayX)
     Eigen::ArrayXf A_r = H5Easy::load<Eigen::ArrayXf>(file, "/path/to/A");
     Eigen::ArrayXi B_r = H5Easy::load<Eigen::ArrayXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
+TEST_CASE("H5Easy_Eigen_VectorX")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -361,11 +357,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorX)
     Eigen::VectorXd A_r = H5Easy::load<Eigen::VectorXd>(file, "/path/to/A");
     Eigen::VectorXi B_r = H5Easy::load<Eigen::VectorXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixXRowMajor)
+TEST_CASE("H5Easy_Eigen_MatrixXRowMajor")
 {
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
     typedef Eigen::Matrix<int   , Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXi;
@@ -381,11 +377,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_MatrixXRowMajor)
     MatrixXd A_r = H5Easy::load<MatrixXd>(file, "/path/to/A");
     MatrixXi B_r = H5Easy::load<MatrixXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorXRowMajor)
+TEST_CASE("H5Easy_Eigen_VectorXRowMajor")
 {
     typedef Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor> VectorXd;
     typedef Eigen::Matrix<int   , 1, Eigen::Dynamic, Eigen::RowMajor> VectorXi;
@@ -401,11 +397,11 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_VectorXRowMajor)
     VectorXd A_r = H5Easy::load<VectorXd>(file, "/path/to/A");
     VectorXi B_r = H5Easy::load<VectorXi>(file, "/path/to/B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Eigen_Map)
+TEST_CASE("H5Easy_Eigen_Map")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -416,10 +412,10 @@ BOOST_AUTO_TEST_CASE(H5Easy_Eigen_Map)
 
     std::vector<int> A_r = H5Easy::load<std::vector<int>>(file, "/path/to/A");
 
-    BOOST_CHECK_EQUAL(A == A_r, true);
+    CHECK(A == A_r);
 }
 
-BOOST_AUTO_TEST_CASE(H5Easy_Attribute_Eigen_MatrixX)
+TEST_CASE("H5Easy_Attribute_Eigen_MatrixX")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -433,13 +429,13 @@ BOOST_AUTO_TEST_CASE(H5Easy_Attribute_Eigen_MatrixX)
     Eigen::MatrixXd A_r = H5Easy::loadAttribute<Eigen::MatrixXd>(file, "/path/to/A", "A");
     Eigen::MatrixXi B_r = H5Easy::loadAttribute<Eigen::MatrixXi>(file, "/path/to/A", "B");
 
-    BOOST_CHECK_EQUAL(A.isApprox(A_r), true);
-    BOOST_CHECK_EQUAL(B.isApprox(B_r), true);
+    CHECK(A.isApprox(A_r));
+    CHECK(B.isApprox(B_r));
 }
 #endif
 
 #ifdef H5_USE_OPENCV
-BOOST_AUTO_TEST_CASE(H5Easy_OpenCV_Mat_)
+TEST_CASE("H5Easy_OpenCV_Mat_")
 {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -469,7 +465,7 @@ BOOST_AUTO_TEST_CASE(H5Easy_OpenCV_Mat_)
     std::vector<double> a_r(A_r.begin(), A_r.end());
     std::vector<double> b_r(A_r.begin(), A_r.end());
 
-    BOOST_CHECK_EQUAL(a == a_r, true);
-    BOOST_CHECK_EQUAL(a == b_r, true);
+    CHECK(a == a_r);
+    CHECK(a == b_r);
 }
 #endif
