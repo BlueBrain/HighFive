@@ -9,6 +9,8 @@
 #ifndef HIGHFIVE_H5GROUP_HPP
 #define HIGHFIVE_H5GROUP_HPP
 
+#include <H5Gpublic.h>
+
 #include "H5Object.hpp"
 #include "bits/H5_definitions.hpp"
 #include "bits/H5Annotate_traits.hpp"
@@ -40,8 +42,6 @@ class Group : public Object,
     friend class Reference;
     template <typename Derivate> friend class ::HighFive::NodeTraits;
 };
-
-#include <H5Gpublic.h>
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
     unsigned int est_num_entries;
