@@ -386,9 +386,8 @@ class FixedLenStringArray {
 /// \endcode
 #define HIGHFIVE_REGISTER_TYPE(type, function) \
     template<>                                 \
-    HighFive::DataType create_datatype<type>() {         \
+    HighFive::DataType HighFive::create_datatype<type>() {         \
         return function();                     \
-    }                                          \
     }
 
 #include "bits/H5DataType_misc.hpp"
