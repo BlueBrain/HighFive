@@ -41,7 +41,11 @@ class Group : public Object,
     template <typename Derivate> friend class ::HighFive::NodeTraits;
 };
 
+}  // namespace HighFive
+
 #include <H5Gpublic.h>
+
+namespace HighFive {
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
     unsigned int est_num_entries;
