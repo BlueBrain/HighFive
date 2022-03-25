@@ -666,11 +666,9 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     DataSet ds_int = file.createDataSet("/TmpInt", my_int);
     DataSet ds_nested = file.createDataSet("/TmpNest", my_nested);
 
-    std::vector<int> result;
+    std::vector<unsigned> result;
     dataset.read(result);
-    std::vector<unsigned> result_transformed;
-    std::copy(std::begin(result), std::end(result), std::back_inserter(result_transformed));
-    CHECK_THAT(vec, Equals(result_transformed));
+    CHECK_THAT(vec, Equals(result));
 
     std::string read_in;
     dataset.getAttribute("str").read(read_in);
