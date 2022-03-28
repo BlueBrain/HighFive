@@ -5,3 +5,4 @@ dependencies:
   - cmake
   - graphviz
   - hdf5
+  - catch2
