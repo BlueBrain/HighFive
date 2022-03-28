@@ -2,12 +2,15 @@ Adrien Devresse
 Alexandru Săvulescu
 Ali Can Demiralp
 Angelos Plastropoulos
+Chris Byrohl
+Chris De Grendele
 contre
 Daniel Nachbaur
 Dmitri Bichko
 eudoxos
 Fernando L. Pereira
 guoxy
+Haoran Ni
 Henry Schreiner
 JaWSnl
 Jia Li
@@ -15,6 +18,7 @@ John W. Peterson
 Jonas Karlsson
 Jorge Blanco Alonso
 Kerim Khemraev
+Luc Grosheintz
 Marian Heil
 Mario Emmenlauer
 Mathieu Bernard
