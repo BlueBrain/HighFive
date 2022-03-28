@@ -38,17 +38,27 @@ jobs:
       with:
         submodules: true
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - name: Set conda environment
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-name: myenv
+        environment-file: doc/environment.yaml
+        cache-env: true
+        extra-specs: |
+          xtl
+          xsimd
+          xtensor
+          catch2
+          cmake
 
     - name: "Install libraries"
-      shell: bash -l {0}  # required to activate conda
+      shell: bash -l {0}
       run: |
         sudo apt-get -qq update
         sudo apt-get -qq install libboost-serialization-dev libboost-system-dev libhdf5-mpich-dev libeigen3-dev libsz2
-        conda install -y -c conda-forge xtl xsimd xtensor catch2 cmake
 
     - name: Build
-      shell: bash -l {0}  # required to activate conda
+      shell: bash -l {0}
       run: |
         CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
         source $GITHUB_WORKSPACE/.github/build.sh
@@ -75,16 +85,27 @@ jobs:
       with:
         submodules: true
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - name: Set conda environment
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-name: myenv
+        environment-file: doc/environment.yaml
+        cache-env: true
+        extra-specs: |
+          xtl
+          xsimd
+          xtensor
+          catch2
+          cmake
 
     - name: "Install libraries"
+      shell: bash -l {0}
       run: |
         sudo apt-get update
         sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libsz2
-        conda install -y -c conda-forge xtl xsimd xtensor catch2 cmake
 
     - name: Build
-      shell: bash -l {0}  # required to activate conda
+      shell: bash -l {0}
       env: ${{matrix.env}}
       run: source $GITHUB_WORKSPACE/.github/build.sh
 
@@ -122,10 +143,22 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: true
-    - uses: conda-incubator/setup-miniconda@v2
 
-    - name: "Install libraries"
-      run: conda install -y -c conda-forge boost-cpp hdf5 eigen xtl xsimd xtensor catch2 cmake
+    - name: Set conda environment
+      uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-name: myenv
+        environment-file: doc/environment.yaml
+        cache-env: true
+        extra-specs: |
+          boost-cpp
+          hdf5
+          eigen
+          xtl
+          xsimd
+          xtensor
+          catch2
+          cmake
 
     - name: Build
       shell: bash -l {0}
