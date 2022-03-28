@@ -37,6 +37,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: true
+
     - uses: conda-incubator/setup-miniconda@v2
 
     - name: "Install libraries"
@@ -44,7 +45,7 @@ jobs:
       run: |
         sudo apt-get -qq update
         sudo apt-get -qq install libboost-serialization-dev libboost-system-dev libhdf5-mpich-dev libeigen3-dev libsz2
-        conda install -y -c conda-forge xtl xsimd xtensor
+        conda install -y -c conda-forge xtl xsimd xtensor catch2 cmake
 
     - name: Build
       shell: bash -l {0}  # required to activate conda
@@ -74,10 +75,16 @@ jobs:
       with:
         submodules: true
 
+    - uses: conda-incubator/setup-miniconda@v2
+
     - name: "Install libraries"
-      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libsz2
+      run: |
+        sudo apt-get update
+        sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libsz2
+        conda install -y -c conda-forge xtl xsimd xtensor catch2 cmake
 
     - name: Build
+      shell: bash -l {0}  # required to activate conda
       env: ${{matrix.env}}
       run: source $GITHUB_WORKSPACE/.github/build.sh
 
@@ -97,7 +104,7 @@ jobs:
         submodules: true
 
     - name: "Install libraries (OSX)"
-      run: brew install boost hdf5 eigen
+      run: brew install boost hdf5 eigen catch2
 
     - name: Build
       run: source $GITHUB_WORKSPACE/.github/build.sh
@@ -118,7 +125,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v2
 
     - name: "Install libraries"
-      run: conda install -y -c conda-forge boost-cpp hdf5 eigen xtl xsimd xtensor
+      run: conda install -y -c conda-forge boost-cpp hdf5 eigen xtl xsimd xtensor catch2 cmake
 
     - name: Build
       shell: bash -l {0}
@@ -138,7 +145,7 @@ jobs:
 
     steps:
     - name: "Install libraries"
-      run: brew install boost hdf5 eigen lcov
+      run: brew install boost hdf5 eigen lcov catch2
 
     - uses: actions/checkout@v3
       with:
