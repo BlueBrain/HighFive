@@ -13,25 +13,17 @@
 #include <vector>
 #include <boost/mpl/list.hpp>
 
-// Since, 1.59: semicolon has been removed from the end of the BOOST_GLOBAL_FIXTURE
-// https://github.com/boostorg/test/commit/3f7216db3db2e11a768d8d0c8bb18632f106c466
-#if BOOST_VERSION >= 105900
-#define BOOST_GLOBAL_FIXTURE_END ;
-#else
-#define BOOST_GLOBAL_FIXTURE_END
-#endif
-
 using complex = std::complex<double>;
 
-typedef boost::mpl::list<float, double> floating_numerics_test_types;
+using floating_numerics_test_types = std::tuple<float, double>;
 
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
-                         float, double, long long, unsigned long long, complex>
-    numerical_test_types;
+using numerical_test_types =
+    std::tuple<int, unsigned int, long, unsigned long, unsigned char, char,
+               float, double, long long, unsigned long long, complex>;
 
-typedef boost::mpl::list<int, unsigned int, long, unsigned long, unsigned char, char,
-                         float, double>
-    dataset_test_types;
+using dataset_test_types =
+    std::tuple<int, unsigned int, long, unsigned long, unsigned char, char,
+               float, double>;
 
 
 template <typename T, typename Func>
