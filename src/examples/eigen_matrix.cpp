@@ -20,7 +20,7 @@ const std::string DATASET_NAME("dset");
 const int nrows = 10;
 const int ncols = 3;
 
-// Create a 2D dataset 10x3 of double with boost multi array
+// Create a 2D dataset 10x3 of double with eigen matrix
 // and write it to a file
 int main(void) {
 
