@@ -5,6 +5,12 @@ function(compile_example exemple_source)
     get_filename_component(example_filename ${exemple_source} NAME)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
+    if(${example_filename} MATCHES ".*eigen.*")
+        if(NOT HIGHFIVE_USE_EIGEN)
+            return()
+        endif()
+    endif()
+
     if(${example_filename} MATCHES ".*boost.*")
         if(NOT HIGHFIVE_USE_BOOST)
             return()
