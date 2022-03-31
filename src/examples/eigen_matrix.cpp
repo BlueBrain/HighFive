@@ -37,7 +37,7 @@ int main(void) {
         // we create a new hdf5 file
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // let's create our dataset of the size of the boost::multi_array
+        // let's create our dataset of the size of the eigen matrix
         file.createDataSet(DATASET_NAME, matrix);
 
     } catch (Exception& err) {
