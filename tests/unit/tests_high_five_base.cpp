@@ -414,9 +414,9 @@ TEST_CASE("Test reference count") {
                 double v = values[i][j];
 
                 if (i == 5 && j == 0) {
-                    CHECK(v == 1);
+                    REQUIRE(v == 1);
                 } else {
-                    CHECK(v == 0);
+                    REQUIRE(v == 0);
                 }
             }
         }
@@ -683,7 +683,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
 
     for (size_t i = 0; i < 2; ++i) {
         for (size_t j = 0; j < 2; ++j) {
-            CHECK(my_nested[i][j] == out_nested[i][j]);
+            REQUIRE(my_nested[i][j] == out_nested[i][j]);
         }
     }
 
@@ -695,7 +695,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
         decltype(int_c_array) int_c_array_out;
         ds_int2.read(int_c_array_out);
         for (size_t i = 0; i < 10; ++i) {
-            CHECK(int_c_array[i] == int_c_array_out[i]);
+            REQUIRE(int_c_array[i] == int_c_array_out[i]);
         }
     }
 
@@ -708,7 +708,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
         ds_char2.read(char_c_2darray_out);
         for (size_t i = 0; i < 4; ++i) {
             for (size_t j = 0; j < 3; ++j) {
-                CHECK(char_c_2darray[i][j] == char_c_2darray_out[i][j]);
+                REQUIRE(char_c_2darray[i][j] == char_c_2darray_out[i][j]);
             }
         }
     }
@@ -869,7 +869,7 @@ void selectionArraySimpleTest() {
         CHECK(result.size() == 5);
 
         for (size_t i = 0; i < count_x; ++i) {
-            CHECK(values[i + offset_x] == result[i]);
+            REQUIRE(values[i + offset_x] == result[i]);
         }
     }
 
@@ -890,7 +890,7 @@ void selectionArraySimpleTest() {
 
         for (size_t i = 0; i < ids.size(); ++i) {
             const std::size_t id = ids[i];
-            CHECK(values[id] == result[i]);
+            REQUIRE(values[id] == result[i]);
         }
     }
 }
@@ -979,7 +979,7 @@ void columnSelectionTest() {
 
     for (size_t i = 0; i < 3; ++i)
         for (size_t j = 0; j < x_size; ++j)
-            CHECK(result[j][i] == values[j][columns[i]]);
+            REQUIRE(result[j][i] == values[j][columns[i]]);
 }
 
 TEMPLATE_LIST_TEST_CASE("columnSelection", "[template]", numerical_test_types) {
@@ -1111,7 +1111,7 @@ void readWriteShuffleDeflateTest() {
 
         for (size_t i = 0; i < x_size; ++i) {
             for (size_t j = 0; i < y_size; ++i) {
-                CHECK(result[i][j] == array[i][j]);
+                REQUIRE(result[i][j] == array[i][j]);
             }
         }
     }
@@ -1174,7 +1174,7 @@ void readWriteSzipTest() {
 
         for (size_t i = 0; i < x_size; ++i) {
             for (size_t j = 0; i < y_size; ++i) {
-                CHECK(result[i][j] == array[i][j]);
+                REQUIRE(result[i][j] == array[i][j]);
             }
         }
     }
@@ -1940,7 +1940,7 @@ TEST_CASE("HighFiveReadWriteConsts") {
     dataset.read(result);
     for (const auto& vec2d : result) {
         for (const auto& vec1d : vec2d) {
-            CHECK(vec1d == (std::vector<datatype>{1, 1, 1}));
+            REQUIRE(vec1d == (std::vector<datatype>{1, 1, 1}));
         }
     }
 
