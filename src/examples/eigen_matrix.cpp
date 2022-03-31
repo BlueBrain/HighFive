@@ -1,4 +1,5 @@
 /*
+ *  Copyright (c), 2017, Adrien Devresse
  *  Copyright (c), 2022, Blue Brain Project
  *
  *  Distributed under the Boost Software License, Version 1.0.
