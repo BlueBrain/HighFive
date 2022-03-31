@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
 
@@ -34,13 +37,11 @@ jobs:
 
     - name: Run doxygen
       run: |
-        mkdir build
-        cd build
-        cmake .. -DHIGHFIVE_USE_BOOST=0
-        make doc
+        cmake -B build -S . -DHIGHFIVE_USE_BOOST:Bool=OFF
+        cmake --build build --target doc
 
     - name: Deploy to GitHub Pages
-      if: success()
+      if: ${{ success() && github.ref == 'refs/heads/master' && github.event.push }}
       uses: crazy-max/ghaction-github-pages@v2
       with:
         target_branch: gh-pages
