@@ -1162,18 +1162,6 @@ void hyperSlabSelectionTest() {
         } else {
             std::vector<std::vector<T>> result;
 
-            {
-                auto selection = test_case.slab.apply(dataset.getSpace().clone());
-                auto regular_slab = getRegularHyperslab(selection);
-
-                auto dims = dataset.getSpace().getDimensions();
-                std::cout << dims[0] << ", " << dims[1] << "\n";
-                std::cout << regular_slab.offset[0] << ", " << regular_slab.offset[1]
-                          << "\n";
-                std::cout << regular_slab.count[0] << ", " << regular_slab.count[1]
-                          << "\n";
-            }
-
             file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
 
             auto n_selected = test_case.answer.global_indices.size();
