@@ -6,7 +6,7 @@
 ### Improvements
     - Use inline where it is needed, otherwise some code can lead to "multiple definition" (#516). Thanks to Chris Byrohl.
     - Use Catch2 inside of boost for tests, this way there is less dependencies (#521)
-    - CI now run with more external libraires (boost, eige, xtensor, xtl) (#536)
+    - CI now run with more external librairies (boost, eige, xtensor, xtl) (#536)
 ### Bug Fixes
     - Better support of const types (#460). Thanks to Philip Deegan.
     - Vector of size zero was previously lead to UB (#502). Thanks to Haoran Ni.
