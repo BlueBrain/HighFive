@@ -1,12 +1,12 @@
-## Version 2.4 - 2022-04-01
+## Version 2.4.0 - 2022-04-01
 ### New Features
     - Construct a compound type from an already existing hid (#469). Thanks to Maximilian Nöthe.
     - Add support for long double (#494)
     - Add support for H5Pset_libver_bounds and H5Pset_meta_block_size support (#500)
 ### Improvements
     - Use inline where it is needed, otherwise some code can lead to "multiple definition" (#516). Thanks to Chris Byrohl.
-    - Use Catch2 inside of boost for tests, this way there is less dependencies (#521)
-    - CI now run with more external librairies (boost, eige, xtensor, xtl) (#536)
+    - Use Catch2 instead of boost for tests, reduces dependencies (#521)
+    - CI reworked to test external libraries more thoroughly (boost, eigen, xtensor) (#536)
 ### Bug Fixes
     - Better support of const types (#460). Thanks to Philip Deegan.
     - Vector of size zero was previously lead to UB (#502). Thanks to Haoran Ni.
