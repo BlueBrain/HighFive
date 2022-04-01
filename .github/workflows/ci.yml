@@ -144,17 +144,21 @@ jobs:
     runs-on: Windows-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - uses: conda-incubator/setup-miniconda@v2
 
-    - name: "Install libraries"
-      run: conda install -y -c conda-forge boost-cpp hdf5 xtensor xtl
+    - uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-file: doc/environment.yaml
+        environment-name: win-test
 
     - name: Build
       shell: bash -l {0}
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_USE_BOOST:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        CMAKE_OPTIONS=(
+          -DHIGHFIVE_UNIT_TESTS=ON
+          -DHIGHFIVE_USE_BOOST:BOOL=ON
+          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+        )
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test

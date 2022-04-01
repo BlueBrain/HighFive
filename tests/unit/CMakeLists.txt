@@ -34,15 +34,6 @@ if(HIGHFIVE_PARALLEL_HDF5)
   if(original_catch_script_contents STREQUAL modified_catch_script_contents)
     message(FATAL_ERROR "Failed to modify Catch2 test execution")
   endif()
-  # string(REGEX REPLACE
-  #        "(COMMAND .{TEST_EXECUTOR})"
-  #        "\\1 ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 1"
-  #        fully_modified_catch_script_contents
-  #        "${modified_catch_script_contents}")
-  # if(modified_catch_script_contents STREQUAL fully_modified_catch_script_contents)
-  #   message(FATAL_ERROR "Failed to modify Catch2 test detection")
-  # endif()
-  # file(WRITE "${patched_catch_script}" "${fully_modified_catch_script_contents}")
   file(WRITE "${patched_catch_script}" "${modified_catch_script_contents}")
   set(_CATCH_DISCOVER_TESTS_SCRIPT "${patched_catch_script}")
   catch_discover_tests(tests_parallel_bin)

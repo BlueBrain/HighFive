@@ -56,7 +56,7 @@ if(NOT TARGET libdeps)
     if (NOT xtl_INCLUDE_DIRS)
       find_package(xtl REQUIRED)
     endif()
-    target_include_directories(libdeps SYSTEM INTERFACE ${xtensor_INCLUDE_DIRS})
+    target_include_directories(libdeps SYSTEM INTERFACE ${xtensor_INCLUDE_DIRS} ${xtl_INCLUDE_DIRS})
     target_compile_definitions(libdeps INTERFACE H5_USE_XTENSOR)
   endif()
 
