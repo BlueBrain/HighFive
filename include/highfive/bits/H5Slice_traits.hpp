@@ -68,11 +68,11 @@ std::vector<To> convertSizeVector(const std::vector<From>& from) {
 }
 }  // namespace detail
 
-std::vector<hsize_t> convertSizeVector(const std::vector<size_t>& from) {
+inline std::vector<hsize_t> convertSizeVector(const std::vector<size_t>& from) {
     return detail::convertSizeVector<hsize_t>(from);
 }
 
-std::vector<size_t> convertSizeVector(const std::vector<hsize_t>& from) {
+inline std::vector<size_t> convertSizeVector(const std::vector<hsize_t>& from) {
     return detail::convertSizeVector<size_t>(from);
 }
 
