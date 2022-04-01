@@ -192,6 +192,11 @@ make test  # build and run unit tests
 **Note:** Unit tests require Boost. In case it's unavailable you may use `-DHIGHFIVE_USE_BOOST=OFF`.
 HighFive with disable support for Boost types as well as unit tests (though most examples will build).
 
+### Code formatting
+If you want to propose pull requests to this project, do not forget to format code with
+clang-format version 12.
+The .clang-format is at the root of the git repository.
+
 
 # Funding & Acknowledgment
  
