@@ -1,0 +1,35 @@
+name: ClangFormat
+
+concurrency:
+  group: ${{ github.workflow }}#${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.rst'
+      - 'doc/**'
+
+jobs:
+  Code_Format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run clang-format
+      run: |
+          for i in $(git ls-files | grep ".[ch]pp$");
+          do
+            clang-format -i "$i" > /dev/null 2>&1;
+          done
+          modified_files=$(git diff --name-only)
+          if [ -n "$modified_files" ];
+          then
+              echo "Some files are not well formatted:"
+              echo $modified_files
+              exit 1
+          fi
