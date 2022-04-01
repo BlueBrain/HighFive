@@ -11,7 +11,6 @@
 #include <random>
 #include <string>
 #include <vector>
-#include <boost/mpl/list.hpp>
 
 using complex = std::complex<double>;
 
