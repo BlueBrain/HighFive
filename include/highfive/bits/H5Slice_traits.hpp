@@ -68,11 +68,11 @@ std::vector<To> convertSizeVector(const std::vector<From>& from) {
 }
 }  // namespace detail
 
-inline std::vector<hsize_t> convertSizeVector(const std::vector<size_t>& from) {
+inline std::vector<hsize_t> toHDF5SizeVector(const std::vector<size_t>& from) {
     return detail::convertSizeVector<hsize_t>(from);
 }
 
-inline std::vector<size_t> convertSizeVector(const std::vector<hsize_t>& from) {
+inline std::vector<size_t> toSTLSizeVector(const std::vector<hsize_t>& from) {
     return detail::convertSizeVector<size_t>(from);
 }
 
@@ -83,10 +83,10 @@ struct RegularHyperSlab {
                      std::vector<size_t> count_ = {},
                      std::vector<size_t> stride_ = {},
                      std::vector<size_t> block_ = {})
-        : offset(convertSizeVector(offset_))
-        , count(convertSizeVector(count_))
-        , stride(convertSizeVector(stride_))
-        , block(convertSizeVector(block_)) {}
+        : offset(toHDF5SizeVector(offset_))
+        , count(toHDF5SizeVector(count_))
+        , stride(toHDF5SizeVector(stride_))
+        , block(toHDF5SizeVector(block_)) {}
 
     static RegularHyperSlab fromHDF5Sizes(std::vector<hsize_t> offset_,
                                           std::vector<hsize_t> count_ = {},
