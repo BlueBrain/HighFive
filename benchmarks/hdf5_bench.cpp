@@ -8,7 +8,7 @@
 
 const std::vector<std::vector<int>> data(NROWS, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 
-int main() {
+int do_iteration() {
     /* Create a new file using default properties. */
     hid_t file_id = H5Fcreate("dataset_integer_raw.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -49,4 +49,10 @@ int main() {
         std::cerr << "Error while releasing resources" << std::endl;
     }
     return status;
+}
+
+int main() {
+    for (int i=0; i<2; i++) {
+        do_iteration();
+    }
 }
