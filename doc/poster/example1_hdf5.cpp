@@ -1,3 +1,4 @@
+#include <vector>
 #include "hdf5.h"
 
 void data_io() {
@@ -16,7 +17,8 @@ void data_io() {
   file_id = H5Fopen("/tmp/new_file.h5", H5F_ACC_RDWR, H5P_DEFAULT);
 
   // Creating a group
-  group_id = H5Gcreate2(file_id, "/group", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  group_id = H5Gcreate2(file_id, "/group", H5P_DEFAULT, H5P_DEFAULT,
+      H5P_DEFAULT);
 
   // creating a dataset
   dset_id = H5Screate_simple(1, dims, NULL);
@@ -24,7 +26,8 @@ void data_io() {
       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   // writing the data
-  status = H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data());
+  status = H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+      data.data());
 
   // === Reading back from HDF5 into a vector
 
@@ -41,7 +44,8 @@ void data_io() {
   result.resize(res_sz);
 
   // reading the data
-  status = H5Dread(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, result.data());
+  status = H5Dread(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+      result.data());
 
   // Close the dataset
   status = H5Dclose(dset_id);
