@@ -1021,6 +1021,7 @@ struct RegularHyperSlabAnswer {
 };
 
 struct RegularHyperSlabTestData {
+    std::string desc;
     HyperSlab slab;
     RegularHyperSlabAnswer answer;
 };
@@ -1067,33 +1068,33 @@ std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
     // Union, regular
     auto slab_bc_union = HyperSlab(slabs["b"]) | slabs["c"];
     auto answer_bc_union = RegularHyperSlabAnswer::createRegular({4ul, 3ul}, {3ul, 5ul});
-    test_data.push_back({slab_bc_union, answer_bc_union});
+    test_data.push_back({"b | c", slab_bc_union, answer_bc_union});
 
     // Intersection, always regular
     auto slab_ab_cut = HyperSlab(slabs["a"]) & slabs["b"];
     auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}},
                                                 {{0ul, 0ul}, {1ul, 0ul}}};
-    test_data.push_back({slab_ab_cut, answer_ab_cut});
+    test_data.push_back({"a & b", slab_ab_cut, answer_ab_cut});
 
     // Intersection, always regular
     auto slab_bc_cut = HyperSlab(slabs["b"]) & slabs["c"];
     auto answer_bc_cut = RegularHyperSlabAnswer::createRegular({5ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_bc_cut, answer_bc_cut});
+    test_data.push_back({"b & c", slab_bc_cut, answer_bc_cut});
 
     // Xor, regular
     auto slab_ad_xor = HyperSlab(slabs["a"]) ^ slabs["d"];
     auto answer_ad_xor = RegularHyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
-    test_data.push_back({slab_ad_xor, answer_ad_xor});
+    test_data.push_back({"a ^ b", slab_ad_xor, answer_ad_xor});
 
     // (not b) and c, regular
     auto slab_bc_nota = HyperSlab(slabs["b"]).notA(slabs["c"]);
     auto answer_bc_nota = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_bc_nota, answer_bc_nota});
+    test_data.push_back({"b notA a", slab_bc_nota, answer_bc_nota});
 
     // (not c) and b, regular
     auto slab_cb_notb = HyperSlab(slabs["c"]).notB(slabs["b"]);
     auto answer_cb_notb = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_cb_notb, answer_cb_notb});
+    test_data.push_back({"c notB b", slab_cb_notb, answer_cb_notb});
 
     return test_data;
 }
@@ -1137,16 +1138,18 @@ void regularHyperSlabSelectionTest() {
     auto test_cases = make_regular_hyperslab_test_data();
 
     for (const auto& test_case : test_cases) {
-        std::vector<std::vector<T>> result;
+        SECTION(test_case.desc) {
+            std::vector<std::vector<T>> result;
 
-        file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
 
-        auto n_selected = test_case.answer.global_indices.size();
-        for (size_t i = 0; i < n_selected; ++i) {
-            const auto ig = test_case.answer.global_indices[i];
-            const auto il = test_case.answer.local_indices[i];
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                const auto il = test_case.answer.local_indices[i];
 
-            REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
+                REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
+            }
         }
     }
 }
@@ -1161,6 +1164,7 @@ struct IrregularHyperSlabAnswer {
 };
 
 struct IrregularHyperSlabTestData {
+    std::string desc;
     HyperSlab slab;
     IrregularHyperSlabAnswer answer;
 };
@@ -1196,7 +1200,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
                     {3ul, 1ul}, {3ul, 2ul}
     }};
     // clang-format on
-    test_data.push_back({slab_ab_union, answer_ab_union});
+    test_data.push_back({"a | b", slab_ab_union, answer_ab_union});
 
     // xor, irregular
     auto slab_ab_xor = HyperSlab(slabs["a"]) ^ slabs["b"];
@@ -1207,7 +1211,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
                         {3ul, 1ul}, {3ul, 2ul}
         }};
     // clang-format on
-    test_data.push_back({slab_ab_xor, answer_ab_xor});
+    test_data.push_back({"a xor b", slab_ab_xor, answer_ab_xor});
 
     // (not a) and e, irregular
     auto slab_ab_nota = HyperSlab(slabs["a"]).notA(slabs["b"]);
@@ -1218,7 +1222,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
                         {3ul, 1ul}, {3ul, 2ul}
         }};
     // clang-format on
-    test_data.push_back({slab_ab_nota, answer_ab_nota});
+    test_data.push_back({"a nota b", slab_ab_nota, answer_ab_nota});
 
     // (not a) and e, irregular
     auto slab_ba_notb = HyperSlab(slabs["b"]).notB(slabs["a"]);
@@ -1229,7 +1233,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
                          {3ul, 1ul}, {3ul, 2ul}
         }};
     // clang-format on
-    test_data.push_back({slab_ba_notb, answer_ba_notb});
+    test_data.push_back({"b notb a", slab_ba_notb, answer_ba_notb});
 
     return test_data;
 }
@@ -1251,15 +1255,17 @@ void irregularHyperSlabSelectionReadTest() {
     auto test_cases = make_irregular_hyperslab_test_data();
 
     for (const auto& test_case : test_cases) {
-        std::vector<T> result;
+        SECTION(test_case.desc) {
+            std::vector<T> result;
 
-        file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
 
-        auto n_selected = test_case.answer.global_indices.size();
-        for (size_t i = 0; i < n_selected; ++i) {
-            const auto ig = test_case.answer.global_indices[i];
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
 
-            REQUIRE(result[i] == values[ig[0]][ig[1]]);
+                REQUIRE(result[i] == values[ig[0]][ig[1]]);
+            }
         }
     }
 }
