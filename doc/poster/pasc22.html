@@ -14,9 +14,9 @@
         crossorigin="anonymous"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
     <style>
-body {
-  padding-top: 60px;
-}
+      body {
+        padding-top: 60px;
+      }
       @media (max-width: 979px) {
         body {
           padding-top: 0px;
@@ -40,148 +40,150 @@ body {
               <li class="nav-item">
               </li>
             </ul>
+          </div>
         </nav>
-          </div>
-          <div class="container">
-            <h1>HighFive: An easy-to-use, header-only C++ library for HDF5</h1>
+      </div>
+      <div class="container">
+        <h1>HighFive: An easy-to-use, header-only C++ library for HDF5</h1>
 
-            <p><i>Nicolas Cornu<sup>1</sup>, Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
-              Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Tom de Geus<sup>2</sup>, Pramod
-              Kumbhar<sup>1</sup>, Fernando Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias
-              Wolf<sup>1</sup>, James King<sup>1</sup></i></p>
-          </div>
-          <div class="container">
-            <p>
-            <sup>1</sup> Blue Brain Project, École Polytechnique Fédérale de Lausanne, Switzerland<br/>
-            <sup>2</sup> Physics of Complex Systems Laboratory, École Polytechnique Fédérale de Lausanne,
-            Switzerland</p>
-          </div>
+        <p><i>Nicolas Cornu<sup>1</sup>, Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
+          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Tom de Geus<sup>2</sup>, Pramod
+          Kumbhar<sup>1</sup>, Fernando Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias
+          Wolf<sup>1</sup>, James King<sup>1</sup></i></p>
+      </div>
+      <div class="container">
+        <p>
+        <sup>1</sup> Blue Brain Project, École Polytechnique Fédérale de Lausanne, Switzerland<br/>
+        <sup>2</sup> Physics of Complex Systems Laboratory, École Polytechnique Fédérale de Lausanne,
+        Switzerland</p>
+      </div>
 
-          <div class="container">
-            <h2>Introduction</h2>
-            <p>The use of portable scientific data formats are vital for managing complex workflows,
-            reliable data storage, knowledge transfer, and long-term maintainability and
-            reproducibility.  Hierarchical Data Format (HDF) 5 is considered the de-facto
-            industry-standard for this purpose. While the official HDF5 library is versatile and
-            well supported, it only provides a low-level C/C++ interface. Lacking proper high-level
-            C++ abstractions dissuades the use of HDF5 in scientific applications. There are a
-            number of C++ wrapper libraries  available. Many, however, are domain-specific,
-            incomplete or not actively maintained.</p>
-            <p>HighFive is an attempt to address these challenges.</p>
-          </div>
-          <div class="container">
-            <h2>Basic use of HighFive</h2>
-            <p>It is an easy to use modern C++ header-only library that reduces most of the
-            book-keeping overhead required by HDF5. HighFive uses RAII to handle object life-times
-            and automatically handles reference counting on HDF5 objects. The library makes use of
-            C++ templating for automatic type mapping. These features significantly increase
-            programmer productivity and reduce coding bugs.</p>
-            <table class="table">
-              <thead>
-                <tr>
-                  <td>HighFive</td>
-                  <td>HDF5</td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="code container">
-                      <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="code container">
-                      <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="container mb-5">
+        <h2>Introduction</h2>
+        <p>The use of portable scientific data formats are vital for managing complex workflows,
+        reliable data storage, knowledge transfer, and long-term maintainability and
+        reproducibility.  Hierarchical Data Format (HDF) 5 is considered the de-facto
+        industry-standard for this purpose. While the official HDF5 library is versatile and
+        well supported, it only provides a low-level C/C++ interface. Lacking proper high-level
+        C++ abstractions dissuades the use of HDF5 in scientific applications. There are a
+        number of C++ wrapper libraries  available. Many, however, are domain-specific,
+        incomplete or not actively maintained.</p>
+        <p>HighFive is an attempt to address these challenges.</p>
+      </div>
+      <div class="container mb-5">
+        <h2>Basic use of HighFive</h2>
+        <p>It is an easy to use modern C++ header-only library that reduces most of the
+        book-keeping overhead required by HDF5. HighFive uses RAII to handle object life-times
+        and automatically handles reference counting on HDF5 objects. The library makes use of
+        C++ templating for automatic type mapping. These features significantly increase
+        programmer productivity and reduce coding bugs.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>HighFive</td>
+              <td>HDF5</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
+                </div>
+              </td>
+              <td>
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-          <div class="container">
-            <p>Its simplified data-management does not come at a loss of of HDF5's fledibility and
-            advanced features and tunable parameters are exposed through a simple interface. File
-            version bounds can be read and written to define object compatibility, the metadata
-            block size can be set. Group properties for compression, chunking and link info
-            estimates can be set and read:</p>
-            <div class="card w-75">
-              <div class="code card-body">
-                <pre class="font-monospace"><div class="example" id="example2"></div></pre>
+      <div class="container mb-5">
+        <p>Its simplified data-management does not come at a loss of of HDF5's fledibility and
+        advanced features and tunable parameters are exposed through a simple interface. File
+        version bounds can be read and written to define object compatibility, the metadata
+        block size can be set. Group properties for compression, chunking and link info
+        estimates can be set and read:</p>
+        <div class="card w-75">
+          <div class="code card-body">
+            <pre class="font-monospace"><div class="example" id="example2"></div></pre>
+          </div>
+        </div>
+      </div>
+      <div class="container mb-5">
+        <p>HighFive supports scalar and compound types as well as boost, Eigen and XTensor array
+        types:</p>
+        <div class="card w-75">
+          <div class="card-body">
+            <ul class="nav nav-tabs" id="highfive-type-support" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="compound-tab" data-bs-toggle="tab"
+                                                                  data-bs-target="#compound" type="button" role="tab" aria-controls="compound"
+                                                                                                                      aria-selected="true">Compound types</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="boost-tab" data-bs-toggle="tab" data-bs-target="#boost"
+                                                                             type="button" role="tab" aria-controls="boost" aria-selected="false">Boost</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eigen-tab" data-bs-toggle="tab" data-bs-target="#eigen"
+                                                                             type="button" role="tab" aria-controls="eigen" aria-selected="false">Eigen</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="highfive-type-support-content">
+              <div class="tab-pane fade show active" id="compound" role="tabpanel"
+                                                                   aria-labelledby="compound-tab">
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example3"></div></pre>
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="container">
-            <p>HighFive supports scalar and compound types as well as boost, Eigen and XTensor array
-            types:</p>
-            <div class="card w-75">
-              <div class="card-body">
-                <ul class="nav nav-tabs" id="highfive-type-support" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="compound-tab" data-bs-toggle="tab"
-                                                                      data-bs-target="#compound" type="button" role="tab" aria-controls="compound"
-                                                                                                                          aria-selected="true">Compound types</button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="boost-tab" data-bs-toggle="tab" data-bs-target="#boost"
-                                                                                 type="button" role="tab" aria-controls="boost" aria-selected="false">Boost</button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="eigen-tab" data-bs-toggle="tab" data-bs-target="#eigen"
-                                                                                 type="button" role="tab" aria-controls="eigen" aria-selected="false">Eigen</button>
-                  </li>
-                </ul>
-                <div class="tab-content" id="highfive-type-support-content">
-                  <div class="tab-pane fade show active" id="compound" role="tabpanel"
-                                                                       aria-labelledby="compound-tab">
-                    <div class="code container">
-                      <pre class="font-monospace"><div class="example" id="example3"></div></pre>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
-                    <div class="code container">
-                      <pre class="font-monospace"><div class="example" id="example4"></div></pre>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
-                    <div class="code container">
-                      <pre class="font-monospace"><div class="example" id="example5"></div></pre>
-                    </div>
-                  </div>
+              <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example4"></div></pre>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example5"></div></pre>
                 </div>
               </div>
             </div>
-
           </div>
-          <div class="container">
-            <p>HighFive supports the HDF5 MPI backend and can be natively used in
-            parallel applications:</p>
-            <div class="card w-75">
-              <div class="code card-body">
-                <pre class="font-monospace"><div class="example" id="example6"></div></pre>
-              </div>
-            </div>
+        </div>
+
+      </div>
+      <div class="container mb-5">
+        <p>HighFive supports the HDF5 MPI backend and can be natively used in
+        parallel applications:</p>
+        <div class="card w-75">
+          <div class="code card-body">
+            <pre class="font-monospace"><div class="example" id="example6"></div></pre>
           </div>
+        </div>
+      </div>
 
-          <div class="container">
-            <p>HighFive uses CMake and can be either used directly as a subfolder in a project or via
-            <code>find_project</code>.
-          </div> <!-- top level container -->
-          <!-- Example code loading -->
-          <script>
-            $(".example").each(function () {
-                          let cblock = this;
-                          let file = this.id+".cpp";
-                          $.ajax( {url: file, 
-                                        dataType: 'text',
-                                        isLocal: true,
-                                        success: function( code ) {
-                                                      res = hljs.highlight(code, {language: "cpp", ignoreIllegals: true });
-                                                      cblock.innerHTML = res.value;
-                                                    }});
+      <div class="container mb-5">
+        <p>HighFive uses CMake and can be either used directly as a subfolder in a project or via
+        <code>find_project</code>.
+      </div> <!-- top level container -->
+      <!-- Example code loading -->
+      <script>
+        $(".example").each(function () {
+                  let cblock = this;
+                  let file = this.id+".cpp";
+                  $.ajax( {url: file, 
+                            dataType: 'text',
+                            isLocal: true,
+                            success: function( code ) {
+                                      res = hljs.highlight(code, {language: "cpp", ignoreIllegals: true });
+                                      cblock.innerHTML = res.value;
+                                    }});
 
-                        });
-          </script>
+                });
+      </script>
+    </div>
   </body>
 </html>
