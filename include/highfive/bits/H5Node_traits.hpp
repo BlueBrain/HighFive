@@ -188,7 +188,7 @@ class NodeTraits {
                             const bool parents = true);
 
   private:
-    typedef Derivate derivate_type;
+    using derivate_type = Derivate;
 
     // A wrapper over the low-level H5Lexist
     // It makes behavior consistent among versions and by default transforms

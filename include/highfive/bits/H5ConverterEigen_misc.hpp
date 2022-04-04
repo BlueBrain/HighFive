@@ -41,7 +41,7 @@ inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
 // apply conversion to eigen matrix
 template <typename T, int M, int N>
 struct data_converter<Eigen::Matrix<T, M, N>, void> {
-    typedef Eigen::Matrix<T, M, N> MatrixTMN;
+    using MatrixTMN = Eigen::Matrix<T, M, N>;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions()) {
@@ -81,7 +81,7 @@ inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T, M, N>>& 
 // apply conversion to std::vector of eigen matrix
 template <typename T, int M, int N>
 struct data_converter<std::vector<Eigen::Matrix<T, M, N>>, void> {
-    typedef Eigen::Matrix<T, M, N> MatrixTMN;
+    using MatrixTMN = Eigen::Matrix<T, M, N>;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions())
@@ -129,7 +129,7 @@ struct data_converter<std::vector<Eigen::Matrix<T, M, N>>, void> {
 #ifdef H5_USE_BOOST
 template <typename T, int M, int N, std::size_t Dims>
 struct data_converter<boost::multi_array<Eigen::Matrix<T, M, N>, Dims>, void> {
-    typedef typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims> MultiArrayEigen;
+    using MultiArrayEigen = typename boost::multi_array<Eigen::Matrix<T, M, N>, Dims>;
 
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions())
