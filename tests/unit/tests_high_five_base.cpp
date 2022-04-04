@@ -1241,7 +1241,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
 template <typename T>
 void irregularHyperSlabSelectionReadTest() {
     std::ostringstream filename;
-    filename << "h5_rw_select_irregular_hyperslab_test_" << typeNameHelper<T>()
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>()
              << "_test.h5";
 
     const std::string DATASET_NAME("dset");
@@ -1270,7 +1270,7 @@ void irregularHyperSlabSelectionReadTest() {
     }
 }
 
-TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelection",
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead",
                         "[template]",
                         numerical_test_types) {
     irregularHyperSlabSelectionReadTest<TestType>();
