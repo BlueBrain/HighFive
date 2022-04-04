@@ -29,8 +29,7 @@ int main(void) {
         int perfect_number = 42;
 
         // Create the dataset
-        DataSet dataset = file.createDataSet<double>(
-            DATASET_NAME, DataSpace::From(perfect_number));
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(perfect_number));
 
         // write it
         dataset.write(perfect_number);
@@ -43,13 +42,12 @@ int main(void) {
 
         dataset.read(potentially_perfect_number);
 
-        std::cout << "perfect number: " << potentially_perfect_number
-                  << std::endl;
+        std::cout << "perfect number: " << potentially_perfect_number << std::endl;
 
     } catch (Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

@@ -24,9 +24,7 @@ const int ncols = 3;
 // Create a 2D dataset 10x3 of double with eigen matrix
 // and write it to a file
 int main(void) {
-
     try {
-
         Eigen::MatrixXd matrix(nrows, ncols);
 
         for (int i = 0; i < nrows; ++i) {
@@ -46,7 +44,7 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }
 
 #endif

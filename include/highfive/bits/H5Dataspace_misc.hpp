@@ -30,23 +30,20 @@ inline DataSpace::DataSpace(const std::array<size_t, N>& dims)
 inline DataSpace::DataSpace(const std::initializer_list<size_t>& items)
     : DataSpace(std::vector<size_t>(items)) {}
 
-template<typename... Args>
-    inline DataSpace::DataSpace(size_t dim1, Args... dims)
+template <typename... Args>
+inline DataSpace::DataSpace(size_t dim1, Args... dims)
     : DataSpace(std::vector<size_t>{dim1, static_cast<size_t>(dims)...}) {}
 
 template <class IT, typename>
 inline DataSpace::DataSpace(const IT begin, const IT end) {
     std::vector<hsize_t> real_dims(begin, end);
 
-    if ((_hid = H5Screate_simple(int(real_dims.size()), real_dims.data(),
-                                 NULL)) < 0) {
+    if ((_hid = H5Screate_simple(int(real_dims.size()), real_dims.data(), NULL)) < 0) {
         throw DataSpaceException("Impossible to create dataspace");
     }
 }
 
-inline DataSpace::DataSpace(const std::vector<size_t>& dims,
-                            const std::vector<size_t>& maxdims) {
-
+inline DataSpace::DataSpace(const std::vector<size_t>& dims, const std::vector<size_t>& maxdims) {
     if (dims.size() != maxdims.size()) {
         throw DataSpaceException("dims and maxdims must be the same length.");
     }
@@ -55,14 +52,15 @@ inline DataSpace::DataSpace(const std::vector<size_t>& dims,
     std::vector<hsize_t> real_maxdims(maxdims.begin(), maxdims.end());
 
     // Replace unlimited flag with actual HDF one
-    std::replace(real_maxdims.begin(), real_maxdims.end(),
-                 static_cast<hsize_t>(DataSpace::UNLIMITED), H5S_UNLIMITED);
+    std::replace(real_maxdims.begin(),
+                 real_maxdims.end(),
+                 static_cast<hsize_t>(DataSpace::UNLIMITED),
+                 H5S_UNLIMITED);
 
-    if ((_hid = H5Screate_simple(int(dims.size()), real_dims.data(),
-                                 real_maxdims.data())) < 0) {
+    if ((_hid = H5Screate_simple(int(dims.size()), real_dims.data(), real_maxdims.data())) < 0) {
         throw DataSpaceException("Impossible to create dataspace");
     }
-} // namespace HighFive
+}  // namespace HighFive
 
 inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
     H5S_class_t h5_dataspace_type;
@@ -74,8 +72,9 @@ inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
         h5_dataspace_type = H5S_NULL;
         break;
     default:
-        throw DataSpaceException("Invalid dataspace type: should be "
-                                 "dataspace_scalar or dataspace_null");
+        throw DataSpaceException(
+            "Invalid dataspace type: should be "
+            "dataspace_scalar or dataspace_null");
     }
 
     if ((_hid = H5Screate(h5_dataspace_type)) < 0) {
@@ -104,8 +103,7 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
     std::vector<hsize_t> dims(getNumberDimensions());
     if (!dims.empty()) {
         if (H5Sget_simple_extent_dims(_hid, dims.data(), NULL) < 0) {
-            HDF5ErrMapper::ToException<DataSetException>(
-                "Unable to get dataspace dimensions");
+            HDF5ErrMapper::ToException<DataSetException>("Unable to get dataspace dimensions");
         }
     }
     return details::to_vector_size_t(std::move(dims));
@@ -113,18 +111,18 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
 
 inline size_t DataSpace::getElementCount() const {
     const std::vector<size_t>& dims = getDimensions();
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u},
-                           std::multiplies<size_t>());
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
 }
 
 inline std::vector<size_t> DataSpace::getMaxDimensions() const {
     std::vector<hsize_t> maxdims(getNumberDimensions());
     if (H5Sget_simple_extent_dims(_hid, NULL, maxdims.data()) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            "Unable to get dataspace dimensions");
+        HDF5ErrMapper::ToException<DataSetException>("Unable to get dataspace dimensions");
     }
 
-    std::replace(maxdims.begin(), maxdims.end(), H5S_UNLIMITED,
+    std::replace(maxdims.begin(),
+                 maxdims.end(),
+                 H5S_UNLIMITED,
                  static_cast<hsize_t>(DataSpace::UNLIMITED));
     return details::to_vector_size_t(maxdims);
 }
@@ -136,7 +134,7 @@ inline DataSpace DataSpace::From(const T& value) {
 }
 
 template <std::size_t N, std::size_t Width>
-inline DataSpace DataSpace::FromCharArrayStrings(const char(&)[N][Width]) {
+inline DataSpace DataSpace::FromCharArrayStrings(const char (&)[N][Width]) {
     return DataSpace(N);
 }
 
@@ -166,7 +164,7 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
     return input_dims == 0 && dataset_dims == 1 && dims[dims.size() - 1] == 1;
 }
 
-} // namespace details
-} // namespace HighFive
+}  // namespace details
+}  // namespace HighFive
 
-#endif // H5DATASPACE_MISC_HPP
+#endif  // H5DATASPACE_MISC_HPP

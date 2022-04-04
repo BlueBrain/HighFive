@@ -37,8 +37,7 @@ class AnnotateTraits {
     /// informations
     /// \return Attribute Object
     template <typename Type>
-    Attribute createAttribute(const std::string& attribute_name,
-                              const DataSpace& space);
+    Attribute createAttribute(const std::string& attribute_name, const DataSpace& space);
 
     ///
     /// \brief createAttribute create a new attribute on the current dataset and
@@ -49,8 +48,7 @@ class AnnotateTraits {
     /// \return Attribute Object
     ///
     template <typename T>
-    Attribute createAttribute(const std::string& attribute_name,
-                              const T& data);
+    Attribute createAttribute(const std::string& attribute_name, const T& data);
 
     ///
     /// \brief deleteAttribute let you delete an attribute by its name.
@@ -81,7 +79,7 @@ class AnnotateTraits {
   private:
     typedef Derivate derivate_type;
 };
-}
+}  // namespace HighFive
 
 
-#endif // H5ANNOTATE_TRAITS_HPP
+#endif  // H5ANNOTATE_TRAITS_HPP

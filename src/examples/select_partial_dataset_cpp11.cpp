@@ -27,12 +27,11 @@ int main(void) {
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // we have some example values in a 2D vector 2x5
-        std::vector<std::vector<double>> values = {
-            {1.0, 2.0, 4.0, 8.0, 16.0}, {32.0, 64.0, 128.0, 256.0, 512.0}};
+        std::vector<std::vector<double>> values = {{1.0, 2.0, 4.0, 8.0, 16.0},
+                                                   {32.0, 64.0, 128.0, 256.0, 512.0}};
 
         // let's create a dataset of this size
-        DataSet dataset =
-            file.createDataSet<double>(DATASET_NAME, DataSpace::From(values));
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(values));
         // and write them
         dataset.write(values);
 
@@ -41,8 +40,8 @@ int main(void) {
         dataset.select({0, 2}, {2, 2}).read(result);
 
         // we print out 4 values
-        for (auto i : result) {
-            for (auto j : i) {
+        for (auto i: result) {
+            for (auto j: i) {
                 std::cout << " " << j;
             }
             std::cout << "\n";
@@ -53,5 +52,5 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

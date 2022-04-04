@@ -132,8 +132,8 @@ RegularHyperSlab getRegularHyperslab(const DataSpace& dataspace) {
     std::vector<hsize_t> count(n_dims);
     std::vector<hsize_t> block(n_dims);
 
-    if (H5Sget_regular_hyperslab(dataspace.getId(), offset.data(), stride.data(),
-                                 count.data(), block.data()) < 0) {
+    if (H5Sget_regular_hyperslab(
+            dataspace.getId(), offset.data(), stride.data(), count.data(), block.data()) < 0) {
         throw DataSpaceException("Failed to retrieve regular hyperslab.");
     }
 
@@ -204,20 +204,20 @@ class HyperSlab {
 
     DataSpace apply(const DataSpace& space_) const {
         auto space = space_.clone();
-        for (const auto& sel : selects) {
+        for (const auto& sel: selects) {
             if (sel.op == Op::None) {
                 H5Sselect_none(space.getId());
             } else {
-                auto error_code = H5Sselect_hyperslab(
-                    space.getId(), convert(sel.op),
-                    sel.offset.empty() ? nullptr : sel.offset.data(),
-                    sel.stride.empty() ? nullptr : sel.stride.data(),
-                    sel.count.empty() ? nullptr : sel.count.data(),
-                    sel.block.empty() ? nullptr : sel.block.data());
+                auto error_code =
+                    H5Sselect_hyperslab(space.getId(),
+                                        convert(sel.op),
+                                        sel.offset.empty() ? nullptr : sel.offset.data(),
+                                        sel.stride.empty() ? nullptr : sel.stride.data(),
+                                        sel.count.empty() ? nullptr : sel.count.data(),
+                                        sel.block.empty() ? nullptr : sel.block.data());
 
                 if (error_code < 0) {
-                    HDF5ErrMapper::ToException<DataSpaceException>(
-                        "Unable to select hyperslab");
+                    HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslab");
                 }
             }
         }
@@ -266,7 +266,7 @@ class HyperSlab {
         }
     }
 
-    struct Select_ : public RegularHyperSlab {
+    struct Select_: public RegularHyperSlab {
         Select_(const RegularHyperSlab& sel, Op op_)
             : RegularHyperSlab(sel)
             , op(op_) {}
@@ -353,8 +353,7 @@ class SliceTraits {
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
   protected:
-    inline Selection select_impl(const HyperSlab& hyperslab,
-                                 const DataSpace& memspace) const;
+    inline Selection select_impl(const HyperSlab& hyperslab, const DataSpace& memspace) const;
 };
 
 }  // namespace HighFive

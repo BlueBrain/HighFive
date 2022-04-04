@@ -32,13 +32,12 @@ class NodeTraits {
     /// \param accessProps A property list with data set access properties
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
-    DataSet
-    createDataSet(const std::string& dataset_name,
-                  const DataSpace& space,
-                  const DataType& type,
-                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                  bool parents = true);
+    DataSet createDataSet(const std::string& dataset_name,
+                          const DataSpace& space,
+                          const DataType& type,
+                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                          bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file with a
@@ -50,12 +49,11 @@ class NodeTraits {
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename Type>
-    DataSet
-    createDataSet(const std::string& dataset_name,
-                  const DataSpace& space,
-                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                  bool parents = true);
+    DataSet createDataSet(const std::string& dataset_name,
+                          const DataSpace& space,
+                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                          bool parents = true);
 
     ///
     /// \brief createDataSet create a new dataset in the current file and
@@ -68,30 +66,27 @@ class NodeTraits {
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename T>
-    DataSet
-    createDataSet(const std::string& dataset_name,
-                  const T& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                  bool parents = true);
+    DataSet createDataSet(const std::string& dataset_name,
+                          const T& data,
+                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                          bool parents = true);
 
 
     template <std::size_t N>
-    DataSet
-    createDataSet(const std::string& dataset_name,
-                  const FixedLenStringArray<N>& data,
-                  const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                  bool parents = true);
+    DataSet createDataSet(const std::string& dataset_name,
+                          const FixedLenStringArray<N>& data,
+                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                          bool parents = true);
 
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
     /// \param accessProps property list to configure dataset chunk cache
     /// \return return the named dataset, or throw exception if not found
-    DataSet getDataSet(
-        const std::string& dataset_name,
-        const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
+    DataSet getDataSet(const std::string& dataset_name,
+                       const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
 
     ///
     /// \brief create a new group, and eventually intermediate groups
@@ -106,7 +101,9 @@ class NodeTraits {
     /// \param createProps A property list with group creation properties
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return the group object
-    Group createGroup(const std::string& group_name, const GroupCreateProps& createProps, bool parents = true);
+    Group createGroup(const std::string& group_name,
+                      const GroupCreateProps& createProps,
+                      bool parents = true);
 
     ///
     /// \brief open an existing group with the name group_name

@@ -34,25 +34,18 @@ CompoundType create_compound_csl() {
 HIGHFIVE_REGISTER_TYPE(csl, create_compound_csl)
 
 int main(void) {
-
     try {
-
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create a simple compound type with automatic alignment of the
         // members. For this the type alignment is trivial.
-        std::vector<CompoundType::member_def> t_members({
-            {"real", AtomicType<int>{}},
-            {"imag", AtomicType<int>{}}
-        });
+        std::vector<CompoundType::member_def> t_members(
+            {{"real", AtomicType<int>{}}, {"imag", AtomicType<int>{}}});
         CompoundType t(t_members);
         t.commit(file, "new_type1");
 
         // Create a complex nested datatype with manual alignment
-        CompoundType u({{"u1", t, 0},
-                        {"u2", t, 9},
-                        {"u3", AtomicType<int>{}, 20}},
-                       26);
+        CompoundType u({{"u1", t, 0}, {"u2", t, 9}, {"u3", AtomicType<int>{}, 20}}, 26);
         u.commit(file, "new_type3");
 
         // Create a more complex type with automatic alignment. For this the
@@ -62,9 +55,8 @@ int main(void) {
                                {"u3", AtomicType<unsigned long long>{}}};
         // introspect the compound type
         std::cout << "v_aligned size: " << v_aligned.getSize();
-        for (const auto& member : v_aligned.getMembers()) {
-            std::cout << "  field " << member.name << " offset: " << member.offset
-                      << std::endl;
+        for (const auto& member: v_aligned.getMembers()) {
+            std::cout << "  field " << member.name << " offset: " << member.offset << std::endl;
         }
 
         v_aligned.commit(file, "new_type2_aligned");
@@ -94,7 +86,7 @@ int main(void) {
         std::vector<csl> result;
         dataset.select({0}, {2}).read(result);
 
-        for(size_t i = 0; i < data.size(); ++i) {
+        for (size_t i = 0; i < data.size(); ++i) {
             if (result[i] != data[i]) {
                 std::cout << "result[" << i << "]:" << std::endl;
                 std::cout << "    " << result[i].a << std::endl;
@@ -114,5 +106,5 @@ int main(void) {
         return 1;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

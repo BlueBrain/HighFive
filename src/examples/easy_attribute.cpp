@@ -23,8 +23,7 @@
 
 #include <highfive/H5Easy.hpp>
 
-int main()
-{
+int main() {
     H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
     std::vector<double> measurement = {1.0, 2.0, 3.0};
