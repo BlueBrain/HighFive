@@ -77,7 +77,7 @@ class AnnotateTraits {
     bool hasAttribute(const std::string& attr_name) const;
 
   private:
-    typedef Derivate derivate_type;
+    using derivate_type = Derivate;
 };
 }  // namespace HighFive
 
