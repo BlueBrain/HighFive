@@ -39,6 +39,7 @@ jobs:
       run: |
         cmake -B build -S . -DHIGHFIVE_USE_BOOST:Bool=OFF
         cmake --build build --target doc
+        cp -r doc/poster build/doc/html/
 
     - name: Deploy to GitHub Pages
       if: ${{ success() && github.ref == 'refs/heads/master' && github.event.push }}
