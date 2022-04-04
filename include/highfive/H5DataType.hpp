@@ -101,7 +101,7 @@ class AtomicType: public DataType {
   public:
     AtomicType();
 
-    using basic_type = T;
+    typedef T basic_type;
 };
 
 

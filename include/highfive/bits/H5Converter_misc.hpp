@@ -155,7 +155,7 @@ struct data_converter<CArray, typename std::enable_if<(is_c_array<CArray>::value
 // Generic container converter
 template <typename Container, typename T = typename inspector<Container>::base_type>
 struct container_converter {
-    using value_type = T;
+    typedef T value_type;
 
     inline container_converter(const DataSpace& space)
         : _space(space) {}

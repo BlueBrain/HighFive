@@ -216,21 +216,21 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 // Find the type of an eventual char array, otherwise void
 template <typename>
 struct type_char_array {
-    using type = void;
+    typedef void type;
 };
 
 template <typename T>
 struct type_char_array<T*> {
-    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
-                                           char*,
-                                           typename type_char_array<T>::type>::type;
+    typedef typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                      char*,
+                                      typename type_char_array<T>::type>::type type;
 };
 
 template <typename T, std::size_t N>
 struct type_char_array<T[N]> {
-    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
-                                           char[N],
-                                           typename type_char_array<T>::type>::type;
+    typedef typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                      char[N],
+                                      typename type_char_array<T>::type>::type type;
 };
 
 

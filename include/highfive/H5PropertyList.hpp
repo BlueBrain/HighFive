@@ -88,21 +88,21 @@ class PropertyList: public PropertyListBase {
     void _initializeIfNeeded();
 };
 
-using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
-using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
-using FileAccessProps = PropertyList<PropertyType::FILE_ACCESS>;
-using DataSetCreateProps = PropertyList<PropertyType::DATASET_CREATE>;
-using DataSetAccessProps = PropertyList<PropertyType::DATASET_ACCESS>;
-using DataTransferProps = PropertyList<PropertyType::DATASET_XFER>;
-using GroupCreateProps = PropertyList<PropertyType::GROUP_CREATE>;
-using GroupAccessProps = PropertyList<PropertyType::GROUP_ACCESS>;
-using DataTypeCreateProps = PropertyList<PropertyType::DATATYPE_CREATE>;
-using DataTypeAccessProps = PropertyList<PropertyType::DATATYPE_ACCESS>;
-using StringCreateProps = PropertyList<PropertyType::STRING_CREATE>;
-using AttributeCreateProps = PropertyList<PropertyType::ATTRIBUTE_CREATE>;
-using ObjectCopyProps = PropertyList<PropertyType::OBJECT_COPY>;
-using LinkCreateProps = PropertyList<PropertyType::LINK_CREATE>;
-using LinkAccessProps = PropertyList<PropertyType::LINK_ACCESS>;
+typedef PropertyList<PropertyType::OBJECT_CREATE> ObjectCreateProps;
+typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
+typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps;
+typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
+typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
+typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
+typedef PropertyList<PropertyType::GROUP_CREATE> GroupCreateProps;
+typedef PropertyList<PropertyType::GROUP_ACCESS> GroupAccessProps;
+typedef PropertyList<PropertyType::DATATYPE_CREATE> DataTypeCreateProps;
+typedef PropertyList<PropertyType::DATATYPE_ACCESS> DataTypeAccessProps;
+typedef PropertyList<PropertyType::STRING_CREATE> StringCreateProps;
+typedef PropertyList<PropertyType::ATTRIBUTE_CREATE> AttributeCreateProps;
+typedef PropertyList<PropertyType::OBJECT_COPY> ObjectCopyProps;
+typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
+typedef PropertyList<PropertyType::LINK_ACCESS> LinkAccessProps;
 
 ///
 /// RawPropertyLists are to be used when advanced H5 properties
