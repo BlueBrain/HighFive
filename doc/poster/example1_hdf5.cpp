@@ -29,6 +29,9 @@ void data_io() {
   status = H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
       data.data());
 
+  // close dataset after writing
+  status = H5Dclose(dset_id);
+
   // === Reading back from HDF5 into a vector
 
   // Retrieve result size and preallocate vector
