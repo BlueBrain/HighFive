@@ -146,7 +146,7 @@ class HyperSlab {
         selects.emplace_back(RegularHyperSlab{}, Op::None);
     };
 
-    HyperSlab(RegularHyperSlab sel) {
+    explicit HyperSlab(const RegularHyperSlab &sel) {
         selects.emplace_back(sel, Op::Set);
     }
 
