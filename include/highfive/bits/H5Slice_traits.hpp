@@ -265,7 +265,7 @@ class HyperSlab {
     }
 
     struct Select_ : public RegularHyperSlab {
-        Select_(RegularHyperSlab sel, Op op_)
+        Select_(const RegularHyperSlab &sel, Op op_)
             : RegularHyperSlab(sel)
             , op(op_) {}
 
