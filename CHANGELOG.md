@@ -1,4 +1,4 @@
-## Version 2.4.0 - 2022-04-01
+## Version 2.4.0 - 2022-04-04
 ### New Features
     - Construct a compound type from an already existing hid (#469). Thanks to Maximilian Nöthe.
     - Add support for long double (#494)
