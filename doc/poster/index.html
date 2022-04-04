@@ -46,10 +46,11 @@
       <div class="container">
         <h1>HighFive: An easy-to-use, header-only C++ library for HDF5</h1>
 
-        <p><i>Nicolas Cornu<sup>1</sup>, Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
-          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Tom de Geus<sup>2</sup>, Pramod
-          Kumbhar<sup>1</sup>, Fernando Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias
-          Wolf<sup>1</sup>, James King<sup>1</sup></i></p>
+        <p><i>Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
+          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Nicolas Cornu<sup>1</sup>, Tom de
+          Geus<sup>2</sup>, Luc Grosheintz-Laval<sup>1</sup>, Pramod Kumbhar<sup>1</sup>, Fernando
+          Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias Wolf<sup>1</sup>, James
+          King<sup>1</sup></i></p>
       </div>
       <div class="container">
         <p>
@@ -102,6 +103,7 @@
       </div>
 
       <div class="container mb-5">
+        <h2>Support for HDF5 advanced features</h2>
         <p>Its simplified data-management does not come at a loss of of HDF5's fledibility and
         advanced features and tunable parameters are exposed through a simple interface. File
         version bounds can be read and written to define object compatibility, the metadata
@@ -114,8 +116,13 @@
         </div>
       </div>
       <div class="container mb-5">
-        <p>HighFive supports scalar and compound types as well as boost, Eigen and XTensor array
-        types:</p>
+        <h2>Complex data types</h2>
+        <p>HighFive is built with scientific applications in mind. Besides scalar and simple STL
+        vectors it is possible to map C++ structs to HDF5 compound types and to read and write
+        Boost, Boost ublas, Eigen and XTensor array types. The library is also able to handle
+        combinations of array types (e.g. <code>std::vector&lt;Eigen::Matrix&gt;</code>). This is
+        achieved through various templated converters. Additionally, HighFive supports enums and
+        various string types.</p>
         <div class="card w-75">
           <div class="card-body">
             <ul class="nav nav-tabs" id="highfive-type-support" role="tablist">
@@ -127,6 +134,15 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="boost-tab" data-bs-toggle="tab" data-bs-target="#boost"
                                                                              type="button" role="tab" aria-controls="boost" aria-selected="false">Boost</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="boost-ublas-tab" data-bs-toggle="tab"
+                                                              data-bs-target="#boost-ublas"
+                                                                             type="button"
+                                                                             role="tab"
+                                                                           aria-controls="boost-ublas"
+                                                                           aria-selected="false">Boost
+                ublas</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="eigen-tab" data-bs-toggle="tab" data-bs-target="#eigen"
@@ -142,7 +158,13 @@
               </div>
               <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
                 <div class="code container">
-                  <pre class="font-monospace"><div class="example" id="example4"></div></pre>
+                  <pre class="font-monospace"><div class="example" id="example_boost"></div></pre>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="boost-ublas" role="tabpanel"
+                aria-labelledby="boost-ublas-tab">
+                <div class="code container">
+                  <pre class="font-monospace"><div class="example" id="example_boost_ublas"></div></pre>
                 </div>
               </div>
               <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
@@ -156,8 +178,12 @@
 
       </div>
       <div class="container mb-5">
-        <p>HighFive supports the HDF5 MPI backend and can be natively used in
-        parallel applications:</p>
+        <h2>HighFive for parallel applications</h2>
+        <p>With the aim to support large-scale scientific application, we have made an effort to
+        also natively support the HDF5 MPI backend in HighFive. A special
+        <code>MPIOFileDriver</code> is used in the applicaiton code to ensure that HDF5 is correctly
+        initialized. No other special API calls are required since all necessary provisions are
+        handled transparently.</p>
         <div class="card w-75">
           <div class="code card-body">
             <pre class="font-monospace"><div class="example" id="example6"></div></pre>
@@ -166,9 +192,29 @@
       </div>
 
       <div class="container mb-5">
-        <p>HighFive uses CMake and can be either used directly as a subfolder in a project or via
-        <code>find_project</code>.
+        <h2>Obtaining and building HighFive</h2>
+        <p>HighFive is developed open-source and can be cloned and forked from
+        <a href=https://github.com/BlueBrain/HighFive">github</a>. It can also be installed via
+        spack. Being a header-only library, HighFive can be used directly as a subfolder in a C++
+        project, for example by adding it as a submodule. It can also be installed (we use the CMake
+        build system) and added to a project using the <code>find_project</code> CMake function.
+        More details can be found in the <a href=""https://github.com/BlueBrain/HighFive/blob/master/README.md>README.md</a>
+        file.
+        </p>
       </div> <!-- top level container -->
+      <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+          <div class="col-md-4 d-flex align-items-left">
+            <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+              <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
+            </a>
+            <span class="text-muted">© 2022 Blue Brain Project/EPFL</span>
+          </div>
+          <div class="col-md-4 justify-content-end list-unstyled d-flex">
+            <span class="text-muted">Boost Software License 1.0</span>
+          </div>
+        </footer>
+      </div>
       <!-- Example code loading -->
       <script>
         $(".example").each(function () {
