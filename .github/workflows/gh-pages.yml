@@ -39,6 +39,8 @@ jobs:
         )
         cmake -B build -S . "${CMAKE_OPTIONS[@]}"
         cmake --build build --target doc
+        echo ${{ github.ref }}
+        echo ${{ github.event.push }}
 
     - name: Deploy to GitHub Pages
       if: ${{ success() && github.ref == 'refs/heads/master' && github.event.push }}
