@@ -23,8 +23,7 @@
 
 #include <highfive/H5Easy.hpp>
 
-int main()
-{
+int main() {
     H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
     // plain options
@@ -39,19 +38,19 @@ int main()
     {
         std::vector<double> B = {1.0, 2.0, 3.0};
 
-        H5Easy::dump(file, "/path/to/B", B,
-            H5Easy::DumpOptions(H5Easy::Compression()));
+        H5Easy::dump(file, "/path/to/B", B, H5Easy::DumpOptions(H5Easy::Compression()));
 
-        H5Easy::dump(file, "/path/to/B", B,
-            H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
+        H5Easy::dump(file,
+                     "/path/to/B",
+                     B,
+                     H5Easy::DumpOptions(H5Easy::Compression(), H5Easy::DumpMode::Overwrite));
     }
 
     // advanced - compression - set compression level
     {
         std::vector<double> C = {1.0, 2.0, 3.0};
 
-        H5Easy::dump(file, "/path/to/C", C,
-            H5Easy::DumpOptions(H5Easy::Compression(8)));
+        H5Easy::dump(file, "/path/to/C", C, H5Easy::DumpOptions(H5Easy::Compression(8)));
     }
 
     // advanced - compression - set compression level & chunk size
@@ -80,8 +79,7 @@ int main()
     {
         std::vector<double> F = {1.0, 2.0, 3.0};
 
-        H5Easy::dump(file, "/path/to/F", F,
-            H5Easy::DumpOptions(H5Easy::Flush::False));
+        H5Easy::dump(file, "/path/to/F", F, H5Easy::DumpOptions(H5Easy::Flush::False));
 
         file.flush();
     }

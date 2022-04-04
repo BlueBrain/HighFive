@@ -39,7 +39,8 @@ inline unsigned convert_open_flag(unsigned openFlags) {
 }  // namespace
 
 
-inline File::File(const std::string& filename, unsigned openFlags,
+inline File::File(const std::string& filename,
+                  unsigned openFlags,
                   const FileAccessProps& fileAccessProps) {
     openFlags = convert_open_flag(openFlags);
 
@@ -53,11 +54,13 @@ inline File::File(const std::string& filename, unsigned openFlags,
     if (!mustCreate) {
         // Silence open errors if create is allowed
         std::unique_ptr<SilenceHDF5> silencer;
-        if (openOrCreate) silencer.reset(new SilenceHDF5());
+        if (openOrCreate)
+            silencer.reset(new SilenceHDF5());
 
         _hid = H5Fopen(filename.c_str(), openMode, fileAccessProps.getId());
 
-        if (isValid()) return;  // Done
+        if (isValid())
+            return;  // Done
 
         if (openOrCreate) {
             // Will attempt to create ensuring wont clobber any file
@@ -68,18 +71,16 @@ inline File::File(const std::string& filename, unsigned openFlags,
         }
     }
 
-    if ((_hid = H5Fcreate(filename.c_str(), createMode, H5P_DEFAULT,
-                          fileAccessProps.getId())) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to create file " + filename));
+    if ((_hid = H5Fcreate(filename.c_str(), createMode, H5P_DEFAULT, fileAccessProps.getId())) <
+        0) {
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + filename));
     }
 }
 
 inline const std::string& File::getName() const noexcept {
     if (_filename.empty()) {
-        _filename = details::get_name([this](char* buffer, hsize_t length) {
-            return H5Fget_name(getId(), buffer, length);
-        });
+        _filename = details::get_name(
+            [this](char* buffer, hsize_t length) { return H5Fget_name(getId(), buffer, length); });
     }
     return _filename;
 }
@@ -107,8 +108,7 @@ inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
 
 inline void File::flush() {
     if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to flush file " + getName()));
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to flush file " + getName()));
     }
 }
 

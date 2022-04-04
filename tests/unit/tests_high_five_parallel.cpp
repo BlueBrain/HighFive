@@ -31,7 +31,9 @@ struct MpiFixture {
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &size);
     }
-    ~MpiFixture() { MPI_Finalize(); }
+    ~MpiFixture() {
+        MPI_Finalize();
+    }
 
     int rank;
     int size;
@@ -39,7 +41,6 @@ struct MpiFixture {
 
 template <typename T>
 void selectionArraySimpleTestParallel() {
-
     int mpi_rank, mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
@@ -65,8 +66,7 @@ void selectionArraySimpleTestParallel() {
     adam.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, adam);
 
-    DataSet dataset =
-        file.createDataSet<T>(DATASET_NAME, DataSpace::From(values));
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(values));
 
     dataset.write(values);
 

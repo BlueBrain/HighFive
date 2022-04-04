@@ -20,33 +20,29 @@ namespace H5Easy {
 namespace detail {
 
 template <typename T>
-struct io_impl<
-    T,
-    typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T>::value>::type> {
-
+struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T>::value>::type> {
     // abbreviate row-major <-> col-major conversions
     template <typename S>
-    struct types
-    {
+    struct types {
         using row_major = Eigen::Ref<
-            const Eigen::Array<
-                typename std::decay<T>::type::Scalar,
-                std::decay<T>::type::RowsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-                std::decay<T>::type::MaxRowsAtCompileTime,
-                std::decay<T>::type::MaxColsAtCompileTime>,
+            const Eigen::Array<typename std::decay<T>::type::Scalar,
+                               std::decay<T>::type::RowsAtCompileTime,
+                               std::decay<T>::type::ColsAtCompileTime,
+                               std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor
+                                                                           : Eigen::RowMajor,
+                               std::decay<T>::type::MaxRowsAtCompileTime,
+                               std::decay<T>::type::MaxColsAtCompileTime>,
             0,
             Eigen::InnerStride<1>>;
 
-        using col_major = Eigen::Map<
-            Eigen::Array<
-                typename std::decay<T>::type::Scalar,
-                std::decay<T>::type::RowsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime,
-                std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor : Eigen::RowMajor,
-                std::decay<T>::type::MaxRowsAtCompileTime,
-                std::decay<T>::type::MaxColsAtCompileTime>>;
+        using col_major =
+            Eigen::Map<Eigen::Array<typename std::decay<T>::type::Scalar,
+                                    std::decay<T>::type::RowsAtCompileTime,
+                                    std::decay<T>::type::ColsAtCompileTime,
+                                    std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor
+                                                                                : Eigen::RowMajor,
+                                    std::decay<T>::type::MaxRowsAtCompileTime,
+                                    std::decay<T>::type::MaxColsAtCompileTime>>;
     };
 
     // return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"

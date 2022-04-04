@@ -23,8 +23,7 @@
 
 #include <highfive/H5Easy.hpp>
 
-int main()
-{
+int main() {
     H5Easy::File file("example.h5", H5Easy::File::Overwrite);
 
     // (over)write and read scalar
@@ -70,7 +69,7 @@ int main()
     // (over)write and read Eigen::Matrix
     {
         // matrix
-        Eigen::MatrixXd D = Eigen::MatrixXd::Random(10,5);
+        Eigen::MatrixXd D = Eigen::MatrixXd::Random(10, 5);
 
         H5Easy::dump(file, "/path/to/D", D);
         H5Easy::dump(file, "/path/to/D", D, H5Easy::DumpMode::Overwrite);
@@ -90,12 +89,12 @@ int main()
 #ifdef H5_USE_XTENSOR
     // (over)write and read xt::xtensor (or xt::xarray)
     {
-        xt::xtensor<size_t,1> E = xt::arange<size_t>(10);
+        xt::xtensor<size_t, 1> E = xt::arange<size_t>(10);
 
         H5Easy::dump(file, "/path/to/E", E);
         H5Easy::dump(file, "/path/to/E", E, H5Easy::DumpMode::Overwrite);
 
-        E = H5Easy::load<xt::xtensor<size_t,1>>(file, "/path/to/E");
+        E = H5Easy::load<xt::xtensor<size_t, 1>>(file, "/path/to/E");
     }
 #endif
 

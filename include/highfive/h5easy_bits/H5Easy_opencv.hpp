@@ -20,29 +20,24 @@ namespace H5Easy {
 namespace detail {
 
 template <class T>
-struct is_opencv : std::false_type {};
+struct is_opencv: std::false_type {};
 template <class T>
-struct is_opencv<cv::Mat_<T>> : std::true_type {};
+struct is_opencv<cv::Mat_<T>>: std::true_type {};
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
-
-    inline static std::vector<size_t> shape(const T& data)
-    {
-        return std::vector<size_t>{static_cast<size_t>(data.rows),
-                                   static_cast<size_t>(data.cols)};
+    inline static std::vector<size_t> shape(const T& data) {
+        return std::vector<size_t>{static_cast<size_t>(data.rows), static_cast<size_t>(data.cols)};
     }
 
     inline static std::vector<int> shape(const File& file,
                                          const std::string& path,
-                                         std::vector<size_t> dims)
-    {
+                                         std::vector<size_t> dims) {
         if (dims.size() == 1) {
             return std::vector<int>{static_cast<int>(dims[0]), 1ul};
         }
         if (dims.size() == 2) {
-            return std::vector<int>{static_cast<int>(dims[0]),
-                                    static_cast<int>(dims[1])};
+            return std::vector<int>{static_cast<int>(dims[0]), static_cast<int>(dims[1])};
         }
 
         throw detail::error(file, path, "H5Easy::load: Inconsistent rank");

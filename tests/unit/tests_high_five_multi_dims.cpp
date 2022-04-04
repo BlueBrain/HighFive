@@ -87,8 +87,7 @@ TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
 
 
 template <typename T, typename VectorSubT>
-void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec,
-                           const std::vector<size_t>& dims) {
+void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec, const std::vector<size_t>& dims) {
     fillVec(ndvec, dims, ContentGenerate<T>());
 
     std::vector<VectorSubT> result;
@@ -119,7 +118,6 @@ TEMPLATE_LIST_TEST_CASE("readWrite4DVector", "[template]", numerical_test_types)
 }
 
 
-
 #ifdef H5_USE_BOOST
 
 template <typename T>
@@ -139,8 +137,7 @@ void MultiArray3DTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME,
-                                            DataSpace::From(array));
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(array));
 
     dataset.write(array);
 

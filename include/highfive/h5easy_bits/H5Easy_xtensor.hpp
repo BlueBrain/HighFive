@@ -21,7 +21,6 @@ namespace detail {
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
-
     inline static std::vector<size_t> shape(const T& data) {
         return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
@@ -40,7 +39,8 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
     }
 
     inline static T load(const File& file, const std::string& path) {
-        static_assert(xt::has_data_interface<T>::value,
+        static_assert(
+            xt::has_data_interface<T>::value,
             "Cannot load to xt::xfunction or xt::xgenerator, use e.g. xt::xtensor or xt::xarray");
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
@@ -66,7 +66,8 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
     inline static T loadAttribute(const File& file,
                                   const std::string& path,
                                   const std::string& key) {
-        static_assert(xt::has_data_interface<T>::value,
+        static_assert(
+            xt::has_data_interface<T>::value,
             "Cannot load to xt::xfunction or xt::xgenerator, use e.g. xt::xtensor or xt::xarray");
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);

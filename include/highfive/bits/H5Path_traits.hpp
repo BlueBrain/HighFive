@@ -14,8 +14,7 @@ namespace HighFive {
 
 template <typename Derivate>
 class PathTraits {
-
-public:
+  public:
     PathTraits();
 
     ///
@@ -29,9 +28,8 @@ public:
     File& getFile() const noexcept;
 
 
-protected:
+  protected:
     std::shared_ptr<File> _file_obj;  // keep a ref to file so we keep its ref count > 0
-
 };
 
-} // namespace HighFive
+}  // namespace HighFive

@@ -29,13 +29,23 @@ int main(void) {
         {
             // We have a set of string
             std::vector<std::string> values = {
-                "Cat", "Dog",  "Hello", "Tree", "World",     "Plane",
-                ", ",  "你好", "Tea",   "Moon", "صباح جميل", "Spaceship",
+                "Cat",
+                "Dog",
+                "Hello",
+                "Tree",
+                "World",
+                "Plane",
+                ", ",
+                "你好",
+                "Tea",
+                "Moon",
+                "صباح جميل",
+                "Spaceship",
             };
 
             // let's create a dataset
-            DataSet dataset = file.createDataSet<std::string>(
-                DATASET_NAME, DataSpace::From(values));
+            DataSet dataset = file.createDataSet<std::string>(DATASET_NAME,
+                                                              DataSpace::From(values));
 
             // and write them
             dataset.write(values);
@@ -50,7 +60,7 @@ int main(void) {
             dataset.select(ElementSet({2, 4, 6, 7, 6, 10})).read(result);
 
             // and display it
-            for (auto i : result) {
+            for (auto i: result) {
                 std::cout << i << " ";
             }
             std::cout << "\n";
@@ -61,5 +71,5 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }
