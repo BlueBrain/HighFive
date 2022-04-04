@@ -72,53 +72,69 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
 }
 
 template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select_impl(const HyperSlab& hyperslab,
+                                                    const DataSpace& memspace) const {
+
+    // Note: The current limitation are that memspace must describe a
+    //       packed memspace.
+    //
+    //       The reason for this is that we're unable to unpack general
+    //       hyperslabs when the memory is not contiguous, e.g.
+    //       `std::vector<std::vector<double>>`.
+    const auto& slice = static_cast<const Derivate&>(*this);
+    auto filespace = hyperslab.apply(slice.getSpace());
+
+    return Selection(memspace, filespace, details::get_dataset(slice));
+}
+
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) const {
+    const auto& slice = static_cast<const Derivate&>(*this);
+    auto filespace = slice.getSpace();
+
+    if (!hyper_slab.isRegular(filespace)) {
+        throw DataSpaceException("Irregular hyperslabs are not supported.");
+    }
+
+    filespace = hyper_slab.apply(filespace);
+    auto regular_slab = getRegularHyperslab(filespace);
+    auto memspace = DataSpace(regular_slab.packedDims());
+
+    return Selection(memspace, filespace, details::get_dataset(slice));
+}
+
+
+template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
                                                const std::vector<size_t>& count,
                                                const std::vector<size_t>& stride) const {
-    // hsize_t type conversion
-    // TODO : normalize hsize_t type in HighFive namespace
-    const auto& slice = static_cast<const Derivate&>(*this);
-    std::vector<hsize_t> offset_local(offset.size());
-    std::vector<hsize_t> count_local(count.size());
-    std::vector<hsize_t> stride_local(stride.size());
-    std::copy(offset.begin(), offset.end(), offset_local.begin());
-    std::copy(count.begin(), count.end(), count_local.begin());
-    std::copy(stride.begin(), stride.end(), stride_local.begin());
 
-    DataSpace space = slice.getSpace().clone();
-    if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_SET, offset_local.data(),
-                            stride.empty() ? NULL : stride_local.data(),
-                            count_local.data(), NULL) < 0) {
-        HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
-    }
-
-    return Selection(DataSpace(count), space, details::get_dataset(slice));
+    auto slab = HyperSlab(RegularHyperSlab(offset, count, stride));
+    auto memspace = DataSpace(count);
+    return select_impl(slab, memspace);
 }
 
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& columns) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& space = slice.getSpace();
-    const DataSet& dataset = details::get_dataset(slice);
     std::vector<size_t> dims = space.getDimensions();
-    std::vector<hsize_t> counts(dims.size());
-    std::copy(dims.begin(), dims.end(), counts.begin());
-    counts[dims.size() - 1] = 1;
-    std::vector<hsize_t> offsets(dims.size(), 0);
 
-    H5Sselect_none(space.getId());
+    std::vector<size_t> counts = dims;
+    counts.back() = 1;
 
+    std::vector<size_t> offsets(dims.size(), 0);
+
+    HyperSlab slab;
     for (const auto& column : columns) {
-        offsets[offsets.size() - 1] = column;
-
-        if (H5Sselect_hyperslab(space.getId(), H5S_SELECT_OR, offsets.data(), 0,
-                                counts.data(), 0) < 0) {
-            HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslap");
-        }
+        offsets.back() = column;
+        slab |= RegularHyperSlab(offsets, counts);
     }
 
-    dims[dims.size() - 1] = columns.size();
-    return Selection(DataSpace(dims), space, dataset);
+    std::vector<size_t> memdims = dims;
+    memdims.back() = columns.size();
+
+    return select_impl(slab, DataSpace(memdims));
 }
 
 template <typename Derivate>
@@ -173,7 +189,6 @@ inline void SliceTraits<Derivate>::read(T& array) const {
     // re-arrange results
     converter.process_result(array);
 }
-
 
 template <typename Derivate>
 template <typename T>

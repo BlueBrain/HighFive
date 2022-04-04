@@ -986,6 +986,199 @@ TEMPLATE_LIST_TEST_CASE("columnSelection", "[template]", numerical_test_types) {
     columnSelectionTest<TestType>();
 }
 
+std::vector<std::array<size_t, 2>> global_indices_2d(const std::vector<size_t>& offset,
+                                                     const std::vector<size_t>& count) {
+
+    std::vector<std::array<size_t, 2>> indices;
+    indices.reserve(count[0] * count[1]);
+
+    for (size_t i = 0; i < count[0]; ++i) {
+        for (size_t j = 0; j < count[1]; ++j) {
+            indices.push_back({offset[0] + i, offset[1] + j});
+        }
+    }
+
+    return indices;
+}
+
+std::vector<std::array<size_t, 2>> local_indices_2d(const std::vector<size_t>& count) {
+    return global_indices_2d({0ul, 0ul}, count);
+}
+
+struct HyperSlabAnswer {
+    static HyperSlabAnswer createIrregular() {
+        return HyperSlabAnswer{true, {}, {}};
+    }
+
+    static HyperSlabAnswer createRegular(const std::vector<size_t>& offset,
+                                         const std::vector<size_t>& count) {
+        return HyperSlabAnswer{false, global_indices_2d(offset, count),
+                               local_indices_2d(count)};
+    }
+
+    bool expect_failure;
+
+    // These are the selected indices in the
+    // outer (larger) array.
+    std::vector<std::array<size_t, 2>> global_indices;
+
+    // These are the selected indices in the compacted (inner)
+    // array.
+    std::vector<std::array<size_t, 2>> local_indices;
+};
+
+struct HyperSlabTestData {
+    HyperSlab slab;
+    HyperSlabAnswer answer;
+};
+
+std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
+
+    // The dataset is 10x8, we define the following regular
+    // hyperslabs:
+    //  x----------------x
+    //  |                |
+    //  | x------x   e   |  1
+    //  | |  a   |       |
+    //  x-|------|-------x  3
+    //  | |    x-|-------x  4
+    //  | |    | |  b    |
+    //  | |    c-|-------c  5
+    //  | |    b-|-------b  6
+    //  | |    | |  c    |
+    //  | d----x-d-------x  7
+    //  | |  d   |       |
+    //  | a------a       |  9
+    //  |                |
+    //  ------------------
+    //    1    3 4       8
+
+    auto slab_a = RegularHyperSlab(/* offset = */ {1ul, 1ul},
+                                   /* count = */ {8ul, 3ul});
+
+    auto slab_b = RegularHyperSlab(/* offset = */ {4ul, 3ul},
+                                   /* count = */ {2ul, 5ul});
+
+    auto slab_c = RegularHyperSlab(/* offset = */ {5ul, 3ul},
+                                   /* count = */ {2ul, 5ul});
+
+    auto slab_d = RegularHyperSlab(/* offset = */ {7ul, 1ul},
+                                   /* count = */ {2ul, 3ul});
+
+    auto slab_e = RegularHyperSlab(/* offset = */ {0ul, 0ul},
+                                   /* count = */ {3ul, 8ul});
+
+    std::vector<HyperSlabTestData> test_data;
+
+    // Union, irregular
+    auto slab_ab_union = HyperSlab(slab_a) | slab_b;
+    auto answer_ab_union = HyperSlabAnswer::createIrregular();
+    test_data.push_back({slab_ab_union, answer_ab_union});
+
+    // Union, regular
+    auto slab_bc_union = HyperSlab(slab_b) | slab_c;
+    auto answer_bc_union = HyperSlabAnswer::createRegular({4ul, 3ul}, {3ul, 5ul});
+    test_data.push_back({slab_bc_union, answer_bc_union});
+
+    // Intersection, always regular
+    auto slab_ab_cut = HyperSlab(slab_a) & slab_b;
+    auto answer_ab_cut = HyperSlabAnswer{
+        false, {{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
+    test_data.push_back({slab_ab_cut, answer_ab_cut});
+
+    // Intersection, always regular
+    auto slab_bc_cut = HyperSlab(slab_b) & slab_c;
+    auto answer_bc_cut = HyperSlabAnswer::createRegular({5ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({slab_bc_cut, answer_bc_cut});
+
+    // Xor, regular
+    auto slab_ad_xor = HyperSlab(slab_a) ^ slab_d;
+    auto answer_ad_xor = HyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
+    test_data.push_back({slab_ad_xor, answer_ad_xor});
+
+    // Xor, irregular
+    auto slab_ac_xor = HyperSlab(slab_a) ^ slab_c;
+    auto answer_ac_xor = HyperSlabAnswer::createIrregular();
+    test_data.push_back({slab_ac_xor, answer_ac_xor});
+
+    // (not b) and c, regular
+    auto slab_bc_nota = HyperSlab(slab_b).notA(slab_c);
+    auto answer_bc_nota = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({slab_bc_nota, answer_bc_nota});
+
+    // (not a) and e, irregular
+    auto slab_ae_nota = HyperSlab(slab_a).notA(slab_e);
+    auto answer_ae_nota = HyperSlabAnswer::createIrregular();
+    test_data.push_back({slab_ae_nota, answer_ae_nota});
+
+    // (not c) and b, regular
+    auto slab_cb_notb = HyperSlab(slab_c).notB(slab_b);
+    auto answer_cb_notb = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({slab_cb_notb, answer_cb_notb});
+
+    // (not a) and e, irregular
+    auto slab_ea_notb = HyperSlab(slab_e).notB(slab_a);
+    auto answer_ea_notb = HyperSlabAnswer::createIrregular();
+    test_data.push_back({slab_ea_notb, answer_ea_notb});
+
+    return test_data;
+}
+
+template <typename T>
+void hyperSlabSelectionTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>()
+             << "_test.h5";
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    const std::string DATASET_NAME("dset");
+
+    T values[x_size][y_size];
+
+    ContentGenerate<T> generator;
+    generate2D(values, x_size, y_size, generator);
+
+    // Create a new file using the default property lists.
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+
+    // Create the data space for the dataset.
+    std::vector<size_t> dims{x_size, y_size};
+
+    DataSpace dataspace(dims);
+    // Create a dataset with arbitrary type
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
+
+    dataset.write(values);
+    file.flush();
+
+    auto test_cases = make_regular_hyperslab_test_data();
+
+    for (const auto& test_case : test_cases) {
+        if (test_case.answer.expect_failure) {
+            SilenceHDF5 silence;
+            CHECK_THROWS_AS(dataset.select(test_case.slab), DataSpaceException);
+        } else {
+            std::vector<std::vector<T>> result;
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                const auto il = test_case.answer.local_indices[i];
+
+                REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("hyperSlabSelection", "[template]", numerical_test_types) {
+    hyperSlabSelectionTest<TestType>();
+}
+
 template <typename T>
 void attribute_scalar_rw() {
     std::ostringstream filename;

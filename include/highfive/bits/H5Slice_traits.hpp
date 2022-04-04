@@ -49,10 +49,239 @@ class ElementSet {
     friend class SliceTraits;
 };
 
+bool isRegularHyperslab(const DataSpace& dataspace) {
+    htri_t ret;
+    if ((ret = H5Sis_regular_hyperslab(dataspace.getId())) < 0) {
+        throw DataSpaceException("`H5Sis_regular_hyperslab` failed.");
+    }
+
+    return ret > 0;
+}
+
+namespace detail {
+template <class To, class From>
+std::vector<To> convertSizeVector(const std::vector<From>& from) {
+    std::vector<To> to(from.size());
+    std::copy(from.cbegin(), from.cend(), to.begin());
+
+    return to;
+}
+}  // namespace detail
+
+inline std::vector<hsize_t> toHDF5SizeVector(const std::vector<size_t>& from) {
+    return detail::convertSizeVector<hsize_t>(from);
+}
+
+inline std::vector<size_t> toSTLSizeVector(const std::vector<hsize_t>& from) {
+    return detail::convertSizeVector<size_t>(from);
+}
+
+struct RegularHyperSlab {
+    RegularHyperSlab() = default;
+
+    RegularHyperSlab(std::vector<size_t> offset_,
+                     std::vector<size_t> count_ = {},
+                     std::vector<size_t> stride_ = {},
+                     std::vector<size_t> block_ = {})
+        : offset(toHDF5SizeVector(offset_))
+        , count(toHDF5SizeVector(count_))
+        , stride(toHDF5SizeVector(stride_))
+        , block(toHDF5SizeVector(block_)) {}
+
+    static RegularHyperSlab fromHDF5Sizes(std::vector<hsize_t> offset_,
+                                          std::vector<hsize_t> count_ = {},
+                                          std::vector<hsize_t> stride_ = {},
+                                          std::vector<hsize_t> block_ = {}) {
+        RegularHyperSlab slab;
+        slab.offset = offset_;
+        slab.count = count_;
+        slab.stride = stride_;
+        slab.block = block_;
+
+        return slab;
+    }
+
+    size_t rank() const {
+        return std::max(std::max(offset.size(), count.size()),
+                        std::max(stride.size(), block.size()));
+    }
+
+    /// Dimensions when all gaps are removed.
+    std::vector<size_t> packedDims() const {
+        auto n_dims = rank();
+        auto dims = std::vector<size_t>(n_dims, 0);
+
+        for (size_t i = 0; i < n_dims; ++i) {
+            dims[i] = count[i] * (block.empty() ? 1 : block[i]);
+        }
+
+        return dims;
+    }
+
+    std::vector<hsize_t> offset;
+    std::vector<hsize_t> count;
+    std::vector<hsize_t> stride;
+    std::vector<hsize_t> block;
+};
+
+RegularHyperSlab getRegularHyperslab(const DataSpace& dataspace) {
+    auto n_dims = dataspace.getNumberDimensions();
+
+    std::vector<hsize_t> offset(n_dims);
+    std::vector<hsize_t> stride(n_dims);
+    std::vector<hsize_t> count(n_dims);
+    std::vector<hsize_t> block(n_dims);
+
+    if (H5Sget_regular_hyperslab(dataspace.getId(), offset.data(), stride.data(),
+                                 count.data(), block.data()) < 0) {
+        throw DataSpaceException("Failed to retrieve regular hyperslab.");
+    }
+
+    return RegularHyperSlab::fromHDF5Sizes(offset, count, stride, block);
+}
+
+class HyperSlab {
+  public:
+    HyperSlab() {
+        selects.emplace_back(RegularHyperSlab{}, Op::None);
+    };
+
+    HyperSlab(RegularHyperSlab sel) {
+        selects.emplace_back(sel, Op::Set);
+    }
+
+    HyperSlab operator|(const RegularHyperSlab& sel) const {
+        auto ret = *this;
+        ret |= sel;
+        return ret;
+    }
+
+    HyperSlab& operator|=(const RegularHyperSlab& sel) {
+        selects.emplace_back(sel, Op::Or);
+        return *this;
+    }
+
+    HyperSlab operator&(const RegularHyperSlab& sel) const {
+        auto ret = *this;
+        ret &= sel;
+        return ret;
+    }
+
+    HyperSlab& operator&=(const RegularHyperSlab& sel) {
+        selects.emplace_back(sel, Op::And);
+        return *this;
+    }
+
+    HyperSlab operator^(const RegularHyperSlab& sel) const {
+        auto ret = *this;
+        ret ^= sel;
+        return ret;
+    }
+
+    HyperSlab& operator^=(const RegularHyperSlab& sel) {
+        selects.emplace_back(sel, Op::Xor);
+        return *this;
+    }
+
+    HyperSlab& notA(const RegularHyperSlab& sel) {
+        selects.emplace_back(sel, Op::NotA);
+        return *this;
+    }
+
+    HyperSlab& notB(const RegularHyperSlab& sel) {
+        selects.emplace_back(sel, Op::NotB);
+        return *this;
+    }
+
+    bool isRegular(const DataSpace& dataspace) const {
+        if (selects.empty()) {
+            return true;
+        }
+
+        auto selection = apply(dataspace);
+        return isRegularHyperslab(selection);
+    }
+
+    DataSpace apply(const DataSpace& space_) const {
+        auto space = space_.clone();
+        for (const auto& sel : selects) {
+            if (sel.op == Op::None) {
+                H5Sselect_none(space.getId());
+            } else {
+                if (H5Sselect_hyperslab(space.getId(), convert(sel.op),
+                                        sel.offset.empty() ? nullptr : sel.offset.data(),
+                                        sel.stride.empty() ? nullptr : sel.stride.data(),
+                                        sel.count.empty() ? nullptr : sel.count.data(),
+                                        sel.block.empty() ? nullptr : sel.block.data()) <
+                    0) {
+                    HDF5ErrMapper::ToException<DataSpaceException>(
+                        "Unable to select hyperslab");
+                }
+            }
+        }
+        return space;
+    }
+
+  private:
+    enum Op {
+        Noop,
+        Set,
+        Or,
+        And,
+        Xor,
+        NotB,
+        NotA,
+        Append,
+        Prepend,
+        Invalid,
+        None,
+    };
+
+    H5S_seloper_t convert(Op op) const {
+        switch (op) {
+        case Noop:
+            return H5S_SELECT_NOOP;
+        case Set:
+            return H5S_SELECT_SET;
+        case Or:
+            return H5S_SELECT_OR;
+        case And:
+            return H5S_SELECT_AND;
+        case Xor:
+            return H5S_SELECT_XOR;
+        case NotB:
+            return H5S_SELECT_NOTB;
+        case NotA:
+            return H5S_SELECT_NOTA;
+        case Append:
+            return H5S_SELECT_APPEND;
+        case Prepend:
+            return H5S_SELECT_PREPEND;
+        case Invalid:
+            return H5S_SELECT_INVALID;
+        default:
+            return H5S_SELECT_INVALID;
+        }
+    }
+
+    struct Select_ : public RegularHyperSlab {
+        Select_(RegularHyperSlab sel, Op op_)
+            : RegularHyperSlab(sel)
+            , op(op_) {}
+
+        Op op;
+    };
+
+    std::vector<Select_> selects;
+};
 
 template <typename Derivate>
 class SliceTraits {
   public:
+    ///
+    /// \brief Select an \p hyperslab in the current Slice/Dataset
+    Selection select(const HyperSlab& hyperslab) const;
+
     ///
     /// \brief Select a region in the current Slice/Dataset of \p count points at
     /// \p offset separated by \p stride. If strides are not provided they will
@@ -121,6 +350,10 @@ class SliceTraits {
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
+
+  protected:
+    inline Selection select_impl(const HyperSlab& hyperslab,
+                                 const DataSpace& memspace) const;
 };
 
 }  // namespace HighFive
