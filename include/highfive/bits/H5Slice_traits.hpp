@@ -208,12 +208,14 @@ class HyperSlab {
             if (sel.op == Op::None) {
                 H5Sselect_none(space.getId());
             } else {
-                if (H5Sselect_hyperslab(space.getId(), convert(sel.op),
-                                        sel.offset.empty() ? nullptr : sel.offset.data(),
-                                        sel.stride.empty() ? nullptr : sel.stride.data(),
-                                        sel.count.empty() ? nullptr : sel.count.data(),
-                                        sel.block.empty() ? nullptr : sel.block.data()) <
-                    0) {
+                auto error_code = H5Sselect_hyperslab(
+                    space.getId(), convert(sel.op),
+                    sel.offset.empty() ? nullptr : sel.offset.data(),
+                    sel.stride.empty() ? nullptr : sel.stride.data(),
+                    sel.count.empty() ? nullptr : sel.count.data(),
+                    sel.block.empty() ? nullptr : sel.block.data());
+
+                if (error_code < 0) {
                     HDF5ErrMapper::ToException<DataSpaceException>(
                         "Unable to select hyperslab");
                 }
