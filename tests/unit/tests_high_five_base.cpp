@@ -1005,16 +1005,11 @@ std::vector<std::array<size_t, 2>> local_indices_2d(const std::vector<size_t>& c
 }
 
 struct HyperSlabAnswer {
-    static HyperSlabAnswer createIrregular() {
-        return HyperSlabAnswer{true, {}, {}};
-    }
-
     static HyperSlabAnswer createRegular(const std::vector<size_t>& offset,
                                          const std::vector<size_t>& count) {
-        return HyperSlabAnswer{false, global_indices_2d(offset, count), local_indices_2d(count)};
+        return HyperSlabAnswer{global_indices_2d(offset, count),
+                               local_indices_2d(count)};
     }
-
-    bool expect_failure;
 
     // These are the selected indices in the
     // outer (larger) array.
@@ -1067,10 +1062,10 @@ std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
 
     std::vector<HyperSlabTestData> test_data;
 
-    // Union, irregular
-    auto slab_ab_union = HyperSlab(slab_a) | slab_b;
-    auto answer_ab_union = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ab_union, answer_ab_union});
+//    // Union, irregular
+//    auto slab_ab_union = HyperSlab(slab_a) | slab_b;
+//    auto answer_ab_union = HyperSlabAnswer::createIrregular();
+//    test_data.push_back({slab_ab_union, answer_ab_union});
 
     // Union, regular
     auto slab_bc_union = HyperSlab(slab_b) | slab_c;
@@ -1079,7 +1074,8 @@ std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
 
     // Intersection, always regular
     auto slab_ab_cut = HyperSlab(slab_a) & slab_b;
-    auto answer_ab_cut = HyperSlabAnswer{false, {{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
+    auto answer_ab_cut = HyperSlabAnswer{
+        {{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
     test_data.push_back({slab_ab_cut, answer_ab_cut});
 
     // Intersection, always regular
@@ -1092,30 +1088,30 @@ std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
     auto answer_ad_xor = HyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
     test_data.push_back({slab_ad_xor, answer_ad_xor});
 
-    // Xor, irregular
-    auto slab_ac_xor = HyperSlab(slab_a) ^ slab_c;
-    auto answer_ac_xor = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ac_xor, answer_ac_xor});
+//    // Xor, irregular
+//    auto slab_ac_xor = HyperSlab(slab_a) ^ slab_c;
+//    auto answer_ac_xor = HyperSlabAnswer::createIrregular();
+//    test_data.push_back({slab_ac_xor, answer_ac_xor});
 
     // (not b) and c, regular
     auto slab_bc_nota = HyperSlab(slab_b).notA(slab_c);
     auto answer_bc_nota = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
     test_data.push_back({slab_bc_nota, answer_bc_nota});
 
-    // (not a) and e, irregular
-    auto slab_ae_nota = HyperSlab(slab_a).notA(slab_e);
-    auto answer_ae_nota = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ae_nota, answer_ae_nota});
+//    // (not a) and e, irregular
+//    auto slab_ae_nota = HyperSlab(slab_a).notA(slab_e);
+//    auto answer_ae_nota = HyperSlabAnswer::createIrregular();
+//    test_data.push_back({slab_ae_nota, answer_ae_nota});
 
     // (not c) and b, regular
     auto slab_cb_notb = HyperSlab(slab_c).notB(slab_b);
     auto answer_cb_notb = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
     test_data.push_back({slab_cb_notb, answer_cb_notb});
 
-    // (not a) and e, irregular
-    auto slab_ea_notb = HyperSlab(slab_e).notB(slab_a);
-    auto answer_ea_notb = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ea_notb, answer_ea_notb});
+//    // (not a) and e, irregular
+//    auto slab_ea_notb = HyperSlab(slab_e).notB(slab_a);
+//    auto answer_ea_notb = HyperSlabAnswer::createIrregular();
+//    test_data.push_back({slab_ea_notb, answer_ea_notb});
 
     return test_data;
 }
@@ -1150,22 +1146,17 @@ void hyperSlabSelectionTest() {
 
     auto test_cases = make_regular_hyperslab_test_data();
 
-    for (const auto& test_case: test_cases) {
-        if (test_case.answer.expect_failure) {
-            SilenceHDF5 silence;
-            CHECK_THROWS_AS(dataset.select(test_case.slab), DataSpaceException);
-        } else {
-            std::vector<std::vector<T>> result;
+    for (const auto& test_case : test_cases) {
+        std::vector<std::vector<T>> result;
 
-            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+        file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
 
-            auto n_selected = test_case.answer.global_indices.size();
-            for (size_t i = 0; i < n_selected; ++i) {
-                const auto ig = test_case.answer.global_indices[i];
-                const auto il = test_case.answer.local_indices[i];
+        auto n_selected = test_case.answer.global_indices.size();
+        for (size_t i = 0; i < n_selected; ++i) {
+            const auto ig = test_case.answer.global_indices[i];
+            const auto il = test_case.answer.local_indices[i];
 
-                REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
-            }
+            REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
         }
     }
 }

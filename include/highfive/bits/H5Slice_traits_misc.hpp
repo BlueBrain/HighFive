@@ -90,16 +90,20 @@ template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     auto filespace = slice.getSpace();
-
-    if (!hyper_slab.isRegular(filespace)) {
-        throw DataSpaceException("Irregular hyperslabs are not supported.");
-    }
-
     filespace = hyper_slab.apply(filespace);
-    auto regular_slab = getRegularHyperslab(filespace);
-    auto memspace = DataSpace(regular_slab.packedDims());
 
-    return Selection(memspace, filespace, details::get_dataset(slice));
+    if (hyper_slab.isRegular(filespace)) {
+        auto regular_slab = getRegularHyperslab(filespace);
+        auto memspace = DataSpace(regular_slab.packedDims());
+
+        return Selection(memspace, filespace, details::get_dataset(slice));
+    }
+    else {
+        auto n_elements = H5Sget_select_npoints(filespace.getId());
+        auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
+
+        return Selection(memspace, filespace, details::get_dataset(slice));
+    }
 }
 
 
