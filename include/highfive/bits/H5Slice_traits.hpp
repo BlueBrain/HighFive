@@ -223,7 +223,7 @@ class HyperSlab {
     }
 
   private:
-    enum Op {
+    enum class Op {
         Noop,
         Set,
         Or,
@@ -239,25 +239,25 @@ class HyperSlab {
 
     H5S_seloper_t convert(Op op) const {
         switch (op) {
-        case Noop:
+        case Op::Noop:
             return H5S_SELECT_NOOP;
-        case Set:
+        case Op::Set:
             return H5S_SELECT_SET;
-        case Or:
+        case Op::Or:
             return H5S_SELECT_OR;
-        case And:
+        case Op::And:
             return H5S_SELECT_AND;
-        case Xor:
+        case Op::Xor:
             return H5S_SELECT_XOR;
-        case NotB:
+        case Op::NotB:
             return H5S_SELECT_NOTB;
-        case NotA:
+        case Op::NotA:
             return H5S_SELECT_NOTA;
-        case Append:
+        case Op::Append:
             return H5S_SELECT_APPEND;
-        case Prepend:
+        case Op::Prepend:
             return H5S_SELECT_PREPEND;
-        case Invalid:
+        case Op::Invalid:
             return H5S_SELECT_INVALID;
         default:
             return H5S_SELECT_INVALID;
