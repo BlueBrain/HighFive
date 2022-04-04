@@ -146,7 +146,7 @@ class HyperSlab {
         selects.emplace_back(RegularHyperSlab{}, Op::None);
     };
 
-    explicit HyperSlab(const RegularHyperSlab &sel) {
+    explicit HyperSlab(const RegularHyperSlab& sel) {
         selects.emplace_back(sel, Op::Set);
     }
 
@@ -267,7 +267,7 @@ class HyperSlab {
     }
 
     struct Select_ : public RegularHyperSlab {
-        Select_(const RegularHyperSlab &sel, Op op_)
+        Select_(const RegularHyperSlab& sel, Op op_)
             : RegularHyperSlab(sel)
             , op(op_) {}
 
@@ -352,7 +352,6 @@ class SliceTraits {
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
-
   protected:
     inline Selection select_impl(const HyperSlab& hyperslab,
                                  const DataSpace& memspace) const;
@@ -360,4 +359,4 @@ class SliceTraits {
 
 }  // namespace HighFive
 
-#endif // H5SLICE_TRAITS_HPP
+#endif  // H5SLICE_TRAITS_HPP
