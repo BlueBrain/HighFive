@@ -21,8 +21,8 @@ void data_io() {
       H5P_DEFAULT);
 
   // creating a dataset
-  dset_id = H5Screate_simple(1, dims, NULL);
-  dset_id = H5Dcreate2(group_id, "group/dset1", H5T_STD_I32BE, dspace_id,
+  dspace_id = H5Screate_simple(1, dims, NULL);
+  dset_id = H5Dcreate2(group_id, "dset1", H5T_STD_I32BE, dspace_id,
       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   // writing the data
