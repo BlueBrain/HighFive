@@ -1107,34 +1107,42 @@ std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
     return test_data;
 }
 
-template <typename T>
-void regularHyperSlabSelectionTest() {
-    std::ostringstream filename;
-    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t x_size = 10;
-    const size_t y_size = 8;
-
-    const std::string DATASET_NAME("dset");
-
-    T values[x_size][y_size];
-
+template <class T, size_t x_size, size_t y_size>
+File setupHyperSlabFile(T (&values)[x_size][y_size],
+                        const std::string& filename,
+                        const std::string& dataset_name) {
     ContentGenerate<T> generator;
     generate2D(values, x_size, y_size, generator);
 
     // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+    File file(filename, File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
     std::vector<size_t> dims{x_size, y_size};
 
     DataSpace dataspace(dims);
     // Create a dataset with arbitrary type
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
+    DataSet dataset = file.createDataSet<T>(dataset_name, dataspace);
 
     dataset.write(values);
     file.flush();
 
+    return file;
+}
+
+template <typename T>
+void regularHyperSlabSelectionTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>()
+             << "_test.h5";
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T values[x_size][y_size];
+
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
     auto test_cases = make_regular_hyperslab_test_data();
 
     for (const auto& test_case : test_cases) {
@@ -1236,33 +1244,18 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
 }
 
 template <typename T>
-void irregularHyperSlabSelectionTest() {
+void irregularHyperSlabSelectionReadTest() {
     std::ostringstream filename;
     filename << "h5_rw_select_irregular_hyperslab_test_" << typeNameHelper<T>()
              << "_test.h5";
 
+    const std::string DATASET_NAME("dset");
+
     const size_t x_size = 10;
     const size_t y_size = 8;
 
-    const std::string DATASET_NAME("dset");
-
     T values[x_size][y_size];
-
-    ContentGenerate<T> generator;
-    generate2D(values, x_size, y_size, generator);
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    // Create the data space for the dataset.
-    std::vector<size_t> dims{x_size, y_size};
-
-    DataSpace dataspace(dims);
-    // Create a dataset with arbitrary type
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
-
-    dataset.write(values);
-    file.flush();
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
 
     auto test_cases = make_irregular_hyperslab_test_data();
 
@@ -1283,7 +1276,7 @@ void irregularHyperSlabSelectionTest() {
 TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelection",
                         "[template]",
                         numerical_test_types) {
-    irregularHyperSlabSelectionTest<TestType>();
+    irregularHyperSlabSelectionReadTest<TestType>();
 }
 
 template <typename T>
