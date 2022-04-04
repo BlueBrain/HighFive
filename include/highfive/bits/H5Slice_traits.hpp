@@ -61,8 +61,7 @@ inline bool isRegularHyperslab(const DataSpace& dataspace) {
 namespace detail {
 
 template <class To, class From>
-inline
-std::vector<To> convertSizeVector(const std::vector<From>& from) {
+inline std::vector<To> convertSizeVector(const std::vector<From>& from) {
     std::vector<To> to(from.size());
     std::copy(from.cbegin(), from.cend(), to.begin());
 
