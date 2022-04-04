@@ -146,7 +146,7 @@ class HyperSlab {
         selects.emplace_back(RegularHyperSlab{}, Op::None);
     };
 
-    HyperSlab(RegularHyperSlab sel) {
+    explicit HyperSlab(const RegularHyperSlab& sel) {
         selects.emplace_back(sel, Op::Set);
     }
 
@@ -208,12 +208,14 @@ class HyperSlab {
             if (sel.op == Op::None) {
                 H5Sselect_none(space.getId());
             } else {
-                if (H5Sselect_hyperslab(space.getId(), convert(sel.op),
-                                        sel.offset.empty() ? nullptr : sel.offset.data(),
-                                        sel.stride.empty() ? nullptr : sel.stride.data(),
-                                        sel.count.empty() ? nullptr : sel.count.data(),
-                                        sel.block.empty() ? nullptr : sel.block.data()) <
-                    0) {
+                auto error_code = H5Sselect_hyperslab(
+                    space.getId(), convert(sel.op),
+                    sel.offset.empty() ? nullptr : sel.offset.data(),
+                    sel.stride.empty() ? nullptr : sel.stride.data(),
+                    sel.count.empty() ? nullptr : sel.count.data(),
+                    sel.block.empty() ? nullptr : sel.block.data());
+
+                if (error_code < 0) {
                     HDF5ErrMapper::ToException<DataSpaceException>(
                         "Unable to select hyperslab");
                 }
@@ -223,7 +225,7 @@ class HyperSlab {
     }
 
   private:
-    enum Op {
+    enum class Op {
         Noop,
         Set,
         Or,
@@ -239,33 +241,33 @@ class HyperSlab {
 
     H5S_seloper_t convert(Op op) const {
         switch (op) {
-        case Noop:
+        case Op::Noop:
             return H5S_SELECT_NOOP;
-        case Set:
+        case Op::Set:
             return H5S_SELECT_SET;
-        case Or:
+        case Op::Or:
             return H5S_SELECT_OR;
-        case And:
+        case Op::And:
             return H5S_SELECT_AND;
-        case Xor:
+        case Op::Xor:
             return H5S_SELECT_XOR;
-        case NotB:
+        case Op::NotB:
             return H5S_SELECT_NOTB;
-        case NotA:
+        case Op::NotA:
             return H5S_SELECT_NOTA;
-        case Append:
+        case Op::Append:
             return H5S_SELECT_APPEND;
-        case Prepend:
+        case Op::Prepend:
             return H5S_SELECT_PREPEND;
-        case Invalid:
+        case Op::Invalid:
             return H5S_SELECT_INVALID;
         default:
-            return H5S_SELECT_INVALID;
+            throw DataSpaceException("Invalid HyperSlab operation.");
         }
     }
 
     struct Select_ : public RegularHyperSlab {
-        Select_(RegularHyperSlab sel, Op op_)
+        Select_(const RegularHyperSlab& sel, Op op_)
             : RegularHyperSlab(sel)
             , op(op_) {}
 
@@ -350,7 +352,6 @@ class SliceTraits {
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
-
   protected:
     inline Selection select_impl(const HyperSlab& hyperslab,
                                  const DataSpace& memspace) const;
@@ -358,4 +359,4 @@ class SliceTraits {
 
 }  // namespace HighFive
 
-#endif // H5SLICE_TRAITS_HPP
+#endif  // H5SLICE_TRAITS_HPP
