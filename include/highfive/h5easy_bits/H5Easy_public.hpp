@@ -13,8 +13,7 @@
 
 namespace H5Easy {
 
-inline Compression::Compression(bool enable)
-{
+inline Compression::Compression(bool enable) {
     if (enable) {
         m_compression_level = 9;
     } else {
@@ -23,75 +22,61 @@ inline Compression::Compression(bool enable)
 }
 
 template <class T>
-inline Compression::Compression(T level) : m_compression_level(static_cast<unsigned>(level))
-{
-}
+inline Compression::Compression(T level)
+    : m_compression_level(static_cast<unsigned>(level)) {}
 
-inline unsigned Compression::get() const
-{
+inline unsigned Compression::get() const {
     return m_compression_level;
 }
 
-inline void DumpOptions::set(DumpMode mode)
-{
+inline void DumpOptions::set(DumpMode mode) {
     m_overwrite = static_cast<bool>(mode);
 }
 
-inline void DumpOptions::set(Flush mode)
-{
+inline void DumpOptions::set(Flush mode) {
     m_flush = static_cast<bool>(mode);
 }
 
-inline void DumpOptions::set(const Compression& level)
-{
+inline void DumpOptions::set(const Compression& level) {
     m_compression_level = level.get();
 }
 
 template <class T, class... Args>
-inline void DumpOptions::set(T arg, Args... args)
-{
+inline void DumpOptions::set(T arg, Args... args) {
     set(arg);
     set(args...);
 }
 
 template <class T>
-inline void DumpOptions::setChunkSize(const std::vector<T>& shape)
-{
+inline void DumpOptions::setChunkSize(const std::vector<T>& shape) {
     m_chunk_size = std::vector<hsize_t>(shape.begin(), shape.end());
 }
 
-inline void DumpOptions::setChunkSize(std::initializer_list<size_t> shape)
-{
+inline void DumpOptions::setChunkSize(std::initializer_list<size_t> shape) {
     m_chunk_size = std::vector<hsize_t>(shape.begin(), shape.end());
 }
 
-inline bool DumpOptions::overwrite() const
-{
+inline bool DumpOptions::overwrite() const {
     return m_overwrite;
 }
 
-inline bool DumpOptions::flush() const
-{
+inline bool DumpOptions::flush() const {
     return m_flush;
 }
 
-inline bool DumpOptions::compress() const
-{
+inline bool DumpOptions::compress() const {
     return m_compression_level > 0;
 }
 
-inline unsigned DumpOptions::getCompressionLevel() const
-{
+inline unsigned DumpOptions::getCompressionLevel() const {
     return m_compression_level;
 }
 
-inline bool DumpOptions::isChunked() const
-{
+inline bool DumpOptions::isChunked() const {
     return m_chunk_size.size() > 0;
 }
 
-inline std::vector<hsize_t> DumpOptions::getChunkSize() const
-{
+inline std::vector<hsize_t> DumpOptions::getChunkSize() const {
     return m_chunk_size;
 }
 
@@ -112,10 +97,7 @@ inline DataSet dump(File& file,
 }
 
 template <class T>
-inline DataSet dump(File& file,
-                    const std::string& path,
-                    const T& data,
-                    DumpMode mode) {
+inline DataSet dump(File& file, const std::string& path, const T& data, DumpMode mode) {
     return detail::io_impl<T>::dump(file, path, data, DumpOptions(mode));
 }
 

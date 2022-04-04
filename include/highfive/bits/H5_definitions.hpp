@@ -56,7 +56,6 @@ namespace details {
 template <typename T, typename Enable = void>
 struct data_converter;
 
-}
+}  // namespace details
 
 }  // namespace HighFive
-

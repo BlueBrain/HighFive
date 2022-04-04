@@ -87,9 +87,10 @@ class Object {
     hid_t _hid;
 
   private:
-
-    template <typename Derivate> friend class NodeTraits;
-    template <typename Derivate> friend class AnnotateTraits;
+    template <typename Derivate>
+    friend class NodeTraits;
+    template <typename Derivate>
+    friend class AnnotateTraits;
     friend class Reference;
     friend class CompoundType;
 };
@@ -98,7 +99,7 @@ class Object {
 ///
 /// \brief A class for accessing hdf5 objects info
 ///
-class ObjectInfo  {
+class ObjectInfo {
   public:
     /// \brief Retrieve the address of the object (within its file)
     H5_DEPRECATED("Deprecated since HighFive 2.2. Soon supporting VOL tokens")
@@ -114,7 +115,6 @@ class ObjectInfo  {
     time_t getModificationTime() const noexcept;
 
   protected:
-
 #if (H5Oget_info_vers < 3)
     H5O_info_t raw_info;
 #else
@@ -129,4 +129,4 @@ class ObjectInfo  {
 
 #include "bits/H5Object_misc.hpp"
 
-#endif // H5OBJECT_HPP
+#endif  // H5OBJECT_HPP

@@ -56,7 +56,7 @@ class Reference {
   protected:
     /// \brief Create a Reference from a low-level HDF5 object reference
     inline explicit Reference(const hobj_ref_t h5_ref)
-        : href(h5_ref) {};
+        : href(h5_ref){};
 
     /// \brief Create the low-level reference and store it at refptr
     ///
@@ -65,7 +65,6 @@ class Reference {
     void create_ref(hobj_ref_t* refptr) const;
 
   private:
-
     Object get_ref(const Object& location) const;
 
     hobj_ref_t href{};

@@ -21,10 +21,8 @@ namespace HighFive {
 ///
 /// \brief Class representing an attribute of a dataset or group
 ///
-class Attribute : public Object,
-                  public PathTraits<Attribute> {
+class Attribute: public Object, public PathTraits<Attribute> {
   public:
-
     const static ObjectType type = ObjectType::Attribute;
 
     ///
@@ -91,10 +89,11 @@ class Attribute : public Object,
   private:
     using Object::Object;
 
-    template <typename Derivate> friend class ::HighFive::AnnotateTraits;
+    template <typename Derivate>
+    friend class ::HighFive::AnnotateTraits;
 };
 
 }  // namespace HighFive
 
 
-#endif // H5ATTRIBUTE_HPP
+#endif  // H5ATTRIBUTE_HPP

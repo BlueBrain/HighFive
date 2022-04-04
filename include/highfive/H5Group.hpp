@@ -21,10 +21,10 @@ namespace HighFive {
 
 ///
 /// \brief Represents an hdf5 group
-class Group : public Object,
-              public NodeTraits<Group>,
-              public AnnotateTraits<Group>,
-              public PathTraits<Group> {
+class Group: public Object,
+             public NodeTraits<Group>,
+             public AnnotateTraits<Group>,
+             public PathTraits<Group> {
   public:
     const static ObjectType type = ObjectType::Group;
 
@@ -36,11 +36,13 @@ class Group : public Object,
   protected:
     using Object::Object;
 
-    Group(Object&& o) noexcept : Object(std::move(o)) {};
+    Group(Object&& o) noexcept
+        : Object(std::move(o)){};
 
     friend class File;
     friend class Reference;
-    template <typename Derivate> friend class ::HighFive::NodeTraits;
+    template <typename Derivate>
+    friend class ::HighFive::NodeTraits;
 };
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
@@ -57,4 +59,4 @@ inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const
 
 }  // namespace HighFive
 
-#endif // HIGHFIVE_H5GROUP_HPP
+#endif  // HIGHFIVE_H5GROUP_HPP

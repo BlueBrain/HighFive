@@ -12,7 +12,8 @@
 namespace HighFive {
 
 inline Selection::Selection(const DataSpace& memspace,
-                            const DataSpace& file_space, const DataSet& set)
+                            const DataSpace& file_space,
+                            const DataSet& set)
     : _mem_space(memspace)
     , _file_space(file_space)
     , _set(set) {}
@@ -40,4 +41,4 @@ inline const DataType Selection::getDataType() const {
 
 }  // namespace HighFive
 
-#endif // H5SELECTION_MISC_HPP
+#endif  // H5SELECTION_MISC_HPP

@@ -25,12 +25,11 @@ namespace HighFive {
 ///
 /// \brief Class representing a dataset.
 ///
-class DataSet : public Object,
-                public SliceTraits<DataSet>,
-                public AnnotateTraits<DataSet>,
-                public PathTraits<DataSet> {
+class DataSet: public Object,
+               public SliceTraits<DataSet>,
+               public AnnotateTraits<DataSet>,
+               public PathTraits<DataSet> {
   public:
-
     const static ObjectType type = ObjectType::Dataset;
 
     ///
@@ -96,13 +95,14 @@ class DataSet : public Object,
   protected:
     using Object::Object;  // bring DataSet(hid_t)
 
-    DataSet(Object&& o) noexcept : Object(std::move(o)) {}
+    DataSet(Object&& o) noexcept
+        : Object(std::move(o)) {}
 
     friend class Reference;
-    template <typename Derivate> friend class NodeTraits;
-
+    template <typename Derivate>
+    friend class NodeTraits;
 };
 
 }  // namespace HighFive
 
-#endif // H5DATASET_HPP
+#endif  // H5DATASET_HPP

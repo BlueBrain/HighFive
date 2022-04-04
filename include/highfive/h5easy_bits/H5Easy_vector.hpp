@@ -18,22 +18,24 @@ namespace H5Easy {
 namespace detail {
 
 template <class T>
-struct is_vector : std::false_type {};
+struct is_vector: std::false_type {};
 template <class T>
-struct is_vector<std::vector<T>> : std::true_type {};
+struct is_vector<std::vector<T>>: std::true_type {};
 
 using HighFive::details::inspector;
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
-
     inline static DataSet dump(File& file,
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
         auto dims = inspector<T>::getDimensions(data);
-        DataSet dataset = initDataset<value_type>(file, path, std::vector<size_t>(dims.begin(), dims.end()), options);
+        DataSet dataset = initDataset<value_type>(file,
+                                                  path,
+                                                  std::vector<size_t>(dims.begin(), dims.end()),
+                                                  options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -48,11 +50,11 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
         return data;
     }
 
-   inline static Attribute dumpAttribute(File& file,
-                                         const std::string& path,
-                                         const std::string& key,
-                                         const T& data,
-                                         const DumpOptions& options) {
+    inline static Attribute dumpAttribute(File& file,
+                                          const std::string& path,
+                                          const std::string& key,
+                                          const T& data,
+                                          const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
         auto dims = inspector<T>::getDimensions(data);
         std::vector<size_t> shape(dims.begin(), dims.end());

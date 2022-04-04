@@ -18,6 +18,6 @@ inline MPIOFileDriver::MPIOFileDriver(MPI_Comm comm, MPI_Info info) {
 }
 #endif
 
-} // namespace HighFive
+}  // namespace HighFive
 
-#endif // H5FILEDRIVER_MISC_HPP
+#endif  // H5FILEDRIVER_MISC_HPP

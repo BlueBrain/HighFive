@@ -21,10 +21,13 @@ namespace HighFive {
 /// \brief Basic HighFive Exception class
 ///
 ///
-class Exception : public std::exception {
+class Exception: public std::exception {
   public:
     Exception(const std::string& err_msg)
-        : _errmsg(err_msg), _next(), _err_major(0), _err_minor(0) {}
+        : _errmsg(err_msg)
+        , _next()
+        , _err_major(0)
+        , _err_minor(0) {}
 
     virtual ~Exception() throw() {}
 
@@ -32,7 +35,9 @@ class Exception : public std::exception {
     /// \brief get the current exception error message
     /// \return
     ///
-    inline const char* what() const throw() override { return _errmsg.c_str(); }
+    inline const char* what() const throw() override {
+        return _errmsg.c_str();
+    }
 
     ///
     /// \brief define the error message
@@ -47,19 +52,25 @@ class Exception : public std::exception {
     /// \return pointer to the next exception in the chain, or NULL if not
     /// existing
     ///
-    inline Exception* nextException() const { return _next.get(); }
+    inline Exception* nextException() const {
+        return _next.get();
+    }
 
     ///
     /// \brief HDF5 library error mapper
     /// \return HDF5 major error number
     ///
-    inline hid_t getErrMajor() const { return _err_major; }
+    inline hid_t getErrMajor() const {
+        return _err_major;
+    }
 
     ///
     /// \brief HDF5 library error mapper
     /// \return HDF5 minor error number
     ///
-    inline hid_t getErrMinor() const { return _err_minor; }
+    inline hid_t getErrMinor() const {
+        return _err_minor;
+    }
 
   protected:
     std::string _errmsg;
@@ -72,76 +83,85 @@ class Exception : public std::exception {
 ///
 /// \brief Exception specific to HighFive Object interface
 ///
-class ObjectException : public Exception {
+class ObjectException: public Exception {
   public:
-    ObjectException(const std::string& err_msg) : Exception(err_msg) {}
+    ObjectException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive DataType interface
 ///
-class DataTypeException : public Exception {
+class DataTypeException: public Exception {
   public:
-    DataTypeException(const std::string& err_msg) : Exception(err_msg) {}
+    DataTypeException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive File interface
 ///
-class FileException : public Exception {
+class FileException: public Exception {
   public:
-    FileException(const std::string& err_msg) : Exception(err_msg) {}
+    FileException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive DataSpace interface
 ///
-class DataSpaceException : public Exception {
+class DataSpaceException: public Exception {
   public:
-    DataSpaceException(const std::string& err_msg) : Exception(err_msg) {}
+    DataSpaceException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive Attribute interface
 ///
-class AttributeException : public Exception {
+class AttributeException: public Exception {
   public:
-    AttributeException(const std::string& err_msg) : Exception(err_msg) {}
+    AttributeException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive DataSet interface
 ///
-class DataSetException : public Exception {
+class DataSetException: public Exception {
   public:
-    DataSetException(const std::string& err_msg) : Exception(err_msg) {}
+    DataSetException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive Group interface
 ///
-class GroupException : public Exception {
+class GroupException: public Exception {
   public:
-    GroupException(const std::string& err_msg) : Exception(err_msg) {}
+    GroupException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive Property interface
 ///
-class PropertyException : public Exception {
+class PropertyException: public Exception {
   public:
-    PropertyException(const std::string& err_msg) : Exception(err_msg) {}
+    PropertyException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
 
 ///
 /// \brief Exception specific to HighFive Reference interface
 ///
-class ReferenceException : public Exception {
+class ReferenceException: public Exception {
   public:
-    ReferenceException(const std::string& err_msg) : Exception(err_msg) {}
+    ReferenceException(const std::string& err_msg)
+        : Exception(err_msg) {}
 };
-}
+}  // namespace HighFive
 
 #include "bits/H5Exception_misc.hpp"
 
-#endif // H5EXCEPTION_HPP
+#endif  // H5EXCEPTION_HPP
