@@ -260,7 +260,7 @@ class HyperSlab {
         case Op::Invalid:
             return H5S_SELECT_INVALID;
         default:
-            return H5S_SELECT_INVALID;
+            throw DataSpaceException("Invalid HyperSlab operation.");
         }
     }
 
