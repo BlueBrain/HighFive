@@ -3,10 +3,7 @@ name: gh-pages
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - test
 
 jobs:
 
@@ -20,35 +17,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v3
-      with:
-        submodules: 'recursive'
-
-    - uses: mamba-org/provision-with-micromamba@main
-      with:
-        environment-file: doc/environment.yaml
-        environment-name: doc-build
-
     - name: Run doxygen
       run: |
-        CMAKE_OPTIONS=(
-          -DHIGHFIVE_UNIT_TESTS=OFF
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
-        )
-        cmake -B build -S . "${CMAKE_OPTIONS[@]}"
-        cmake --build build --target doc
         echo ${{ github.ref }}
         echo ${{ github.event_name }}
-
-    - name: Deploy to GitHub Pages
-      if: ${{ success() && github.ref == 'refs/heads/master' && github.event.push }}
-      uses: crazy-max/ghaction-github-pages@v2
-      with:
-        target_branch: gh-pages
-        build_dir: build/doc/html
-        jekyll: false
-        keep_history: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
