@@ -1277,6 +1277,61 @@ TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead",
 }
 
 template <typename T>
+void irregularHyperSlabSelectionWriteTest() {
+    std::ostringstream filename;
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>()
+             << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T orig_values[x_size][y_size];
+    auto file = setupHyperSlabFile(orig_values, filename.str(), DATASET_NAME);
+
+    auto test_cases = make_irregular_hyperslab_test_data();
+
+    for (const auto& test_case : test_cases) {
+        SECTION(test_case.desc) {
+            auto n_selected = test_case.answer.global_indices.size();
+            std::vector<T> changed_values(n_selected);
+            ContentGenerate<T> gen;
+            std::generate(changed_values.begin(), changed_values.end(), gen);
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).write(changed_values);
+
+            T overwritten_values[x_size][y_size];
+            file.getDataSet(DATASET_NAME).read(overwritten_values);
+
+            T expected_values[x_size][y_size];
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    expected_values[i][j] = orig_values[i][j];
+                }
+            }
+
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                expected_values[ig[0]][ig[1]] = changed_values[i];
+            }
+
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    REQUIRE(expected_values[i][j] == overwritten_values[i][j]);
+                }
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite",
+                        "[template]",
+                        std::tuple<int>) {
+    irregularHyperSlabSelectionWriteTest<TestType>();
+}
+
+template <typename T>
 void attribute_scalar_rw() {
     std::ostringstream filename;
     filename << "h5_rw_attribute_scalar_rw" << typeNameHelper<T>() << "_test.h5";
