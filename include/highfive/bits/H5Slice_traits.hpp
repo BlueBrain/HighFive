@@ -49,7 +49,7 @@ class ElementSet {
     friend class SliceTraits;
 };
 
-bool isRegularHyperslab(const DataSpace& dataspace) {
+inline bool isRegularHyperslab(const DataSpace& dataspace) {
     htri_t ret;
     if ((ret = H5Sis_regular_hyperslab(dataspace.getId())) < 0) {
         throw DataSpaceException("`H5Sis_regular_hyperslab` failed.");
@@ -59,8 +59,9 @@ bool isRegularHyperslab(const DataSpace& dataspace) {
 }
 
 namespace detail {
+
 template <class To, class From>
-std::vector<To> convertSizeVector(const std::vector<From>& from) {
+inline std::vector<To> convertSizeVector(const std::vector<From>& from) {
     std::vector<To> to(from.size());
     std::copy(from.cbegin(), from.cend(), to.begin());
 
@@ -124,7 +125,7 @@ struct RegularHyperSlab {
     std::vector<hsize_t> block;
 };
 
-RegularHyperSlab getRegularHyperslab(const DataSpace& dataspace) {
+inline RegularHyperSlab getRegularHyperslab(const DataSpace& dataspace) {
     auto n_dims = dataspace.getNumberDimensions();
 
     std::vector<hsize_t> offset(n_dims);
