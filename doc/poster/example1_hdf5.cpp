@@ -33,6 +33,7 @@ void data_io() {
 
   // Retrieve result size and preallocate vector
   std::vector<double> result;
+  dset_id = H5Dopen(file_id, "/group/dset1", H5P_DEFAULT);
   dspace_id = H5Dget_space(dset_id);
   ndims = H5Sget_simple_extent_ndims(dspace_id);
   hsize_t res_dims[ndims];
