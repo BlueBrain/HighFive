@@ -1,6 +1,7 @@
 #include <iostream>
 
-// In some versions of Boost (starting with 1.64), you have to include the serialization header before ublas
+// In some versions of Boost (starting with 1.64), you have to 
+// include the serialization header before ublas
 #include <boost/serialization/vector.hpp>
 
 #include <boost/numeric/ublas/io.hpp>

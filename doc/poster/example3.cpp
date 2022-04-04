@@ -14,7 +14,7 @@ HighFive::CompoundType create_compound_Size2D() {
 
 HIGHFIVE_REGISTER_TYPE(Size2D, create_compound_Size2D)
 
-int main() {
+int data_io() {
     const std::string DATASET_NAME("points");
 
     HighFive::File file("compounds.h5", HighFive::File::Truncate);

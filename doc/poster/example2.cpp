@@ -12,8 +12,10 @@ void write_data() {
 
   GroupCreateProps props;
   props.add(EstimatedLinkInfo(1000, 500));
+  props.add(Chunking(std::vector<hsize_t>{2, 2}));
+  props.add(Deflate(9));
   auto group = file.createGroup("g", props);
-  
+
   std::vector<int> d1(100000, 1);
   group.createDataSet("dset1", d1);
 }
