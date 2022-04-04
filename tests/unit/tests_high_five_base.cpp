@@ -129,7 +129,6 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
 
-
 TEST_CASE("Test file version bounds") {
     const std::string FILE_NAME("h5_version_bounds.h5");
 
@@ -154,7 +153,6 @@ TEST_CASE("Test file version bounds") {
     }
 }
 
-
 TEST_CASE("Test metadata block size assignment") {
     const std::string FILE_NAME("h5_meta_block_size.h5");
 
@@ -176,7 +174,6 @@ TEST_CASE("Test metadata block size assignment") {
     }
 }
 
-
 TEST_CASE("Test group properties") {
     const std::string FILE_NAME("h5_group_properties.h5");
     FileDriver adam;
@@ -194,7 +191,6 @@ TEST_CASE("Test group properties") {
     CHECK(sizes.second == 500);
 }
 
-
 TEST_CASE("Test default constructors") {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
@@ -207,7 +203,6 @@ TEST_CASE("Test default constructors") {
     d2 = ds;  // copy
     CHECK(d2.isValid());
 }
-
 
 TEST_CASE("Test groups and datasets") {
     const std::string FILE_NAME("h5_group_test.h5");
@@ -258,16 +253,12 @@ TEST_CASE("Test groups and datasets") {
 
         {
             SilenceHDF5 silencer;
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
-                                               dataspace,
-                                               AtomicType<double>(),
-                                               badChunking0),
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                               AtomicType<double>(), badChunking0),
                             DataSetException);
 
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
-                                               dataspace,
-                                               AtomicType<double>(),
-                                               badChunking1),
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
+                                               AtomicType<double>(), badChunking1),
                             DataSetException);
         }
 
@@ -1608,7 +1599,6 @@ TEST_CASE("HighFiveInspect") {
     CHECK(ds.getInfo().getRefCount() == 1);
 }
 
-
 TEST_CASE("HighFiveGetPath") {
     File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
 
@@ -1658,7 +1648,8 @@ TEST_CASE("HighFiveSoftLinks") {
 
     {
         const std::string EXTERNAL_LINK_PATH("/external_link/to_ds");
-        File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
+        File file2("link_external_to.h5",
+                   File::ReadWrite | File::Create | File::Truncate);
         file2.createExternalLink(EXTERNAL_LINK_PATH, FILE_NAME, DS_PATH);
 
         std::vector<int> data_out;
@@ -1736,7 +1727,6 @@ TEST_CASE("HighFivePropertyObjects") {
     CHECK(plist_g2.isValid());
 }
 
-
 typedef struct {
     int m1;
     int m2;
@@ -1746,7 +1736,6 @@ typedef struct {
 typedef struct {
     CSL1 csl1;
 } CSL2;
-
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
@@ -1826,7 +1815,6 @@ TEST_CASE("HighFiveCompounds") {
     CompoundType t2_from_hid(t2);
     CHECK(t2 == t2_from_hid);
 }
-
 
 struct GrandChild {
     uint32_t gcm1;
@@ -1913,7 +1901,6 @@ TEST_CASE("HighFiveCompoundsNested") {
         CHECK(result[1].child.cm1 == 6);
     }
 }
-
 
 enum Position {
     FIRST = 1,
@@ -2006,7 +1993,8 @@ TEST_CASE("HighFiveFixedString") {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
     char raw_strings[][10] = {"abcd", "1234"};
 
-    /// This will not compile - only char arrays - hits static_assert with a nice error
+    /// This will not compile - only char arrays - hits static_assert with a nice
+    /// error
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
     {  // But char should be fine
@@ -2139,7 +2127,6 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
     }
 }
 
-
 TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
     const std::string FILE_NAME("fixed_array_attr.h5");
     // Create a new file using the default property lists.
@@ -2158,7 +2145,6 @@ TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
         CHECK(arr[1] == std::string("world"));
     }
 }
-
 
 TEST_CASE("HighFiveReference") {
     const std::string FILE_NAME("h5_ref_test.h5");
