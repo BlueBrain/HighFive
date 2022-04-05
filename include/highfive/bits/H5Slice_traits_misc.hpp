@@ -97,8 +97,7 @@ inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) cons
         auto memspace = DataSpace(regular_slab.packedDims());
 
         return Selection(memspace, filespace, details::get_dataset(slice));
-    }
-    else {
+    } else {
         auto n_elements = H5Sget_select_npoints(filespace.getId());
         auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
 

@@ -253,12 +253,16 @@ TEST_CASE("Test groups and datasets") {
 
         {
             SilenceHDF5 silencer;
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                               AtomicType<double>(), badChunking0),
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
+                                               dataspace,
+                                               AtomicType<double>(),
+                                               badChunking0),
                             DataSetException);
 
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                               AtomicType<double>(), badChunking1),
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
+                                               dataspace,
+                                               AtomicType<double>(),
+                                               badChunking1),
                             DataSetException);
         }
 
@@ -1007,8 +1011,7 @@ std::vector<std::array<size_t, 1>> local_indices_1d(const std::vector<size_t>& c
 struct RegularHyperSlabAnswer {
     static RegularHyperSlabAnswer createRegular(const std::vector<size_t>& offset,
                                                 const std::vector<size_t>& count) {
-        return RegularHyperSlabAnswer{global_indices_2d(offset, count),
-                                      local_indices_2d(count)};
+        return RegularHyperSlabAnswer{global_indices_2d(offset, count), local_indices_2d(count)};
     }
 
     // These are the selected indices in the
@@ -1072,8 +1075,7 @@ std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
 
     // Intersection, always regular
     auto slab_ab_cut = HyperSlab(slabs["a"]) & slabs["b"];
-    auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}},
-                                                {{0ul, 0ul}, {1ul, 0ul}}};
+    auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
     test_data.push_back({"a & b", slab_ab_cut, answer_ab_cut});
 
     // Intersection, always regular
@@ -1125,8 +1127,7 @@ File setupHyperSlabFile(T (&values)[x_size][y_size],
 template <typename T>
 void regularHyperSlabSelectionTest() {
     std::ostringstream filename;
-    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>()
-             << "_test.h5";
+    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
     const std::string DATASET_NAME("dset");
 
     const size_t x_size = 10;
@@ -1137,7 +1138,7 @@ void regularHyperSlabSelectionTest() {
     auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
     auto test_cases = make_regular_hyperslab_test_data();
 
-    for (const auto& test_case : test_cases) {
+    for (const auto& test_case: test_cases) {
         SECTION(test_case.desc) {
             std::vector<std::vector<T>> result;
 
@@ -1241,8 +1242,7 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
 template <typename T>
 void irregularHyperSlabSelectionReadTest() {
     std::ostringstream filename;
-    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>()
-             << "_test.h5";
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
 
     const std::string DATASET_NAME("dset");
 
@@ -1254,7 +1254,7 @@ void irregularHyperSlabSelectionReadTest() {
 
     auto test_cases = make_irregular_hyperslab_test_data();
 
-    for (const auto& test_case : test_cases) {
+    for (const auto& test_case: test_cases) {
         SECTION(test_case.desc) {
             std::vector<T> result;
 
@@ -1270,17 +1270,14 @@ void irregularHyperSlabSelectionReadTest() {
     }
 }
 
-TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead",
-                        "[template]",
-                        numerical_test_types) {
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead", "[template]", numerical_test_types) {
     irregularHyperSlabSelectionReadTest<TestType>();
 }
 
 template <typename T>
 void irregularHyperSlabSelectionWriteTest() {
     std::ostringstream filename;
-    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>()
-             << "_test.h5";
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
 
     const std::string DATASET_NAME("dset");
 
@@ -1292,7 +1289,7 @@ void irregularHyperSlabSelectionWriteTest() {
 
     auto test_cases = make_irregular_hyperslab_test_data();
 
-    for (const auto& test_case : test_cases) {
+    for (const auto& test_case: test_cases) {
         SECTION(test_case.desc) {
             auto n_selected = test_case.answer.global_indices.size();
             std::vector<T> changed_values(n_selected);
@@ -1325,9 +1322,7 @@ void irregularHyperSlabSelectionWriteTest() {
     }
 }
 
-TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite",
-                        "[template]",
-                        std::tuple<int>) {
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::tuple<int>) {
     irregularHyperSlabSelectionWriteTest<TestType>();
 }
 
@@ -1709,8 +1704,7 @@ TEST_CASE("HighFiveSoftLinks") {
 
     {
         const std::string EXTERNAL_LINK_PATH("/external_link/to_ds");
-        File file2("link_external_to.h5",
-                   File::ReadWrite | File::Create | File::Truncate);
+        File file2("link_external_to.h5", File::ReadWrite | File::Create | File::Truncate);
         file2.createExternalLink(EXTERNAL_LINK_PATH, FILE_NAME, DS_PATH);
 
         std::vector<int> data_out;
