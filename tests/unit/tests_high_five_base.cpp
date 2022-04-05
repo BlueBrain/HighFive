@@ -129,7 +129,6 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
 
-
 TEST_CASE("Test file version bounds") {
     const std::string FILE_NAME("h5_version_bounds.h5");
 
@@ -154,7 +153,6 @@ TEST_CASE("Test file version bounds") {
     }
 }
 
-
 TEST_CASE("Test metadata block size assignment") {
     const std::string FILE_NAME("h5_meta_block_size.h5");
 
@@ -176,7 +174,6 @@ TEST_CASE("Test metadata block size assignment") {
     }
 }
 
-
 TEST_CASE("Test group properties") {
     const std::string FILE_NAME("h5_group_properties.h5");
     FileDriver adam;
@@ -194,7 +191,6 @@ TEST_CASE("Test group properties") {
     CHECK(sizes.second == 500);
 }
 
-
 TEST_CASE("Test default constructors") {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
@@ -207,7 +203,6 @@ TEST_CASE("Test default constructors") {
     d2 = ds;  // copy
     CHECK(d2.isValid());
 }
-
 
 TEST_CASE("Test groups and datasets") {
     const std::string FILE_NAME("h5_group_test.h5");
@@ -1004,17 +999,20 @@ std::vector<std::array<size_t, 2>> local_indices_2d(const std::vector<size_t>& c
     return global_indices_2d({0ul, 0ul}, count);
 }
 
-struct HyperSlabAnswer {
-    static HyperSlabAnswer createIrregular() {
-        return HyperSlabAnswer{true, {}, {}};
+std::vector<std::array<size_t, 1>> local_indices_1d(const std::vector<size_t>& count) {
+    std::vector<std::array<size_t, 1>> local_indices;
+    for (size_t i = 0; i < count[0]; ++i) {
+        local_indices.push_back({i});
     }
 
-    static HyperSlabAnswer createRegular(const std::vector<size_t>& offset,
-                                         const std::vector<size_t>& count) {
-        return HyperSlabAnswer{false, global_indices_2d(offset, count), local_indices_2d(count)};
-    }
+    return local_indices;
+}
 
-    bool expect_failure;
+struct RegularHyperSlabAnswer {
+    static RegularHyperSlabAnswer createRegular(const std::vector<size_t>& offset,
+                                                const std::vector<size_t>& count) {
+        return RegularHyperSlabAnswer{global_indices_2d(offset, count), local_indices_2d(count)};
+    }
 
     // These are the selected indices in the
     // outer (larger) array.
@@ -1025,12 +1023,15 @@ struct HyperSlabAnswer {
     std::vector<std::array<size_t, 2>> local_indices;
 };
 
-struct HyperSlabTestData {
+struct RegularHyperSlabTestData {
+    std::string desc;
     HyperSlab slab;
-    HyperSlabAnswer answer;
+    RegularHyperSlabAnswer answer;
 };
 
-std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
+std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
+    std::vector<RegularHyperSlabTestData> test_data;
+
     // The dataset is 10x8, we define the following regular
     // hyperslabs:
     //  x----------------x
@@ -1050,111 +1051,95 @@ std::vector<HyperSlabTestData> make_regular_hyperslab_test_data() {
     //  ------------------
     //    1    3 4       8
 
-    auto slab_a = RegularHyperSlab(/* offset = */ {1ul, 1ul},
-                                   /* count = */ {8ul, 3ul});
+    std::map<std::string, RegularHyperSlab> slabs;
 
-    auto slab_b = RegularHyperSlab(/* offset = */ {4ul, 3ul},
-                                   /* count = */ {2ul, 5ul});
+    slabs["a"] = RegularHyperSlab(/* offset = */ {1ul, 1ul},
+                                  /* count = */ {8ul, 3ul});
 
-    auto slab_c = RegularHyperSlab(/* offset = */ {5ul, 3ul},
-                                   /* count = */ {2ul, 5ul});
+    slabs["b"] = RegularHyperSlab(/* offset = */ {4ul, 3ul},
+                                  /* count = */ {2ul, 5ul});
 
-    auto slab_d = RegularHyperSlab(/* offset = */ {7ul, 1ul},
-                                   /* count = */ {2ul, 3ul});
+    slabs["c"] = RegularHyperSlab(/* offset = */ {5ul, 3ul},
+                                  /* count = */ {2ul, 5ul});
 
-    auto slab_e = RegularHyperSlab(/* offset = */ {0ul, 0ul},
-                                   /* count = */ {3ul, 8ul});
+    slabs["d"] = RegularHyperSlab(/* offset = */ {7ul, 1ul},
+                                  /* count = */ {2ul, 3ul});
 
-    std::vector<HyperSlabTestData> test_data;
-
-    // Union, irregular
-    auto slab_ab_union = HyperSlab(slab_a) | slab_b;
-    auto answer_ab_union = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ab_union, answer_ab_union});
+    slabs["e"] = RegularHyperSlab(/* offset = */ {0ul, 0ul},
+                                  /* count = */ {3ul, 8ul});
 
     // Union, regular
-    auto slab_bc_union = HyperSlab(slab_b) | slab_c;
-    auto answer_bc_union = HyperSlabAnswer::createRegular({4ul, 3ul}, {3ul, 5ul});
-    test_data.push_back({slab_bc_union, answer_bc_union});
+    auto slab_bc_union = HyperSlab(slabs["b"]) | slabs["c"];
+    auto answer_bc_union = RegularHyperSlabAnswer::createRegular({4ul, 3ul}, {3ul, 5ul});
+    test_data.push_back({"b | c", slab_bc_union, answer_bc_union});
 
     // Intersection, always regular
-    auto slab_ab_cut = HyperSlab(slab_a) & slab_b;
-    auto answer_ab_cut = HyperSlabAnswer{false, {{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
-    test_data.push_back({slab_ab_cut, answer_ab_cut});
+    auto slab_ab_cut = HyperSlab(slabs["a"]) & slabs["b"];
+    auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
+    test_data.push_back({"a & b", slab_ab_cut, answer_ab_cut});
 
     // Intersection, always regular
-    auto slab_bc_cut = HyperSlab(slab_b) & slab_c;
-    auto answer_bc_cut = HyperSlabAnswer::createRegular({5ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_bc_cut, answer_bc_cut});
+    auto slab_bc_cut = HyperSlab(slabs["b"]) & slabs["c"];
+    auto answer_bc_cut = RegularHyperSlabAnswer::createRegular({5ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"b & c", slab_bc_cut, answer_bc_cut});
 
     // Xor, regular
-    auto slab_ad_xor = HyperSlab(slab_a) ^ slab_d;
-    auto answer_ad_xor = HyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
-    test_data.push_back({slab_ad_xor, answer_ad_xor});
-
-    // Xor, irregular
-    auto slab_ac_xor = HyperSlab(slab_a) ^ slab_c;
-    auto answer_ac_xor = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ac_xor, answer_ac_xor});
+    auto slab_ad_xor = HyperSlab(slabs["a"]) ^ slabs["d"];
+    auto answer_ad_xor = RegularHyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
+    test_data.push_back({"a ^ b", slab_ad_xor, answer_ad_xor});
 
     // (not b) and c, regular
-    auto slab_bc_nota = HyperSlab(slab_b).notA(slab_c);
-    auto answer_bc_nota = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_bc_nota, answer_bc_nota});
-
-    // (not a) and e, irregular
-    auto slab_ae_nota = HyperSlab(slab_a).notA(slab_e);
-    auto answer_ae_nota = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ae_nota, answer_ae_nota});
+    auto slab_bc_nota = HyperSlab(slabs["b"]).notA(slabs["c"]);
+    auto answer_bc_nota = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"b notA a", slab_bc_nota, answer_bc_nota});
 
     // (not c) and b, regular
-    auto slab_cb_notb = HyperSlab(slab_c).notB(slab_b);
-    auto answer_cb_notb = HyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
-    test_data.push_back({slab_cb_notb, answer_cb_notb});
-
-    // (not a) and e, irregular
-    auto slab_ea_notb = HyperSlab(slab_e).notB(slab_a);
-    auto answer_ea_notb = HyperSlabAnswer::createIrregular();
-    test_data.push_back({slab_ea_notb, answer_ea_notb});
+    auto slab_cb_notb = HyperSlab(slabs["c"]).notB(slabs["b"]);
+    auto answer_cb_notb = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"c notB b", slab_cb_notb, answer_cb_notb});
 
     return test_data;
 }
 
-template <typename T>
-void hyperSlabSelectionTest() {
-    std::ostringstream filename;
-    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t x_size = 10;
-    const size_t y_size = 8;
-
-    const std::string DATASET_NAME("dset");
-
-    T values[x_size][y_size];
-
+template <class T, size_t x_size, size_t y_size>
+File setupHyperSlabFile(T (&values)[x_size][y_size],
+                        const std::string& filename,
+                        const std::string& dataset_name) {
     ContentGenerate<T> generator;
     generate2D(values, x_size, y_size, generator);
 
     // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
+    File file(filename, File::ReadWrite | File::Create | File::Truncate);
 
     // Create the data space for the dataset.
     std::vector<size_t> dims{x_size, y_size};
 
     DataSpace dataspace(dims);
     // Create a dataset with arbitrary type
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace);
+    DataSet dataset = file.createDataSet<T>(dataset_name, dataspace);
 
     dataset.write(values);
     file.flush();
 
+    return file;
+}
+
+template <typename T>
+void regularHyperSlabSelectionTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T values[x_size][y_size];
+
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
     auto test_cases = make_regular_hyperslab_test_data();
 
     for (const auto& test_case: test_cases) {
-        if (test_case.answer.expect_failure) {
-            SilenceHDF5 silence;
-            CHECK_THROWS_AS(dataset.select(test_case.slab), DataSpaceException);
-        } else {
+        SECTION(test_case.desc) {
             std::vector<std::vector<T>> result;
 
             file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
@@ -1171,7 +1156,174 @@ void hyperSlabSelectionTest() {
 }
 
 TEMPLATE_LIST_TEST_CASE("hyperSlabSelection", "[template]", numerical_test_types) {
-    hyperSlabSelectionTest<TestType>();
+    regularHyperSlabSelectionTest<TestType>();
+}
+
+struct IrregularHyperSlabAnswer {
+    // These are the selected indices in the outer (larger) array.
+    std::vector<std::array<size_t, 2>> global_indices;
+};
+
+struct IrregularHyperSlabTestData {
+    std::string desc;
+    HyperSlab slab;
+    IrregularHyperSlabAnswer answer;
+};
+
+std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
+    // The dataset is 10x8, with two regular hyperslabs:
+    //  x----------------x
+    //  |                |
+    //  |    bbbb        |
+    //  |    bbbb        |
+    //  |  aaaabb        |
+    //  |  aaaabb        |
+    //  |    bbbb        |
+    //  |    bbbb        |
+    //  |                |
+    //  |                |
+    //  |                |
+    //  |                |
+    //  ------------------
+
+    auto slabs = std::map<std::string, RegularHyperSlab>{};
+    slabs["a"] = RegularHyperSlab{{2ul, 0ul}, {1ul, 2ul}};
+    slabs["b"] = RegularHyperSlab{{1ul, 1ul}, {3ul, 2ul}};
+
+    std::vector<IrregularHyperSlabTestData> test_data;
+
+    // Union, irregular
+    auto slab_ab_union = HyperSlab(slabs["a"]) | slabs["b"];
+    // clang-format off
+    auto answer_ab_union = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+        {2ul, 0ul}, {2ul, 1ul}, {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
+    // clang-format on
+    test_data.push_back({"a | b", slab_ab_union, answer_ab_union});
+
+    // xor, irregular
+    auto slab_ab_xor = HyperSlab(slabs["a"]) ^ slabs["b"];
+    // clang-format off
+        auto answer_ab_xor = IrregularHyperSlabAnswer{{
+                        {1ul, 1ul}, {1ul, 2ul},
+            {2ul, 0ul},             {2ul, 2ul},
+                        {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"a xor b", slab_ab_xor, answer_ab_xor});
+
+    // (not a) and e, irregular
+    auto slab_ab_nota = HyperSlab(slabs["a"]).notA(slabs["b"]);
+    // clang-format off
+        auto answer_ab_nota = IrregularHyperSlabAnswer{{
+                        {1ul, 1ul}, {1ul, 2ul},
+                                    {2ul, 2ul},
+                        {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"a nota b", slab_ab_nota, answer_ab_nota});
+
+    // (not a) and e, irregular
+    auto slab_ba_notb = HyperSlab(slabs["b"]).notB(slabs["a"]);
+    // clang-format off
+        auto answer_ba_notb = IrregularHyperSlabAnswer{{
+                         {1ul, 1ul}, {1ul, 2ul},
+                                     {2ul, 2ul},
+                         {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"b notb a", slab_ba_notb, answer_ba_notb});
+
+    return test_data;
+}
+
+template <typename T>
+void irregularHyperSlabSelectionReadTest() {
+    std::ostringstream filename;
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T values[x_size][y_size];
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
+
+    auto test_cases = make_irregular_hyperslab_test_data();
+
+    for (const auto& test_case: test_cases) {
+        SECTION(test_case.desc) {
+            std::vector<T> result;
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+
+                REQUIRE(result[i] == values[ig[0]][ig[1]]);
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead", "[template]", numerical_test_types) {
+    irregularHyperSlabSelectionReadTest<TestType>();
+}
+
+template <typename T>
+void irregularHyperSlabSelectionWriteTest() {
+    std::ostringstream filename;
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T orig_values[x_size][y_size];
+    auto file = setupHyperSlabFile(orig_values, filename.str(), DATASET_NAME);
+
+    auto test_cases = make_irregular_hyperslab_test_data();
+
+    for (const auto& test_case: test_cases) {
+        SECTION(test_case.desc) {
+            auto n_selected = test_case.answer.global_indices.size();
+            std::vector<T> changed_values(n_selected);
+            ContentGenerate<T> gen;
+            std::generate(changed_values.begin(), changed_values.end(), gen);
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).write(changed_values);
+
+            T overwritten_values[x_size][y_size];
+            file.getDataSet(DATASET_NAME).read(overwritten_values);
+
+            T expected_values[x_size][y_size];
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    expected_values[i][j] = orig_values[i][j];
+                }
+            }
+
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                expected_values[ig[0]][ig[1]] = changed_values[i];
+            }
+
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    REQUIRE(expected_values[i][j] == overwritten_values[i][j]);
+                }
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::tuple<int>) {
+    irregularHyperSlabSelectionWriteTest<TestType>();
 }
 
 template <typename T>
@@ -1503,7 +1655,6 @@ TEST_CASE("HighFiveInspect") {
     CHECK(ds.getInfo().getRefCount() == 1);
 }
 
-
 TEST_CASE("HighFiveGetPath") {
     File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
 
@@ -1631,7 +1782,6 @@ TEST_CASE("HighFivePropertyObjects") {
     CHECK(plist_g2.isValid());
 }
 
-
 typedef struct {
     int m1;
     int m2;
@@ -1641,7 +1791,6 @@ typedef struct {
 typedef struct {
     CSL1 csl1;
 } CSL2;
-
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
@@ -1721,7 +1870,6 @@ TEST_CASE("HighFiveCompounds") {
     CompoundType t2_from_hid(t2);
     CHECK(t2 == t2_from_hid);
 }
-
 
 struct GrandChild {
     uint32_t gcm1;
@@ -1808,7 +1956,6 @@ TEST_CASE("HighFiveCompoundsNested") {
         CHECK(result[1].child.cm1 == 6);
     }
 }
-
 
 enum Position {
     FIRST = 1,
@@ -1901,7 +2048,8 @@ TEST_CASE("HighFiveFixedString") {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
     char raw_strings[][10] = {"abcd", "1234"};
 
-    /// This will not compile - only char arrays - hits static_assert with a nice error
+    /// This will not compile - only char arrays - hits static_assert with a nice
+    /// error
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
     {  // But char should be fine
@@ -2034,7 +2182,6 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
     }
 }
 
-
 TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
     const std::string FILE_NAME("fixed_array_attr.h5");
     // Create a new file using the default property lists.
@@ -2053,7 +2200,6 @@ TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
         CHECK(arr[1] == std::string("world"));
     }
 }
-
 
 TEST_CASE("HighFiveReference") {
     const std::string FILE_NAME("h5_ref_test.h5");
