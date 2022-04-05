@@ -1,3 +1,18 @@
+## Version 2.4.0 - 2022-04-05
+### New Features
+    - Construct a compound type from an already existing hid (#469). Thanks to Maximilian Nöthe.
+    - Add support for long double (#494)
+    - Add support for H5Pset_libver_bounds and H5Pset_meta_block_size support (#500)
+    - New interface to select complex hyperslabs, irregular hyperslabs are limited to/from 1D array (#538 and #545)
+### Improvements
+    - Use inline where it is needed, otherwise some code can lead to "multiple definition" (#516). Thanks to Chris Byrohl.
+    - Use Catch2 instead of boost for tests, reduces dependencies (#521)
+    - CI reworked to test external libraries more thoroughly (boost, eigen, xtensor) (#536)
+### Bug Fixes
+    - Better support of const types (#460). Thanks to Philip Deegan.
+    - Vector of size zero was previously lead to UB (#502). Thanks to Haoran Ni.
+    - Use H5T_NATIVE_SCHAR instead of H5T_NATIVE_CHAR for "signed char" (#518)
+
 ## Version 2.3.1 - 2021-08-04
 ### Improvements
     - Clean cmake files from old code (#465)
