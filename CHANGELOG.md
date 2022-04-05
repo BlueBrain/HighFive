@@ -1,9 +1,9 @@
-## Version 2.4.0 - 2022-04-04
+## Version 2.4.0 - 2022-04-05
 ### New Features
     - Construct a compound type from an already existing hid (#469). Thanks to Maximilian Nöthe.
     - Add support for long double (#494)
     - Add support for H5Pset_libver_bounds and H5Pset_meta_block_size support (#500)
-    - New interface to select complex hyperslabs, for now only regular hyperslabs can be generated (#538)
+    - New interface to select complex hyperslabs, irregular hyperslabs are limited to/from 1D array (#538 and #545)
 ### Improvements
     - Use inline where it is needed, otherwise some code can lead to "multiple definition" (#516). Thanks to Chris Byrohl.
     - Use Catch2 instead of boost for tests, reduces dependencies (#521)
