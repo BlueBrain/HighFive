@@ -33,7 +33,8 @@ int main(void) {
         props.add(Chunking(std::vector<hsize_t>{2, 2}));
 
         // Create the dataset
-        DataSet dataset = file.createDataSet(DATASET_NAME, dataspace, AtomicType<double>(), props);
+        DataSet dataset =
+            file.createDataSet(DATASET_NAME, dataspace, create_datatype<double>(), props);
 
         // Write into the initial part of the dataset
         double t1[3][1] = {{2.0}, {2.0}, {4.0}};
