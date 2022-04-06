@@ -1,5 +1,7 @@
 #include <iostream>
 
+#define H5_USE_BOOST 1
+
 // In some versions of Boost (starting with 1.64), you have to
 // include the serialization header before ublas
 #include <boost/serialization/vector.hpp>
