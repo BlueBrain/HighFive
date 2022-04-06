@@ -88,12 +88,12 @@
           <tbody>
             <tr>
               <td>
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example1_highfive" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
                 </div>
               </td>
               <td>
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example1_hdf5" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
                 </div>
               </td>
@@ -110,8 +110,8 @@
         block size can be set. Group properties for compression, chunking and link info
         estimates can be set and read:</p>
         <div class="card w-75">
-          <div class="code card-body">
-            <pre class="font-monospace"><div class="example" id="example2"></div></pre>
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example2" width=16 height=16  class="godbolt float-end">
+              <pre class="font-monospace"><div class="example" id="example2"></div></pre>
           </div>
         </div>
       </div>
@@ -152,23 +152,23 @@
             <div class="tab-content" id="highfive-type-support-content">
               <div class="tab-pane fade show active" id="compound" role="tabpanel"
                                                                    aria-labelledby="compound-tab">
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example3" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example3"></div></pre>
                 </div>
               </div>
               <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example_boost"></div></pre>
                 </div>
               </div>
               <div class="tab-pane fade" id="boost-ublas" role="tabpanel"
                 aria-labelledby="boost-ublas-tab">
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost_ublas" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example_boost_ublas"></div></pre>
                 </div>
               </div>
               <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
-                <div class="code container">
+                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost_ublas" width=16 height=16  class="godbolt float-end">
                   <pre class="font-monospace"><div class="example" id="example5"></div></pre>
                 </div>
               </div>
@@ -185,7 +185,7 @@
         initialized. No other special API calls are required since all necessary provisions are
         handled transparently.</p>
         <div class="card w-75">
-          <div class="code card-body">
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example6" width=16 height=16  class="godbolt float-end">
             <pre class="font-monospace"><div class="example" id="example6"></div></pre>
           </div>
         </div>
@@ -216,20 +216,7 @@
         </footer>
       </div>
       <!-- Example code loading -->
-      <script>
-        $(".example").each(function () {
-                  let cblock = this;
-                  let file = this.id+".cpp";
-                  $.ajax( {url: file, 
-                            dataType: 'text',
-                            isLocal: true,
-                            success: function( code ) {
-                                      res = hljs.highlight(code, {language: "cpp", ignoreIllegals: true });
-                                      cblock.innerHTML = res.value;
-                                    }});
-
-                });
-      </script>
+      <script src="examples.js"></script>
     </div>
   </body>
 </html>

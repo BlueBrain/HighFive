@@ -1,4 +1,4 @@
-#include <HighFive>
+#include <highfive/H5File.hpp>
 
 using namespace HighFive;
 
