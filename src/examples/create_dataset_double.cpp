@@ -29,8 +29,7 @@ int main(void) {
         std::vector<size_t> dims{2, 6};
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
 
         double data[2][6] = {{1.1, 2.2, 3.3, 4.4, 5.5, 6.6},
                              {11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
@@ -43,5 +42,5 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

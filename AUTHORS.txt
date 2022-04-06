@@ -2,25 +2,29 @@ Adrien Devresse
 Alexandru Săvulescu
 Ali Can Demiralp
 Angelos Plastropoulos
-contre
+Chris Byrohl
+Chris De Grendele
+@contre
 Daniel Nachbaur
 Dmitri Bichko
-eudoxos
+@eudoxos
 Fernando L. Pereira
-guoxy
+@guoxy
+Haoran Ni
 Henry Schreiner
-JaWSnl
+@JaWSnl
 Jia Li
 John W. Peterson
 Jonas Karlsson
 Jorge Blanco Alonso
 Kerim Khemraev
+Luc Grosheintz
 Marian Heil
 Mario Emmenlauer
 Mathieu Bernard
 Matthias Wolf
 Maximilian Nöthe
-Mightrider
+@Mightrider
 Mike DePalatis
 Mike Gevaert
 Nico Jahn
@@ -32,9 +36,9 @@ Pramod Kumbhar
 Richard Shaw
 Rick Nitsche
 Sergio Rivas-Gomez
-spacescientist
+@spacescientist
 Taiguara Tupinambás
-timocafe
+@timocafe
 Tino Wagner
 Tobias Klauser
 Tom de Geus

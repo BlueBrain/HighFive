@@ -5,7 +5,7 @@ else()
   cmake_policy(VERSION 3.13)
 endif()
 
-project(HighFive VERSION 2.3.1)
+project(HighFive VERSION 2.4.0)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
@@ -93,7 +93,7 @@ if(HIGHFIVE_UNIT_TESTS)
     find_package(Catch2)
     if(NOT HIGHFIVE_UNIT_TESTS STREQUAL "AUTO" AND HIGHFIVE_UNIT_TESTS AND NOT Catch2_FOUND)
       message(FATAL_ERROR "Please provide a Catch2 installation or clone the submodule")
-    else()
+    elseif(NOT Catch2_FOUND)
       message(WARNING "No Catch2 installation was found; Disabling unit tests.")
       set(HIGHFIVE_UNIT_TESTS OFF)
     endif()

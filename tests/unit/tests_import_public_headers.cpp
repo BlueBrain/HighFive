@@ -2,7 +2,6 @@
 
 #include <@PUBLIC_HEADER@>
 
-int main()
-{
+int main() {
     return 0;
 }

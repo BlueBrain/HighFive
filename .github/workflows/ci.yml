@@ -25,31 +25,48 @@ env:
 
 jobs:
 
-  # Job testing compiling on several Linux systems + MPI
+  # Job testing compiling on several Ubuntu systems + MPI
   # =========================================================
+  #
+  # For 18.04:  bare HighFive
+  # For 20.04:  activate Boost, OpenCV
+  # For latest: activate Boost, Eigen, OpenCV, with Ninja
+  #
+  # XTensor tests are run for conda/mamba and MacOS
   Linux_MPI:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest]
+        include:
+          - os: ubuntu-18.04
+            pkgs: ''
+            flags: '-DHIGHFIVE_USE_BOOST:Bool=OFF'
+          - os: ubuntu-20.04
+            pkgs: 'libboost-all-dev libopencv-dev'
+            flags: '-DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+          - os: ubuntu-latest
+            pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
+            flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
-    - uses: conda-incubator/setup-miniconda@v2
+
+    - name: "Setup MPI"
+      uses: mpi4py/setup-mpi@v1
+      with:
+        mpi: openmpi
 
     - name: "Install libraries"
-      shell: bash -l {0}  # required to activate conda
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libboost-serialization-dev libboost-system-dev libhdf5-mpich-dev libeigen3-dev libsz2
-        conda install -y -c conda-forge xtl xsimd xtensor
+        sudo apt-get -qq install libhdf5-openmpi-dev libsz2 ninja-build ${{ matrix.pkgs }}
 
     - name: Build
-      shell: bash -l {0}  # required to activate conda
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON -DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON ${{ matrix.flags }})
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
@@ -60,11 +77,12 @@ jobs:
   # Job testing several compilers on a stable Linux
   # ====================================================
   Linux_Compilers:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         env: [
-          {CC: clang-9, CXX: clang++-9},
+          {CC: clang-10, CXX: clang++-10},
+          {CC: clang-12, CXX: clang++-12},
           {CC: gcc-9, CXX: g++-9},
           {CC: gcc-10, CXX: g++-10},
         ]
@@ -75,11 +93,15 @@ jobs:
         submodules: true
 
     - name: "Install libraries"
-      run: sudo apt-get update && sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libsz2
+      run: |
+        sudo apt-get update
+        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
-      run: source $GITHUB_WORKSPACE/.github/build.sh
+      run: |
+        CMAKE_OPTIONS=(-GNinja)
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -97,10 +119,19 @@ jobs:
         submodules: true
 
     - name: "Install libraries (OSX)"
-      run: brew install boost hdf5 eigen
+      run: brew install boost eigen hdf5 ninja xtensor
 
     - name: Build
-      run: source $GITHUB_WORKSPACE/.github/build.sh
+      run: |
+        CMAKE_OPTIONS=(
+          -GNinja
+          -DHIGHFIVE_USE_BOOST:BOOL=ON
+          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
+          -DCMAKE_CXX_FLAGS="-coverage -O0"
+        )
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -113,17 +144,21 @@ jobs:
     runs-on: Windows-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - uses: conda-incubator/setup-miniconda@v2
 
-    - name: "Install libraries"
-      run: conda install -y -c conda-forge boost-cpp hdf5 eigen xtl xsimd xtensor
+    - uses: mamba-org/provision-with-micromamba@main
+      with:
+        environment-file: doc/environment.yaml
+        environment-name: win-test
 
     - name: Build
       shell: bash -l {0}
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_USE_XTENSOR:BOOL=ON)
+        CMAKE_OPTIONS=(
+          -DHIGHFIVE_UNIT_TESTS=ON
+          -DHIGHFIVE_USE_BOOST:BOOL=ON
+          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+        )
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
@@ -138,7 +173,7 @@ jobs:
 
     steps:
     - name: "Install libraries"
-      run: brew install boost hdf5 eigen lcov
+      run: brew install boost eigen hdf5 lcov ninja opencv xtensor
 
     - uses: actions/checkout@v3
       with:
@@ -147,7 +182,15 @@ jobs:
 
     - name: Build and test for code coverage
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_BUILD_DOCS:BOOL=FALSE -DCMAKE_CXX_FLAGS="-coverage -O0")
+        CMAKE_OPTIONS=(
+          -GNinja
+          -DHIGHFIVE_USE_BOOST:BOOL=ON
+          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_USE_OPENCV:BOOL=ON
+          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
+          -DCMAKE_CXX_FLAGS="-coverage -O0"
+        )
         source $GITHUB_WORKSPACE/.github/build.sh
         cd $HIGHFIVE_BUILD
         (cd $GITHUB_WORKSPACE;  lcov --capture  --initial --directory . --no-external --output-file build/coverage-base.info)

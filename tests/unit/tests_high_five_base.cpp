@@ -50,8 +50,8 @@ TEST_CASE("Basic HighFive tests") {
     CHECK(!file.exist(DATASET_NAME + "_double"));
 
     // Create a dataset with double precision floating points
-    DataSet dataset_double = file.createDataSet(DATASET_NAME + "_double", dataspace,
-                                                AtomicType<double>());
+    DataSet dataset_double =
+        file.createDataSet(DATASET_NAME + "_double", dataspace, AtomicType<double>());
 
     CHECK(file.getObjectName(0) == DATASET_NAME + "_double");
 
@@ -61,13 +61,13 @@ TEST_CASE("Basic HighFive tests") {
 
         // and also try to recreate it to the sake of exception testing
         SilenceHDF5 silencer;
-        CHECK_THROWS_AS(
-            file.createDataSet(DATASET_NAME + "_double", dataspace, AtomicType<double>()),
-            DataSetException);
+        CHECK_THROWS_AS(file.createDataSet(DATASET_NAME + "_double",
+                                           dataspace,
+                                           AtomicType<double>()),
+                        DataSetException);
     }
 
-    DataSet dataset_size_t = file.createDataSet<size_t>(DATASET_NAME + "_size_t",
-                                                        dataspace);
+    DataSet dataset_size_t = file.createDataSet<size_t>(DATASET_NAME + "_size_t", dataspace);
 }
 
 TEST_CASE("Test silent HighFive") {
@@ -105,8 +105,7 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(FILE_NAME, File::ReadWrite | File::Create); }
 
     // But if its there and exclusive is given, should fail
-    CHECK_THROWS_AS(File(FILE_NAME, File::ReadWrite | File::Excl),
-                      FileException);
+    CHECK_THROWS_AS(File(FILE_NAME, File::ReadWrite | File::Excl), FileException);
     // ReadWrite and Excl flags are fine together (posix)
     std::remove(FILE_NAME.c_str());
     { File file(FILE_NAME, File::ReadWrite | File::Excl); }
@@ -115,12 +114,10 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(FILE_NAME, File::ReadWrite | File::Create | File::Excl); }
 
     // Just a few combinations are incompatible, detected by hdf5lib
-    CHECK_THROWS_AS(File(FILE_NAME, File::Truncate | File::Excl),
-                      FileException);
+    CHECK_THROWS_AS(File(FILE_NAME, File::Truncate | File::Excl), FileException);
 
     std::remove(FILE_NAME.c_str());
-    CHECK_THROWS_AS(File(FILE_NAME, File::Truncate | File::Excl),
-                      FileException);
+    CHECK_THROWS_AS(File(FILE_NAME, File::Truncate | File::Excl), FileException);
 
     // But in most cases we will truncate and that should always work
     { File file(FILE_NAME, File::Truncate); }
@@ -131,7 +128,6 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(FILE_NAME); }     // ReadOnly
     { File file(FILE_NAME, 0); }  // force empty-flags, does open without flags
 }
-
 
 TEST_CASE("Test file version bounds") {
     const std::string FILE_NAME("h5_version_bounds.h5");
@@ -157,7 +153,6 @@ TEST_CASE("Test file version bounds") {
     }
 }
 
-
 TEST_CASE("Test metadata block size assignment") {
     const std::string FILE_NAME("h5_meta_block_size.h5");
 
@@ -179,7 +174,6 @@ TEST_CASE("Test metadata block size assignment") {
     }
 }
 
-
 TEST_CASE("Test group properties") {
     const std::string FILE_NAME("h5_group_properties.h5");
     FileDriver adam;
@@ -197,7 +191,6 @@ TEST_CASE("Test group properties") {
     CHECK(sizes.second == 500);
 }
 
-
 TEST_CASE("Test default constructors") {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
@@ -210,7 +203,6 @@ TEST_CASE("Test default constructors") {
     d2 = ds;  // copy
     CHECK(d2.isValid());
 }
-
 
 TEST_CASE("Test groups and datasets") {
     const std::string FILE_NAME("h5_group_test.h5");
@@ -239,12 +231,13 @@ TEST_CASE("Test groups and datasets") {
 
         DataSpace dataspace(dims);
 
-        DataSet dataset_absolute = file.createDataSet(
-            GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" + DATASET_NAME, dataspace,
-            AtomicType<double>());
+        DataSet dataset_absolute = file.createDataSet(GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" +
+                                                          DATASET_NAME,
+                                                      dataspace,
+                                                      AtomicType<double>());
 
-        DataSet dataset_relative = nested.createDataSet(DATASET_NAME, dataspace,
-                                                        AtomicType<double>());
+        DataSet dataset_relative =
+            nested.createDataSet(DATASET_NAME, dataspace, AtomicType<double>());
 
         DataSetCreateProps goodChunking;
         goodChunking.add(Chunking(std::vector<hsize_t>{2, 2}));
@@ -260,22 +253,26 @@ TEST_CASE("Test groups and datasets") {
 
         {
             SilenceHDF5 silencer;
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                                 AtomicType<double>(), badChunking0),
-                              DataSetException);
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
+                                               dataspace,
+                                               AtomicType<double>(),
+                                               badChunking0),
+                            DataSetException);
 
-            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME, dataspace,
-                                                 AtomicType<double>(), badChunking1),
-                              DataSetException);
+            CHECK_THROWS_AS(file.createDataSet(CHUNKED_DATASET_NAME,
+                                               dataspace,
+                                               AtomicType<double>(),
+                                               badChunking1),
+                            DataSetException);
         }
 
         // here we use the other signature
-        DataSet dataset_chunked = file.createDataSet<float>(
-            CHUNKED_DATASET_NAME, dataspace, goodChunking, cacheConfig);
+        DataSet dataset_chunked =
+            file.createDataSet<float>(CHUNKED_DATASET_NAME, dataspace, goodChunking, cacheConfig);
 
         // Here we resize to smaller than the chunking size
-        DataSet dataset_chunked_small = file.createDataSet<float>(
-            CHUNKED_DATASET_SMALL_NAME, dataspace, goodChunking);
+        DataSet dataset_chunked_small =
+            file.createDataSet<float>(CHUNKED_DATASET_SMALL_NAME, dataspace, goodChunking);
 
         dataset_chunked_small.resize({1, 1});
     }
@@ -286,8 +283,8 @@ TEST_CASE("Test groups and datasets") {
         Group g2 = file.getGroup(GROUP_NAME2);
         Group nested_group2 = g2.getGroup(GROUP_NESTED_NAME);
 
-        DataSet dataset_absolute = file.getDataSet(GROUP_NAME1 + "/" + GROUP_NESTED_NAME +
-                                                   "/" + DATASET_NAME);
+        DataSet dataset_absolute = file.getDataSet(GROUP_NAME1 + "/" + GROUP_NESTED_NAME + "/" +
+                                                   DATASET_NAME);
         CHECK(4 == dataset_absolute.getSpace().getDimensions()[0]);
 
         DataSet dataset_relative = nested_group2.getDataSet(DATASET_NAME);
@@ -321,8 +318,8 @@ TEST_CASE("Test extensible datasets") {
         props.add(Chunking(std::vector<hsize_t>{2, 2}));
 
         // Create the dataset
-        DataSet dataset = file.createDataSet(DATASET_NAME, dataspace,
-                                             AtomicType<long double>(), props);
+        DataSet dataset =
+            file.createDataSet(DATASET_NAME, dataspace, AtomicType<long double>(), props);
 
         // Write into the initial part of the dataset
         dataset.select({0, 0}, {3, 1}).write(t1);
@@ -388,8 +385,8 @@ TEST_CASE("Test reference count") {
 
         DataSpace dataspace(dims);
 
-        DataSet d1 = file.createDataSet(GROUP_NAME1 + DATASET_NAME, dataspace,
-                                        AtomicType<double>());
+        DataSet d1 =
+            file.createDataSet(GROUP_NAME1 + DATASET_NAME, dataspace, AtomicType<double>());
 
         double values[10][10] = {{0}};
         values[5][0] = 1;
@@ -719,7 +716,7 @@ void readWriteAttributeVectorTest() {
     std::ostringstream filename;
     filename << "h5_rw_attribute_vec_" << typeNameHelper<T>() << "_test.h5";
 
-    std::srand((unsigned)std::time(0));
+    std::srand((unsigned) std::time(0));
     const size_t x_size = 25;
     const std::string DATASET_NAME("dset");
     typename std::vector<T> vec;
@@ -775,8 +772,8 @@ void readWriteAttributeVectorTest() {
         CHECK(result1.size() == x_size);
         CHECK(vec == result1);
 
-        Attribute a2_read = file.getDataSet("/dummy_group/dummy_dataset")
-                                .getAttribute("my_attribute_copy");
+        Attribute a2_read =
+            file.getDataSet("/dummy_group/dummy_dataset").getAttribute("my_attribute_copy");
         a2_read.read(result2);
 
         CHECK(vec.size() == x_size);
@@ -784,9 +781,7 @@ void readWriteAttributeVectorTest() {
         CHECK(vec == result2);
 
         std::vector<int> v;  // with const would print a nice err msg
-        file.getDataSet("/dummy_group/dummy_dataset")
-            .getAttribute("version_test")
-            .read(v);
+        file.getDataSet("/dummy_group/dummy_dataset").getAttribute("version_test").read(v);
     }
 
     // Delete some attributes
@@ -984,6 +979,351 @@ void columnSelectionTest() {
 
 TEMPLATE_LIST_TEST_CASE("columnSelection", "[template]", numerical_test_types) {
     columnSelectionTest<TestType>();
+}
+
+std::vector<std::array<size_t, 2>> global_indices_2d(const std::vector<size_t>& offset,
+                                                     const std::vector<size_t>& count) {
+    std::vector<std::array<size_t, 2>> indices;
+    indices.reserve(count[0] * count[1]);
+
+    for (size_t i = 0; i < count[0]; ++i) {
+        for (size_t j = 0; j < count[1]; ++j) {
+            indices.push_back({offset[0] + i, offset[1] + j});
+        }
+    }
+
+    return indices;
+}
+
+std::vector<std::array<size_t, 2>> local_indices_2d(const std::vector<size_t>& count) {
+    return global_indices_2d({0ul, 0ul}, count);
+}
+
+std::vector<std::array<size_t, 1>> local_indices_1d(const std::vector<size_t>& count) {
+    std::vector<std::array<size_t, 1>> local_indices;
+    for (size_t i = 0; i < count[0]; ++i) {
+        local_indices.push_back({i});
+    }
+
+    return local_indices;
+}
+
+struct RegularHyperSlabAnswer {
+    static RegularHyperSlabAnswer createRegular(const std::vector<size_t>& offset,
+                                                const std::vector<size_t>& count) {
+        return RegularHyperSlabAnswer{global_indices_2d(offset, count), local_indices_2d(count)};
+    }
+
+    // These are the selected indices in the
+    // outer (larger) array.
+    std::vector<std::array<size_t, 2>> global_indices;
+
+    // These are the selected indices in the compacted (inner)
+    // array.
+    std::vector<std::array<size_t, 2>> local_indices;
+};
+
+struct RegularHyperSlabTestData {
+    std::string desc;
+    HyperSlab slab;
+    RegularHyperSlabAnswer answer;
+};
+
+std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
+    std::vector<RegularHyperSlabTestData> test_data;
+
+    // The dataset is 10x8, we define the following regular
+    // hyperslabs:
+    //  x----------------x
+    //  |                |
+    //  | x------x   e   |  1
+    //  | |  a   |       |
+    //  x-|------|-------x  3
+    //  | |    x-|-------x  4
+    //  | |    | |  b    |
+    //  | |    c-|-------c  5
+    //  | |    b-|-------b  6
+    //  | |    | |  c    |
+    //  | d----x-d-------x  7
+    //  | |  d   |       |
+    //  | a------a       |  9
+    //  |                |
+    //  ------------------
+    //    1    3 4       8
+
+    std::map<std::string, RegularHyperSlab> slabs;
+
+    slabs["a"] = RegularHyperSlab(/* offset = */ {1ul, 1ul},
+                                  /* count = */ {8ul, 3ul});
+
+    slabs["b"] = RegularHyperSlab(/* offset = */ {4ul, 3ul},
+                                  /* count = */ {2ul, 5ul});
+
+    slabs["c"] = RegularHyperSlab(/* offset = */ {5ul, 3ul},
+                                  /* count = */ {2ul, 5ul});
+
+    slabs["d"] = RegularHyperSlab(/* offset = */ {7ul, 1ul},
+                                  /* count = */ {2ul, 3ul});
+
+    slabs["e"] = RegularHyperSlab(/* offset = */ {0ul, 0ul},
+                                  /* count = */ {3ul, 8ul});
+
+    // Union, regular
+    auto slab_bc_union = HyperSlab(slabs["b"]) | slabs["c"];
+    auto answer_bc_union = RegularHyperSlabAnswer::createRegular({4ul, 3ul}, {3ul, 5ul});
+    test_data.push_back({"b | c", slab_bc_union, answer_bc_union});
+
+    // Intersection, always regular
+    auto slab_ab_cut = HyperSlab(slabs["a"]) & slabs["b"];
+    auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
+    test_data.push_back({"a & b", slab_ab_cut, answer_ab_cut});
+
+    // Intersection, always regular
+    auto slab_bc_cut = HyperSlab(slabs["b"]) & slabs["c"];
+    auto answer_bc_cut = RegularHyperSlabAnswer::createRegular({5ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"b & c", slab_bc_cut, answer_bc_cut});
+
+    // Xor, regular
+    auto slab_ad_xor = HyperSlab(slabs["a"]) ^ slabs["d"];
+    auto answer_ad_xor = RegularHyperSlabAnswer::createRegular({1ul, 1ul}, {6ul, 3ul});
+    test_data.push_back({"a ^ b", slab_ad_xor, answer_ad_xor});
+
+    // (not b) and c, regular
+    auto slab_bc_nota = HyperSlab(slabs["b"]).notA(slabs["c"]);
+    auto answer_bc_nota = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"b notA a", slab_bc_nota, answer_bc_nota});
+
+    // (not c) and b, regular
+    auto slab_cb_notb = HyperSlab(slabs["c"]).notB(slabs["b"]);
+    auto answer_cb_notb = RegularHyperSlabAnswer::createRegular({6ul, 3ul}, {1ul, 5ul});
+    test_data.push_back({"c notB b", slab_cb_notb, answer_cb_notb});
+
+    return test_data;
+}
+
+template <class T, size_t x_size, size_t y_size>
+File setupHyperSlabFile(T (&values)[x_size][y_size],
+                        const std::string& filename,
+                        const std::string& dataset_name) {
+    ContentGenerate<T> generator;
+    generate2D(values, x_size, y_size, generator);
+
+    // Create a new file using the default property lists.
+    File file(filename, File::ReadWrite | File::Create | File::Truncate);
+
+    // Create the data space for the dataset.
+    std::vector<size_t> dims{x_size, y_size};
+
+    DataSpace dataspace(dims);
+    // Create a dataset with arbitrary type
+    DataSet dataset = file.createDataSet<T>(dataset_name, dataspace);
+
+    dataset.write(values);
+    file.flush();
+
+    return file;
+}
+
+template <typename T>
+void regularHyperSlabSelectionTest() {
+    std::ostringstream filename;
+    filename << "h5_rw_select_regular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T values[x_size][y_size];
+
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
+    auto test_cases = make_regular_hyperslab_test_data();
+
+    for (const auto& test_case: test_cases) {
+        SECTION(test_case.desc) {
+            std::vector<std::vector<T>> result;
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                const auto il = test_case.answer.local_indices[i];
+
+                REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("hyperSlabSelection", "[template]", numerical_test_types) {
+    regularHyperSlabSelectionTest<TestType>();
+}
+
+struct IrregularHyperSlabAnswer {
+    // These are the selected indices in the outer (larger) array.
+    std::vector<std::array<size_t, 2>> global_indices;
+};
+
+struct IrregularHyperSlabTestData {
+    std::string desc;
+    HyperSlab slab;
+    IrregularHyperSlabAnswer answer;
+};
+
+std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
+    // The dataset is 10x8, with two regular hyperslabs:
+    //  x----------------x
+    //  |                |
+    //  |    bbbb        |
+    //  |    bbbb        |
+    //  |  aaaabb        |
+    //  |  aaaabb        |
+    //  |    bbbb        |
+    //  |    bbbb        |
+    //  |                |
+    //  |                |
+    //  |                |
+    //  |                |
+    //  ------------------
+
+    auto slabs = std::map<std::string, RegularHyperSlab>{};
+    slabs["a"] = RegularHyperSlab{{2ul, 0ul}, {1ul, 2ul}};
+    slabs["b"] = RegularHyperSlab{{1ul, 1ul}, {3ul, 2ul}};
+
+    std::vector<IrregularHyperSlabTestData> test_data;
+
+    // Union, irregular
+    auto slab_ab_union = HyperSlab(slabs["a"]) | slabs["b"];
+    // clang-format off
+    auto answer_ab_union = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+        {2ul, 0ul}, {2ul, 1ul}, {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
+    // clang-format on
+    test_data.push_back({"a | b", slab_ab_union, answer_ab_union});
+
+    // xor, irregular
+    auto slab_ab_xor = HyperSlab(slabs["a"]) ^ slabs["b"];
+    // clang-format off
+        auto answer_ab_xor = IrregularHyperSlabAnswer{{
+                        {1ul, 1ul}, {1ul, 2ul},
+            {2ul, 0ul},             {2ul, 2ul},
+                        {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"a xor b", slab_ab_xor, answer_ab_xor});
+
+    // (not a) and e, irregular
+    auto slab_ab_nota = HyperSlab(slabs["a"]).notA(slabs["b"]);
+    // clang-format off
+        auto answer_ab_nota = IrregularHyperSlabAnswer{{
+                        {1ul, 1ul}, {1ul, 2ul},
+                                    {2ul, 2ul},
+                        {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"a nota b", slab_ab_nota, answer_ab_nota});
+
+    // (not a) and e, irregular
+    auto slab_ba_notb = HyperSlab(slabs["b"]).notB(slabs["a"]);
+    // clang-format off
+        auto answer_ba_notb = IrregularHyperSlabAnswer{{
+                         {1ul, 1ul}, {1ul, 2ul},
+                                     {2ul, 2ul},
+                         {3ul, 1ul}, {3ul, 2ul}
+        }};
+    // clang-format on
+    test_data.push_back({"b notb a", slab_ba_notb, answer_ba_notb});
+
+    return test_data;
+}
+
+template <typename T>
+void irregularHyperSlabSelectionReadTest() {
+    std::ostringstream filename;
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T values[x_size][y_size];
+    auto file = setupHyperSlabFile(values, filename.str(), DATASET_NAME);
+
+    auto test_cases = make_irregular_hyperslab_test_data();
+
+    for (const auto& test_case: test_cases) {
+        SECTION(test_case.desc) {
+            std::vector<T> result;
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
+
+            auto n_selected = test_case.answer.global_indices.size();
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+
+                REQUIRE(result[i] == values[ig[0]][ig[1]]);
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionRead", "[template]", numerical_test_types) {
+    irregularHyperSlabSelectionReadTest<TestType>();
+}
+
+template <typename T>
+void irregularHyperSlabSelectionWriteTest() {
+    std::ostringstream filename;
+    filename << "h5_write_select_irregular_hyperslab_test_" << typeNameHelper<T>() << "_test.h5";
+
+    const std::string DATASET_NAME("dset");
+
+    const size_t x_size = 10;
+    const size_t y_size = 8;
+
+    T orig_values[x_size][y_size];
+    auto file = setupHyperSlabFile(orig_values, filename.str(), DATASET_NAME);
+
+    auto test_cases = make_irregular_hyperslab_test_data();
+
+    for (const auto& test_case: test_cases) {
+        SECTION(test_case.desc) {
+            auto n_selected = test_case.answer.global_indices.size();
+            std::vector<T> changed_values(n_selected);
+            ContentGenerate<T> gen;
+            std::generate(changed_values.begin(), changed_values.end(), gen);
+
+            file.getDataSet(DATASET_NAME).select(test_case.slab).write(changed_values);
+
+            T overwritten_values[x_size][y_size];
+            file.getDataSet(DATASET_NAME).read(overwritten_values);
+
+            T expected_values[x_size][y_size];
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    expected_values[i][j] = orig_values[i][j];
+                }
+            }
+
+            for (size_t i = 0; i < n_selected; ++i) {
+                const auto ig = test_case.answer.global_indices[i];
+                expected_values[ig[0]][ig[1]] = changed_values[i];
+            }
+
+            for (size_t i = 0; i < x_size; ++i) {
+                for (size_t j = 0; j < y_size; ++j) {
+                    REQUIRE(expected_values[i][j] == overwritten_values[i][j]);
+                }
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::tuple<int>) {
+    irregularHyperSlabSelectionWriteTest<TestType>();
 }
 
 template <typename T>
@@ -1191,7 +1531,6 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteSzip", "[template]", dataset_test_types) {
 
 // Broadcasting is supported
 TEST_CASE("ReadInBroadcastDims") {
-
     const std::string FILE_NAME("h5_missmatch1_dset.h5");
     const std::string DATASET_NAME("dset");
 
@@ -1211,10 +1550,8 @@ TEST_CASE("ReadInBroadcastDims") {
     DataSpace dataspace_b(dims_b);
 
     // Create a dataset with double precision floating points
-    DataSet dataset_a = file.createDataSet(DATASET_NAME + "_a", dataspace_a,
-                                           AtomicType<double>());
-    DataSet dataset_b = file.createDataSet(DATASET_NAME + "_b", dataspace_b,
-                                           AtomicType<double>());
+    DataSet dataset_a = file.createDataSet(DATASET_NAME + "_a", dataspace_a, AtomicType<double>());
+    DataSet dataset_b = file.createDataSet(DATASET_NAME + "_b", dataspace_b, AtomicType<double>());
 
     dataset_a.write(some_data);
     dataset_b.write(some_data);
@@ -1318,9 +1655,7 @@ TEST_CASE("HighFiveInspect") {
     CHECK(ds.getInfo().getRefCount() == 1);
 }
 
-
 TEST_CASE("HighFiveGetPath") {
-
     File file("getpath.h5", File::ReadWrite | File::Create | File::Truncate);
 
     int number = 100;
@@ -1328,7 +1663,8 @@ TEST_CASE("HighFiveGetPath") {
     DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
     dataset.write(number);
     std::string string_list("Very important DataSet!");
-    Attribute attribute = dataset.createAttribute<std::string>("attribute", DataSpace::From(string_list));
+    Attribute attribute = dataset.createAttribute<std::string>("attribute",
+                                                               DataSpace::From(string_list));
     attribute.write(string_list);
 
     CHECK("/" == file.getPath());
@@ -1345,7 +1681,6 @@ TEST_CASE("HighFiveGetPath") {
     const auto& d2 = f2->getDataSet("/group/data");
     f2.reset(nullptr);
     CHECK(d2.getFile().getPath() == "/");
-
 }
 
 TEST_CASE("HighFiveSoftLinks") {
@@ -1379,7 +1714,6 @@ TEST_CASE("HighFiveSoftLinks") {
 }
 
 TEST_CASE("HighFiveRename") {
-
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
 
     int number = 100;
@@ -1405,7 +1739,6 @@ TEST_CASE("HighFiveRename") {
 }
 
 TEST_CASE("HighFiveRenameRelative") {
-
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
     Group group = file.createGroup("group");
 
@@ -1431,13 +1764,13 @@ TEST_CASE("HighFiveRenameRelative") {
 TEST_CASE("HighFivePropertyObjects") {
     const auto& plist1 = FileCreateProps::Default();  // get const-ref, otherwise copies
     CHECK(plist1.getId() == H5P_DEFAULT);
-    CHECK(!plist1.isValid());       // not valid -> no inc_ref
-    auto plist2 = plist1;  // copy  (from Object)
+    CHECK(!plist1.isValid());  // not valid -> no inc_ref
+    auto plist2 = plist1;      // copy  (from Object)
     CHECK(plist2.getId() == H5P_DEFAULT);
 
     // Underlying object is same (singleton holder of H5P_DEFAULT)
     const auto& other_plist_type = LinkCreateProps::Default();
-    CHECK((void*)&plist1 == (void*)&other_plist_type);
+    CHECK((void*) &plist1 == (void*) &other_plist_type);
 
     LinkCreateProps plist_g;
     CHECK(plist_g.getId() == H5P_DEFAULT);
@@ -1449,7 +1782,6 @@ TEST_CASE("HighFivePropertyObjects") {
     CHECK(plist_g2.isValid());
 }
 
-
 typedef struct {
     int m1;
     int m2;
@@ -1459,7 +1791,6 @@ typedef struct {
 typedef struct {
     CSL1 csl1;
 } CSL2;
-
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
@@ -1540,7 +1871,6 @@ TEST_CASE("HighFiveCompounds") {
     CHECK(t2 == t2_from_hid);
 }
 
-
 struct GrandChild {
     uint32_t gcm1;
     uint32_t gcm2;
@@ -1561,25 +1891,34 @@ CompoundType create_compound_GrandChild() {
     auto t2 = AtomicType<uint32_t>();
     CompoundType t1({{"gcm1", AtomicType<uint32_t>{}},
                      {"gcm2", AtomicType<uint32_t>{}},
-                     {"gcm3", t2,                   }});
+                     {
+                         "gcm3",
+                         t2,
+                     }});
     return t1;
 }
 
 CompoundType create_compound_Child() {
     auto nestedType = create_compound_GrandChild();
-    return CompoundType{ { { "grandChild", nestedType,           },
-                           { "cm1",   AtomicType<uint32_t>{}} } };
+    return CompoundType{{{
+                             "grandChild",
+                             nestedType,
+                         },
+                         {"cm1", AtomicType<uint32_t>{}}}};
 }
 
 CompoundType create_compound_Parent() {
     auto nestedType = create_compound_Child();
-    return CompoundType{ { { "pm1",   AtomicType<uint32_t>{}},
-                           { "child", nestedType,           }} };
+    return CompoundType{{{"pm1", AtomicType<uint32_t>{}},
+                         {
+                             "child",
+                             nestedType,
+                         }}};
 }
 
 HIGHFIVE_REGISTER_TYPE(GrandChild, create_compound_GrandChild)
-HIGHFIVE_REGISTER_TYPE(Child,      create_compound_Child)
-HIGHFIVE_REGISTER_TYPE(Parent,     create_compound_Parent)
+HIGHFIVE_REGISTER_TYPE(Child, create_compound_Child)
+HIGHFIVE_REGISTER_TYPE(Parent, create_compound_Parent)
 
 TEST_CASE("HighFiveCompoundsNested") {
     const std::string FILE_NAME("nested_compounds_test.h5");
@@ -1592,8 +1931,8 @@ TEST_CASE("HighFiveCompoundsNested") {
         auto dataset = file.createDataSet(DATASET_NAME, DataSpace(2), type);
         CHECK(dataset.getDataType().getSize() == 20);
 
-        std::vector<Parent> csl = { Parent{ 1, Child{ GrandChild{1,1,1}, 1 } },
-                                    Parent{ 2, Child{ GrandChild{3,4,5}, 6 } } };
+        std::vector<Parent> csl = {Parent{1, Child{GrandChild{1, 1, 1}, 1}},
+                                   Parent{2, Child{GrandChild{3, 4, 5}, 6}}};
         dataset.write(csl);
     }
 
@@ -1617,7 +1956,6 @@ TEST_CASE("HighFiveCompoundsNested") {
         CHECK(result[1].child.cm1 == 6);
     }
 }
-
 
 enum Position {
     FIRST = 1,
@@ -1682,8 +2020,10 @@ TEST_CASE("HighFiveEnum") {
         e1.commit(file, "Direction");
 
         auto dataset = file.createDataSet(DATASET_NAME2, DataSpace(5), e1);
-        std::vector<Direction> robot_moves({Direction::BACKWARD, Direction::FORWARD,
-                                            Direction::FORWARD, Direction::LEFT,
+        std::vector<Direction> robot_moves({Direction::BACKWARD,
+                                            Direction::FORWARD,
+                                            Direction::FORWARD,
+                                            Direction::LEFT,
                                             Direction::LEFT});
         dataset.write(robot_moves);
 
@@ -1708,7 +2048,8 @@ TEST_CASE("HighFiveFixedString") {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
     char raw_strings[][10] = {"abcd", "1234"};
 
-    /// This will not compile - only char arrays - hits static_assert with a nice error
+    /// This will not compile - only char arrays - hits static_assert with a nice
+    /// error
     // file.createDataSet<int[10]>(DS_NAME, DataSpace(2)));
 
     {  // But char should be fine
@@ -1723,8 +2064,7 @@ TEST_CASE("HighFiveFixedString") {
     }
 
     {  // String Truncate happens low-level if well setup
-        auto ds3 = file.createDataSet<char[6]>(
-            "ds3", DataSpace::FromCharArrayStrings(raw_strings));
+        auto ds3 = file.createDataSet<char[6]>("ds3", DataSpace::FromCharArrayStrings(raw_strings));
         ds3.write(raw_strings);
     }
 
@@ -1738,7 +2078,7 @@ TEST_CASE("HighFiveFixedString") {
         const char* buffer[] = {"abcd", "1234"};
         SilenceHDF5 silencer;
         CHECK_THROWS_AS(file.createDataSet<char[10]>("ds5", DataSpace(2)).write(buffer),
-                          HighFive::DataSetException);
+                        HighFive::DataSetException);
     }
 
     {  // scalar char strings
@@ -1769,7 +2109,7 @@ TEST_CASE("HighFiveFixedString") {
         array_back.data()[0] = 'x';
         CHECK(array_back.data() == std::string("x00"));
 
-        for (auto& raw_elem : array_back) {
+        for (auto& raw_elem: array_back) {
             raw_elem[1] = 'y';
         }
         CHECK(array_back.getString(1) == "1y1");
@@ -1780,12 +2120,11 @@ TEST_CASE("HighFiveFixedString") {
 }
 
 TEST_CASE("HighFiveFixedLenStringArrayStructure") {
-
     using fixed_array_t = FixedLenStringArray<10>;
     // increment the characters of a string written in a std::array
     auto increment_string = [](const fixed_array_t::value_type arr) {
         fixed_array_t::value_type output(arr);
-        for (auto& c : output) {
+        for (auto& c: output) {
             if (c == 0) {
                 break;
             }
@@ -1807,8 +2146,7 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         fixed_array_t arr;
         {
             const fixed_array_t arr1{"0000000", "1111111"};
-            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr),
-                           increment_string);
+            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr), increment_string);
         }
         CHECK(arr.size() == 2);
         CHECK(arr[0] == std::string("1111111"));
@@ -1832,7 +2170,9 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         fixed_array_t arr2;
         {
             const fixed_array_t arr1{"0000000", "1111111"};
-            std::remove_copy_if(arr1.begin(), arr1.end(), std::back_inserter(arr2),
+            std::remove_copy_if(arr1.begin(),
+                                arr1.end(),
+                                std::back_inserter(arr2),
                                 [](const fixed_array_t::value_type& s) {
                                     return std::strncmp(s.data(), "1111111", 7) == 0;
                                 });
@@ -1841,7 +2181,6 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         CHECK(arr2[0] == std::string("0000000"));
     }
 }
-
 
 TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
     const std::string FILE_NAME("fixed_array_attr.h5");
@@ -1860,9 +2199,7 @@ TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
         CHECK(arr[0] == std::string("Hello"));
         CHECK(arr[1] == std::string("world"));
     }
-
 }
-
 
 TEST_CASE("HighFiveReference") {
     const std::string FILE_NAME("h5_ref_test.h5");
@@ -1933,26 +2270,22 @@ TEST_CASE("HighFiveReadWriteConsts") {
 
     DataSet dataset = file.createDataSet<datatype>(DATASET_NAME, dataspace);
     std::vector<datatype> const t1(DIMS[0] * DIMS[1] * DIMS[2], 1);
-    auto raw_3d_vec_const = reinterpret_cast<datatype const *const *const *>(t1.data());
+    auto raw_3d_vec_const = reinterpret_cast<datatype const* const* const*>(t1.data());
     dataset.write(raw_3d_vec_const);
 
     std::vector<std::vector<std::vector<datatype>>> result;
     dataset.read(result);
-    for (const auto& vec2d : result) {
-        for (const auto& vec1d : vec2d) {
+    for (const auto& vec2d: result) {
+        for (const auto& vec1d: vec2d) {
             REQUIRE(vec1d == (std::vector<datatype>{1, 1, 1}));
         }
     }
-
 }
 
 #ifdef H5_USE_EIGEN
 
 template <typename T>
-void test_eigen_vec(File& file,
-                    const std::string& test_flavor,
-                    const T& vec_input,
-                    T& vec_output) {
+void test_eigen_vec(File& file, const std::string& test_flavor, const T& vec_input, T& vec_output) {
     const std::string DS_NAME = "ds";
     file.createDataSet(DS_NAME + test_flavor, vec_input).write(vec_input);
     file.getDataSet(DS_NAME + test_flavor).read(vec_output);
@@ -1969,8 +2302,9 @@ TEST_CASE("HighFiveEigen") {
     // std::vector<of vector <of POD>>
     {
         DS_NAME_FLAVOR = "VectorOfVectorOfPOD";
-        std::vector<std::vector<float>> vec_in{
-            {5.0f, 6.0f, 7.0f}, {5.1f, 6.1f, 7.1f}, {5.2f, 6.2f, 7.2f}};
+        std::vector<std::vector<float>> vec_in{{5.0f, 6.0f, 7.0f},
+                                               {5.1f, 6.1f, 7.1f},
+                                               {5.2f, 6.2f, 7.2f}};
         std::vector<std::vector<float>> vec_out;
         test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
@@ -2039,9 +2373,8 @@ TEST_CASE("HighFiveEigen") {
 
         std::vector<Eigen::MatrixXd> vec_out_exception;
         SilenceHDF5 silencer;
-        CHECK_THROWS_AS(
-            file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
-            HighFive::DataSetException);
+        CHECK_THROWS_AS(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
+                        HighFive::DataSetException);
     }
 
 #ifdef H5_USE_BOOST
@@ -2102,9 +2435,8 @@ TEST_CASE("HighFiveEigen") {
         boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
 
         SilenceHDF5 silencer;
-        CHECK_THROWS_AS(
-            file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
-            HighFive::DataSetException);
+        CHECK_THROWS_AS(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
+                        HighFive::DataSetException);
     }
 
 #endif

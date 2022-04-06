@@ -17,7 +17,6 @@
 
 // create a dataset 1D from a vector of int
 void write_dataset() {
-
     // we create a new hdf5 file
     HighFive::File file("dataset_integer.h5", HighFive::File::Overwrite);
 
@@ -56,15 +55,15 @@ void read_dataset() {
 
     // we use the stored reference and dereference it to gain access in the integers'
     // dataset
-    HighFive::DataSet expected_dataset =
-        expected_references[0].dereference<HighFive::DataSet>(my_group);
+    HighFive::DataSet expected_dataset = expected_references[0].dereference<HighFive::DataSet>(
+        my_group);
 
     // as usual, we load the vector with numbers from the extracted dataset
     std::vector<int> read_data;
     expected_dataset.read(read_data);
 
     // and voila, the payload we excepted
-    for (int i : read_data) {
+    for (int i: read_data) {
         std::cout << i << " ";
     }
 }
