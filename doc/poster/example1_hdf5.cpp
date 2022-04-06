@@ -12,7 +12,7 @@ void data_io() {
     std::vector<double> data(50, 1);
 
     // Open a file
-    file_id = H5Fcreate("/tmp/new_file.h5", H5F_ACC_TRUNC, H5P_DEFAULT);
+    file_id = H5Fcreate("new_file.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
     // Create a group
     group_id = H5Gcreate2(file_id, "/group", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);

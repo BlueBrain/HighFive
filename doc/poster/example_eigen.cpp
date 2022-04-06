@@ -1,5 +1,7 @@
 #include <iostream>
 
+#define H5_USE_EIGEN 1
+
 #include <Eigen/Dense>
 #include <highfive/H5File.hpp>
 
