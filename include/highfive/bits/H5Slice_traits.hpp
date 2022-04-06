@@ -49,15 +49,6 @@ class ElementSet {
     friend class SliceTraits;
 };
 
-inline bool isRegularHyperslab(const DataSpace& dataspace) {
-    htri_t ret;
-    if ((ret = H5Sis_regular_hyperslab(dataspace.getId())) < 0) {
-        throw DataSpaceException("`H5Sis_regular_hyperslab` failed.");
-    }
-
-    return ret > 0;
-}
-
 namespace detail {
 
 template <class To, class From>
@@ -125,22 +116,6 @@ struct RegularHyperSlab {
     std::vector<hsize_t> block;
 };
 
-inline RegularHyperSlab getRegularHyperslab(const DataSpace& dataspace) {
-    auto n_dims = dataspace.getNumberDimensions();
-
-    std::vector<hsize_t> offset(n_dims);
-    std::vector<hsize_t> stride(n_dims);
-    std::vector<hsize_t> count(n_dims);
-    std::vector<hsize_t> block(n_dims);
-
-    if (H5Sget_regular_hyperslab(
-            dataspace.getId(), offset.data(), stride.data(), count.data(), block.data()) < 0) {
-        throw DataSpaceException("Failed to retrieve regular hyperslab.");
-    }
-
-    return RegularHyperSlab::fromHDF5Sizes(offset, count, stride, block);
-}
-
 class HyperSlab {
   public:
     HyperSlab() {
@@ -192,15 +167,6 @@ class HyperSlab {
     HyperSlab& notB(const RegularHyperSlab& sel) {
         selects.emplace_back(sel, Op::NotB);
         return *this;
-    }
-
-    bool isRegular(const DataSpace& dataspace) const {
-        if (selects.empty()) {
-            return true;
-        }
-
-        auto selection = apply(dataspace);
-        return isRegularHyperslab(selection);
     }
 
     DataSpace apply(const DataSpace& space_) const {
@@ -282,7 +248,13 @@ template <typename Derivate>
 class SliceTraits {
   public:
     ///
-    /// \brief Select an \p hyperslab in the current Slice/Dataset
+    /// \brief Select an \p hyperslab in the current Slice/Dataset.
+    ///
+    /// HyperSlabs can be either regular or irregular. Irregular hyperslabs are typically generated
+    /// by taking the union of regular hyperslabs. An irregular hyperslab, in general, does not fit
+    /// nicely into a multi-dimensional array, but only a subset of such an array.
+    ///
+    /// Therefore, the only memspaces supported for general hyperslabs are one-dimensional arrays.
     Selection select(const HyperSlab& hyperslab) const;
 
     ///

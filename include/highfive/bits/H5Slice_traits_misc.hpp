@@ -92,17 +92,10 @@ inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) cons
     auto filespace = slice.getSpace();
     filespace = hyper_slab.apply(filespace);
 
-    if (hyper_slab.isRegular(filespace)) {
-        auto regular_slab = getRegularHyperslab(filespace);
-        auto memspace = DataSpace(regular_slab.packedDims());
+    auto n_elements = H5Sget_select_npoints(filespace.getId());
+    auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
 
-        return Selection(memspace, filespace, details::get_dataset(slice));
-    } else {
-        auto n_elements = H5Sget_select_npoints(filespace.getId());
-        auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
-
-        return Selection(memspace, filespace, details::get_dataset(slice));
-    }
+    return Selection(memspace, filespace, details::get_dataset(slice));
 }
 
 
