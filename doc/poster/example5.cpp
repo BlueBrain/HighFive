@@ -11,7 +11,6 @@ void data_io(void) {
     const int ncols = 3;
 
     try {
-
         Eigen::MatrixXd mat(nrows, ncols);
 
         for (int i = 0; i < nrows; ++i) {
@@ -31,5 +30,4 @@ void data_io(void) {
     } catch (Exception& err) {
         std::cerr << err.what() << std::endl;
     }
-
 }

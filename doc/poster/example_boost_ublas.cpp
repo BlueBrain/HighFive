@@ -1,6 +1,6 @@
 #include <iostream>
 
-// In some versions of Boost (starting with 1.64), you have to 
+// In some versions of Boost (starting with 1.64), you have to
 // include the serialization header before ublas
 #include <boost/serialization/vector.hpp>
 
@@ -29,8 +29,7 @@ void data_io() {
         // Create a new HDF5 file
         File file("boost_ublas.h5", File::ReadWrite | File::Create | File::Truncate);
 
-        DataSet dataset =
-            file.createDataSet<double>(DATASET_NAME, DataSpace::From(mat));
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(mat));
 
         dataset.write(mat);
 

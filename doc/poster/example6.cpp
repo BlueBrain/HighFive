@@ -20,9 +20,9 @@ int main(int argc, char** argv) {
 
     using namespace HighFive;
     try {
-
         // open a new file with the MPI IO driver for parallel Read/Write
-        File file("parallel_highfive.h5", File::ReadWrite | File::Create | File::Truncate,
+        File file("parallel_highfive.h5",
+                  File::ReadWrite | File::Create | File::Truncate,
                   MPIOFileDriver(MPI_COMM_WORLD, MPI_INFO_NULL));
 
         // we define the size of our dataset to
@@ -33,8 +33,7 @@ int main(int argc, char** argv) {
         dims[1] = 2;
 
         // Create the dataset
-        DataSet dset =
-            file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        DataSet dset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
 
         // Each node want to write its own rank two time in
         // its associated row
