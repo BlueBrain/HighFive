@@ -26,12 +26,11 @@ int do_iteration() {
     std::vector<int> data_contig;
     data_contig.reserve(NROWS * ROW_LENGTH);
     for (const auto& row : data) {
-        std::copy(row.begin(), row.end(), std::back_inserter(data_contig));
+        data_contig.insert(data_contig.end(), row.begin(), row.end());
     }
 
-    /* Write each row to the dataset. */
-
     status = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data_contig.data());
+
     status |= H5Sclose(dataspace_id);
     status |= H5Dclose(dataset_id);
     status |= H5Fclose(file_id);
