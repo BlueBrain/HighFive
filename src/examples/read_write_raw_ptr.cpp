@@ -25,13 +25,13 @@ const std::string DATASET_NAME("array");
 // Conceptionually this is only a raw pointer with dimensions. The
 // data is store in row-major, aka C-style, without stride, offset
 // or padding.
-std::vector<double> make_array(const std::vector<size_t> &dims) {
+std::vector<double> make_array(const std::vector<size_t>& dims) {
     auto n_elements = dims[0] * dims[1];
     std::vector<double> nd_array(n_elements, 0.0);
 
-    for(size_t i = 0; i < dims[0]; ++i) {
-        for(size_t j= 0; j < dims[1]; ++j) {
-            nd_array[j + i*dims[1]] = double(j) + 100.0 * double(i);
+    for (size_t i = 0; i < dims[0]; ++i) {
+        for (size_t j = 0; j < dims[1]; ++j) {
+            nd_array[j + i * dims[1]] = double(j) + 100.0 * double(i);
         }
     }
 
@@ -70,7 +70,6 @@ int main(void) {
             // Finally, read into the memory by passing a raw pointer to the library.
             dataset.read<double>(nd_array.data());
         }
-
 
 
     } catch (Exception& err) {
