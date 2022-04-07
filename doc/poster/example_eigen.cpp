@@ -29,7 +29,7 @@ void data_io(void) {
         Eigen::MatrixXd result;
         dset.read(result);
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         std::cerr << err.what() << std::endl;
     }
 }

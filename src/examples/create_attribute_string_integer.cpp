@@ -60,7 +60,7 @@ int main(void) {
             std::cout << "attribute: " << attr << std::endl;
         }
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }

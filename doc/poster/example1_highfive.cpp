@@ -1,6 +1,6 @@
 #include <highfive/H5File.hpp>
 
-using namespace HighFive;
+using HighFive::File;
 
 void write_io() {
     std::vector<int> d1(50, 1);
