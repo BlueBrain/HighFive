@@ -175,7 +175,7 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get update
-        sudo apt-get install libboost-all-dev libhdf5-dev libeigen3-dev libopencv-dev libsz2 ninja-build
+        sudo apt-get install lcov libboost-all-dev libhdf5-dev libeigen3-dev libopencv-dev libsz2 ninja-build
 
     - uses: actions/checkout@v3
       with:
