@@ -23,7 +23,7 @@ int main(void) {
     Group group = file.createGroup("group");
 
     // Create a dummy dataset of one single integer
-    DataSet dataset = group.createDataSet("data", DataSpace(1), AtomicType<int>());
+    DataSet dataset = group.createDataSet("data", DataSpace(1), create_datatype<int>());
     dataset.write(100);
 
     // Let's also add a attribute to this dataset

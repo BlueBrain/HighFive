@@ -224,6 +224,11 @@ class EnumType: public DataType {
 
     EnumType(const std::vector<member_def>& t_members)
         : members(t_members) {
+        static_assert(std::is_enum<T>::value, "EnumType<T>::create takes only enum");
+        if (members.empty()) {
+            HDF5ErrMapper::ToException<DataTypeException>(
+                "Could not create an enum without members");
+        }
         create();
     }
 

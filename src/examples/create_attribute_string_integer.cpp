@@ -31,7 +31,7 @@ int main(void) {
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create a dummy dataset of one single integer
-        DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(1), AtomicType<int>());
+        DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(1), create_datatype<int>());
 
         // Now let's add a attribute on this dataset
         // This attribute will be named "note"
