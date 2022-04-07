@@ -31,7 +31,7 @@ std::vector<double> make_array(const std::vector<size_t> &dims) {
 
     for(size_t i = 0; i < dims[0]; ++i) {
         for(size_t j= 0; j < dims[1]; ++j) {
-            nd_array[j + i*dims[1]] = j + 100.0 * i;
+            nd_array[j + i*dims[1]] = double(j) + 100.0 * double(i);
         }
     }
 
