@@ -40,7 +40,7 @@ void data_io() {
 
         std::cout << "Matrix result:\n" << result << std::endl;
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
     }

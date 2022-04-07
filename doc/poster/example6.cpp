@@ -1,6 +1,4 @@
 #include <iostream>
-#include <string>
-#include <vector>
 
 #include <mpi.h>
 
@@ -42,7 +40,7 @@ int main(int argc, char** argv) {
         // write it to the associated mpi_rank
         dset.select({std::size_t(mpi_rank), 0}, {1, 2}).write(data);
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         // catch and print any HDF5 error
         std::cerr << err.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 1);
