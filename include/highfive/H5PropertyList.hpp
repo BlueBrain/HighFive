@@ -228,7 +228,6 @@ class Chunking {
 
   private:
     friend DataSetCreateProps;
-    friend GroupCreateProps;
     void apply(hid_t hid) const;
     const std::vector<hsize_t> _dims;
 };
