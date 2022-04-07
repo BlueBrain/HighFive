@@ -3,7 +3,6 @@
 using namespace HighFive;
 
 int write_data() {
-
     FileDriver fdrv;
 
     fdrv.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
