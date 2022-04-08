@@ -169,6 +169,7 @@ jobs:
   # Job producing code coverage report
   # ==================================
   Code_coverage:
+    # When ubuntu version will be upgrade, you should look if xtensor is nowavailable
     runs-on: ubuntu-20.04
 
     steps:
