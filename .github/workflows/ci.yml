@@ -169,11 +169,14 @@ jobs:
   # Job producing code coverage report
   # ==================================
   Code_coverage:
-    runs-on: macOS-10.15
+    # When ubuntu version will be upgrade, you should look if xtensor is nowavailable
+    runs-on: ubuntu-20.04
 
     steps:
     - name: "Install libraries"
-      run: brew install boost eigen hdf5 lcov ninja opencv xtensor
+      run: |
+        sudo apt-get update
+        sudo apt-get install lcov libboost-all-dev libhdf5-dev libeigen3-dev libopencv-dev libsz2 ninja-build
 
     - uses: actions/checkout@v3
       with:
@@ -187,7 +190,7 @@ jobs:
           -DHIGHFIVE_USE_BOOST:BOOL=ON
           -DHIGHFIVE_USE_EIGEN:BOOL=ON
           -DHIGHFIVE_USE_OPENCV:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          #-DHIGHFIVE_USE_XTENSOR:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DCMAKE_CXX_FLAGS="-coverage -O0"
         )
