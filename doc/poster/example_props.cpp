@@ -1,8 +1,8 @@
-#include <HighFive>
+#include <highfive/H5File.hpp>
 
-using HighFive;
+using namespace HighFive;
 
-void write_data() {
+int write_data() {
     FileDriver fdrv;
 
     fdrv.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
@@ -12,10 +12,13 @@ void write_data() {
 
     GroupCreateProps props;
     props.add(EstimatedLinkInfo(1000, 500));
-    props.add(Chunking(std::vector<hsize_t>{2, 2}));
-    props.add(Deflate(9));
     auto group = file.createGroup("g", props);
 
+    DataSetCreateProps dsprops;
+    dsprops.add(Chunking(std::vector<hsize_t>{2, 2}));
+    dsprops.add(Deflate(9));
+
+
     std::vector<int> d1(100000, 1);
-    group.createDataSet("dset1", d1);
+    group.createDataSet("dset1", d1, dsprops);
 }

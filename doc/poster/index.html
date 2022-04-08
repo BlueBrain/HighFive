@@ -26,6 +26,9 @@
         background-color: #f8f9fa;
         font-size: small;
       }
+      .godbolt {
+        cursor: pointer;
+      }
     </style>
   </head>
 
@@ -88,13 +91,17 @@
           <tbody>
             <tr>
               <td>
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example1_highfive" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_highfive" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
+                  </div>
                 </div>
               </td>
               <td>
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example1_hdf5" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_hdf5" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -104,14 +111,14 @@
 
       <div class="container mb-5">
         <h2>Support for HDF5 advanced features</h2>
-        <p>Its simplified data-management does not come at a loss of of HDF5's fledibility and
+        <p>Its simplified data-management does not come at a loss of HDF5's flexibility and
         advanced features and tunable parameters are exposed through a simple interface. File
         version bounds can be read and written to define object compatibility, the metadata
         block size can be set. Group properties for compression, chunking and link info
         estimates can be set and read:</p>
         <div class="card w-75">
-          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example2" width=16 height=16  class="godbolt float-end">
-              <pre class="font-monospace"><div class="example" id="example2"></div></pre>
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example_props" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" id="example_props"></div></pre>
           </div>
         </div>
       </div>
@@ -124,8 +131,8 @@
         achieved through various templated converters. Additionally, HighFive supports enums and
         various string types.</p>
         <div class="card w-75">
-          <div class="card-body">
-            <ul class="nav nav-tabs" id="highfive-type-support" role="tablist">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="highfive-type-support" role="tablist">
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="compound-tab" data-bs-toggle="tab"
                                                                   data-bs-target="#compound" type="button" role="tab" aria-controls="compound"
@@ -149,33 +156,26 @@
                                                                              type="button" role="tab" aria-controls="eigen" aria-selected="false">Eigen</button>
               </li>
             </ul>
-            <div class="tab-content" id="highfive-type-support-content">
-              <div class="tab-pane fade show active" id="compound" role="tabpanel"
-                                                                   aria-labelledby="compound-tab">
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example3" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example3"></div></pre>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example_boost"></div></pre>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="boost-ublas" role="tabpanel"
-                aria-labelledby="boost-ublas-tab">
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost_ublas" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example_boost_ublas"></div></pre>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
-                <div class="code container"><img src="godbolt.org.ico" id="gb_example_boost_ublas" width=16 height=16  class="godbolt float-end">
-                  <pre class="font-monospace"><div class="example" id="example5"></div></pre>
-                </div>
-              </div>
+          </div>
+          <div class="tab-content code card-body" id="highfive-type-support-content">
+            <div class="tab-pane fade show active" id="compound" role="tabpanel" aria-labelledby="compound-tab">
+              <img src="godbolt.org.ico" id="gb_example3" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" id="example3"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
+              <img src="godbolt.org.ico" id="gb_example_boost" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" id="example_boost"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="boost-ublas" role="tabpanel" aria-labelledby="boost-ublas-tab">
+              <img src="godbolt.org.ico" id="gb_example_boost_ublas" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" id="example_boost_ublas"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
+              <img src="godbolt.org.ico" id="gb_example_eigen" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" id="example_eigen"></div></pre>
             </div>
           </div>
         </div>
-
       </div>
       <div class="container mb-5">
         <h2>HighFive for parallel applications</h2>
@@ -185,7 +185,7 @@
         initialized. No other special API calls are required since all necessary provisions are
         handled transparently.</p>
         <div class="card w-75">
-          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example6" width=16 height=16  class="godbolt float-end">
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example6" width=32 height=32  class="godbolt float-end img-thumbnail">
             <pre class="font-monospace"><div class="example" id="example6"></div></pre>
           </div>
         </div>
@@ -204,11 +204,15 @@
       </div> <!-- top level container -->
       <div class="container">
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-          <div class="col-md-4 d-flex align-items-left">
-            <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
-              <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
-            </a>
-            <span class="text-muted">© 2022 Blue Brain Project/EPFL</span>
+          <div class="col-md-8 d-flex align-items-left">
+            <span class="text-muted">© 2022 Blue Brain Project/EPFL<br>
+              <small>The development of this software was supported by funding to the Blue Brain
+                Project, a research center of the École polytechnique fédérale de Lausanne (EPFL),
+                from the Swiss government's ETH Board of the Swiss Federal Institutes of
+                Technology.</small>
+            </span><br>
+            <span class="text-muted">
+            </span>
           </div>
           <div class="col-md-4 justify-content-end list-unstyled d-flex">
             <span class="text-muted">Boost Software License 1.0</span>

@@ -239,6 +239,7 @@ class Deflate {
 
   private:
     friend DataSetCreateProps;
+    friend GroupCreateProps;
     void apply(hid_t hid) const;
     const unsigned _level;
 };

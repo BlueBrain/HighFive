@@ -1,5 +1,6 @@
-#include <algorithm>
 #include <complex>
+
+#define H5_USE_BOOST 1
 
 #include <boost/multi_array.hpp>
 #include <highfive/H5DataSet.hpp>
@@ -15,5 +16,8 @@ void data_io() {
 
     HighFive::File file("multi_array_complex.h5", HighFive::File::Truncate);
 
-    HighFive::DataSet dataset = file.createDataSet("multi_array", multi_array);
+    HighFive::DataSet dataset =
+        file.createDataSet<complex_t>("multi_array", HighFive::DataSpace::From(multi_array));
+
+    dataset.write(multi_array);
 }

@@ -1,5 +1,7 @@
 #include <iostream>
 
+#define H5_USE_EIGEN 1
+
 #include <Eigen/Dense>
 #include <highfive/H5File.hpp>
 
@@ -27,7 +29,7 @@ void data_io(void) {
         Eigen::MatrixXd result;
         dset.read(result);
 
-    } catch (Exception& err) {
+    } catch (const Exception& err) {
         std::cerr << err.what() << std::endl;
     }
 }
