@@ -1011,7 +1011,8 @@ std::vector<std::array<size_t, 1>> local_indices_1d(const std::vector<size_t>& c
 struct RegularHyperSlabAnswer {
     static RegularHyperSlabAnswer createRegular(const std::vector<size_t>& offset,
                                                 const std::vector<size_t>& count) {
-        return RegularHyperSlabAnswer{global_indices_2d(offset, count), local_indices_2d(count)};
+        return RegularHyperSlabAnswer{global_indices_2d(offset, count),
+                                      local_indices_1d({count[0] * count[1]})};
     }
 
     // These are the selected indices in the
@@ -1020,7 +1021,7 @@ struct RegularHyperSlabAnswer {
 
     // These are the selected indices in the compacted (inner)
     // array.
-    std::vector<std::array<size_t, 2>> local_indices;
+    std::vector<std::array<size_t, 1>> local_indices;
 };
 
 struct RegularHyperSlabTestData {
@@ -1075,7 +1076,7 @@ std::vector<RegularHyperSlabTestData> make_regular_hyperslab_test_data() {
 
     // Intersection, always regular
     auto slab_ab_cut = HyperSlab(slabs["a"]) & slabs["b"];
-    auto answer_ab_cut = RegularHyperSlabAnswer{{{4ul, 3ul}, {5ul, 3ul}}, {{0ul, 0ul}, {1ul, 0ul}}};
+    auto answer_ab_cut = RegularHyperSlabAnswer::createRegular({4ul, 3ul}, {2ul, 1ul});
     test_data.push_back({"a & b", slab_ab_cut, answer_ab_cut});
 
     // Intersection, always regular
@@ -1140,7 +1141,7 @@ void regularHyperSlabSelectionTest() {
 
     for (const auto& test_case: test_cases) {
         SECTION(test_case.desc) {
-            std::vector<std::vector<T>> result;
+            std::vector<T> result;
 
             file.getDataSet(DATASET_NAME).select(test_case.slab).read(result);
 
@@ -1149,7 +1150,7 @@ void regularHyperSlabSelectionTest() {
                 const auto ig = test_case.answer.global_indices[i];
                 const auto il = test_case.answer.local_indices[i];
 
-                REQUIRE(result[il[0]][il[1]] == values[ig[0]][ig[1]]);
+                REQUIRE(result[il[0]] == values[ig[0]][ig[1]]);
             }
         }
     }
