@@ -270,7 +270,7 @@ inline size_t find_first_atomic_member_size(hid_t hid) {
 
 // Calculate the padding required to align an element of a struct
 #define _H5_STRUCT_PADDING(current_size, member_size) \
-    (((member_size) - (current_size)) % (member_size))
+    ((std::max(member_size, current_size) - std::min(member_size, current_size)) % (member_size))
 
 inline void CompoundType::create(size_t size) {
     if (size == 0) {
