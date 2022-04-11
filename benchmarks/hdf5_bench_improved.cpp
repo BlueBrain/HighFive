@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 #include "hdf5.h"
@@ -7,6 +8,18 @@
 #define ROW_LENGTH 10
 
 const std::vector<std::vector<int>> data(NROWS, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+inline void check_dimensions(size_t size_vec,
+                             size_t size_dataset,
+                             size_t dimension) {
+    if (size_vec != size_dataset) {
+        std::ostringstream ss;
+        ss << "Mismatch between vector size (" << size_vec
+           << ") and dataset size (" << size_dataset;
+        ss << ") on dimension " << dimension;
+        throw ss.str();
+    }
+}
 
 int do_iteration() {
     /* Create a new file using default properties. */
@@ -26,6 +39,7 @@ int do_iteration() {
     std::vector<int> data_contig;
     data_contig.reserve(NROWS * ROW_LENGTH);
     for (const auto& row : data) {
+        check_dimensions(row.size(), dims[1], 1);
         data_contig.insert(data_contig.end(), row.begin(), row.end());
     }
 
@@ -42,7 +56,7 @@ int do_iteration() {
 
 
 int main() {
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<200; i++) {
         do_iteration();
     }
 }

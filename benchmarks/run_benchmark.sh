@@ -12,6 +12,7 @@ for exe in $executables; do
     time ./$exe
 done
 
+return 0
 
 # Profile using hpctoolkit
 module load hpctoolkit
@@ -21,5 +22,5 @@ for exe in $executables; do
     echo -e "\nProfiling $exe"
     hpcrun -c f1000000 -e PERF_COUNT_HW_CPU_CYCLES -e REALTIME  ./$exe
     hpcstruct ./$exe
-    hpcprof -S $exe.hpcstruct -I ./ -I '../include/*' -I /gpfs/bbp.cscs.ch/ssd/apps/hpc/jenkins/deploy/compilers/2021-01-06/linux-rhel7-x86_64/gcc-4.8.5/gcc-10.2.0-wvxdxx/include/* hpctoolkit-$exe-*
+    hpcprof -S $exe.hpcstruct -I ./ -I '../include/*' hpctoolkit-$exe-*
 done
