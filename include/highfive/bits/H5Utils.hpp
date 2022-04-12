@@ -293,7 +293,7 @@ inline std::string get_name(T fct) {
         return std::string(buffer, length);
     }
     std::vector<char> bigBuffer(length + 1, 0);
-    fct(bigBuffer.data(), static_cast<hsize_t>(length) + 1);
+    fct(bigBuffer.data(), length + 1);
     return std::string(bigBuffer.data(), length);
 }
 
