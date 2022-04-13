@@ -11,7 +11,7 @@
     <script
         src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"></script> 
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
     <style>
       body {
@@ -50,10 +50,10 @@
         <h1>HighFive: An easy-to-use, header-only C++ library for HDF5</h1>
 
         <p><i>Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
-          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Nicolas Cornu<sup>1</sup>, Tom de
-          Geus<sup>2</sup>, Luc Grosheintz-Laval<sup>1</sup>, Pramod Kumbhar<sup>1</sup>, Fernando
-          Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias Wolf<sup>1</sup>, James
-          King<sup>1</sup></i></p>
+          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Nicolas Cornu<sup>1</sup>,
+          Tom de Geus<sup>2</sup>, Luc Grosheintz-Laval<sup>1</sup>, Pramod Kumbhar<sup>1</sup>,
+          Fernando Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias Wolf<sup>1</sup>,
+          James King<sup>1</sup></i></p>
       </div>
       <div class="container">
         <p>
@@ -66,11 +66,11 @@
         <h2>Introduction</h2>
         <p>The use of portable scientific data formats are vital for managing complex workflows,
         reliable data storage, knowledge transfer, and long-term maintainability and
-        reproducibility.  Hierarchical Data Format (HDF) 5 is considered the de-facto
+        reproducibility. Hierarchical Data Format (HDF) 5 is considered the de-facto
         industry-standard for this purpose. While the official HDF5 library is versatile and
         well supported, it only provides a low-level C/C++ interface. Lacking proper high-level
         C++ abstractions dissuades the use of HDF5 in scientific applications. There are a
-        number of C++ wrapper libraries  available. Many, however, are domain-specific,
+        number of C++ wrapper libraries available. Many, however, are domain-specific,
         incomplete or not actively maintained.</p>
         <p>HighFive is an attempt to address these challenges.</p>
       </div>
@@ -181,7 +181,7 @@
         <h2>HighFive for parallel applications</h2>
         <p>With the aim to support large-scale scientific application, we have made an effort to
         also natively support the HDF5 MPI backend in HighFive. A special
-        <code>MPIOFileDriver</code> is used in the applicaiton code to ensure that HDF5 is correctly
+        <code>MPIOFileDriver</code> is used in the application code to ensure that HDF5 is correctly
         initialized. No other special API calls are required since all necessary provisions are
         handled transparently.</p>
         <div class="card w-75">
@@ -194,12 +194,15 @@
       <div class="container mb-5">
         <h2>Obtaining and building HighFive</h2>
         <p>HighFive is developed open-source and can be cloned and forked from
-        <a href=https://github.com/BlueBrain/HighFive">github</a>. It can also be installed via
-        spack. Being a header-only library, HighFive can be used directly as a subfolder in a C++
-        project, for example by adding it as a submodule. It can also be installed (we use the CMake
-        build system) and added to a project using the <code>find_project</code> CMake function.
-        More details can be found in the <a href=""https://github.com/BlueBrain/HighFive/blob/master/README.md>README.md</a>
-        file.
+        <a href="https://github.com/BlueBrain/HighFive">GitHub</a>.
+        It can also be installed from the clone,
+        via <a href="https://spack.readthedocs.io/en/latest/package_list.html#highfive">spack</a>,
+        or via <a href="https://anaconda.org/conda-forge/highfive">conda</a>.
+        It can then be used for example with <code>find_package(HighFive)</code> in CMake.
+        Being a header-only library, HighFive can be used directly as a subfolder in a C++ project,
+        for example by adding it as a submodule.
+        More details can be found in the
+        <a href=""https://github.com/BlueBrain/HighFive/blob/master/README.md>README.md</a> file.
         </p>
       </div> <!-- top level container -->
       <div class="container">
