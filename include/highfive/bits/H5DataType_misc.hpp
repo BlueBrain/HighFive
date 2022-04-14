@@ -169,8 +169,9 @@ class AtomicType<FixedLenStringArray<StrLen>>: public DataType {
         : DataType(create_string(StrLen)) {}
 };
 
-template <> inline AtomicType<std::complex<float>>::AtomicType() {
-    static struct ComplexType : public Object {
+template <>
+inline AtomicType<std::complex<float>>::AtomicType() {
+    static struct ComplexType: public Object {
         ComplexType() {
             _hid = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<float>));
             // h5py/numpy compatible datatype
