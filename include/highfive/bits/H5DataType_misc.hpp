@@ -169,31 +169,14 @@ class AtomicType<FixedLenStringArray<StrLen>>: public DataType {
         : DataType(create_string(StrLen)) {}
 };
 
-template <>
-inline AtomicType<std::complex<float>>::AtomicType() {
-    static struct ComplexType: public Object {
-        ComplexType() {
-            _hid = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<float>));
-            // h5py/numpy compatible datatype
-            H5Tinsert(_hid, "r", 0, H5T_NATIVE_FLOAT);
-            H5Tinsert(_hid, "i", sizeof(float), H5T_NATIVE_FLOAT);
-        };
-    } complexType;
-    _hid = H5Tcopy(complexType.getId());
-}
-
-template <>
-inline AtomicType<std::complex<double>>::AtomicType() {
-    static struct ComplexType: public Object {
-        ComplexType() {
-            _hid = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
-            // h5py/numpy compatible datatype
-            H5Tinsert(_hid, "r", 0, H5T_NATIVE_DOUBLE);
-            H5Tinsert(_hid, "i", sizeof(double), H5T_NATIVE_DOUBLE);
-        };
-    } complexType;
-    _hid = H5Tcopy(complexType.getId());
-}
+template <typename T>
+class AtomicType<std::complex<T>>: public DataType {
+  public:
+    inline AtomicType()
+        : DataType(CompoundType({{"r", create_datatype<T>(), 0},
+                                 {"i", create_datatype<T>(), sizeof(T)}},
+                                sizeof(std::complex<T>))) {}
+};
 
 // Other cases not supported. Fail early with a user message
 template <typename T>

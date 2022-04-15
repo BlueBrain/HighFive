@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+using ldcomplex = std::complex<long double>;
 using dcomplex = std::complex<double>;
 using fcomplex = std::complex<float>;
 
@@ -27,6 +28,7 @@ using numerical_test_types = std::tuple<int,
                                         double,
                                         long long,
                                         unsigned long long,
+                                        ldcomplex,
                                         dcomplex,
                                         fcomplex>;
 
@@ -90,6 +92,11 @@ struct ContentGenerate {
 
     T _init, _inc;
 };
+
+template <>
+ContentGenerate<ldcomplex>::ContentGenerate()
+    : _init(0, 0)
+    , _inc(ldcomplex(1, 1) + ldcomplex(1, 1) / ldcomplex(10)) {}
 
 template <>
 ContentGenerate<dcomplex>::ContentGenerate()
