@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 
-using complex = std::complex<double>;
+using dcomplex = std::complex<double>;
+using fcomplex = std::complex<float>;
 
 using floating_numerics_test_types = std::tuple<float, double>;
 
@@ -26,7 +27,8 @@ using numerical_test_types = std::tuple<int,
                                         double,
                                         long long,
                                         unsigned long long,
-                                        complex>;
+                                        dcomplex,
+                                        fcomplex>;
 
 using dataset_test_types =
     std::tuple<int, unsigned int, long, unsigned long, unsigned char, char, float, double>;
@@ -90,9 +92,14 @@ struct ContentGenerate {
 };
 
 template <>
-ContentGenerate<complex>::ContentGenerate()
+ContentGenerate<dcomplex>::ContentGenerate()
     : _init(0, 0)
-    , _inc(complex(1, 1) + complex(1, 1) / complex(10)) {}
+    , _inc(dcomplex(1, 1) + dcomplex(1, 1) / dcomplex(10)) {}
+
+template <>
+ContentGenerate<fcomplex>::ContentGenerate()
+    : _init(0, 0)
+    , _inc(fcomplex(1, 1) + fcomplex(1, 1) / fcomplex(10)) {}
 
 template <>
 struct ContentGenerate<char> {
