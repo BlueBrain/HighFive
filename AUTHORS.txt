@@ -32,6 +32,7 @@ Nicolas Cornu (maintainer)
 Omar Awile
 Pablo Toharia
 Philip Deegan
+Philipp Gloor
 Pramod Kumbhar
 Richard Shaw
 Rick Nitsche
