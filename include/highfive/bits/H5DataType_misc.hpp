@@ -173,9 +173,9 @@ template <typename T>
 class AtomicType<std::complex<T>>: public DataType {
   public:
     inline AtomicType()
-        : DataType(CompoundType({{"r", create_datatype<T>(), 0},
-                                 {"i", create_datatype<T>(), sizeof(T)}},
-                                sizeof(std::complex<T>))) {}
+        : DataType(
+              CompoundType({{"r", create_datatype<T>(), 0}, {"i", create_datatype<T>(), sizeof(T)}},
+                           sizeof(std::complex<T>))) {}
 };
 
 // Other cases not supported. Fail early with a user message
