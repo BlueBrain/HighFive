@@ -4,6 +4,9 @@
 [![Coverity Statys](https://scan.coverity.com/projects/13635/badge.svg)](https://scan.coverity.com/projects/highfive)
 [![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg)](https://BlueBrain.github.io/HighFive)
 [![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
+[![HighFive_Integration_tests](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml/badge.svg)](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml)
+
+Documentation: https://bluebrain.github.io/HighFive/
 
 ## Brief
 
@@ -189,14 +192,17 @@ make test  # build and run unit tests
 **Note:** Unit tests require Boost. In case it's unavailable you may use `-DHIGHFIVE_USE_BOOST=OFF`.
 HighFive with disable support for Boost types as well as unit tests (though most examples will build).
 
+### Code formatting
+If you want to propose pull requests to this project, do not forget to format code with
+clang-format version 12.
+The .clang-format is at the root of the git repository.
 
-### Contributors
 
-See the list of contributors on [GitHub](https://github.com/BlueBrain/HighFive/graphs/contributors)
-
-Originally created by Adrien Devresse adrien.devresse@epfl.ch - Blue Brain Project
-
-Maintained by the Computing/HPC team, Blue Brain Project - EPFL
+# Funding & Acknowledgment
+ 
+The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+ 
+Copyright © 2015-2021 Blue Brain Project/EPFL
 
 
 ### License

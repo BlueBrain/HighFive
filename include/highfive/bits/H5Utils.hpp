@@ -12,18 +12,20 @@
 // internal utilities functions
 #include <algorithm>
 #include <array>
-#include <cstddef> // __GLIBCXX__
+#include <cstddef>  // __GLIBCXX__
 #include <exception>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 #ifdef H5_USE_BOOST
-# include <boost/multi_array.hpp>
-# include <boost/numeric/ublas/matrix.hpp>
+// starting Boost 1.64, serialization header must come before ublas
+#include <boost/serialization/vector.hpp>
+#include <boost/multi_array.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #endif
 #ifdef H5_USE_EIGEN
-# include <Eigen/Eigen>
+#include <Eigen/Eigen>
 #endif
 
 #include <H5public.h>
@@ -38,8 +40,7 @@ class FixedLenStringArray;
 
 
 template <typename T>
-using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type
-        >::type;
+using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
 namespace details {
 template <typename T>
@@ -80,8 +81,10 @@ struct inspector<std::vector<T>> {
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{val.size()};
         size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-            sizes[index++] = s;
+        if (!val.empty()) {
+            for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+                sizes[index++] = s;
+            }
         }
         return sizes;
     }
@@ -102,7 +105,7 @@ struct inspector<T*> {
 };
 
 template <typename T>
-struct inspector<const T*> : public inspector<T*> {};
+struct inspector<const T*>: public inspector<T*> {};
 
 
 template <typename T, size_t N>
@@ -154,7 +157,8 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
+        std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()),
+                                                 static_cast<size_t>(val.cols())};
         size_t index = ndim;
         for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
             sizes[index++] = s;
@@ -212,25 +216,21 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 // Find the type of an eventual char array, otherwise void
 template <typename>
 struct type_char_array {
-    typedef void type;
+    using type = void;
 };
 
 template <typename T>
 struct type_char_array<T*> {
-    typedef typename std::conditional<
-        std::is_same<unqualified_t<T>, char>::value,
-        char*,
-        typename type_char_array<T>::type
-    >::type type;
+    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                           char*,
+                                           typename type_char_array<T>::type>::type;
 };
 
 template <typename T, std::size_t N>
 struct type_char_array<T[N]> {
-    typedef typename std::conditional<
-        std::is_same<unqualified_t<T>, char>::value,
-        char[N],
-        typename type_char_array<T>::type
-    >::type type;
+    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                           char[N],
+                                           typename type_char_array<T>::type>::type;
 };
 
 
@@ -241,7 +241,7 @@ struct is_container {
 };
 
 template <typename T>
-struct is_container<std::vector<T> > {
+struct is_container<std::vector<T>> {
     static const bool value = true;
 };
 
@@ -280,7 +280,7 @@ inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>&
 }
 
 // read name from a H5 object using the specified function
-template<typename T>
+template <typename T>
 inline std::string get_name(T fct) {
     const size_t maxLength = 255;
     char buffer[maxLength + 1];
@@ -293,11 +293,11 @@ inline std::string get_name(T fct) {
         return std::string(buffer, length);
     }
     std::vector<char> bigBuffer(length + 1, 0);
-    fct(bigBuffer.data(), static_cast<hsize_t>(length) + 1);
+    fct(bigBuffer.data(), length + 1);
     return std::string(bigBuffer.data(), length);
 }
 
 }  // namespace details
 }  // namespace HighFive
 
-#endif // H5UTILS_HPP
+#endif  // H5UTILS_HPP

@@ -18,13 +18,12 @@
 #include <boost/multi_array.hpp>
 #endif
 
-#define BOOST_TEST_MAIN HighFiveTestMultiDims
-#include <boost/test/unit_test.hpp>
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
 
 #include "tests_high_five.hpp"
 
 using namespace HighFive;
-
 
 /// \brief Test for 2D old-style arrays (T array[x][y])
 template <typename T>
@@ -58,13 +57,13 @@ void readWrite2DArrayTest() {
 
     for (size_t i = 0; i < x_size; ++i) {
         for (size_t j = 0; j < y_size; ++j) {
-            BOOST_CHECK_EQUAL(result[i][j], array[i][j]);
+            CHECK(result[i][j] == array[i][j]);
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ReadWrite2DArray, T, numerical_test_types) {
-    readWrite2DArrayTest<T>();
+TEMPLATE_LIST_TEST_CASE("ReadWrite2DArray", "[template]", numerical_test_types) {
+    readWrite2DArrayTest<TestType>();
 }
 
 template <typename T>
@@ -77,48 +76,46 @@ void readWriteArrayTest() {
     typename std::array<T, x_size> result;
     auto dataset = readWriteDataset<T>(vec, result, 1, "std-array");
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), vec.begin(), vec.end());
+    CHECK(result == vec);
 
     typename std::array<T, 1> tooSmall;
-    BOOST_CHECK_THROW(dataset.read(tooSmall), DataSpaceException);
+    CHECK_THROWS_AS(dataset.read(tooSmall), DataSpaceException);
 }
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWriteArray, T, numerical_test_types) {
-    readWriteArrayTest<T>();
+TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
+    readWriteArrayTest<TestType>();
 }
 
 
 template <typename T, typename VectorSubT>
-void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec,
-                           const std::vector<size_t>& dims) {
+void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec, const std::vector<size_t>& dims) {
     fillVec(ndvec, dims, ContentGenerate<T>());
 
     std::vector<VectorSubT> result;
     readWriteDataset<T>(ndvec, result, dims.size(), "vector");
 
-    BOOST_CHECK(checkLength(result, dims));
-    BOOST_CHECK(ndvec == result);
+    CHECK(checkLength(result, dims));
+    CHECK(ndvec == result);
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWritSimpleVector, T, numerical_test_types) {
-    std::vector<T> vec;
-    readWriteVectorNDTest<T>(vec, {50});
+TEMPLATE_LIST_TEST_CASE("readWritSimpleVector", "[template]", numerical_test_types) {
+    std::vector<TestType> vec;
+    readWriteVectorNDTest<TestType>(vec, {50});
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWrite2DVector, T, numerical_test_types) {
-    std::vector<std::vector<T>> _2dvec;
-    readWriteVectorNDTest<T>(_2dvec, {10, 8});
+TEMPLATE_LIST_TEST_CASE("readWrite2DVector", "[template]", numerical_test_types) {
+    std::vector<std::vector<TestType>> _2dvec;
+    readWriteVectorNDTest<TestType>(_2dvec, {10, 8});
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWrite3DVector, T, numerical_test_types) {
-    std::vector<std::vector<std::vector<T>>> _3dvec;
-    readWriteVectorNDTest<T>(_3dvec, {10, 5, 4});
+TEMPLATE_LIST_TEST_CASE("readWrite3DVector", "[template]", numerical_test_types) {
+    std::vector<std::vector<std::vector<TestType>>> _3dvec;
+    readWriteVectorNDTest<TestType>(_3dvec, {10, 5, 4});
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(readWrite4DVector, T, numerical_test_types) {
-    std::vector<std::vector<std::vector<std::vector<T>>>> _4dvec;
-    readWriteVectorNDTest<T>(_4dvec, {5, 4, 3, 2});
+TEMPLATE_LIST_TEST_CASE("readWrite4DVector", "[template]", numerical_test_types) {
+    std::vector<std::vector<std::vector<std::vector<TestType>>>> _4dvec;
+    readWriteVectorNDTest<TestType>(_4dvec, {5, 4, 3, 2});
 }
-
 
 
 #ifdef H5_USE_BOOST
@@ -140,8 +137,7 @@ void MultiArray3DTest() {
     // Create a new file using the default property lists.
     File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
 
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME,
-                                            DataSpace::From(array));
+    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(array));
 
     dataset.write(array);
 
@@ -153,14 +149,14 @@ void MultiArray3DTest() {
     for (long i = 0; i < size_x; ++i) {
         for (long j = 0; j < size_y; ++j) {
             for (long k = 0; k < size_z; ++k) {
-                BOOST_CHECK_EQUAL(array[i][j][k], result[i][j][k]);
+                CHECK(array[i][j][k] == result[i][j][k]);
             }
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(MultiArray3D, T, numerical_test_types) {
-    MultiArray3DTest<T>();
+TEMPLATE_LIST_TEST_CASE("MultiArray3D", "[template]", numerical_test_types) {
+    MultiArray3DTest<TestType>();
 }
 
 template <typename T>
@@ -196,13 +192,13 @@ void ublas_matrix_Test() {
 
     for (size_t i = 0; i < size_x; ++i) {
         for (size_t j = 0; j < size_y; ++j) {
-            BOOST_CHECK_EQUAL(mat(i, j), result(i, j));
+            CHECK(mat(i, j) == result(i, j));
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ublas_matrix, T, numerical_test_types) {
-    ublas_matrix_Test<T>();
+TEMPLATE_LIST_TEST_CASE("ublas_matrix", "[template]", numerical_test_types) {
+    ublas_matrix_Test<TestType>();
 }
 
 #endif

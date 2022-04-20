@@ -49,8 +49,7 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
     case PropertyType::LINK_ACCESS:
         return H5P_LINK_ACCESS;
     default:
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Unsupported property list type");
+        HDF5ErrMapper::ToException<PropertyException>("Unsupported property list type");
     }
 }
 
@@ -67,8 +66,7 @@ inline void PropertyList<T>::_initializeIfNeeded() {
         return;
     }
     if ((_hid = H5Pcreate(convert_plist_type(T))) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Unable to create property list");
+        HDF5ErrMapper::ToException<PropertyException>("Unable to create property list");
     }
 }
 
@@ -84,57 +82,54 @@ template <typename F, typename... Args>
 inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
     this->_initializeIfNeeded();
     if (funct(this->_hid, args...) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting raw hdf5 property.");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting raw hdf5 property.");
     }
 }
 
 
 // Specific options to be added to Property Lists
 
+inline void EstimatedLinkInfo::apply(const hid_t hid) const {
+    if (H5Pset_est_link_info(hid, _entries, _length) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting estimated link info");
+    }
+}
+
 inline void Chunking::apply(const hid_t hid) const {
     if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting chunk property");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting chunk property");
     }
 }
 
 inline void Deflate::apply(const hid_t hid) const {
-    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE) ||
-            H5Pset_deflate(hid, _level) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting deflate property");
+    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE) || H5Pset_deflate(hid, _level) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting deflate property");
     }
 }
 
 inline void Szip::apply(const hid_t hid) const {
     if (!H5Zfilter_avail(H5Z_FILTER_SZIP)) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting szip property");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting szip property");
     }
 
     if (H5Pset_szip(hid, _options_mask, _pixels_per_block) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting szip property");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting szip property");
     }
 }
 
 inline void Shuffle::apply(const hid_t hid) const {
     if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE)) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting shuffle property");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting shuffle property");
     }
 
     if (H5Pset_shuffle(hid) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting shuffle property");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting shuffle property");
     }
 }
 
 inline void Caching::apply(const hid_t hid) const {
     if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting dataset cache parameters");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting dataset cache parameters");
     }
 }
 

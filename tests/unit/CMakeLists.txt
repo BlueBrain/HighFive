@@ -1,11 +1,5 @@
-if(NOT HIGHFIVE_UNIT_TESTS)
-  return()
-endif()
-
-# NOTE: These unit tests expect linking with boost test framework lib
-if(NOT Boost_USE_STATIC_LIBS)
-  add_definitions(-DBOOST_TEST_DYN_LINK=TRUE)
-endif()
+include(CTest)
+include(Catch)
 
 if(MSVC)
   add_definitions(/bigobj)
@@ -14,25 +8,37 @@ endif()
 ## Base tests
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy)
   add_executable(${test_name} "${test_name}.cpp")
-  target_link_libraries(${test_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} HighFive)
-  add_test(NAME ${test_name} COMMAND ${test_name})
+  target_link_libraries(${test_name} HighFive Catch2::Catch2)
+  catch_discover_tests(${test_name})
 endforeach()
 
-
 if(HIGHFIVE_PARALLEL_HDF5)
-
   include(TestHelpers)
+  set(tests_parallel_src "tests_high_five_parallel.cpp")
 
   ## parallel MPI tests
-  file(GLOB tests_parallel_src "*parallel.cpp")
-
   add_executable(tests_parallel_bin ${tests_parallel_src})
-  target_link_libraries(tests_parallel_bin ${Boost_UNIT_TEST_FRAMEWORK_LIBRARIES} HighFive)
-  add_test(NAME tests_parallel COMMAND ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2
-    ${CMAKE_CURRENT_BINARY_DIR}/tests_parallel_bin)
+  target_link_libraries(tests_parallel_bin HighFive Catch2::Catch2)
 
+  # We need to patch in a call to `mpirun` or equivalent when using
+  # parallel tests. Somehow, this is not foreseen in Catch2, modify the
+  # test detection script and fail if the execution method needs updating.
+  set(original_catch_script "${_CATCH_DISCOVER_TESTS_SCRIPT}")
+  set(patched_catch_script "${CMAKE_CURRENT_BINARY_DIR}/patched_catch_test_discovery.cmake")
+  file(READ "${original_catch_script}" original_catch_script_contents)
+  string(REGEX REPLACE
+         "(add_command\\(add_test.*TEST_EXECUTOR})"
+         "\\1 ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2"
+         modified_catch_script_contents
+         "${original_catch_script_contents}")
+  if(original_catch_script_contents STREQUAL modified_catch_script_contents)
+    message(FATAL_ERROR "Failed to modify Catch2 test execution")
+  endif()
+  file(WRITE "${patched_catch_script}" "${modified_catch_script_contents}")
+  set(_CATCH_DISCOVER_TESTS_SCRIPT "${patched_catch_script}")
+  catch_discover_tests(tests_parallel_bin)
+  set(_CATCH_DISCOVER_TESTS_SCRIPT "${original_catch_script}")
 endif()
-
 
 option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
 

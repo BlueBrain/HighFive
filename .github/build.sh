@@ -3,14 +3,9 @@
 [ "$CC" ] && $CC --version
 cmake --version
 set -x
-cmake -E make_directory $GITHUB_WORKSPACE/build
-cd $GITHUB_WORKSPACE/build
-cmake $GITHUB_WORKSPACE \
+export HIGHFIVE_BUILD=$GITHUB_WORKSPACE/build
+cmake -B $HIGHFIVE_BUILD -S $GITHUB_WORKSPACE \
   -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
   -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
-  -DHIGHFIVE_USE_EIGEN:BOOL=TRUE \
   "${CMAKE_OPTIONS[@]}"
-
-
-echo ">>> BUILDING"
-cmake --build . --config $BUILD_TYPE --parallel 2 --verbose
+cmake --build $HIGHFIVE_BUILD --config $BUILD_TYPE --parallel 2 --verbose

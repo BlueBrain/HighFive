@@ -20,8 +20,8 @@ typedef struct {
 
 
 HighFive::CompoundType create_compound_Size2D() {
-    return {{ "width",  HighFive::AtomicType<double>{} },
-            { "height", HighFive::AtomicType<double>{} }};
+    return {{"width", HighFive::create_datatype<double>()},
+            {"height", HighFive::create_datatype<double>()}};
 }
 
 HIGHFIVE_REGISTER_TYPE(Size2D, create_compound_Size2D)
@@ -40,5 +40,4 @@ int main() {
 
     auto g1 = file.createGroup("group1");
     g1.createAttribute(DATASET_NAME, dims);
-
 }

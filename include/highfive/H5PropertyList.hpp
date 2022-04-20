@@ -13,6 +13,11 @@
 
 #include <H5Ppublic.h>
 
+// Required by MPIOFileAccess
+#ifdef H5_HAVE_PARALLEL
+#include <H5FDmpi.h>
+#endif
+
 #include "H5Exception.hpp"
 #include "H5Object.hpp"
 
@@ -42,8 +47,7 @@ enum class PropertyType : int {
 
 ///
 /// \brief Base Class for Property lists, providing global default
-class PropertyListBase : public Object {
-
+class PropertyListBase: public Object {
   public:
     PropertyListBase() noexcept;
 
@@ -51,7 +55,6 @@ class PropertyListBase : public Object {
         static const PropertyListBase plist{};
         return plist;
     }
-
 };
 
 
@@ -59,9 +62,8 @@ class PropertyListBase : public Object {
 /// \brief HDF5 property Lists
 ///
 template <PropertyType T>
-class PropertyList : public PropertyListBase {
+class PropertyList: public PropertyListBase {
   public:
-
     ///
     /// \brief return the type of this PropertyList
     constexpr PropertyType getType() const noexcept {
@@ -84,34 +86,127 @@ class PropertyList : public PropertyListBase {
 
   protected:
     void _initializeIfNeeded();
-
 };
 
-typedef PropertyList<PropertyType::OBJECT_CREATE> ObjectCreateProps;
-typedef PropertyList<PropertyType::FILE_CREATE> FileCreateProps;
-typedef PropertyList<PropertyType::FILE_ACCESS> FileAccessProps ;
-typedef PropertyList<PropertyType::DATASET_CREATE> DataSetCreateProps;
-typedef PropertyList<PropertyType::DATASET_ACCESS> DataSetAccessProps;
-typedef PropertyList<PropertyType::DATASET_XFER> DataTransferProps;
-typedef PropertyList<PropertyType::GROUP_CREATE> GroupCreateProps;
-typedef PropertyList<PropertyType::GROUP_ACCESS> GroupAccessProps;
-typedef PropertyList<PropertyType::DATATYPE_CREATE> DataTypeCreateProps;
-typedef PropertyList<PropertyType::DATATYPE_ACCESS> DataTypeAccessProps;
-typedef PropertyList<PropertyType::STRING_CREATE> StringCreateProps;
-typedef PropertyList<PropertyType::ATTRIBUTE_CREATE> AttributeCreateProps;
-typedef PropertyList<PropertyType::OBJECT_COPY> ObjectCopyProps;
-typedef PropertyList<PropertyType::LINK_CREATE> LinkCreateProps;
-typedef PropertyList<PropertyType::LINK_ACCESS> LinkAccessProps;
+using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
+using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
+using FileAccessProps = PropertyList<PropertyType::FILE_ACCESS>;
+using DataSetCreateProps = PropertyList<PropertyType::DATASET_CREATE>;
+using DataSetAccessProps = PropertyList<PropertyType::DATASET_ACCESS>;
+using DataTransferProps = PropertyList<PropertyType::DATASET_XFER>;
+using GroupCreateProps = PropertyList<PropertyType::GROUP_CREATE>;
+using GroupAccessProps = PropertyList<PropertyType::GROUP_ACCESS>;
+using DataTypeCreateProps = PropertyList<PropertyType::DATATYPE_CREATE>;
+using DataTypeAccessProps = PropertyList<PropertyType::DATATYPE_ACCESS>;
+using StringCreateProps = PropertyList<PropertyType::STRING_CREATE>;
+using AttributeCreateProps = PropertyList<PropertyType::ATTRIBUTE_CREATE>;
+using ObjectCopyProps = PropertyList<PropertyType::OBJECT_COPY>;
+using LinkCreateProps = PropertyList<PropertyType::LINK_CREATE>;
+using LinkAccessProps = PropertyList<PropertyType::LINK_ACCESS>;
 
 ///
-/// RawPropertieLists are to be used when advanced H5 properties
+/// RawPropertyLists are to be used when advanced H5 properties
 /// are desired and are not part of the HighFive API.
 /// Therefore this class is mainly for internal use.
 template <PropertyType T>
-class RawPropertyList : public PropertyList<T> {
+class RawPropertyList: public PropertyList<T> {
   public:
     template <typename F, typename... Args>
     void add(const F& funct, const Args&... args);
+};
+
+#ifdef H5_HAVE_PARALLEL
+///
+/// \brief Configure MPI access for the file
+///
+/// All further modifications to the structure of the file will have to be
+/// done with collective operations
+///
+class MPIOFileAccess {
+  public:
+    MPIOFileAccess(MPI_Comm comm, MPI_Info info)
+        : _comm(comm)
+        , _info(info) {}
+
+    void apply(const hid_t list) const {
+        if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
+            HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
+        }
+    }
+
+  private:
+    MPI_Comm _comm;
+    MPI_Info _info;
+};
+#endif
+
+///
+/// \brief Configure the version bounds for the file
+///
+/// Used to define the compatibility of objects created within HDF5 files,
+/// and affects the format of groups stored in the file.
+///
+/// See also the documentation of \c H5P_SET_LIBVER_BOUNDS in HDF5.
+///
+/// Possible values for \c low and \c high are:
+/// * \c H5F_LIBVER_EARLIEST
+/// * \c H5F_LIBVER_V18
+/// * \c H5F_LIBVER_V110
+/// * \c H5F_LIBVER_NBOUNDS
+/// * \c H5F_LIBVER_LATEST currently defined as \c H5F_LIBVER_V110 within
+///   HDF5
+///
+class FileVersionBounds {
+  public:
+    FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
+        : _low(low)
+        , _high(high) {}
+
+  private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const {
+        if (H5Pset_libver_bounds(list, _low, _high) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
+        }
+    }
+    const H5F_libver_t _low;
+    const H5F_libver_t _high;
+};
+
+///
+/// \brief Configure the metadata block size to use writing to files
+///
+/// \param size Metadata block size in bytes
+///
+class MetadataBlockSize {
+  public:
+    MetadataBlockSize(hsize_t size)
+        : _size(size) {}
+
+  private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const {
+        if (H5Pset_meta_block_size(list, _size) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Error setting metadata block size");
+        }
+    }
+    const hsize_t _size;
+};
+
+///
+/// \brief Set hints as to how many links to expect and their average length
+///
+class EstimatedLinkInfo {
+  public:
+    explicit EstimatedLinkInfo(unsigned entries, unsigned length)
+        : _entries(entries)
+        , _length(length) {}
+
+  private:
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+    const unsigned _entries;
+    const unsigned _length;
 };
 
 
@@ -144,23 +239,23 @@ class Deflate {
 
   private:
     friend DataSetCreateProps;
+    friend GroupCreateProps;
     void apply(hid_t hid) const;
     const unsigned _level;
 };
 
 class Szip {
   public:
-    explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK, 
+    explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK,
                   unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
         : _options_mask(options_mask)
-        , _pixels_per_block(pixels_per_block)
-    {}
+        , _pixels_per_block(pixels_per_block) {}
 
-    private:
-      friend DataSetCreateProps;
-      void apply(hid_t hid) const;
-      const unsigned _options_mask;
-      const unsigned _pixels_per_block;
+  private:
+    friend DataSetCreateProps;
+    void apply(hid_t hid) const;
+    const unsigned _options_mask;
+    const unsigned _pixels_per_block;
 };
 
 class Shuffle {
@@ -195,9 +290,8 @@ class Caching {
 
 class CreateIntermediateGroup {
   public:
-    explicit CreateIntermediateGroup(bool create=true)
-        : _create(create)
-    {}
+    explicit CreateIntermediateGroup(bool create = true)
+        : _create(create) {}
 
   private:
     friend ObjectCreateProps;

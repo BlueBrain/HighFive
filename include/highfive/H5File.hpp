@@ -21,11 +21,8 @@ namespace HighFive {
 ///
 /// \brief File class
 ///
-class File : public Object,
-             public NodeTraits<File>,
-             public AnnotateTraits<File> {
- public:
-
+class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> {
+  public:
     const static ObjectType type = ObjectType::File;
 
     enum : unsigned {
@@ -54,7 +51,8 @@ class File : public Object,
     /// \param fileAccessProps: the file access properties
     ///
     /// Open or create a new HDF5 file
-    explicit File(const std::string& filename, unsigned openFlags = ReadOnly,
+    explicit File(const std::string& filename,
+                  unsigned openFlags = ReadOnly,
                   const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
@@ -68,6 +66,12 @@ class File : public Object,
         return "/";
     }
 
+    /// \brief Returns the block size for metadata in bytes
+    hsize_t getMetadataBlockSize() const;
+
+    /// \brief Returns the HDF5 version compatibility bounds
+    std::pair<H5F_libver_t, H5F_libver_t> getVersionBounds() const;
+
     ///
     /// \brief flush
     ///
@@ -75,12 +79,13 @@ class File : public Object,
     ///
     void flush();
 
- private:
+  private:
     using Object::Object;
 
     mutable std::string _filename{};
 
-    template <typename> friend class PathTraits;
+    template <typename>
+    friend class PathTraits;
 };
 
 }  // namespace HighFive

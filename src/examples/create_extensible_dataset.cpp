@@ -33,8 +33,8 @@ int main(void) {
         props.add(Chunking(std::vector<hsize_t>{2, 2}));
 
         // Create the dataset
-        DataSet dataset = file.createDataSet(DATASET_NAME, dataspace,
-                                             AtomicType<double>(), props);
+        DataSet dataset =
+            file.createDataSet(DATASET_NAME, dataspace, create_datatype<double>(), props);
 
         // Write into the initial part of the dataset
         double t1[3][1] = {{2.0}, {2.0}, {4.0}};
@@ -56,8 +56,8 @@ int main(void) {
         // 2 0 0 0 0 0
         // 4 0 0 0 0 0
         // 0 0 0 4 8 6
-        for (auto row : result) {
-            for (auto col : row)
+        for (auto row: result) {
+            for (auto col: row)
                 std::cout << " " << col;
             std::cout << std::endl;
         }
@@ -67,5 +67,5 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

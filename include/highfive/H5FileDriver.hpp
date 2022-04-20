@@ -16,21 +16,22 @@ namespace HighFive {
 ///
 /// \brief file driver base concept
 ///
-class FileDriver : public FileAccessProps {};
+class FileDriver: public FileAccessProps {};
 
+#ifdef H5_HAVE_PARALLEL
 ///
 /// \brief MPIIO Driver for Parallel HDF5
 ///
-class MPIOFileDriver : public FileAccessProps {
+class MPIOFileDriver: public FileAccessProps {
   public:
-    template <typename Comm, typename Info>
-    inline MPIOFileDriver(Comm mpi_comm, Info mpi_info);
+    inline MPIOFileDriver(MPI_Comm mpi_comm, MPI_Info mpi_info);
 
   private:
 };
+#endif
 
 }  // namespace HighFive
 
 #include "bits/H5FileDriver_misc.hpp"
 
-#endif // H5FILEDRIVER_HPP
+#endif  // H5FILEDRIVER_HPP

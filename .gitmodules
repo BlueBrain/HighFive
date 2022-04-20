@@ -1,3 +1,3 @@
-[submodule "deps/hpc-coding-conventions"]
-	path = deps/hpc-coding-conventions
-	url = https://github.com/BlueBrain/hpc-coding-conventions.git
+[submodule "deps/catch2"]
+	path = deps/catch2
+	url = https://github.com/catchorg/Catch2.git

@@ -27,44 +27,36 @@ bool operator!=(csl x, csl y) {
 // Tell HighFive how to create the HDF5 datatype for this base type by
 // using the HIGHFIVE_REGISTER_TYPE macro
 CompoundType create_compound_csl() {
-    return {{"u1", AtomicType<unsigned char>{}},
-            {"u2", AtomicType<short>{}},
-            {"u3", AtomicType<unsigned long long>{}}};
+    return {{"u1", create_datatype<unsigned char>()},
+            {"u2", create_datatype<short>()},
+            {"u3", create_datatype<unsigned long long>()}};
 }
 HIGHFIVE_REGISTER_TYPE(csl, create_compound_csl)
 
 int main(void) {
-
     try {
-
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create a simple compound type with automatic alignment of the
         // members. For this the type alignment is trivial.
-        std::vector<CompoundType::member_def> t_members({
-            {"real", AtomicType<int>{}},
-            {"imag", AtomicType<int>{}}
-        });
+        std::vector<CompoundType::member_def> t_members(
+            {{"real", create_datatype<int>()}, {"imag", create_datatype<int>()}});
         CompoundType t(t_members);
         t.commit(file, "new_type1");
 
         // Create a complex nested datatype with manual alignment
-        CompoundType u({{"u1", t, 0},
-                        {"u2", t, 9},
-                        {"u3", AtomicType<int>{}, 20}},
-                       26);
+        CompoundType u({{"u1", t, 0}, {"u2", t, 9}, {"u3", create_datatype<int>(), 20}}, 26);
         u.commit(file, "new_type3");
 
         // Create a more complex type with automatic alignment. For this the
         // type alignment is more complex.
-        CompoundType v_aligned{{"u1", AtomicType<unsigned char>{}},
-                               {"u2", AtomicType<short>{}},
-                               {"u3", AtomicType<unsigned long long>{}}};
+        CompoundType v_aligned{{"u1", create_datatype<unsigned char>()},
+                               {"u2", create_datatype<short>()},
+                               {"u3", create_datatype<unsigned long long>()}};
         // introspect the compound type
         std::cout << "v_aligned size: " << v_aligned.getSize();
-        for (const auto& member : v_aligned.getMembers()) {
-            std::cout << "  field " << member.name << " offset: " << member.offset
-                      << std::endl;
+        for (const auto& member: v_aligned.getMembers()) {
+            std::cout << "  field " << member.name << " offset: " << member.offset << std::endl;
         }
 
         v_aligned.commit(file, "new_type2_aligned");
@@ -72,9 +64,9 @@ int main(void) {
         // Create a more complex type with a fully packed alignment. The
         // equivalent type is created with a standard struct alignment in the
         // implementation of HighFive::create_datatype above
-        CompoundType v_packed({{"u1", AtomicType<unsigned char>{}, 0},
-                               {"u2", AtomicType<short>{}, 1},
-                               {"u3", AtomicType<unsigned long long>{}, 3}},
+        CompoundType v_packed({{"u1", create_datatype<unsigned char>(), 0},
+                               {"u2", create_datatype<short>(), 1},
+                               {"u3", create_datatype<unsigned long long>(), 3}},
                               11);
         v_packed.commit(file, "new_type2_packed");
 
@@ -94,7 +86,7 @@ int main(void) {
         std::vector<csl> result;
         dataset.select({0}, {2}).read(result);
 
-        for(size_t i = 0; i < data.size(); ++i) {
+        for (size_t i = 0; i < data.size(); ++i) {
             if (result[i] != data[i]) {
                 std::cout << "result[" << i << "]:" << std::endl;
                 std::cout << "    " << result[i].a << std::endl;
@@ -114,5 +106,5 @@ int main(void) {
         return 1;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

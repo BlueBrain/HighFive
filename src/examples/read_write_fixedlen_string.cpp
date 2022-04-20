@@ -21,7 +21,6 @@ static const std::string FILE_NAME("create_dataset_string_example.h5");
 // create a dataset from a vector of string
 // read it back and print it
 int main(void) {
-
     try {
         // Create a new file using the default property lists.
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
@@ -49,5 +48,5 @@ int main(void) {
         std::cerr << err.what() << std::endl;
     }
 
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }

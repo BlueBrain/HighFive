@@ -35,9 +35,9 @@ int main(int argc, char** argv) {
 
     using namespace HighFive;
     try {
-
         // open a new file with the MPI IO driver for parallel Read/Write
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate,
+        File file(FILE_NAME,
+                  File::ReadWrite | File::Create | File::Truncate,
                   MPIOFileDriver(MPI_COMM_WORLD, MPI_INFO_NULL));
 
         // we define the size of our dataset to
@@ -48,8 +48,7 @@ int main(int argc, char** argv) {
         dims[1] = 2;
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
 
         // Each node want to write its own rank two time in
         // its associated row
@@ -65,5 +64,5 @@ int main(int argc, char** argv) {
     }
 
     MPI_Finalize();
-    return 0; // successfully terminated
+    return 0;  // successfully terminated
 }
