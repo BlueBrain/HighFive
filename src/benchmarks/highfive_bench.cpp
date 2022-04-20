@@ -1,5 +1,5 @@
-#include <vector>
 #include <highfive/H5File.hpp>
+#include <vector>
 
 const std::vector<std::vector<int>> data(1000000, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
 
@@ -10,7 +10,7 @@ int do_iteration() {
 }
 
 int main() {
-    for (int i=0; i<200; i++) {
+    for (int i = 0; i < 200; i++) {
         do_iteration();
     }
 }

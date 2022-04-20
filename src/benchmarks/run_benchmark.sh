@@ -25,5 +25,5 @@ for exe in $executables; do
     echo -e "\nProfiling $exe"
     hpcrun -c f1000000 -e PERF_COUNT_HW_CPU_CYCLES -e REALTIME  ./$exe
     hpcstruct ./$exe
-    hpcprof -S $exe.hpcstruct -I ./ -I '../include/*' hpctoolkit-$exe-*
+    hpcprof -S $exe.hpcstruct -I ./ -I '../../include/*' hpctoolkit-$exe-*
 done
