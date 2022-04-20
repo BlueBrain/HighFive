@@ -12,7 +12,10 @@ for exe in $executables; do
     time ./$exe
 done
 
-return 0
+if [ $# -eq 0 ]; then
+    echo "Not running hpctoolkit. Please provide a CLI argument to proceed"
+    exit 0
+fi
 
 # Profile using hpctoolkit
 module load hpctoolkit
