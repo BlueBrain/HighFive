@@ -175,7 +175,10 @@ class AtomicType<std::complex<T>>: public DataType {
     inline AtomicType()
         : DataType(
               CompoundType({{"r", create_datatype<T>(), 0}, {"i", create_datatype<T>(), sizeof(T)}},
-                           sizeof(std::complex<T>))) {}
+                           sizeof(std::complex<T>))) {
+        static_assert(std::is_floating_point<T>::value, "std::complex accepts only floating point numbers.");
+
+    }
 };
 
 // Other cases not supported. Fail early with a user message
