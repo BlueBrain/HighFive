@@ -1,8 +1,6 @@
 #include <xtensor/xarray.hpp>
 #include <highfive/H5Easy.hpp>
 
-using HighFive::File;
-
 int main()
 {
     xt::xarray<int> A = xt::ones<int>({10, 3});
