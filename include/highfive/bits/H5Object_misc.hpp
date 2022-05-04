@@ -33,7 +33,7 @@ inline Object::Object(Object&& other) noexcept
 
 inline Object& Object::operator=(const Object& other) {
     if (this != &other) {
-        if (_hid != H5I_INVALID_HID)
+        if (isValid())
             H5Idec_ref(_hid);
 
         _hid = other._hid;
