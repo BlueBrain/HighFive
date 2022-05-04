@@ -93,6 +93,8 @@ class Object {
     friend class AnnotateTraits;
     friend class Reference;
     friend class CompoundType;
+    template <typename Derivate>
+    friend class PathTraits;
 };
 
 
