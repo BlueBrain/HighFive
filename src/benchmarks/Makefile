@@ -6,12 +6,8 @@
 PROGRAMS:=hdf5_bench hdf5_bench_improved highfive_bench
 
 CXX?=g++
-HDF5_ROOT?=/usr/local
-
 COMPILE_OPTS=-g -O2 -Wall
-HDF5_INCLUDE_DIR=${HDF5_ROOT}/include
-HDF5_LIB_DIR=${HDF5_ROOT}/lib
-CXXFLAGS=-I ../../include/ -I ${HDF5_INCLUDE_DIR} -L ${HDF5_LIB_DIR} -lhdf5 -std=c++11 ${COMPILE_OPTS}
+CXXFLAGS=-I ../../include/ `pkg-config --libs --cflags hdf5` -std=c++11 ${COMPILE_OPTS}
 
 
 all: $(PROGRAMS)
