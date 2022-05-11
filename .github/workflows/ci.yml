@@ -94,8 +94,8 @@ jobs:
 
     - name: "Install libraries"
       run: |
-        sudo apt-get update
-        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
@@ -110,7 +110,7 @@ jobs:
 
   # Job to check using HighFive from other CMake projects
   # =====================================================
-  CMake_Import:
+  CMake_Project:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
@@ -119,10 +119,10 @@ jobs:
 
     - name: "Install libraries"
       run: |
-        sudo apt-get update
-        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
 
-    - name: "CMake Integration"
+    - name: "CMake Project Integration"
       run: bash tests/test_project_integration.sh
 
 
@@ -137,12 +137,18 @@ jobs:
 
     - name: "Install libraries"
       run: |
-        sudo apt-get update
-        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq update
+        sudo apt-get -qq install libhdf5-dev
 
-    - name: "CMake Integration"
+    - name: "Build benchmarks"
       working-directory: ${{github.workspace}}/src/benchmarks
-      run: make && ./highfive_bench
+      run: |
+        set -xe
+        HDF5_INCLUDE_DIR=$(dpkg -L libhdf5-dev | grep '/H5public.h$' | xargs dirname)
+        HDF5_LIB_DIR=$(dpkg -L libhdf5-dev | grep '/libhdf5.so$' | xargs dirname)
+        make HDF5_INCLUDE_DIR="$HDF5_INCLUDE_DIR" HDF5_LIB_DIR="$HDF5_LIB_DIR"
+
+    - run: time ${{github.workspace}}/src/benchmarks/highfive_bench
 
 
   # Job testing in OSX
