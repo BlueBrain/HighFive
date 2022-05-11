@@ -108,6 +108,43 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
+  # Job to check using HighFive from other CMake projects
+  # =====================================================
+  CMake_Import:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt-get update
+        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+
+    - name: "CMake Integration"
+      run: bash tests/test_project_integration.sh
+
+
+  # Job checking the benchmarks work
+  # ================================
+  Benchmarks:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt-get update
+        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+
+    - name: "CMake Integration"
+      working-directory: ${{github.workspace}}/src/benchmarks
+      run: make && ./highfive_bench
+
+
   # Job testing in OSX
   # =======================
   OSX:
