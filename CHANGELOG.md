@@ -1,3 +1,17 @@
+## Version 2.4.1 - 2022-05-11
+### New Features
+    - Support `std::complex`. Thanks to Philipp.
+
+### Improvements
+    - Improve EnumType/CompoundType
+    - Revert quirky behaviour of `select(const HyperSlab&)`.
+    - All `get_name` functions takes `size_t` and not `hsize_t`.
+    - Remove nix recipes.
+
+### Bug Fixes
+    - Computation of padding.
+    - Related to `0` being an invalid hid but not equal to `H5I_INVALID_HID`.
+
 ## Version 2.4.0 - 2022-04-05
 ### New Features
     - Construct a compound type from an already existing hid (#469). Thanks to Maximilian Nöthe.

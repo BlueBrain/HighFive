@@ -5,7 +5,7 @@ else()
   cmake_policy(VERSION 3.13)
 endif()
 
-project(HighFive VERSION 2.4.0)
+project(HighFive VERSION 2.4.1)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
