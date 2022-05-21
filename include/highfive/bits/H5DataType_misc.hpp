@@ -247,29 +247,33 @@ inline AtomicType<Reference>::AtomicType() {
 
 inline size_t find_first_atomic_member_size(hid_t hid) {
     // Recursive exit condition
-    if (H5Tget_class(hid) != H5T_COMPOUND) {
-        return H5Tget_size(hid);
-    }
+    if (H5Tget_class(hid) == H5T_COMPOUND) {
+        auto number_of_members = H5Tget_nmembers(hid);
+        if (number_of_members == -1) {
+            throw DataTypeException("Cannot get members of CompoundType with hid: " +
+                                    std::to_string(hid));
+        }
+        if (number_of_members == 0) {
+            throw DataTypeException("No members defined for CompoundType with hid: " +
+                                    std::to_string(hid));
+        }
 
-    auto number_of_members = H5Tget_nmembers(hid);
-    if (number_of_members == -1) {
-        throw DataTypeException("Cannot get members of CompoundType with hid: " +
-                                std::to_string(hid));
+        auto member_type = H5Tget_member_type(hid, 0);
+        auto size = find_first_atomic_member_size(member_type);
+        H5Tclose(member_type);
+        return size;
+    } else if (H5Tget_class(hid) == H5T_STRING) {
+        return 1;
     }
-    if (number_of_members == 0) {
-        throw DataTypeException("No members defined for CompoundType with hid: " +
-                                std::to_string(hid));
-    }
-
-    auto member_type = H5Tget_member_type(hid, 0);
-    auto size = find_first_atomic_member_size(member_type);
-    H5Tclose(member_type);
-    return size;
+    return H5Tget_size(hid);
 }
 
 // Calculate the padding required to align an element of a struct
-#define _H5_STRUCT_PADDING(current_size, member_size) \
-    ((std::max(member_size, current_size) - std::min(member_size, current_size)) % (member_size))
+#define _H5_STRUCT_PADDING(current_size, member_size)                                \
+    (((member_size) >= (current_size))                                               \
+         ? (((member_size) - (current_size)) % (member_size))                        \
+         : ((((member_size) - (((current_size) - (member_size)) % (member_size)))) % \
+            (member_size)))
 
 inline void CompoundType::create(size_t size) {
     if (size == 0) {
