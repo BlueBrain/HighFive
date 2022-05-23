@@ -93,14 +93,14 @@
               <td>
                 <div class="card w-100">
                   <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_highfive" width=32 height=32  class="godbolt float-end img-thumbnail">
-                    <pre class="font-monospace"><div class="example" id="example1_highfive"></div></pre>
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example1_highfive"></div></pre>
                   </div>
                 </div>
               </td>
               <td>
                 <div class="card w-100">
                   <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_hdf5" width=32 height=32  class="godbolt float-end img-thumbnail">
-                    <pre class="font-monospace"><div class="example" id="example1_hdf5"></div></pre>
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example1_hdf5"></div></pre>
                   </div>
                 </div>
               </td>
@@ -118,7 +118,7 @@
         estimates can be set and read:</p>
         <div class="card w-75">
           <div class="code card-body"><img src="godbolt.org.ico" id="gb_example_props" width=32 height=32  class="godbolt float-end img-thumbnail">
-              <pre class="font-monospace"><div class="example" id="example_props"></div></pre>
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_props"></div></pre>
           </div>
         </div>
       </div>
@@ -160,19 +160,19 @@
           <div class="tab-content code card-body" id="highfive-type-support-content">
             <div class="tab-pane fade show active" id="compound" role="tabpanel" aria-labelledby="compound-tab">
               <img src="godbolt.org.ico" id="gb_example3" width=32 height=32  class="godbolt float-end img-thumbnail">
-              <pre class="font-monospace"><div class="example" id="example3"></div></pre>
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example3"></div></pre>
             </div>
             <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
               <img src="godbolt.org.ico" id="gb_example_boost" width=32 height=32  class="godbolt float-end img-thumbnail">
-              <pre class="font-monospace"><div class="example" id="example_boost"></div></pre>
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_boost"></div></pre>
             </div>
             <div class="tab-pane fade" id="boost-ublas" role="tabpanel" aria-labelledby="boost-ublas-tab">
               <img src="godbolt.org.ico" id="gb_example_boost_ublas" width=32 height=32  class="godbolt float-end img-thumbnail">
-              <pre class="font-monospace"><div class="example" id="example_boost_ublas"></div></pre>
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_boost_ublas"></div></pre>
             </div>
             <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
               <img src="godbolt.org.ico" id="gb_example_eigen" width=32 height=32  class="godbolt float-end img-thumbnail">
-              <pre class="font-monospace"><div class="example" id="example_eigen"></div></pre>
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_eigen"></div></pre>
             </div>
           </div>
         </div>
@@ -186,9 +186,43 @@
         handled transparently.</p>
         <div class="card w-75">
           <div class="code card-body"><img src="godbolt.org.ico" id="gb_example6" width=32 height=32  class="godbolt float-end img-thumbnail">
-            <pre class="font-monospace"><div class="example" id="example6"></div></pre>
+            <pre class="font-monospace"><div class="example" data-lang="cpp" data-lang="cpp" id="example6"></div></pre>
           </div>
         </div>
+      </div>
+
+      <div class="container mb-5">
+        <h2>H5Easy: one-liners</h2>
+        <p>HighFive also offers the H5Easy API (on its own namespace).
+        This has an API in which things can be done in one-liners, with a syntax comparable
+        to for example h5py for Python.
+        It offers overloads for STL containers, Boost, Eigen, xtensor, and OpenCV.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>H5Easy</td>
+              <td>h5py</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example_easy_highfive" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_easy_highfive"></div></pre>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body">
+                    <pre class="font-monospace"><div class="example" data-lang="py" id="example_easy_h5py"></div></pre>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="container mb-5">
@@ -222,6 +256,7 @@
           </div>
         </footer>
       </div>
+
       <!-- Example code loading -->
       <script src="examples.js"></script>
     </div>

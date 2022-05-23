@@ -12,11 +12,11 @@ function compile_on_godbolt(example_id) {
 function setup_examples() {
   $(".example").each(function () {
     let cblock = this;
-    let file = this.id+".cpp";
-    $.ajax( {url: file, 
+    let file = this.id + '.' + this.dataset.lang;
+    $.ajax( {url: file,
       dataType: 'text',
       success: function( code ) {
-        res = hljs.highlight(code, {language: "cpp", ignoreIllegals: true });
+        res = hljs.highlight(code, {language: cblock.dataset.lang, ignoreIllegals: true });
         cblock.innerHTML += res.value;
         let encoded = encodeURIComponent(code);
         cblock.setAttribute("rawsrc",encoded);
