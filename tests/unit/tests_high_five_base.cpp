@@ -1783,15 +1783,15 @@ TEST_CASE("HighFivePropertyObjects") {
     CHECK(plist_g2.isValid());
 }
 
-typedef struct {
+struct CSL1 {
     int m1;
     int m2;
     int m3;
-} CSL1;
+};
 
-typedef struct {
+struct CSL2 {
     CSL1 csl1;
-} CSL2;
+};
 
 CompoundType create_compound_csl1() {
     auto t2 = AtomicType<int>();
@@ -1955,6 +1955,87 @@ TEST_CASE("HighFiveCompoundsNested") {
         CHECK(result[1].child.grandChild.gcm2 == 4);
         CHECK(result[1].child.grandChild.gcm3 == 5);
         CHECK(result[1].child.cm1 == 6);
+    }
+}
+
+template <int N>
+struct Record {
+    double d = 3.14;
+    int i = 42;
+    char s[N];
+};
+
+template <int N>
+void fill(Record<N>& r) {
+    constexpr char ref[] = "123456789a123456789b123456789c123456789d123456789e123456789f";
+    std::copy(ref, ref + N - 1, r.s);
+    r.s[N - 1] = '\0';
+}
+
+template <int N>
+CompoundType rec_t() {
+    using RecN = Record<N>;
+    return {{"d", create_datatype<decltype(RecN::d)>()},
+            {"i", create_datatype<decltype(RecN::i)>()},  //
+            {"s", create_datatype<decltype(RecN::s)>()}};
+}
+
+HIGHFIVE_REGISTER_TYPE(Record<4>, rec_t<4>);
+HIGHFIVE_REGISTER_TYPE(Record<8>, rec_t<8>);
+HIGHFIVE_REGISTER_TYPE(Record<9>, rec_t<9>);
+
+template <int N>
+void save(File& f) {
+    const size_t numRec = 2;
+    std::vector<Record<N>> recs(numRec);
+    fill<N>(recs[0]);
+    fill<N>(recs[1]);
+    auto dataset = f.createDataSet<Record<N>>("records" + std::to_string(N), DataSpace::From(recs));
+    dataset.write(recs);
+}
+
+template <int N>
+std::string check(File& f) {
+    const size_t numRec = 2;
+    std::vector<Record<N>> recs(numRec);
+    f.getDataSet("records" + std::to_string(N)).read(recs);
+    return std::string(recs[0].s);
+}
+
+TEST_CASE("HighFiveCompoundsSeveralPadding") {
+    const std::string FILE_NAME("padded_compounds_test.h5");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    {  // Write
+        // 4 have been choose because no padding
+        // /* offset      |    size */  type = struct Record<4> {
+        // /*      0      |       8 */    double d;
+        // /*      8      |       4 */    int i;
+        // /*     12      |       4 */    char s[4];
+        // total size (bytes):   16
+        CHECK_NOTHROW(save<4>(file));
+        // 8 have been choose because there is a padding
+        // /* offset      |    size */  type = struct Record<8> {
+        // /*      0      |       8 */    double d;
+        // /*      8      |       4 */    int i;
+        // /*     12      |       8 */    char s[8];
+        // /* XXX  4-byte padding   */
+        // total size (bytes):   24
+        CHECK_NOTHROW(save<8>(file));
+        // 9 have been choose because there should not be a padding on 9
+        // /* offset      |    size */  type = struct Record<9> {
+        // /*      0      |       8 */    double d;
+        // /*      8      |       4 */    int i;
+        // /*     12      |       9 */    char s[9];
+        // /* XXX  3-byte padding   */
+        // total size (bytes):   24
+        CHECK_NOTHROW(save<9>(file));
+    }
+
+    {  // Read
+        CHECK(check<4>(file) == std::string("123"));
+        CHECK(check<8>(file) == std::string("1234567"));
+        CHECK(check<9>(file) == std::string("12345678"));
     }
 }
 
