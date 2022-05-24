@@ -269,6 +269,21 @@ inline size_t find_first_atomic_member_size(hid_t hid) {
 }
 
 // Calculate the padding required to align an element of a struct
+// For padding see explanation here: https://en.cppreference.com/w/cpp/language/object#Alignment
+// It is to compute padding following last element inserted inside a struct
+// 1) We want to push back an element padded to the structure
+// 'current_size' is the size of the structure before adding the new element.
+// 'member_size' the size of the element we want to add.
+// 2) We want to compute the final padding for the global structure
+// 'current_size' is the size of the whole structure without final padding
+// 'member_size' is the maximum size of all element of the struct
+//
+// The basic formula is only to know how much we need to add to 'current_size' to fit
+// 'member_size'.
+// And at the end, we do another computation because the end padding, should fit the biggest
+// element of the struct.
+//
+// As we are with `size_t` element, we need to compute everything inside R+
 #define _H5_STRUCT_PADDING(current_size, member_size)                                \
     (((member_size) >= (current_size))                                               \
          ? (((member_size) - (current_size)) % (member_size))                        \
