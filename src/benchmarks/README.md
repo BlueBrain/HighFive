@@ -4,7 +4,7 @@ This folder contains several baseline programs used to benchmark HighFive and as
 its overhead wrt no-highfive programs.
 
 It features a straightforward Makefile whose flags can be easily tuned. By default
-compilation features -O2 -g and looks up hdf5 in /usr/local.
+compilation features -O2 -g and finds HDF5 via `pkg-config`.
 Additionally, a `run_benchmarks.sh` script is provided to measure execution time and
 profile using hpctoolkit.
 
@@ -13,5 +13,5 @@ profile using hpctoolkit.
 Basically, run `make`. By default it compiles with `-g -O2` but it's configurable. e.g.
 
 ```
-make HDF5_ROOT=/opt/hdf5-1.10/ COMPILE_OPTS="-g -O1"
+make CXX=clang++ COMPILE_OPTS="-g -O1"
 ```
