@@ -102,8 +102,9 @@ inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) cons
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset,
                                                const std::vector<size_t>& count,
-                                               const std::vector<size_t>& stride) const {
-    auto slab = HyperSlab(RegularHyperSlab(offset, count, stride));
+                                               const std::vector<size_t>& stride,
+                                               const std::vector<size_t>& block) const {
+    auto slab = HyperSlab(RegularHyperSlab(offset, count, stride, block));
     auto memspace = DataSpace(count);
     return select_impl(slab, memspace);
 }
