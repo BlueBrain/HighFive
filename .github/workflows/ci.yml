@@ -144,6 +144,8 @@ jobs:
     runs-on: Windows-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - uses: mamba-org/provision-with-micromamba@main
       with:

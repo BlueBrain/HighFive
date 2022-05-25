@@ -1,8 +1,7 @@
 #include <xtensor/xarray.hpp>
 #include <highfive/H5Easy.hpp>
 
-int main()
-{
+int main() {
     xt::xarray<int> A = xt::ones<int>({10, 3});
 
     // open a file
