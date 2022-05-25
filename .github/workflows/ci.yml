@@ -94,8 +94,8 @@ jobs:
 
     - name: "Install libraries"
       run: |
-        sudo apt-get update
-        sudo apt-get install libboost-all-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
@@ -106,6 +106,45 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest --output-on-failure -C $BUILD_TYPE
+
+
+  # Job to check using HighFive from other CMake projects
+  # =====================================================
+  CMake_Project:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
+
+    - name: "CMake Project Integration"
+      run: bash tests/test_project_integration.sh
+
+
+  # Job checking the benchmarks work
+  # ================================
+  Benchmarks:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt -y update
+        sudo apt -y  install --no-install-recommends  libhdf5-dev pkg-config
+
+    - name: "Build benchmarks"
+      working-directory: ${{github.workspace}}/src/benchmarks
+      run: make
+
+    - run: time ${{github.workspace}}/src/benchmarks/highfive_bench
 
 
   # Job testing in OSX
