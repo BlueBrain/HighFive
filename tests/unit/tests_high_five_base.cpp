@@ -1958,25 +1958,25 @@ TEST_CASE("HighFiveCompoundsNested") {
     }
 }
 
-template <int N>
+template <size_t N>
 struct Record {
     double d = 3.14;
     int i = 42;
     char s[N];
 };
 
-template <int N>
+template <size_t N>
 void fill(Record<N>& r) {
     constexpr char ref[] = "123456789a123456789b123456789c123456789d123456789e123456789f";
     std::copy(ref, ref + N - 1, r.s);
     r.s[N - 1] = '\0';
 }
 
-template <int N>
+template <size_t N>
 CompoundType rec_t() {
     using RecN = Record<N>;
     return {{"d", create_datatype<decltype(RecN::d)>()},
-            {"i", create_datatype<decltype(RecN::i)>()},  //
+            {"i", create_datatype<decltype(RecN::i)>()},
             {"s", create_datatype<decltype(RecN::s)>()}};
 }
 
@@ -1984,7 +1984,7 @@ HIGHFIVE_REGISTER_TYPE(Record<4>, rec_t<4>)
 HIGHFIVE_REGISTER_TYPE(Record<8>, rec_t<8>)
 HIGHFIVE_REGISTER_TYPE(Record<9>, rec_t<9>)
 
-template <int N>
+template <size_t N>
 void save(File& f) {
     const size_t numRec = 2;
     std::vector<Record<N>> recs(numRec);
@@ -1994,7 +1994,7 @@ void save(File& f) {
     dataset.write(recs);
 }
 
-template <int N>
+template <size_t N>
 std::string check(File& f) {
     const size_t numRec = 2;
     std::vector<Record<N>> recs(numRec);
