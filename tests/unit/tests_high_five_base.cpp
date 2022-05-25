@@ -1980,9 +1980,9 @@ CompoundType rec_t() {
             {"s", create_datatype<decltype(RecN::s)>()}};
 }
 
-HIGHFIVE_REGISTER_TYPE(Record<4>, rec_t<4>);
-HIGHFIVE_REGISTER_TYPE(Record<8>, rec_t<8>);
-HIGHFIVE_REGISTER_TYPE(Record<9>, rec_t<9>);
+HIGHFIVE_REGISTER_TYPE(Record<4>, rec_t<4>)
+HIGHFIVE_REGISTER_TYPE(Record<8>, rec_t<8>)
+HIGHFIVE_REGISTER_TYPE(Record<9>, rec_t<9>)
 
 template <int N>
 void save(File& f) {
