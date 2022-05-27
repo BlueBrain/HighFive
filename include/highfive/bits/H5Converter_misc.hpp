@@ -188,6 +188,33 @@ struct data_converter<std::vector<T>,
 };
 
 
+// apply conversion for vectors nested vectors
+template <typename T>
+struct data_converter<std::vector<T>, typename std::enable_if<!std::is_trivially_copyable<T>::value>::type> {
+    using value_type = typename inspector<T>::hdf5_type;
+
+    inline data_converter(const DataSpace& space)
+        : _dims(space.getDimensions()) {}
+
+    inline value_type* transform_read(std::vector<T>&) {
+        _vec_align.resize(compute_total_size(_dims));
+        return _vec_align.data();
+    }
+
+    inline const value_type* transform_write(const std::vector<T>& vec) {
+        _vec_align = inspector<std::vector<T>>::serialize(vec);
+        return _vec_align.data();
+    }
+
+    inline void process_result(std::vector<T>& vec) const {
+        single_buffer_to_vectors(_vec_align.cbegin(), _vec_align.cend(), _dims, 0, vec);
+    }
+
+    std::vector<size_t> _dims;
+    std::vector<value_type> _vec_align;
+};
+
+
 // apply conversion to std::array
 template <typename T, std::size_t S>
 struct data_converter<
@@ -264,33 +291,6 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void>
 #endif
 
 
-// apply conversion for vectors nested vectors
-template <typename T>
-struct data_converter<std::vector<T>, typename std::enable_if<(is_container<T>::value)>::type> {
-    using value_type = typename inspector<T>::base_type;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {}
-
-    inline value_type* transform_read(std::vector<T>&) {
-        _vec_align.resize(compute_total_size(_dims));
-        return _vec_align.data();
-    }
-
-    inline const value_type* transform_write(const std::vector<T>& vec) {
-        _vec_align.reserve(compute_total_size(_dims));
-        vectors_to_single_buffer<T>(vec, _dims, 0, _vec_align);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<T>& vec) const {
-        single_buffer_to_vectors(_vec_align.cbegin(), _vec_align.cend(), _dims, 0, vec);
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<typename inspector<T>::base_type> _vec_align;
-};
-
 
 // apply conversion to scalar string
 template <>
@@ -329,7 +329,7 @@ struct data_converter<std::string, void> {
 // apply conversion for vectors of string (dereference)
 template <>
 struct data_converter<std::vector<std::string>, void> {
-    using value_type = const char*;
+    using value_type = inspector<std::vector<std::string>>::hdf5_type;
 
     inline data_converter(const DataSpace& space) noexcept
         : _space(space) {}
@@ -342,10 +342,7 @@ struct data_converter<std::vector<std::string>, void> {
     }
 
     inline const value_type* transform_write(const std::vector<std::string>& vec) {
-        _c_vec.resize(vec.size() + 1, NULL);
-        std::transform(vec.begin(), vec.end(), _c_vec.begin(), [](const std::string& str) {
-            return str.c_str();
-        });
+        _c_vec = inspector<std::vector<std::string>>::serialize(vec);
         return _c_vec.data();
     }
 
@@ -355,7 +352,7 @@ struct data_converter<std::vector<std::string>, void> {
             vec[i] = std::string(_c_vec[i]);
         }
 
-        if (_c_vec.empty() == false && _c_vec[0] != NULL) {
+        if (_c_vec.empty() == false && _c_vec[0] != nullptr) {
             AtomicType<std::string> str_type;
             (void) H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT, &(_c_vec[0]));
         }
@@ -390,10 +387,7 @@ struct data_converter<std::vector<Reference>, void> {
     }
 
     inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align.resize(compute_total_size(_dims));
-        for (size_t i = 0; i < vec.size(); ++i) {
-            vec[i].create_ref(&_vec_align[i]);
-        }
+        _vec_align = inspector<std::vector<Reference>>::serialize(vec);
         return _vec_align.data();
     }
 
