@@ -15,18 +15,6 @@ namespace HighFive {
 namespace details {
 
 
-// compute size for single Eigen Matrix
-template <typename T, int M, int N>
-inline size_t compute_total_size(const Eigen::Matrix<T, M, N>& matrix) {
-    return static_cast<size_t>(matrix.rows()) * static_cast<size_t>(matrix.cols());
-}
-
-// compute size for  std::vector of Eigens
-template <typename T, int M, int N>
-inline size_t compute_total_size(const std::vector<Eigen::Matrix<T, M, N>>& vec) {
-    return vec.size() * compute_total_size(vec[0]);
-}
-
 #ifdef H5_USE_BOOST
 // compute size for  boost::multi_array of Eigens
 template <typename T, size_t Dims>
@@ -37,36 +25,6 @@ inline size_t compute_total_size(const boost::multi_array<T, Dims>& vec) {
         });
 }
 #endif
-
-// apply conversion to eigen matrix
-template <typename T, int M, int N>
-struct data_converter<Eigen::Matrix<T, M, N>, void> {
-    using MatrixTMN = Eigen::Matrix<T, M, N>;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {
-        assert(_dims.size() == 2);
-    }
-
-    inline T* transform_read(MatrixTMN& array) {
-        if (_dims[0] != static_cast<size_t>(array.rows()) ||
-            _dims[1] != static_cast<size_t>(array.cols())) {
-            array.resize(static_cast<typename MatrixTMN::Index>(_dims[0]),
-                         static_cast<typename MatrixTMN::Index>(_dims[1]));
-        }
-        return array.data();
-    }
-
-    inline const T* transform_write(const MatrixTMN& array) {
-        _vec_align = inspector<Eigen::Matrix<T, M, N>>::serialize(array);
-        return _vec_align.data();
-    }
-
-    inline void process_result(MatrixTMN&) {}
-
-    std::vector<size_t> _dims;
-    std::vector<T> _vec_align;
-};
 
 
 #ifdef H5_USE_BOOST

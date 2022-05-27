@@ -53,85 +53,39 @@ inline void check_dimensions_vector(size_t size_vec, size_t size_dataset, size_t
 }
 
 
-// Buffer converters
-// =================
-
-// copy multi dimensional vector in C++ in one C-style multi dimensional buffer
-template <typename T>
-inline void vectors_to_single_buffer(const std::vector<T>& vec_single_dim,
-                                     const std::vector<size_t>& dims,
-                                     const size_t current_dim,
-                                     std::vector<T>& buffer) {
-    check_dimensions_vector(vec_single_dim.size(), dims[current_dim], current_dim);
-    buffer.insert(buffer.end(), vec_single_dim.begin(), vec_single_dim.end());
-}
-
-
-template <typename T, typename U = typename inspector<T>::base_type>
-inline void vectors_to_single_buffer(const std::vector<T>& vec_multi_dim,
-                                     const std::vector<size_t>& dims,
-                                     size_t current_dim,
-                                     std::vector<U>& buffer) {
-    check_dimensions_vector(vec_multi_dim.size(), dims[current_dim], current_dim);
-    for (const auto& it: vec_multi_dim) {
-        vectors_to_single_buffer(it, dims, current_dim + 1, buffer);
-    }
-}
-
-// copy single buffer to multi dimensional vector, following specified dimensions
-template <typename T>
-inline typename std::vector<T>::const_iterator single_buffer_to_vectors(
-    typename std::vector<T>::const_iterator begin_buffer,
-    typename std::vector<T>::const_iterator end_buffer,
-    const std::vector<size_t>& dims,
-    const size_t current_dim,
-    std::vector<T>& vec_single_dim) {
-    const auto n_elems = static_cast<long>(dims[current_dim]);
-    const auto end_copy_iter = std::min(begin_buffer + n_elems, end_buffer);
-    vec_single_dim.assign(begin_buffer, end_copy_iter);
-    return end_copy_iter;
-}
-
-template <typename T, typename U = typename inspector<T>::base_type>
-inline typename std::vector<U>::const_iterator single_buffer_to_vectors(
-    typename std::vector<U>::const_iterator begin_buffer,
-    typename std::vector<U>::const_iterator end_buffer,
-    const std::vector<size_t>& dims,
-    const size_t current_dim,
-    std::vector<std::vector<T>>& vec_multi_dim) {
-    const size_t n_elems = dims[current_dim];
-    vec_multi_dim.resize(n_elems);
-
-    for (auto& subvec: vec_multi_dim) {
-        begin_buffer =
-            single_buffer_to_vectors(begin_buffer, end_buffer, dims, current_dim + 1, subvec);
-    }
-    return begin_buffer;
-}
-
-
 // DATA CONVERTERS
 // ===============
 
 // apply conversion operations to basic scalar type
 template <typename Scalar, class Enable>
 struct data_converter {
-    inline data_converter(const DataSpace&) noexcept {
-        static_assert((std::is_arithmetic<Scalar>::value || std::is_enum<Scalar>::value ||
-                       std::is_same<std::string, Scalar>::value),
-                      "supported datatype should be an arithmetic value, a "
-                      "std::string or a container/array");
+    using hdf5_type = typename inspector<Scalar>::hdf5_type;
+    inline data_converter(const DataSpace& space)
+        : _dims(space.getDimensions())
+        , _space(space) {}
+
+    inline hdf5_type* transform_read(Scalar&) {
+        _vec_align.resize(compute_total_size(_dims));
+        return _vec_align.data();
     }
 
-    inline Scalar* transform_read(Scalar& datamem) const noexcept {
-        return &datamem;
+    inline const hdf5_type* transform_write(const Scalar& datamem) {
+        _vec_align = inspector<Scalar>::serialize(datamem);
+        return _vec_align.data();
     }
 
-    inline const Scalar* transform_write(const Scalar& datamem) const noexcept {
-        return &datamem;
+    inline void process_result(Scalar& val) {
+        val = inspector<Scalar>::unserialize(_vec_align.data(), _dims);
+        auto t = create_datatype<typename inspector<Scalar>::base_type>();
+        auto c = t.getClass();
+        if (c == DataTypeClass::VarLen) {
+            (void) H5Dvlen_reclaim(t.getId(), _space.getId(), H5P_DEFAULT, &val);
+        }
     }
 
-    inline void process_result(Scalar&) const noexcept {}
+    std::vector<size_t> _dims;
+    DataSpace _space;
+    std::vector<hdf5_type> _vec_align;
 };
 
 
@@ -176,42 +130,6 @@ struct container_converter {
     inline void process_result(Container&) const noexcept {}
 
     const DataSpace& _space;
-};
-
-
-// apply conversion for continuous vectors
-template <typename T>
-struct data_converter<std::vector<T>,
-                      typename std::enable_if<std::is_trivially_copyable<T>::value>::type>
-    : public container_converter<std::vector<T>> {
-    using container_converter<std::vector<T>>::container_converter;
-};
-
-
-// apply conversion for vectors nested vectors
-template <typename T>
-struct data_converter<std::vector<T>, typename std::enable_if<!std::is_trivially_copyable<T>::value>::type> {
-    using value_type = typename inspector<T>::hdf5_type;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {}
-
-    inline value_type* transform_read(std::vector<T>&) {
-        _vec_align.resize(compute_total_size(_dims));
-        return _vec_align.data();
-    }
-
-    inline const value_type* transform_write(const std::vector<T>& vec) {
-        _vec_align = inspector<std::vector<T>>::serialize(vec);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<T>& vec) const {
-        vec = inspector<std::vector<T>>::unserialize(_vec_align.data(), _dims);
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<value_type> _vec_align;
 };
 
 
@@ -289,75 +207,6 @@ struct data_converter<boost::numeric::ublas::matrix<T>, void>
     }
 };
 #endif
-
-
-
-// apply conversion to scalar string
-template <>
-struct data_converter<std::string, void> {
-    using value_type = const char*;  // char data is const, mutable pointer
-
-    inline data_converter(const DataSpace& space) noexcept
-        : _c_vec(nullptr)
-        , _space(space) {}
-
-    // create a C vector adapted to HDF5
-    // fill last element with NULL to identify end
-    inline value_type* transform_read(std::string&) noexcept {
-        return &_c_vec;
-    }
-
-    inline const value_type* transform_write(const std::string& str) noexcept {
-        _c_vec = str.c_str();
-        return &_c_vec;
-    }
-
-    inline void process_result(std::string& str) {
-        assert(_c_vec != nullptr);
-        str = std::string(_c_vec);
-
-        if (_c_vec != nullptr) {
-            AtomicType<std::string> str_type;
-            (void) H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT, &_c_vec);
-        }
-    }
-
-    value_type _c_vec;
-    const DataSpace& _space;
-};
-
-// apply conversion for vectors of string (dereference)
-template <>
-struct data_converter<std::vector<std::string>, void> {
-    using value_type = inspector<std::vector<std::string>>::hdf5_type;
-
-    inline data_converter(const DataSpace& space) noexcept
-        : _space(space) {}
-
-    // create a C vector adapted to HDF5
-    // fill last element with NULL to identify end
-    inline value_type* transform_read(std::vector<std::string>&) {
-        _c_vec.resize(_space.getDimensions()[0], NULL);
-        return _c_vec.data();
-    }
-
-    inline const value_type* transform_write(const std::vector<std::string>& vec) {
-        _c_vec = inspector<std::vector<std::string>>::serialize(vec);
-        return _c_vec.data();
-    }
-
-    inline void process_result(std::vector<std::string>& vec) {
-        vec = inspector<std::vector<std::string>>::unserialize(_c_vec.data(), _space.getDimensions());
-
-        if (_c_vec.empty() == false && _c_vec[0] != nullptr) {
-            AtomicType<std::string> str_type;
-            (void) H5Dvlen_reclaim(str_type.getId(), _space.getId(), H5P_DEFAULT, &(_c_vec[0]));
-        }
-    }
-
-    std::vector<value_type> _c_vec;
-    const DataSpace& _space;
-};
 
 
 // apply conversion for fixed-string. Implements container interface

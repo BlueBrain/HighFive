@@ -45,7 +45,7 @@ struct inspector<std::string> {
     static constexpr size_t recursive_ndim = ndim;
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        return std::array<size_t, recursive_ndim>();
+        return {};
     }
 
     static std::vector<hdf5_type> serialize(const type& val) {
