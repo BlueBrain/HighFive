@@ -201,6 +201,7 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     using type = Eigen::Matrix<T, M, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = base_type;
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -213,6 +214,18 @@ struct inspector<Eigen::Matrix<T, M, N>> {
             sizes[index++] = s;
         }
         return sizes;
+    }
+
+    static std::vector<hdf5_type> serialize(const type& val) {
+        return std::vector<hdf5_type>(val.data(), val.data() + val.size());
+    }
+
+    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+        type array;
+        array.resize(static_cast<typename type::Index>(dims[0]),
+                     static_cast<typename type::Index>(dims[1]));
+        memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
+        return array;
     }
 };
 #endif

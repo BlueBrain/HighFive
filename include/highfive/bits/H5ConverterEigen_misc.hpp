@@ -58,73 +58,16 @@ struct data_converter<Eigen::Matrix<T, M, N>, void> {
     }
 
     inline const T* transform_write(const MatrixTMN& array) {
-        return array.data();
+        _vec_align = inspector<Eigen::Matrix<T, M, N>>::serialize(array);
+        return _vec_align.data();
     }
 
     inline void process_result(MatrixTMN&) {}
 
     std::vector<size_t> _dims;
+    std::vector<T> _vec_align;
 };
 
-
-template <typename T, int M, int N>
-inline void vectors_to_single_buffer(const std::vector<Eigen::Matrix<T, M, N>>& vec,
-                                     const std::vector<size_t>& dims,
-                                     const size_t current_dim,
-                                     std::vector<T>& buffer) {
-    check_dimensions_vector(vec.size(), dims[current_dim], current_dim);
-    for (const auto& k: vec) {
-        std::copy(k.data(), k.data() + k.size(), std::back_inserter(buffer));
-    }
-}
-
-// apply conversion to std::vector of eigen matrix
-template <typename T, int M, int N>
-struct data_converter<std::vector<Eigen::Matrix<T, M, N>>, void> {
-    using MatrixTMN = Eigen::Matrix<T, M, N>;
-
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions())
-        , _space(space) {
-        assert(_dims.size() == 3);
-    }
-
-    inline T* transform_read(std::vector<MatrixTMN>& /* vec */) {
-        _vec_align.resize(compute_total_size(_space.getDimensions()));
-        return _vec_align.data();
-    }
-
-    inline const T* transform_write(const std::vector<MatrixTMN>& vec) {
-        _vec_align.reserve(compute_total_size(vec));
-        vectors_to_single_buffer<T, M, N>(vec, _dims, 0, _vec_align);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<MatrixTMN>& vec) {
-        T* start = _vec_align.data();
-        if (vec.size() > 0) {
-            for (auto& v: vec) {
-                v = Eigen::Map<MatrixTMN>(start, v.rows(), v.cols());
-                start += v.rows() * v.cols();
-            }
-        } else if (M == -1 || N == -1) {
-            std::ostringstream ss;
-            ss << "Dynamic size(-1) used without pre-defined vector data layout.\n"
-               << "Initiliaze vector elements using Zero, i.e.:\n"
-               << "\t vector<MatrixXd> vec(5, MatrixXd::Zero(20,5))";
-            throw DataSetException(ss.str());
-        } else {
-            for (size_t i = 0; i < _dims[0]; ++i) {
-                vec.emplace_back(Eigen::Map<MatrixTMN>(start, M, N));
-                start += M * N;
-            }
-        }
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<typename inspector<T>::base_type> _vec_align;
-    const DataSpace& _space;
-};
 
 #ifdef H5_USE_BOOST
 template <typename T, int M, int N, std::size_t Dims>
