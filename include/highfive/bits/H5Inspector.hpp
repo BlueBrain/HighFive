@@ -1,6 +1,9 @@
 #include "../H5Reference.hpp"
 
 namespace HighFive {
+inline size_t compute_total_size(const std::vector<size_t>& dims) {
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
+}
 template <size_t N>
 inline size_t compute_total_size(const std::array<size_t, N>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
@@ -26,6 +29,10 @@ struct inspector {
     static std::vector<hdf5_type> serialize(const type& val) {
         return {val};
     }
+
+    static type unserialize(const hdf5_type* vec, std::vector<size_t> /* dims */) {
+        return vec[0];
+    }
 };
 
 template<>
@@ -43,6 +50,10 @@ struct inspector<std::string> {
 
     static std::vector<hdf5_type> serialize(const type& val) {
         return {val.c_str()};
+    }
+
+    static type unserialize(const hdf5_type* vec, std::vector<size_t> /* dims */) {
+        return std::string(vec[0]);
     }
 };
 
@@ -63,6 +74,10 @@ struct inspector<Reference> {
         hobj_ref_t ref;
         val.create_ref(&ref);
         return {ref};
+    }
+
+    static type unserialize(const hdf5_type* vec, std::vector <size_t> /* dims */) {
+        return Reference(vec[0]);
     }
 };
 
@@ -110,6 +125,17 @@ struct inspector<std::vector<T>> {
             vec.insert(vec.end(), v.begin(), v.end());
         }
         return vec;
+    }
+
+    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+        type val;
+        val.resize(dims[0]);
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        size_t next_size = compute_total_size(next_dims);
+        for (size_t i = 0; i < dims[0]; ++i) {
+            val[i] = inspector<value_type>::unserialize(vec_align + i * next_size, next_dims);
+        }
+        return val;
     }
 };
 

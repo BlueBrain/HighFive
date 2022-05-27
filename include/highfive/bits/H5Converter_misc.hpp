@@ -207,7 +207,7 @@ struct data_converter<std::vector<T>, typename std::enable_if<!std::is_trivially
     }
 
     inline void process_result(std::vector<T>& vec) const {
-        single_buffer_to_vectors(_vec_align.cbegin(), _vec_align.cend(), _dims, 0, vec);
+        vec = inspector<std::vector<T>>::unserialize(_vec_align.data(), _dims);
     }
 
     std::vector<size_t> _dims;
@@ -347,10 +347,7 @@ struct data_converter<std::vector<std::string>, void> {
     }
 
     inline void process_result(std::vector<std::string>& vec) {
-        vec.resize(_c_vec.size());
-        for (size_t i = 0; i < vec.size(); ++i) {
-            vec[i] = std::string(_c_vec[i]);
-        }
+        vec = inspector<std::vector<std::string>>::unserialize(_c_vec.data(), _space.getDimensions());
 
         if (_c_vec.empty() == false && _c_vec[0] != nullptr) {
             AtomicType<std::string> str_type;
@@ -368,38 +365,6 @@ template <std::size_t N>
 struct data_converter<FixedLenStringArray<N>, void>
     : public container_converter<FixedLenStringArray<N>, char> {
     using container_converter<FixedLenStringArray<N>, char>::container_converter;
-};
-
-template <>
-struct data_converter<std::vector<Reference>, void> {
-    inline data_converter(const DataSpace& space)
-        : _dims(space.getDimensions()) {
-        if (!is_1D(_dims)) {
-            throw DataSpaceException("Only 1D std::array supported currently.");
-        }
-    }
-
-    inline hobj_ref_t* transform_read(std::vector<Reference>& vec) {
-        auto total_size = compute_total_size(_dims);
-        _vec_align.resize(total_size);
-        vec.resize(total_size);
-        return _vec_align.data();
-    }
-
-    inline const hobj_ref_t* transform_write(const std::vector<Reference>& vec) {
-        _vec_align = inspector<std::vector<Reference>>::serialize(vec);
-        return _vec_align.data();
-    }
-
-    inline void process_result(std::vector<Reference>& vec) const {
-        auto* href = const_cast<hobj_ref_t*>(_vec_align.data());
-        for (auto& ref: vec) {
-            ref = Reference(*(href++));
-        }
-    }
-
-    std::vector<size_t> _dims;
-    std::vector<typename inspector<hobj_ref_t>::base_type> _vec_align;
 };
 
 }  // namespace details
