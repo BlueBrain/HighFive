@@ -20,7 +20,6 @@
 #ifdef H5_USE_BOOST
 // starting Boost 1.64, serialization header must come before ublas
 #include <boost/serialization/vector.hpp>
-#include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
 
@@ -160,26 +159,6 @@ struct data_converter<
 
 
 #ifdef H5_USE_BOOST
-// apply conversion to boost multi array
-template <typename T, std::size_t Dims>
-struct data_converter<boost::multi_array<T, Dims>, void>
-    : public container_converter<boost::multi_array<T, Dims>> {
-    using MultiArray = boost::multi_array<T, Dims>;
-    using value_type = typename inspector<T>::base_type;
-    using container_converter<MultiArray>::container_converter;
-
-    inline value_type* transform_read(MultiArray& array) {
-        auto&& dims = this->_space.getDimensions();
-        if (std::equal(dims.begin(), dims.end(), array.shape()) == false) {
-            boost::array<typename MultiArray::index, Dims> ext;
-            std::copy(dims.begin(), dims.end(), ext.begin());
-            array.resize(ext);
-        }
-        return array.data();
-    }
-};
-
-
 // apply conversion to boost matrix ublas
 template <typename T>
 struct data_converter<boost::numeric::ublas::matrix<T>, void>
@@ -219,9 +198,5 @@ struct data_converter<FixedLenStringArray<N>, void>
 }  // namespace details
 
 }  // namespace HighFive
-
-#ifdef H5_USE_EIGEN
-#include "H5ConverterEigen_misc.hpp"
-#endif
 
 #endif  // H5CONVERTER_MISC_HPP

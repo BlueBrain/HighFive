@@ -1,4 +1,7 @@
 #include "../H5Reference.hpp"
+#ifdef H5_USE_BOOST
+#include <boost/multi_array.hpp>
+#endif
 
 namespace HighFive {
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
@@ -53,7 +56,7 @@ struct inspector<std::string> {
     }
 
     static type unserialize(const hdf5_type* vec, std::vector<size_t> /* dims */) {
-        return std::string(vec[0]);
+        return std::string{vec[0]};
     }
 };
 
@@ -236,6 +239,7 @@ struct inspector<boost::multi_array<T, Dims>> {
     using type = boost::multi_array<T, Dims>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = Dims;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -251,6 +255,29 @@ struct inspector<boost::multi_array<T, Dims>> {
             sizes[index++] = s;
         }
         return sizes;
+    }
+
+    static std::vector<hdf5_type> serialize(const type& val) {
+        size_t size = val.num_elements();
+        std::vector<hdf5_type> vec;
+        vec.reserve(size);
+        for (size_t i = 0; i < size; ++i) {
+            auto v = inspector<value_type>::serialize(*(val.origin() + i));
+            vec.insert(vec.end(), v.begin(), v.end());
+        }
+        return vec;
+    }
+
+    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+        type array;
+        boost::array<typename type::index, Dims> ext;
+        std::copy(dims.begin(), dims.end(), ext.begin());
+        array.resize(ext);
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        for (size_t i = 0; i < array.num_elements(); ++i) {
+            *(array.origin() + i) = inspector<value_type>::unserialize(vec_align + i, next_dims);
+        }
+        return array;
     }
 };
 

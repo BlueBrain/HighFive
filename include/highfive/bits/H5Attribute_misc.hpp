@@ -15,10 +15,6 @@
 #include <sstream>
 #include <string>
 
-#ifdef H5_USE_BOOST
-#include <boost/multi_array.hpp>
-#endif
-
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
