@@ -56,26 +56,27 @@ inline void check_dimensions_vector(size_t size_vec, size_t size_dataset, size_t
 // ===============
 
 // apply conversion operations to basic scalar type
-template <typename Scalar, class Enable>
+template <typename T, class Enable>
 struct data_converter {
-    using hdf5_type = typename inspector<Scalar>::hdf5_type;
+    using hdf5_type = typename inspector<T>::hdf5_type;
     inline data_converter(const DataSpace& space)
         : _dims(space.getDimensions())
         , _space(space) {}
 
-    inline hdf5_type* transform_read(Scalar&) {
+    inline hdf5_type* transform_read(T&) {
         _vec_align.resize(compute_total_size(_dims));
         return _vec_align.data();
     }
 
-    inline const hdf5_type* transform_write(const Scalar& datamem) {
-        _vec_align = inspector<Scalar>::serialize(datamem);
+    inline const hdf5_type* transform_write(const T& datamem) {
+        _vec_align = inspector<T>::serialize(datamem);
         return _vec_align.data();
     }
 
-    inline void process_result(Scalar& val) {
-        val = inspector<Scalar>::unserialize(_vec_align.data(), _dims);
-        auto t = create_datatype<typename inspector<Scalar>::base_type>();
+    inline void process_result(T& val) {
+        inspector<T>::prepare(val, _dims);
+        val = inspector<T>::unserialize(_vec_align.data(), _dims);
+        auto t = create_datatype<typename inspector<T>::base_type>();
         auto c = t.getClass();
         if (c == DataTypeClass::VarLen) {
             (void) H5Dvlen_reclaim(t.getId(), _space.getId(), H5P_DEFAULT, &val);

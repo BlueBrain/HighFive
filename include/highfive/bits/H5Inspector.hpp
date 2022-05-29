@@ -2,6 +2,9 @@
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 #endif
+#ifdef H5_USE_EIGEN
+#include <Eigen/Eigen>
+#endif
 
 namespace HighFive {
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
@@ -29,6 +32,12 @@ struct inspector {
         return std::array<size_t, recursive_ndim>();
     }
 
+    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+
+    static type alloc(const std::vector<size_t>& /* dims */) {
+        return type{};
+    }
+
     static std::vector<hdf5_type> serialize(const type& val) {
         return {val};
     }
@@ -51,6 +60,12 @@ struct inspector<std::string> {
         return {};
     }
 
+    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+
+    static type alloc(const std::vector<size_t>& /* dims */) {
+        return type{};
+    }
+
     static std::vector<hdf5_type> serialize(const type& val) {
         return {val.c_str()};
     }
@@ -71,6 +86,12 @@ struct inspector<Reference> {
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         return std::array<size_t, recursive_ndim>();
+    }
+
+    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+
+    static type alloc(const std::vector<size_t>& /* dims */) {
+        return type{};
     }
 
     static std::vector<hdf5_type> serialize(const type& val) {
@@ -119,6 +140,16 @@ struct inspector<std::vector<T>> {
         return sizes;
     }
 
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        val.resize(dims[0]);
+    }
+
+    static type alloc(const std::vector<size_t>& dims) {
+        type val;
+        prepare(val, dims);
+        return val;
+    }
+
     static std::vector<hdf5_type> serialize(const type& val) {
         size_t size = compute_total_size(getDimensions(val));
         std::vector<hdf5_type> vec;
@@ -131,8 +162,7 @@ struct inspector<std::vector<T>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
-        type val;
-        val.resize(dims[0]);
+        type val = alloc(dims);
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
@@ -219,14 +249,23 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return sizes;
     }
 
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        val.resize(static_cast<typename type::Index>(dims[0]),
+                   static_cast<typename type::Index>(dims[1]));
+    }
+
+    static type alloc(const std::vector<size_t>& dims) {
+        type val;
+        prepare(val, dims);
+        return val;
+    }
+
     static std::vector<hdf5_type> serialize(const type& val) {
         return std::vector<hdf5_type>(val.data(), val.data() + val.size());
     }
 
     static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
-        type array;
-        array.resize(static_cast<typename type::Index>(dims[0]),
-                     static_cast<typename type::Index>(dims[1]));
+        type array = alloc(dims);
         memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
         return array;
     }
@@ -257,6 +296,18 @@ struct inspector<boost::multi_array<T, Dims>> {
         return sizes;
     }
 
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        boost::array<typename type::index, Dims> ext;
+        std::copy(dims.begin(), dims.begin() + ndim, ext.begin());
+        val.resize(ext);
+    }
+
+    static type alloc(const std::vector<size_t>& dims) {
+        type array;
+        prepare(array, dims);
+        return array;
+    }
+
     static std::vector<hdf5_type> serialize(const type& val) {
         size_t size = val.num_elements();
         std::vector<hdf5_type> vec;
@@ -269,13 +320,12 @@ struct inspector<boost::multi_array<T, Dims>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
-        type array;
-        boost::array<typename type::index, Dims> ext;
-        std::copy(dims.begin(), dims.end(), ext.begin());
-        array.resize(ext);
-        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        type array = alloc(dims);
+        std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
+        size_t subsize = compute_total_size(next_dims);
         for (size_t i = 0; i < array.num_elements(); ++i) {
-            *(array.origin() + i) = inspector<value_type>::unserialize(vec_align + i, next_dims);
+            *(array.origin() + i) = inspector<value_type>::unserialize(vec_align + i * subsize,
+                                                                       next_dims);
         }
         return array;
     }

@@ -23,9 +23,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #endif
-#ifdef H5_USE_EIGEN
-#include <Eigen/Eigen>
-#endif
 
 #include <H5public.h>
 
