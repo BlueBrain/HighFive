@@ -133,32 +133,6 @@ struct container_converter {
 };
 
 
-// apply conversion to std::array
-template <typename T, std::size_t S>
-struct data_converter<
-    std::array<T, S>,
-    typename std::enable_if<(std::is_same<T, typename inspector<T>::base_type>::value)>::type>
-    : public container_converter<std::array<T, S>> {
-    inline data_converter(const DataSpace& space)
-        : container_converter<std::array<T, S>>(space) {
-        auto&& dims = space.getDimensions();
-        if (!is_1D(dims)) {
-            throw DataSpaceException("Only 1D std::array supported currently.");
-        }
-        if (compute_total_size(dims) != S) {
-            std::ostringstream ss;
-            ss << "Impossible to pair DataSet with " << compute_total_size(dims)
-               << " elements into an array with " << S << " elements.";
-            throw DataSpaceException(ss.str());
-        }
-    }
-
-    inline T* transform_read(std::array<T, S>& vec) const noexcept {
-        return vec.data();
-    }
-};
-
-
 #ifdef H5_USE_BOOST
 // apply conversion to boost matrix ublas
 template <typename T>

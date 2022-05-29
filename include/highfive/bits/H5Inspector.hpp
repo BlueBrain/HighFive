@@ -172,6 +172,62 @@ struct inspector<std::vector<T>> {
     }
 };
 
+
+template <typename T, size_t N>
+struct inspector<std::array<T, N>> {
+    using type = std::array<T, N>;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
+        std::array<size_t, recursive_ndim> sizes{N};
+        size_t index = ndim;
+        if (!val.empty()) {
+            for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
+                sizes[index++] = s;
+            }
+        }
+        return sizes;
+    }
+
+    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+
+    static type alloc(const std::vector<size_t>& /* dims */) {
+        return type{};
+    }
+
+    static std::vector<hdf5_type> serialize(const type& val) {
+        size_t size = compute_total_size(getDimensions(val));
+        std::vector<hdf5_type> vec;
+        vec.reserve(size);
+        for (auto& e: val) {
+            auto v = inspector<value_type>::serialize(e);
+            vec.insert(vec.end(), v.begin(), v.end());
+        }
+        return vec;
+    }
+
+    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+        if (dims[0] != N) {
+            std::ostringstream os;
+            os << "Impossible to pair DataSet with " << dims[0] << " elements into an array with "
+               << N << " elements.";
+            throw DataSpaceException(os.str());
+        }
+        type val = alloc(dims);
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        size_t next_size = compute_total_size(next_dims);
+        for (size_t i = 0; i < dims[0]; ++i) {
+            val[i] = inspector<value_type>::unserialize(vec_align + i * next_size, next_dims);
+        }
+        return val;
+    }
+};
+
 template <typename T>
 struct inspector<T*> {
     using type = T*;
@@ -193,25 +249,6 @@ struct inspector<const T*>: public inspector<T*> {};
 template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
-    using value_type = T;
-    using base_type = typename inspector<value_type>::base_type;
-
-    static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{N};
-        size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-            sizes[index++] = s;
-        }
-        return sizes;
-    }
-};
-
-template <typename T, size_t N>
-struct inspector<std::array<T, N>> {
-    using type = std::array<T, N>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
 
