@@ -330,6 +330,11 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+        if (dims.size() < 2) {
+            std::ostringstream os;
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into an eigen-matrix.";
+            throw DataSpaceException(os.str());
+        }
         type array = alloc(dims);
         memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
         return array;
@@ -385,6 +390,11 @@ struct inspector<boost::multi_array<T, Dims>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+        if (dims.size() < ndim) {
+            std::ostringstream os;
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
+            throw DataSpaceException(os.str());
+        }
         type array = alloc(dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
@@ -437,6 +447,11 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+        if (dims.size() < 2) {
+            std::ostringstream os;
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
+            throw DataSpaceException(os.str());
+        }
         type array = alloc(dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);

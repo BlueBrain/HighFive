@@ -9,19 +9,8 @@
 #ifndef H5CONVERTER_MISC_HPP
 #define H5CONVERTER_MISC_HPP
 
-#include <algorithm>
-#include <cassert>
-#include <functional>
-#include <numeric>
-#include <sstream>
-#include <string>
-#include <array>
-
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
-
-#include "../H5Reference.hpp"
-#include "H5Utils.hpp"
 
 namespace HighFive {
 
