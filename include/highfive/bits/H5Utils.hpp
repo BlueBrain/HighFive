@@ -18,12 +18,6 @@
 #include <type_traits>
 #include <vector>
 
-#ifdef H5_USE_BOOST
-// starting Boost 1.64, serialization header must come before ublas
-#include <boost/serialization/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#endif
-
 #include <H5public.h>
 
 #include "../H5Exception.hpp"

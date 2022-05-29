@@ -1,6 +1,9 @@
 #include "../H5Reference.hpp"
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+// starting Boost 1.64, serialization header must come before ublas
+#include <boost/serialization/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #endif
 #ifdef H5_USE_EIGEN
 #include <Eigen/Eigen>
@@ -42,7 +45,7 @@ struct inspector {
         return {val};
     }
 
-    static type unserialize(const hdf5_type* vec, std::vector<size_t> /* dims */) {
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
         return vec[0];
     }
 };
@@ -70,7 +73,7 @@ struct inspector<std::string> {
         return {val.c_str()};
     }
 
-    static type unserialize(const hdf5_type* vec, std::vector<size_t> /* dims */) {
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
         return std::string{vec[0]};
     }
 };
@@ -100,7 +103,7 @@ struct inspector<Reference> {
         return {ref};
     }
 
-    static type unserialize(const hdf5_type* vec, std::vector <size_t> /* dims */) {
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
         return Reference(vec[0]);
     }
 };
@@ -161,7 +164,7 @@ struct inspector<std::vector<T>> {
         return vec;
     }
 
-    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         type val = alloc(dims);
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
@@ -211,7 +214,7 @@ struct inspector<std::array<T, N>> {
         return vec;
     }
 
-    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         if (dims[0] != N) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims[0] << " elements into an array with "
@@ -301,7 +304,7 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return std::vector<hdf5_type>(val.data(), val.data() + val.size());
     }
 
-    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         type array = alloc(dims);
         memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
         return array;
@@ -346,9 +349,9 @@ struct inspector<boost::multi_array<T, Dims>> {
     }
 
     static std::vector<hdf5_type> serialize(const type& val) {
-        size_t size = val.num_elements();
         std::vector<hdf5_type> vec;
-        vec.reserve(size);
+        vec.reserve(compute_total_size(getDimensions(val)));
+        size_t size = val.num_elements();
         for (size_t i = 0; i < size; ++i) {
             auto v = inspector<value_type>::serialize(*(val.origin() + i));
             vec.insert(vec.end(), v.begin(), v.end());
@@ -356,7 +359,7 @@ struct inspector<boost::multi_array<T, Dims>> {
         return vec;
     }
 
-    static type unserialize(const hdf5_type* vec_align, std::vector<size_t> dims) {
+    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         type array = alloc(dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
@@ -373,6 +376,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -384,6 +388,39 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
             sizes[index++] = s;
         }
         return sizes;
+    }
+
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        val.resize(dims[0], dims[1], false);
+    }
+
+    static type alloc(const std::vector<size_t>& dims) {
+        type array;
+        prepare(array, dims);
+        return array;
+    }
+
+    static std::vector<hdf5_type> serialize(const type& val) {
+        std::vector<hdf5_type> vec;
+        vec.reserve(compute_total_size(getDimensions(val)));
+        size_t size = val.size1() * val.size2();
+        for (size_t i = 0; i < size; ++i) {
+            auto v = inspector<value_type>::serialize(*(&val(0, 0) + i));
+            vec.insert(vec.end(), v.begin(), v.end());
+        }
+        return vec;
+    }
+
+    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+        type array = alloc(dims);
+        std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
+        size_t subsize = compute_total_size(next_dims);
+        size_t size = array.size1() * array.size2();
+        for (size_t i = 0; i < size; ++i) {
+            *(&array(0, 0) + i) = inspector<value_type>::unserialize(vec_align + i * subsize,
+                                                                     next_dims);
+        }
+        return array;
     }
 };
 #endif

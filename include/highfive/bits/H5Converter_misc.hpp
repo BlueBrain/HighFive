@@ -17,12 +17,6 @@
 #include <string>
 #include <array>
 
-#ifdef H5_USE_BOOST
-// starting Boost 1.64, serialization header must come before ublas
-#include <boost/serialization/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-#endif
-
 #include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
@@ -40,17 +34,6 @@ inline bool is_1D(const std::vector<size_t>& dims) {
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
 }
-
-inline void check_dimensions_vector(size_t size_vec, size_t size_dataset, size_t dimension) {
-    if (size_vec != size_dataset) {
-        std::ostringstream ss;
-        ss << "Mismatch between vector size (" << size_vec << ") and dataset size ("
-           << size_dataset;
-        ss << ") on dimension " << dimension;
-        throw DataSetException(ss.str());
-    }
-}
-
 
 // DATA CONVERTERS
 // ===============
@@ -131,36 +114,6 @@ struct container_converter {
 
     const DataSpace& _space;
 };
-
-
-#ifdef H5_USE_BOOST
-// apply conversion to boost matrix ublas
-template <typename T>
-struct data_converter<boost::numeric::ublas::matrix<T>, void>
-    : public container_converter<boost::numeric::ublas::matrix<T>> {
-    using Matrix = boost::numeric::ublas::matrix<T>;
-    using value_type = typename inspector<T>::base_type;
-
-    inline data_converter(const DataSpace& space)
-        : container_converter<Matrix>(space) {
-        assert(space.getDimensions().size() == 2);
-    }
-
-    inline value_type* transform_read(Matrix& array) {
-        boost::array<std::size_t, 2> sizes = {{array.size1(), array.size2()}};
-        auto&& _dims = this->_space.getDimensions();
-        if (std::equal(_dims.begin(), _dims.end(), sizes.begin()) == false) {
-            array.resize(_dims[0], _dims[1], false);
-            array(0, 0) = 0;  // force initialization
-        }
-        return &(array(0, 0));
-    }
-
-    inline const value_type* transform_write(const Matrix& array) const noexcept {
-        return &(array(0, 0));
-    }
-};
-#endif
 
 
 // apply conversion for fixed-string. Implements container interface
