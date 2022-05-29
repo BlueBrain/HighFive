@@ -27,10 +27,6 @@ namespace HighFive {
 
 namespace details {
 
-inline bool is_1D(const std::vector<size_t>& dims) {
-    return std::count_if(dims.begin(), dims.end(), [](size_t i) { return i > 1; }) < 2;
-}
-
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
 }
@@ -87,40 +83,6 @@ struct data_converter<CArray, typename std::enable_if<(is_c_array<CArray>::value
     }
 
     inline void process_result(CArray&) const noexcept {}
-};
-
-// Generic container converter
-template <typename Container, typename T = typename inspector<Container>::base_type>
-struct container_converter {
-    using value_type = T;
-
-    inline container_converter(const DataSpace& space)
-        : _space(space) {}
-
-    // Ship (pseudo)1D implementation
-    inline value_type* transform_read(Container& vec) const {
-        auto&& dims = _space.getDimensions();
-        if (!is_1D(dims))
-            throw DataSpaceException("Dataset cant be converted to 1D");
-        vec.resize(compute_total_size(dims));
-        return vec.data();
-    }
-
-    inline const value_type* transform_write(const Container& vec) const noexcept {
-        return vec.data();
-    }
-
-    inline void process_result(Container&) const noexcept {}
-
-    const DataSpace& _space;
-};
-
-
-// apply conversion for fixed-string. Implements container interface
-template <std::size_t N>
-struct data_converter<FixedLenStringArray<N>, void>
-    : public container_converter<FixedLenStringArray<N>, char> {
-    using container_converter<FixedLenStringArray<N>, char>::container_converter;
 };
 
 }  // namespace details

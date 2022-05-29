@@ -112,13 +112,38 @@ template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
     using base_type = FixedLenStringArray<N>;
-    using hdf5_type = base_type;
+    using hdf5_type = char;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim;
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         return std::array<size_t, recursive_ndim>{val.size()};
+    }
+
+    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+
+    static type alloc(const std::vector<size_t>& /* dims */) {
+        return type{};
+    }
+
+    static std::vector<hdf5_type> serialize(const type& val) {
+        std::vector<hdf5_type> vec;
+        vec.resize(N * compute_total_size(getDimensions(val)));
+        for (size_t i = 0; i < val.size(); ++i) {
+            memcpy(vec.data() + i * N, val[i], N);
+        }
+        return vec;
+    }
+
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& dims) {
+        type val = alloc(dims);
+        for (size_t i = 0; i < dims[0]; ++i) {
+            std::array<char, N> s;
+            memcpy(s.data(), vec+(i*N), N);
+            val.push_back(s);
+        }
+        return val;
     }
 };
 
