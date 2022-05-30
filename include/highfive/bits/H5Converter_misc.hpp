@@ -36,10 +36,6 @@ struct data_converter {
         return _vec_align.data();
     }
 
-    inline const Writer<hdf5_type> transform_write(const T& datamem) {
-        return inspector<T>::serialize(datamem);
-    }
-
     inline void process_result(T& val) {
         inspector<T>::prepare(val, _dims);
         val = inspector<T>::unserialize(_vec_align.data(), _dims);
@@ -60,13 +56,10 @@ struct data_converter {
 // if they are a cstyle array
 template <typename CArray>
 struct data_converter<CArray, typename std::enable_if<(is_c_array<CArray>::value)>::type> {
+    using hdf5_type = typename inspector<CArray>::hdf5_type;
     inline data_converter(const DataSpace&) noexcept {}
 
     inline CArray& transform_read(CArray& datamem) const noexcept {
-        return datamem;
-    }
-
-    inline const CArray& transform_write(const CArray& datamem) const noexcept {
         return datamem;
     }
 

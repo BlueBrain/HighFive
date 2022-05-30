@@ -95,8 +95,8 @@ inline void Attribute::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-    details::data_converter<T> converter(mem_space);
-    write_raw(converter.transform_write(buffer), buffer_info.data_type);
+    auto w = details::inspector<T>::serialize(buffer);
+    write_raw(w.get_pointer(), buffer_info.data_type);
 }
 
 template <typename T>

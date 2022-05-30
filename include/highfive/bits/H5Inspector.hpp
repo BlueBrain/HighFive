@@ -24,7 +24,7 @@ using unqualified_t = typename std::remove_const<typename std::remove_reference<
 template <typename T>
 class Writer {
   public:
-    T* get_pointer() {
+    const T* get_pointer() {
       if (vec.empty()) {
         return ptr;
       } else {
@@ -40,7 +40,7 @@ class Writer {
     }
     std::vector<T> vec{};
     size_t size{0};
-    T* ptr{nullptr};
+    const T* ptr{nullptr};
 };
 
 namespace details {
@@ -290,6 +290,7 @@ struct inspector<T*> {
     using type = T*;
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -297,10 +298,38 @@ struct inspector<T*> {
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         throw std::string("Not possible to have size of a T*");
     }
+
+    /* it works because there is only T[][][] currently
+       we will fix it one day */
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        return w;
+    }
 };
 
 template <typename T>
-struct inspector<const T*>: public inspector<T*> {};
+struct inspector<const T*> {
+    using type = const T*;
+    using value_type = T;
+    using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+
+    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+        throw std::string("Not possible to have size of a T*");
+    }
+
+    /* it works because there is only T[][][] currently
+       we will fix it one day */
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        return w;
+    }
+};
 
 
 template <typename T, size_t N>
@@ -308,6 +337,7 @@ struct inspector<T[N]> {
     using type = T[N];
     using value_type = T;
     using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
@@ -319,6 +349,14 @@ struct inspector<T[N]> {
             sizes[index++] = s;
         }
         return sizes;
+    }
+
+    /* it works because there is only T[][][] currently
+       we will fix it one day */
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.ptr = reinterpret_cast<const hdf5_type*>(&val[0]);
+        return w;
     }
 };
 
