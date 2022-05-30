@@ -36,9 +36,8 @@ struct data_converter {
         return _vec_align.data();
     }
 
-    inline const hdf5_type* transform_write(const T& datamem) {
-        _vec_align = inspector<T>::serialize(datamem);
-        return _vec_align.data();
+    inline const Writer<hdf5_type> transform_write(const T& datamem) {
+        return inspector<T>::serialize(datamem);
     }
 
     inline void process_result(T& val) {

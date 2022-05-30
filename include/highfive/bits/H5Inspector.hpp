@@ -21,6 +21,28 @@ inline size_t compute_total_size(const std::array<size_t, N>& dims) {
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
+template <typename T>
+class Writer {
+  public:
+    T* get_pointer() {
+      if (vec.empty()) {
+        return ptr;
+      } else {
+        return vec.data();
+      }
+    }
+    size_t get_size() {
+      if (vec.empty()) {
+        return size;
+      } else {
+        return vec.size();
+      }
+    }
+    std::vector<T> vec{};
+    size_t size{0};
+    T* ptr{nullptr};
+};
+
 namespace details {
 template <typename T>
 struct inspector {
@@ -41,8 +63,10 @@ struct inspector {
         return type{};
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        return {val};
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec = {val};
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
@@ -69,8 +93,10 @@ struct inspector<std::string> {
         return type{};
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        return {val.c_str()};
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec = {val.c_str()};
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
@@ -97,10 +123,12 @@ struct inspector<Reference> {
         return type{};
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
         hobj_ref_t ref;
         val.create_ref(&ref);
-        return {ref};
+        w.vec = {ref};
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
@@ -127,13 +155,13 @@ struct inspector<FixedLenStringArray<N>> {
         return type{};
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        std::vector<hdf5_type> vec;
-        vec.resize(N * compute_total_size(getDimensions(val)));
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec.resize(N * compute_total_size(getDimensions(val)));
         for (size_t i = 0; i < val.size(); ++i) {
-            memcpy(vec.data() + i * N, val[i], N);
+            memcpy(w.vec.data() + i * N, val[i], N);
         }
-        return vec;
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& dims) {
@@ -178,15 +206,16 @@ struct inspector<std::vector<T>> {
         return val;
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
         size_t size = compute_total_size(getDimensions(val));
-        std::vector<hdf5_type> vec;
-        vec.reserve(size);
+        w.vec.reserve(size);
         for (auto& e: val) {
             auto v = inspector<value_type>::serialize(e);
-            vec.insert(vec.end(), v.begin(), v.end());
+            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
         }
-        return vec;
+        
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
@@ -228,15 +257,15 @@ struct inspector<std::array<T, N>> {
         return type{};
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
         size_t size = compute_total_size(getDimensions(val));
-        std::vector<hdf5_type> vec;
-        vec.reserve(size);
+        w.vec.reserve(size);
         for (auto& e: val) {
             auto v = inspector<value_type>::serialize(e);
-            vec.insert(vec.end(), v.begin(), v.end());
+            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
         }
-        return vec;
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
@@ -325,8 +354,10 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return val;
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        return std::vector<hdf5_type>(val.data(), val.data() + val.size());
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec = std::vector<hdf5_type>(val.data(), val.data() + val.size());
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
@@ -378,15 +409,15 @@ struct inspector<boost::multi_array<T, Dims>> {
         return array;
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        std::vector<hdf5_type> vec;
-        vec.reserve(compute_total_size(getDimensions(val)));
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec.reserve(compute_total_size(getDimensions(val)));
         size_t size = val.num_elements();
         for (size_t i = 0; i < size; ++i) {
             auto v = inspector<value_type>::serialize(*(val.origin() + i));
-            vec.insert(vec.end(), v.begin(), v.end());
+            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
         }
-        return vec;
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
@@ -435,15 +466,15 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return array;
     }
 
-    static std::vector<hdf5_type> serialize(const type& val) {
-        std::vector<hdf5_type> vec;
-        vec.reserve(compute_total_size(getDimensions(val)));
+    static Writer<hdf5_type> serialize(const type& val) {
+        Writer<hdf5_type> w;
+        w.vec.reserve(compute_total_size(getDimensions(val)));
         size_t size = val.size1() * val.size2();
         for (size_t i = 0; i < size; ++i) {
             auto v = inspector<value_type>::serialize(*(&val(0, 0) + i));
-            vec.insert(vec.end(), v.begin(), v.end());
+            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
         }
-        return vec;
+        return w;
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
