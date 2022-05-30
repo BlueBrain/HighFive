@@ -31,14 +31,9 @@ struct data_converter {
         : _dims(space.getDimensions())
         , _space(space) {}
 
-    inline hdf5_type* transform_read(T&) {
-        _vec_align.resize(compute_total_size(_dims));
-        return _vec_align.data();
-    }
-
-    inline void process_result(T& val) {
+    inline void process_result(Reader<hdf5_type> r, T& val) {
         inspector<T>::prepare(val, _dims);
-        val = inspector<T>::unserialize(_vec_align.data(), _dims);
+        val = inspector<T>::unserialize(r.get_pointer(), _dims);
         auto t = create_datatype<typename inspector<T>::base_type>();
         auto c = t.getClass();
         if (c == DataTypeClass::VarLen) {
@@ -48,7 +43,6 @@ struct data_converter {
 
     std::vector<size_t> _dims;
     DataSpace _space;
-    std::vector<hdf5_type> _vec_align;
 };
 
 

@@ -174,9 +174,10 @@ inline void SliceTraits<Derivate>::read(T& array) const {
         throw DataSpaceException(ss.str());
     }
     details::data_converter<T> converter(mem_space);
-    read(converter.transform_read(array), buffer_info.data_type);
+    auto r = details::inspector<T>::get_reader(mem_space.getDimensions());
+    read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
-    converter.process_result(array);
+    converter.process_result(r, array);
 }
 
 template <typename Derivate>

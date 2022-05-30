@@ -43,6 +43,28 @@ class Writer {
     const T* ptr{nullptr};
 };
 
+template <typename T>
+class Reader {
+  public:
+    T* get_pointer() {
+      if (vec.empty()) {
+        return ptr;
+      } else {
+        return vec.data();
+      }
+    }
+    size_t get_size() {
+      if (vec.empty()) {
+        return size;
+      } else {
+        return vec.size();
+      }
+    }
+    std::vector<T> vec{};
+    size_t size{0};
+    T* ptr{nullptr};
+};
+
 namespace details {
 template <typename T>
 struct inspector {
@@ -61,6 +83,12 @@ struct inspector {
 
     static type alloc(const std::vector<size_t>& /* dims */) {
         return type{};
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
+        Reader<hdf5_type> r;
+        r.vec.resize(1);
+        return r;
     }
 
     static Writer<hdf5_type> serialize(const type& val) {
@@ -93,6 +121,12 @@ struct inspector<std::string> {
         return type{};
     }
 
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
+        Reader<hdf5_type> r;
+        r.vec.resize(1);
+        return r;
+    }
+
     static Writer<hdf5_type> serialize(const type& val) {
         Writer<hdf5_type> w;
         w.vec = {val.c_str()};
@@ -121,6 +155,12 @@ struct inspector<Reference> {
 
     static type alloc(const std::vector<size_t>& /* dims */) {
         return type{};
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
+        Reader<hdf5_type> r;
+        r.vec.resize(1);
+        return r;
     }
 
     static Writer<hdf5_type> serialize(const type& val) {
@@ -153,6 +193,12 @@ struct inspector<FixedLenStringArray<N>> {
 
     static type alloc(const std::vector<size_t>& /* dims */) {
         return type{};
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(N * compute_total_size(dims));
+        return r;
     }
 
     static Writer<hdf5_type> serialize(const type& val) {
@@ -206,6 +252,12 @@ struct inspector<std::vector<T>> {
         return val;
     }
 
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
+    }
+
     static Writer<hdf5_type> serialize(const type& val) {
         Writer<hdf5_type> w;
         size_t size = compute_total_size(getDimensions(val));
@@ -257,6 +309,12 @@ struct inspector<std::array<T, N>> {
         return type{};
     }
 
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
+    }
+
     static Writer<hdf5_type> serialize(const type& val) {
         Writer<hdf5_type> w;
         size_t size = compute_total_size(getDimensions(val));
@@ -299,6 +357,12 @@ struct inspector<T*> {
         throw std::string("Not possible to have size of a T*");
     }
 
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
+    }
+
     /* it works because there is only T[][][] currently
        we will fix it one day */
     static Writer<hdf5_type> serialize(const type& val) {
@@ -320,6 +384,12 @@ struct inspector<const T*> {
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         throw std::string("Not possible to have size of a T*");
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
     }
 
     /* it works because there is only T[][][] currently
@@ -349,6 +419,12 @@ struct inspector<T[N]> {
             sizes[index++] = s;
         }
         return sizes;
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
     }
 
     /* it works because there is only T[][][] currently
@@ -390,6 +466,12 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         type val;
         prepare(val, dims);
         return val;
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
     }
 
     static Writer<hdf5_type> serialize(const type& val) {
@@ -447,6 +529,12 @@ struct inspector<boost::multi_array<T, Dims>> {
         return array;
     }
 
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
+    }
+
     static Writer<hdf5_type> serialize(const type& val) {
         Writer<hdf5_type> w;
         w.vec.reserve(compute_total_size(getDimensions(val)));
@@ -502,6 +590,12 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         type array;
         prepare(array, dims);
         return array;
+    }
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
+        Reader<hdf5_type> r;
+        r.vec.resize(compute_total_size(dims));
+        return r;
     }
 
     static Writer<hdf5_type> serialize(const type& val) {
