@@ -91,9 +91,13 @@ struct inspector {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.vec = {val};
+        if (m) {
+            *m = val;
+        } else {
+            w.vec = {val};
+        }
         return w;
     }
 
@@ -127,9 +131,13 @@ struct inspector<std::string> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.vec = {val.c_str()};
+        if (m) {
+            *m = val.c_str();
+        } else {
+            w.vec = {val.c_str()};
+        }
         return w;
     }
 
@@ -163,11 +171,17 @@ struct inspector<Reference> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        hobj_ref_t ref;
-        val.create_ref(&ref);
-        w.vec = {ref};
+        if (m) {
+            hobj_ref_t ref;
+            val.create_ref(&ref);
+            *m = ref;
+        } else {
+            hobj_ref_t ref;
+            val.create_ref(&ref);
+            w.vec = {ref};
+        }
         return w;
     }
 
@@ -201,11 +215,15 @@ struct inspector<FixedLenStringArray<N>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
         w.vec.resize(N * compute_total_size(getDimensions(val)));
+        hdf5_type* p = m;
+        if (!m) {
+            p = w.vec.data();
+        }
         for (size_t i = 0; i < val.size(); ++i) {
-            memcpy(w.vec.data() + i * N, val[i], N);
+            memcpy(p + i * N, val[i], N);
         }
         return w;
     }
@@ -258,15 +276,19 @@ struct inspector<std::vector<T>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        size_t size = compute_total_size(getDimensions(val));
-        w.vec.reserve(size);
-        for (auto& e: val) {
-            auto v = inspector<value_type>::serialize(e);
-            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        hdf5_type* p = m;
+        if (!m) {
+            size_t size = compute_total_size(getDimensions(val));
+            w.vec.resize(size);
+            p = w.vec.data();
         }
-        
+        for (auto& e: val) {
+            inspector<value_type>::serialize(e, p);
+            p += subsize;
+        }
         return w;
     }
 
@@ -315,13 +337,18 @@ struct inspector<std::array<T, N>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
         size_t size = compute_total_size(getDimensions(val));
-        w.vec.reserve(size);
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        hdf5_type* p = m;
+        if (!m) {
+            w.vec.resize(size);
+            p = w.vec.data();
+        }
         for (auto& e: val) {
-            auto v = inspector<value_type>::serialize(e);
-            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
+            inspector<value_type>::serialize(e, p);
+            p += subsize;
         }
         return w;
     }
@@ -365,9 +392,13 @@ struct inspector<T*> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        if (m) {
+            m = reinterpret_cast<const hdf5_type*>(val);
+        } else {
+            w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        }
         return w;
     }
 };
@@ -394,9 +425,13 @@ struct inspector<const T*> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, const hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        if (m) {
+            m = reinterpret_cast<const hdf5_type*>(val);
+        } else {
+            w.ptr = reinterpret_cast<const hdf5_type*>(val);
+        }
         return w;
     }
 };
@@ -429,9 +464,13 @@ struct inspector<T[N]> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, const hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.ptr = reinterpret_cast<const hdf5_type*>(&val[0]);
+        if (m) {
+            m = reinterpret_cast<const hdf5_type*>(&val[0]);
+        } else {
+            w.ptr = reinterpret_cast<const hdf5_type*>(&val[0]);
+        }
         return w;
     }
 };
@@ -474,9 +513,13 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.vec = std::vector<hdf5_type>(val.data(), val.data() + val.size());
+        if (m) {
+            memcpy(m, val.data(), static_cast<size_t>(val.size()) * sizeof(hdf5_type));
+        } else {
+            w.vec = std::vector<hdf5_type>(val.data(), val.data() + val.size());
+        }
         return w;
     }
 
@@ -535,13 +578,17 @@ struct inspector<boost::multi_array<T, Dims>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.vec.reserve(compute_total_size(getDimensions(val)));
         size_t size = val.num_elements();
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(*val.origin()));
+        hdf5_type* p = m;
+        if (!m) {
+            w.vec.resize(compute_total_size(getDimensions(val)));
+            p = w.vec.data();
+        }
         for (size_t i = 0; i < size; ++i) {
-            auto v = inspector<value_type>::serialize(*(val.origin() + i));
-            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
+            inspector<value_type>::serialize(*(val.origin() + i), p + i * subsize);
         }
         return w;
     }
@@ -598,13 +645,17 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return r;
     }
 
-    static Writer<hdf5_type> serialize(const type& val) {
+    static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
-        w.vec.reserve(compute_total_size(getDimensions(val)));
         size_t size = val.size1() * val.size2();
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val(0,0)));
+        hdf5_type* p = m;
+        if (!m) {
+            w.vec.resize(compute_total_size(getDimensions(val)));
+            p = w.vec.data();
+        }
         for (size_t i = 0; i < size; ++i) {
-            auto v = inspector<value_type>::serialize(*(&val(0, 0) + i));
-            w.vec.insert(w.vec.end(), v.get_pointer(), v.get_pointer() + v.get_size());
+            inspector<value_type>::serialize(*(&val(0, 0) + i), p + i * subsize);
         }
         return w;
     }
