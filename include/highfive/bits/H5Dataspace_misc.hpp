@@ -17,7 +17,7 @@
 #include <H5Spublic.h>
 
 #include "H5Utils.hpp"
-#include "H5Inspector.hpp"
+#include "H5Converter_misc.hpp"
 
 namespace HighFive {
 

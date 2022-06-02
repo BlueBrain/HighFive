@@ -63,11 +63,17 @@ inline void Attribute::read(T& array) const {
            << " into arrays of dimensions " << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
-    details::data_converter<T> converter(mem_space);
-    auto r = details::inspector<T>::get_reader(mem_space.getDimensions());
+    auto dims = mem_space.getDimensions();
+    auto r = details::inspector<T>::get_reader(dims);
     read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
-    converter.process_result(r, array);
+    details::inspector<T>::prepare(array, dims);
+    array = details::inspector<T>::unserialize(r.get_pointer(), dims);
+    auto t = create_datatype<typename details::inspector<T>::base_type>();
+    auto c = t.getClass();
+    if (c == DataTypeClass::VarLen) {
+        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+    }
 }
 
 template <typename T>

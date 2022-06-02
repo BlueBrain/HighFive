@@ -47,15 +47,4 @@ class NodeTraits;
 template <PropertyType T>
 class PropertyList;
 
-
-// Internal
-
-namespace details {
-
-// Forward declaration of data_converter with default value of Enable
-template <typename T, typename Enable = void>
-struct data_converter;
-
-}  // namespace details
-
 }  // namespace HighFive
