@@ -21,6 +21,10 @@
 
 namespace HighFive {
 
+namespace details {
+    template<typename T>
+    struct inspector;
+}
 ///
 /// \brief An HDF5 (object) reference type
 ///
@@ -53,6 +57,7 @@ class Reference {
     /// \return the ObjectType of the referenced object
     ObjectType getType(const Object& location) const;
 
+  protected:
     /// \brief Create a Reference from a low-level HDF5 object reference
     inline explicit Reference(const hobj_ref_t h5_ref)
         : href(h5_ref){};
@@ -63,7 +68,6 @@ class Reference {
     /// be stored
     void create_ref(hobj_ref_t* refptr) const;
 
-  protected:
   private:
     Object get_ref(const Object& location) const;
 
@@ -71,7 +75,7 @@ class Reference {
     std::string obj_name{};
     hid_t parent_id{};
 
-    friend details::data_converter<std::vector<Reference>>;
+    friend struct details::inspector<Reference>;
 };
 
 }  // namespace HighFive
