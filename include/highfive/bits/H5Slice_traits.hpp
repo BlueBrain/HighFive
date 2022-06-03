@@ -281,6 +281,9 @@ class SliceTraits {
     ///
     Selection select(const ElementSet& elements) const;
 
+    template <typename T>
+    T read() const;
+
     ///
     /// Read the entire dataset into a buffer
     /// An exception is raised is if the numbers of dimension of the buffer and

@@ -91,10 +91,6 @@ struct type_helper {
 
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
 
-    static type alloc(const std::vector<size_t>& /* dims */) {
-        return type{};
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
         Reader<hdf5_type> r;
         r.vec.resize(1);
@@ -121,8 +117,14 @@ struct inspector: type_helper<T> {
 };
 
 template<>
-struct inspector<std::string>: type_helper<T> {
+struct inspector<std::string>: type_helper<std::string> {
     using hdf5_type = const char*;
+
+    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
+        Reader<hdf5_type> r;
+        r.vec.resize(1);
+        return r;
+    }
 
     static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
@@ -133,10 +135,14 @@ struct inspector<std::string>: type_helper<T> {
         }
         return w;
     }
+
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
+        return type{vec[0]};
+    }
 };
 
 template<>
-struct inspector<Reference>: type_helper<T> {
+struct inspector<Reference>: type_helper<Reference> {
     using hdf5_type = hobj_ref_t;
 
     static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
@@ -151,6 +157,10 @@ struct inspector<Reference>: type_helper<T> {
             w.vec = {ref};
         }
         return w;
+    }
+
+    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
+        return type{vec[0]};
     }
 };
 
@@ -168,10 +178,6 @@ struct inspector<FixedLenStringArray<N>> {
     }
 
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
-
-    static type alloc(const std::vector<size_t>& /* dims */) {
-        return type{};
-    }
 
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
@@ -193,7 +199,7 @@ struct inspector<FixedLenStringArray<N>> {
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& dims) {
-        type val = alloc(dims);
+        type val = type{};
         for (size_t i = 0; i < dims[0]; ++i) {
             std::array<char, N> s;
             memcpy(s.data(), vec+(i*N), N);
@@ -228,12 +234,6 @@ struct inspector<std::vector<T>> {
         val.resize(dims[0]);
     }
 
-    static type alloc(const std::vector<size_t>& dims) {
-        type val;
-        prepare(val, dims);
-        return val;
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
         r.vec.resize(compute_total_size(dims));
@@ -257,7 +257,8 @@ struct inspector<std::vector<T>> {
     }
 
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
-        type val = alloc(dims);
+        type val{};
+        prepare(val, dims);
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
@@ -291,10 +292,6 @@ struct inspector<std::array<T, N>> {
 
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
 
-    static type alloc(const std::vector<size_t>& /* dims */) {
-        return type{};
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
         r.vec.resize(compute_total_size(dims));
@@ -324,7 +321,7 @@ struct inspector<std::array<T, N>> {
                << N << " elements.";
             throw DataSpaceException(os.str());
         }
-        type val = alloc(dims);
+        type val{};
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
@@ -465,12 +462,6 @@ struct inspector<Eigen::Matrix<T, M, N>> {
                    static_cast<typename type::Index>(dims[1]));
     }
 
-    static type alloc(const std::vector<size_t>& dims) {
-        type val;
-        prepare(val, dims);
-        return val;
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
         r.vec.resize(compute_total_size(dims));
@@ -493,7 +484,8 @@ struct inspector<Eigen::Matrix<T, M, N>> {
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into an eigen-matrix.";
             throw DataSpaceException(os.str());
         }
-        type array = alloc(dims);
+        type array{};
+        prepare(array, dims);
         memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
         return array;
     }
@@ -530,12 +522,6 @@ struct inspector<boost::multi_array<T, Dims>> {
         val.resize(ext);
     }
 
-    static type alloc(const std::vector<size_t>& dims) {
-        type array;
-        prepare(array, dims);
-        return array;
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
         r.vec.resize(compute_total_size(dims));
@@ -563,7 +549,8 @@ struct inspector<boost::multi_array<T, Dims>> {
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
             throw DataSpaceException(os.str());
         }
-        type array = alloc(dims);
+        type array{};
+        prepare(array, dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         for (size_t i = 0; i < array.num_elements(); ++i) {
@@ -597,12 +584,6 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         val.resize(dims[0], dims[1], false);
     }
 
-    static type alloc(const std::vector<size_t>& dims) {
-        type array;
-        prepare(array, dims);
-        return array;
-    }
-
     static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
         Reader<hdf5_type> r;
         r.vec.resize(compute_total_size(dims));
@@ -630,7 +611,8 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
             throw DataSpaceException(os.str());
         }
-        type array = alloc(dims);
+        type array{};
+        prepare(array, dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         size_t size = array.size1() * array.size2();
