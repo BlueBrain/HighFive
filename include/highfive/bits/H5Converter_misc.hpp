@@ -77,7 +77,7 @@ class Reader {
 
 namespace details {
 template <typename T>
-struct inspector {
+struct type_helper {
     using type = T;
     using base_type = unqualified_t<T>;
     using hdf5_type = base_type;
@@ -86,7 +86,7 @@ struct inspector {
     static constexpr size_t recursive_ndim = ndim;
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        return std::array<size_t, recursive_ndim>();
+        return {};
     }
 
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
@@ -112,34 +112,17 @@ struct inspector {
     }
 
     static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return vec[0];
+        return type{vec[0]};
     }
 };
 
+template <typename T>
+struct inspector: type_helper<T> {
+};
+
 template<>
-struct inspector<std::string> {
-    using type = std::string;
-    using base_type = unqualified_t<type>;
+struct inspector<std::string>: type_helper<T> {
     using hdf5_type = const char*;
-
-    static constexpr size_t ndim = 0;
-    static constexpr size_t recursive_ndim = ndim;
-
-    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        return {};
-    }
-
-    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
-
-    static type alloc(const std::vector<size_t>& /* dims */) {
-        return type{};
-    }
-
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
-        Reader<hdf5_type> r;
-        r.vec.resize(1);
-        return r;
-    }
 
     static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
@@ -150,36 +133,11 @@ struct inspector<std::string> {
         }
         return w;
     }
-
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return std::string{vec[0]};
-    }
 };
 
 template<>
-struct inspector<Reference> {
-    using type = Reference;
-    using base_type = unqualified_t<type>;
+struct inspector<Reference>: type_helper<T> {
     using hdf5_type = hobj_ref_t;
-
-    static constexpr size_t ndim = 0;
-    static constexpr size_t recursive_ndim = ndim;
-
-    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        return std::array<size_t, recursive_ndim>();
-    }
-
-    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
-
-    static type alloc(const std::vector<size_t>& /* dims */) {
-        return type{};
-    }
-
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
-        Reader<hdf5_type> r;
-        r.vec.resize(1);
-        return r;
-    }
 
     static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
@@ -193,10 +151,6 @@ struct inspector<Reference> {
             w.vec = {ref};
         }
         return w;
-    }
-
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return Reference(vec[0]);
     }
 };
 
