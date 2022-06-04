@@ -30,6 +30,15 @@ if(NOT TARGET libdeps)
     target_compile_definitions(libdeps INTERFACE BOOST_ALL_NO_LIB H5_USE_BOOST)
   endif()
 
+  # Half
+  if(HIGHFIVE_USE_HALF_FLOAT)
+    find_file(FOUND_HALF half.hpp)
+    if (NOT FOUND_HALF)
+      message(FATAL_ERROR "Half-precision floating-point support requested but file half.hpp not found")
+    endif()
+    target_compile_definitions(libdeps INTERFACE H5_USE_HALF_FLOAT)
+  endif()
+
   # Eigen
   if(HIGHFIVE_USE_EIGEN)
     if (NOT EIGEN3_INCLUDE_DIRS)

@@ -27,6 +27,7 @@ set(HIGHFIVE_UNIT_TESTS AUTO CACHE STRING "Enable unit tests (requires Catch2 to
 set_property(CACHE HIGHFIVE_UNIT_TESTS PROPERTY STRINGS AUTO ON OFF)
 
 option(HIGHFIVE_USE_BOOST "Enable Boost Support" ${USE_BOOST})
+option(HIGHFIVE_USE_HALF_FLOAT "Enable half-precision floats" ${USE_HALF_FLOAT})
 option(HIGHFIVE_USE_EIGEN "Enable Eigen testing" ${USE_EIGEN})
 option(HIGHFIVE_USE_OPENCV "Enable OpenCV testing" ${USE_OPENCV})
 option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" ${USE_XTENSOR})

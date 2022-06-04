@@ -23,6 +23,12 @@ function(compile_example exemple_source)
         endif()
     endif()
 
+    if(${example_filename} MATCHES ".*half_float.*")
+        if(NOT HIGHFIVE_USE_HALF_FLOAT)
+            return()
+        endif()
+    endif()
+
     add_executable(${example_name} ${exemple_source})
     target_link_libraries(${example_name} HighFive)
 
