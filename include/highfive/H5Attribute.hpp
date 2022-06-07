@@ -52,6 +52,11 @@ class Attribute: public Object, public PathTraits<Attribute> {
     DataSpace getMemSpace() const;
 
     ///
+    /// Return the attribute
+    template <typename T>
+    T read() const;
+
+    ///
     /// Read the attribute into a buffer
     /// An exception is raised if the numbers of dimension of the buffer and of
     /// the attribute are different
