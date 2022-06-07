@@ -35,18 +35,18 @@ template <typename T>
 class Writer {
   public:
     const T* get_pointer() {
-      if (vec.empty()) {
-        return ptr;
-      } else {
-        return vec.data();
-      }
+        if (vec.empty()) {
+            return ptr;
+        } else {
+            return vec.data();
+        }
     }
     size_t get_size() {
-      if (vec.empty()) {
-        return size;
-      } else {
-        return vec.size();
-      }
+        if (vec.empty()) {
+            return size;
+        } else {
+            return vec.size();
+        }
     }
     std::vector<T> vec{};
     size_t size{0};
@@ -57,18 +57,18 @@ template <typename T>
 class Reader {
   public:
     T* get_pointer() {
-      if (vec.empty()) {
-        return ptr;
-      } else {
-        return vec.data();
-      }
+        if (vec.empty()) {
+            return ptr;
+        } else {
+            return vec.data();
+        }
     }
     size_t get_size() {
-      if (vec.empty()) {
-        return size;
-      } else {
-        return vec.size();
-      }
+        if (vec.empty()) {
+            return size;
+        } else {
+            return vec.size();
+        }
     }
     std::vector<T> vec{};
     size_t size{0};
@@ -113,10 +113,9 @@ struct type_helper {
 };
 
 template <typename T>
-struct inspector: type_helper<T> {
-};
+struct inspector: type_helper<T> {};
 
-template<>
+template <>
 struct inspector<std::string>: type_helper<std::string> {
     using hdf5_type = const char*;
 
@@ -141,7 +140,7 @@ struct inspector<std::string>: type_helper<std::string> {
     }
 };
 
-template<>
+template <>
 struct inspector<Reference>: type_helper<Reference> {
     using hdf5_type = hobj_ref_t;
 
@@ -202,7 +201,7 @@ struct inspector<FixedLenStringArray<N>> {
         type val = type{};
         for (size_t i = 0; i < dims[0]; ++i) {
             std::array<char, N> s;
-            memcpy(s.data(), vec+(i*N), N);
+            memcpy(s.data(), vec + (i * N), N);
             val.push_back(s);
         }
         return val;
@@ -481,7 +480,8 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         if (dims.size() < 2) {
             std::ostringstream os;
-            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into an eigen-matrix.";
+            os << "Impossible to pair DataSet with " << dims.size()
+               << " dimensions into an eigen-matrix.";
             throw DataSpaceException(os.str());
         }
         type array{};
@@ -546,7 +546,8 @@ struct inspector<boost::multi_array<T, Dims>> {
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         if (dims.size() < ndim) {
             std::ostringstream os;
-            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
+               << " boost::multi-array.";
             throw DataSpaceException(os.str());
         }
         type array{};
@@ -593,7 +594,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     static Writer<hdf5_type> serialize(const type& val, hdf5_type* m = nullptr) {
         Writer<hdf5_type> w;
         size_t size = val.size1() * val.size2();
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val(0,0)));
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val(0, 0)));
         hdf5_type* p = m;
         if (!m) {
             w.vec.resize(compute_total_size(getDimensions(val)));
@@ -608,7 +609,8 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
         if (dims.size() < 2) {
             std::ostringstream os;
-            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim << " boost::multi-array.";
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
+               << " boost::multi-array.";
             throw DataSpaceException(os.str());
         }
         type array{};
@@ -624,5 +626,5 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     }
 };
 #endif
-}
-}
+}  // namespace details
+}  // namespace HighFive

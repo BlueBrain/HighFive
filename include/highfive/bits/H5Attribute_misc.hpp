@@ -82,7 +82,6 @@ inline void Attribute::read(T& array) const {
     auto dims = mem_space.getDimensions();
     details::inspector<T>::prepare(array, dims);
     array = read<T>();
-
 }
 
 template <typename T>
