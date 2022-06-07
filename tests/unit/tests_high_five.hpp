@@ -35,7 +35,8 @@ using base_test_types = std::tuple<int,
 #include <half.hpp>
 
 using float16_t = half_float::half;
-using numerical_test_types = decltype(std::tuple_cat(std::declval<base_test_types>(), std::tuple<float16_t>()));
+using numerical_test_types = decltype(
+    std::tuple_cat(std::declval<base_test_types>(), std::tuple<float16_t>()));
 #else
 using numerical_test_types = base_test_types;
 #endif

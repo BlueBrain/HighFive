@@ -133,11 +133,13 @@ inline AtomicType<unsigned long long>::AtomicType() {
 using float16_t = half_float::half;
 
 template <>
-inline AtomicType<float16_t>::AtomicType()
-{
+inline AtomicType<float16_t>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_FLOAT);
+    // Sign position, exponent position, exponent size, mantissa position, mantissa size
     H5Tset_fields(_hid, 15, 10, 5, 0, 10);
+    // Total datatype size (in bytes)
     H5Tset_size(_hid, 2);
+    // Floating point exponent bias
     H5Tset_ebias(_hid, 15);
 }
 #endif
