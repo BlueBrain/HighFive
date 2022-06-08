@@ -32,6 +32,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - selection() / slice support
 - parallel Read/Write operations from several nodes with Parallel HDF5
 - Advanced types: Compound, Enum, Arrays of Fixed-length strings, References
+- half-precision (16-bit) floating-point datasets
 - etc... (see [ChangeLog](./CHANGELOG.md))
 
 ### Dependencies
@@ -40,6 +41,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - boost >= 1.41 (recommended, opt-out with -D*HIGHFIVE_USE_BOOST*=OFF)
 - eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
 - xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
+- half (optional, opt-in with -D*HIGHFIVE_USE_HALF_FLOAT*=ON)
 
 
 ## Examples

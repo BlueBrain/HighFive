@@ -16,6 +16,9 @@
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
+#ifdef H5_USE_HALF_FLOAT
+#include <half.hpp>
+#endif
 
 namespace HighFive {
 
@@ -125,7 +128,22 @@ inline AtomicType<unsigned long long>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_ULLONG);
 }
 
-// float, double and long double mapping
+// half-float, float, double and long double mapping
+#ifdef H5_USE_HALF_FLOAT
+using float16_t = half_float::half;
+
+template <>
+inline AtomicType<float16_t>::AtomicType() {
+    _hid = H5Tcopy(H5T_NATIVE_FLOAT);
+    // Sign position, exponent position, exponent size, mantissa position, mantissa size
+    H5Tset_fields(_hid, 15, 10, 5, 0, 10);
+    // Total datatype size (in bytes)
+    H5Tset_size(_hid, 2);
+    // Floating point exponent bias
+    H5Tset_ebias(_hid, 15);
+}
+#endif
+
 template <>
 inline AtomicType<float>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_FLOAT);

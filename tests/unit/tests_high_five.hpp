@@ -11,26 +11,35 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <tuple>
 
 using ldcomplex = std::complex<long double>;
 using dcomplex = std::complex<double>;
 using fcomplex = std::complex<float>;
 
-using floating_numerics_test_types = std::tuple<float, double>;
+using base_test_types = std::tuple<int,
+                                   unsigned int,
+                                   long,
+                                   unsigned long,
+                                   unsigned char,
+                                   char,
+                                   float,
+                                   double,
+                                   long long,
+                                   unsigned long long,
+                                   ldcomplex,
+                                   dcomplex,
+                                   fcomplex>;
 
-using numerical_test_types = std::tuple<int,
-                                        unsigned int,
-                                        long,
-                                        unsigned long,
-                                        unsigned char,
-                                        char,
-                                        float,
-                                        double,
-                                        long long,
-                                        unsigned long long,
-                                        ldcomplex,
-                                        dcomplex,
-                                        fcomplex>;
+#ifdef H5_USE_HALF_FLOAT
+#include <half.hpp>
+
+using float16_t = half_float::half;
+using numerical_test_types = decltype(
+    std::tuple_cat(std::declval<base_test_types>(), std::tuple<float16_t>()));
+#else
+using numerical_test_types = base_test_types;
+#endif
 
 using dataset_test_types =
     std::tuple<int, unsigned int, long, unsigned long, unsigned char, char, float, double>;
