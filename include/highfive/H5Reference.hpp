@@ -22,8 +22,8 @@
 namespace HighFive {
 
 namespace details {
-    template<typename T>
-    struct inspector;
+template <typename T>
+struct inspector;
 }
 ///
 /// \brief An HDF5 (object) reference type

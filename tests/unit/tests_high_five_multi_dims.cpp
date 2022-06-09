@@ -118,7 +118,7 @@ TEMPLATE_LIST_TEST_CASE("readWrite4DVector", "[template]", numerical_test_types)
 }
 
 TEMPLATE_LIST_TEST_CASE("vector of array", "[template]", numerical_test_types) {
-    std::vector<std::array<TestType, 4>> vec{{1,2,3,4},{1,2,3,4}};
+    std::vector<std::array<TestType, 4>> vec{{1, 2, 3, 4}, {1, 2, 3, 4}};
     std::vector<std::array<TestType, 4>> result;
     readWriteDataset<TestType>(vec, result, 2, "vector");
 

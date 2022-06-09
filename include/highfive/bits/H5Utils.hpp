@@ -32,7 +32,6 @@ template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
 
-
 namespace details {
 // Find the type of an eventual char array, otherwise void
 template <typename>

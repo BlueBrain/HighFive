@@ -162,7 +162,7 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
         return true;
 
     // The final tests is for scalars
-    return input_dims == 0 && dataset_dims == 1 && dims[dims.size() - 1] == 1;
+    return input_dims == 0 && dataset_dims == 1 && dims.back() == 1;
 }
 
 }  // namespace details
