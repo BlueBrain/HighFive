@@ -610,7 +610,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         if (dims.size() < 2) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
-               << " boost::multi-array.";
+               << " boost::numeric::ublas::matrix";
             throw DataSpaceException(os.str());
         }
         type array{};
