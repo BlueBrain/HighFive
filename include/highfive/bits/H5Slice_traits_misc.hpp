@@ -236,7 +236,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-    auto w = details::inspector<T>::serialize(buffer);
+    auto w = details::data_converter::serialize<T>(buffer);
     write_raw(w.get_pointer(), buffer_info.data_type);
 }
 
