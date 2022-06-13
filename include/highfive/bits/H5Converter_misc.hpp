@@ -34,6 +34,45 @@ inline size_t compute_total_size(const std::array<size_t, N>& dims) {
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
+/*****
+inspector<T> {
+    using type = T
+    // base_type is the base type inside c++ (e.g. std::vector<int> => int)
+    using base_type
+    // hdf5_type is the base read by hdf5 (c-type) (e.g. std::vector<std::string> => const char*)
+    using hdf5_type
+
+    // Number of dimensions starting from here
+    static constexpr size_t recursive_ndim
+    // Is the inner type trivially copyable for optimisation
+    // If this value is true: data() is mandatory
+    // If this value is false: getSizeVal, getSize, serialize, unserialize are mandatory
+    static constexpr bool is_trivially_copyable
+
+    // Reading:
+    // Allocate the value following dims (should be recursive)
+    static void prepare(type& val, const std::vector<std::size_t> dims)
+    // Return the size of the vector pass to/from hdf5 from a vector of dims
+    static size_t getSize(const std::vector<size_t>& dims)
+    // Return a pointer of the first value of val (for reading)
+    static hdf5_type* data(type& val)
+    // Take a serialized vector 'in', some dims and copy value to val (for reading)
+    static void unserialize(const hdf5_type* in, const std::vector<size_t>&i, type& val)
+
+
+    // Writing:
+    // Return the size of the vector pass to/from hdf5 from a value
+    static size_t getSizeVal(const type& val)
+    // Return a point of the first value of val
+    static const hdf5_type* data(const type& val)
+    // Take a val and serialize it inside out
+    static void serialize(const type& val, hdf5_type* out)
+    // Return an array of dimensions of the space needed for writing val
+    static std::array<size_t> getDimensions(const type& val)
+}
+*****/
+
+
 namespace details {
 template <typename T>
 struct type_helper {
