@@ -34,46 +34,10 @@ inline size_t compute_total_size(const std::array<size_t, N>& dims) {
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
-template <typename T>
-class Writer {
-  public:
-    const T* get_pointer() {
-        if (vec.empty()) {
-            return ptr;
-        } else {
-            return vec.data();
-        }
-    }
-    std::vector<T> vec{};
-    const T* ptr{nullptr};
-};
-
-template <typename T>
-class Reader {
-  public:
-    T* get_pointer() {
-        if (vec.empty()) {
-            return ptr;
-        } else {
-            return vec.data();
-        }
-    }
-    size_t get_size() {
-        if (vec.empty()) {
-            return size;
-        } else {
-            return vec.size();
-        }
-    }
-    std::vector<T> vec{};
-    size_t size{0};
-    T* ptr{nullptr};
-};
-
 namespace details {
 template <typename T>
 struct type_helper {
-    using type = T;
+    using type = unqualified_t<T>;
     using base_type = unqualified_t<T>;
     using hdf5_type = base_type;
 
@@ -85,16 +49,18 @@ struct type_helper {
         return {};
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
     }
 
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
-        Reader<hdf5_type> r;
-        r.vec.resize(1);
-        return r;
+    static hdf5_type* data(type& val) {
+        return &val;
     }
 
     static const hdf5_type* data(const type& val) {
@@ -105,8 +71,10 @@ struct type_helper {
         *m = val;
     }
 
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return type{vec[0]};
+    static void unserialize(const hdf5_type* vec,
+                            const std::vector<size_t>& /* dims */,
+                            type& val) {
+        val = vec[0];
     }
 };
 
@@ -119,18 +87,22 @@ struct inspector<std::string>: type_helper<std::string> {
 
     static constexpr bool is_trivially_copyable = false;
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& /* dims */) {
-        Reader<hdf5_type> r;
-        r.vec.resize(1);
-        return r;
+    static hdf5_type* data(type& /* val */) {
+        throw "Invalid";
+    }
+
+    static const hdf5_type* data(const type& /* val */) {
+        throw "Invalid";
     }
 
     static void serialize(const type& val, hdf5_type* m) {
         *m = val.c_str();
     }
 
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return type{vec[0]};
+    static void unserialize(const hdf5_type* vec,
+                            const std::vector<size_t>& /* dims */,
+                            type& val) {
+        val = vec[0];
     }
 };
 
@@ -140,20 +112,31 @@ struct inspector<Reference>: type_helper<Reference> {
 
     static constexpr bool is_trivially_copyable = false;
 
+    static hdf5_type* data(type& /* val */) {
+        throw "Invalid";
+    }
+
+    static const hdf5_type* data(const type& /* val */) {
+        throw "Invalid";
+    }
+
     static void serialize(const type& val, hdf5_type* m) {
         hobj_ref_t ref;
         val.create_ref(&ref);
         *m = ref;
     }
 
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */) {
-        return type{vec[0]};
+    static void unserialize(const hdf5_type* vec,
+                            const std::vector<size_t>& /* dims */,
+                            type& val) {
+        val = type{vec[0]};
     }
 };
 
 template <size_t N>
 struct inspector<FixedLenStringArray<N>> {
     using type = FixedLenStringArray<N>;
+    using value_type = char*;
     using base_type = FixedLenStringArray<N>;
     using hdf5_type = char;
 
@@ -165,16 +148,29 @@ struct inspector<FixedLenStringArray<N>> {
         return std::array<size_t, recursive_ndim>{val.size()};
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return N * compute_total_size(getDimensions(val));
     }
 
-    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return N * compute_total_size(dims);
+    }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(N * compute_total_size(dims));
-        return r;
+    static void prepare(type& /* val */, const std::vector<size_t>& dims) {
+        if (dims[0] > N) {
+            std::ostringstream os;
+            os << "Size of FixedlenStringArray (" << N << ") is too small for dims (" << dims[0]
+               << ").";
+            throw DataSpaceException(os.str());
+        }
+    }
+
+    static hdf5_type* data(type& val) {
+        return val.data();
+    }
+
+    static const hdf5_type* data(const type& val) {
+        return val.data();
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -183,21 +179,19 @@ struct inspector<FixedLenStringArray<N>> {
         }
     }
 
-    static type unserialize(const hdf5_type* vec, const std::vector<size_t>& dims) {
-        type val = type{};
+    static void unserialize(const hdf5_type* vec, const std::vector<size_t>& dims, type& val) {
         for (size_t i = 0; i < dims[0]; ++i) {
             std::array<char, N> s;
             std::memcpy(s.data(), vec + (i * N), N);
             val.push_back(s);
         }
-        return val;
     }
 };
 
 template <typename T>
 struct inspector<std::vector<T>> {
     using type = std::vector<T>;
-    using value_type = T;
+    using value_type = unqualified_t<T>;
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
@@ -216,18 +210,24 @@ struct inspector<std::vector<T>> {
         return sizes;
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
         val.resize(dims[0]);
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        for (auto& e: val) {
+            inspector<value_type>::prepare(e, next_dims);
+        }
     }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(val[0]);
     }
 
     static const hdf5_type* data(const type& val) {
@@ -242,15 +242,14 @@ struct inspector<std::vector<T>> {
         }
     }
 
-    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
-        type val{};
-        prepare(val, dims);
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
-            val[i] = inspector<value_type>::unserialize(vec_align + i * next_size, next_dims);
+            inspector<value_type>::unserialize(vec_align + i * next_size, next_dims, val[i]);
         }
-        return val;
     }
 };
 
@@ -277,16 +276,24 @@ struct inspector<std::array<T, N>> {
         return sizes;
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
     }
 
-    static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
+    }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
+    static void prepare(type& /* val */, const std::vector<size_t>& dims) {
+        if (dims[0] > N) {
+            std::ostringstream os;
+            os << "Size of std::array (" << N << ") is too small for dims (" << dims[0] << ").";
+            throw DataSpaceException(os.str());
+        }
+    }
+
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(val[0]);
     }
 
     static const hdf5_type* data(const type& val) {
@@ -301,20 +308,20 @@ struct inspector<std::array<T, N>> {
         }
     }
 
-    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
         if (dims[0] != N) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims[0] << " elements into an array with "
                << N << " elements.";
             throw DataSpaceException(os.str());
         }
-        type val{};
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
-            val[i] = inspector<value_type>::unserialize(vec_align + i * next_size, next_dims);
+            inspector<value_type>::unserialize(vec_align + i * next_size, next_dims, val[i]);
         }
-        return val;
     }
 };
 
@@ -331,12 +338,6 @@ struct inspector<T*> {
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         throw std::string("Not possible to have size of a T*");
-    }
-
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
     }
 
     static const hdf5_type* data(const type& val) {
@@ -363,12 +364,6 @@ struct inspector<const T*> {
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
         throw std::string("Not possible to have size of a T*");
-    }
-
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
     }
 
     static const hdf5_type* data(const type& val) {
@@ -401,12 +396,6 @@ struct inspector<T[N]> {
             sizes[index++] = s;
         }
         return sizes;
-    }
-
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
     }
 
     static const hdf5_type* data(const type& val) {
@@ -442,8 +431,12 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return sizes;
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
@@ -451,10 +444,8 @@ struct inspector<Eigen::Matrix<T, M, N>> {
                    static_cast<typename type::Index>(dims[1]));
     }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(*val.data());
     }
 
     static const hdf5_type* data(const type& val) {
@@ -465,17 +456,16 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         std::memcpy(m, val.data(), static_cast<size_t>(val.size()) * sizeof(hdf5_type));
     }
 
-    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
         if (dims.size() < 2) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims.size()
                << " dimensions into an eigen-matrix.";
             throw DataSpaceException(os.str());
         }
-        type array{};
-        prepare(array, dims);
-        std::memcpy(array.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
-        return array;
+        std::memcpy(val.data(), vec_align, compute_total_size(dims) * sizeof(hdf5_type));
     }
 };
 #endif
@@ -505,20 +495,36 @@ struct inspector<boost::multi_array<T, Dims>> {
         return sizes;
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
     }
 
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
+    }
+
     static void prepare(type& val, const std::vector<size_t>& dims) {
+        if (dims.size() < ndim) {
+            std::ostringstream os;
+            os << "Only '" << dims.size() << "' given but boost::multi_array is of size '" << ndim
+               << "'.";
+            throw DataSpaceException(os.str());
+        }
         boost::array<typename type::index, Dims> ext;
         std::copy(dims.begin(), dims.begin() + ndim, ext.begin());
         val.resize(ext);
+        std::vector<size_t> next_dims(dims.begin() + Dims, dims.end());
+        std::size_t size = std::accumulate(dims.begin(),
+                                           dims.begin() + Dims,
+                                           std::size_t{1},
+                                           std::multiplies<size_t>());
+        for (size_t i = 0; i < size; ++i) {
+            inspector<value_type>::prepare(*(val.origin() + i), next_dims);
+        }
     }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(*val.data());
     }
 
     static const hdf5_type* data(const type& val) {
@@ -533,29 +539,29 @@ struct inspector<boost::multi_array<T, Dims>> {
         }
     }
 
-    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
         if (dims.size() < ndim) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
                << " boost::multi-array.";
             throw DataSpaceException(os.str());
         }
-        type array{};
-        prepare(array, dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
-        for (size_t i = 0; i < array.num_elements(); ++i) {
-            *(array.origin() + i) = inspector<value_type>::unserialize(vec_align + i * subsize,
-                                                                       next_dims);
+        for (size_t i = 0; i < val.num_elements(); ++i) {
+            inspector<value_type>::unserialize(vec_align + i * subsize,
+                                               next_dims,
+                                               *(val.origin() + i));
         }
-        return array;
     }
 };
 
 template <typename T>
 struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
-    using value_type = T;
+    using value_type = unqualified_t<T>;
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
@@ -572,18 +578,20 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return sizes;
     }
 
-    static size_t getSize(const type& val) {
+    static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
         val.resize(dims[0], dims[1], false);
     }
 
-    static Reader<hdf5_type> get_reader(const std::vector<size_t>& dims) {
-        Reader<hdf5_type> r;
-        r.vec.resize(compute_total_size(dims));
-        return r;
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(val(0, 0));
     }
 
     static const hdf5_type* data(const type& val) {
@@ -598,47 +606,104 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         }
     }
 
-    static type unserialize(const hdf5_type* vec_align, const std::vector<size_t>& dims) {
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
         if (dims.size() < 2) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
                << " boost::numeric::ublas::matrix";
             throw DataSpaceException(os.str());
         }
-        type array{};
-        prepare(array, dims);
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
-        size_t size = array.size1() * array.size2();
+        size_t size = val.size1() * val.size2();
         for (size_t i = 0; i < size; ++i) {
-            *(&array(0, 0) + i) = inspector<value_type>::unserialize(vec_align + i * subsize,
-                                                                     next_dims);
+            inspector<value_type>::unserialize(vec_align + i * subsize,
+                                               next_dims,
+                                               *(&val(0, 0) + i));
         }
-        return array;
     }
 };
 #endif
 
+template <typename T>
+struct Writer {
+    using hdf5_type = typename inspector<T>::hdf5_type;
+    const hdf5_type* get_pointer() {
+        if (vec.empty()) {
+            return ptr;
+        } else {
+            return vec.data();
+        }
+    }
+    std::vector<hdf5_type> vec{};
+    const hdf5_type* ptr{nullptr};
+};
+
+template <typename T>
+struct Reader {
+    using type = unqualified_t<T>;
+    using hdf5_type = typename inspector<type>::hdf5_type;
+
+    Reader(const std::vector<size_t>& _dims)
+        : dims(_dims) {}
+
+    hdf5_type* get_pointer() {
+        if (vec.empty()) {
+            return inspector<type>::data(val);
+        } else {
+            return vec.data();
+        }
+    }
+
+    type& get_value() {
+        if (!vec.empty()) {
+            inspector<type>::unserialize(vec.data(), dims, val);
+        }
+        return val;
+    }
+
+    std::vector<size_t> dims{};
+    std::vector<hdf5_type> vec{};
+    type val{};
+};
+
 struct data_converter {
     template <typename T>
-    static typename std::enable_if<inspector<T>::is_trivially_copyable,
-                                   Writer<typename inspector<T>::hdf5_type>>::type
-    serialize(const typename inspector<T>::type& val) {
-        using hdf5_type = typename inspector<T>::hdf5_type;
-        Writer<hdf5_type> w;
+    static typename std::enable_if<inspector<T>::is_trivially_copyable, Writer<T>>::type serialize(
+        const typename inspector<T>::type& val) {
+        Writer<T> w;
         w.ptr = inspector<T>::data(val);
         return w;
     }
 
     template <typename T>
-    static typename std::enable_if<!inspector<T>::is_trivially_copyable,
-                                   Writer<typename inspector<T>::hdf5_type>>::type
-    serialize(const typename inspector<T>::type& val) {
-        using hdf5_type = typename inspector<T>::hdf5_type;
-        Writer<hdf5_type> w;
-        w.vec.resize(inspector<T>::getSize(val));
+    static typename std::enable_if<!inspector<T>::is_trivially_copyable, Writer<T>>::type serialize(
+        const typename inspector<T>::type& val) {
+        Writer<T> w;
+        w.vec.resize(inspector<T>::getSizeVal(val));
         inspector<T>::serialize(val, w.vec.data());
         return w;
+    }
+
+    template <typename T>
+    static
+        typename std::enable_if<inspector<unqualified_t<T>>::is_trivially_copyable, Reader<T>>::type
+        get_reader(const std::vector<size_t>& dims) {
+        Reader<T> r(dims);
+        inspector<T>::prepare(r.val, dims);
+        return r;
+    }
+
+    template <typename T>
+    static typename std::enable_if<!inspector<unqualified_t<T>>::is_trivially_copyable,
+                                   Reader<T>>::type
+    get_reader(const std::vector<size_t>& dims) {
+        Reader<T> r(dims);
+        inspector<T>::prepare(r.val, dims);
+        r.vec.resize(inspector<T>::getSize(dims));
+        return r;
     }
 };
 
