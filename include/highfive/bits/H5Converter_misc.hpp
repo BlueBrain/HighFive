@@ -26,10 +26,6 @@ namespace HighFive {
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
 }
-template <size_t N>
-inline size_t compute_total_size(const std::array<size_t, N>& dims) {
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
-}
 
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
@@ -68,7 +64,7 @@ inspector<T> {
     // Take a val and serialize it inside 'out'
     static void serialize(const type& val, hdf5_type* out)
     // Return an array of dimensions of the space needed for writing val
-    static std::array<size_t> getDimensions(const type& val)
+    static std::vector<size_t> getDimensions(const type& val)
 }
 *****/
 
@@ -84,7 +80,7 @@ struct type_helper {
     static constexpr size_t recursive_ndim = ndim;
     static constexpr bool is_trivially_copyable = true;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+    static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
     }
 
@@ -127,11 +123,11 @@ struct inspector<std::string>: type_helper<std::string> {
     static constexpr bool is_trivially_copyable = false;
 
     static hdf5_type* data(type& /* val */) {
-        throw "Invalid";
+        throw DataSpaceException("A std::string cannot be read directly.");
     }
 
     static const hdf5_type* data(const type& /* val */) {
-        throw "Invalid";
+        throw DataSpaceException("A std::string cannot be write directly.");
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -152,11 +148,11 @@ struct inspector<Reference>: type_helper<Reference> {
     static constexpr bool is_trivially_copyable = false;
 
     static hdf5_type* data(type& /* val */) {
-        throw "Invalid";
+        throw DataSpaceException("A Reference cannot be read directly.");
     }
 
     static const hdf5_type* data(const type& /* val */) {
-        throw "Invalid";
+        throw DataSpaceException("A Reference cannot be write directly.");
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -183,8 +179,8 @@ struct inspector<FixedLenStringArray<N>> {
     static constexpr size_t recursive_ndim = ndim;
     static constexpr bool is_trivially_copyable = false;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        return std::array<size_t, recursive_ndim>{val.size()};
+    static std::vector<size_t> getDimensions(const type& val) {
+        return std::vector<size_t>{val.size()};
     }
 
     static size_t getSizeVal(const type& val) {
@@ -238,13 +234,11 @@ struct inspector<std::vector<T>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{val.size()};
-        size_t index = ndim;
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{val.size()};
         if (!val.empty()) {
-            for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-                sizes[index++] = s;
-            }
+            auto s = inspector<value_type>::getDimensions(val[0]);
+            sizes.insert(sizes.end(), s.begin(), s.end());
         }
         return sizes;
     }
@@ -274,7 +268,7 @@ struct inspector<std::vector<T>> {
     }
 
     static void serialize(const type& val, hdf5_type* m) {
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         for (auto& e: val) {
             inspector<value_type>::serialize(e, m);
             m += subsize;
@@ -304,13 +298,11 @@ struct inspector<std::array<T, N>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{N};
-        size_t index = ndim;
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{N};
         if (!val.empty()) {
-            for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-                sizes[index++] = s;
-            }
+            auto s = inspector<value_type>::getDimensions(val[0]);
+            sizes.insert(sizes.end(), s.begin(), s.end());
         }
         return sizes;
     }
@@ -340,7 +332,7 @@ struct inspector<std::array<T, N>> {
     }
 
     static void serialize(const type& val, hdf5_type* m) {
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         for (auto& e: val) {
             inspector<value_type>::serialize(e, m);
             m += subsize;
@@ -379,7 +371,7 @@ struct inspector<T*> {
         throw DataSpaceException("Not possible to have size of a T*");
     }
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
+    static std::vector<size_t> getDimensions(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
     }
 
@@ -409,23 +401,23 @@ struct inspector<T[N]> {
         return compute_total_size(getDimensions(val));
     }
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{N};
-        size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val[0])) {
-            sizes[index++] = s;
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{N};
+        if (N > 0) {
+            auto s = inspector<value_type>::getDimensions(val[0]);
+            sizes.insert(sizes.end(), s.begin(), s.end());
         }
         return sizes;
     }
 
     static const hdf5_type* data(const type& val) {
-        return reinterpret_cast<const hdf5_type*>(val);
+        return inspector<value_type>::data(val[0]);
     }
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
     static void serialize(const type& val, hdf5_type* m) {
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         for (size_t i = 0; i < N; ++i) {
             inspector<value_type>::serialize(val[i], m + i * subsize);
         }
@@ -444,13 +436,10 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{static_cast<size_t>(val.rows()),
-                                                 static_cast<size_t>(val.cols())};
-        size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
-            sizes[index++] = s;
-        }
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
+        auto s = inspector<value_type>::getDimensions(val.data()[0]);
+        sizes.insert(sizes.end(), s.begin(), s.end());
         return sizes;
     }
 
@@ -505,16 +494,13 @@ struct inspector<boost::multi_array<T, Dims>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes;
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes;
         for (size_t i = 0; i < ndim; ++i) {
-            sizes[i] = val.shape()[i];
+            sizes.push_back(val.shape()[i]);
         }
-
-        size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val.data()[0])) {
-            sizes[index++] = s;
-        }
+        auto s = inspector<value_type>::getDimensions(val.data()[0]);
+        sizes.insert(sizes.end(), s.begin(), s.end());
         return sizes;
     }
 
@@ -556,7 +542,7 @@ struct inspector<boost::multi_array<T, Dims>> {
 
     static void serialize(const type& val, hdf5_type* m) {
         size_t size = val.num_elements();
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(*val.origin()));
+        size_t subsize = inspector<value_type>::getSizeVal(*val.origin());
         for (size_t i = 0; i < size; ++i) {
             inspector<value_type>::serialize(*(val.origin() + i), m + i * subsize);
         }
@@ -592,12 +578,10 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
-        std::array<size_t, recursive_ndim> sizes{val.size1(), val.size2()};
-        size_t index = ndim;
-        for (const auto& s: inspector<value_type>::getDimensions(val(0, 0))) {
-            sizes[index++] = s;
-        }
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{val.size1(), val.size2()};
+        auto s = inspector<value_type>::getDimensions(val(0, 0));
+        sizes.insert(sizes.end(), s.begin(), s.end());
         return sizes;
     }
 
@@ -623,7 +607,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
     static void serialize(const type& val, hdf5_type* m) {
         size_t size = val.size1() * val.size2();
-        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val(0, 0)));
+        size_t subsize = inspector<value_type>::getSizeVal(val(0, 0));
         for (size_t i = 0; i < size; ++i) {
             inspector<value_type>::serialize(*(&val(0, 0) + i), m + i * subsize);
         }
