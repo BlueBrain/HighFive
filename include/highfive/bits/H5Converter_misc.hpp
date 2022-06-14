@@ -65,7 +65,7 @@ inspector<T> {
     static size_t getSizeVal(const type& val)
     // Return a point of the first value of val
     static const hdf5_type* data(const type& val)
-    // Take a val and serialize it inside out
+    // Take a val and serialize it inside 'out'
     static void serialize(const type& val, hdf5_type* out)
     // Return an array of dimensions of the space needed for writing val
     static std::array<size_t> getDimensions(const type& val)
@@ -367,16 +367,20 @@ struct inspector<std::array<T, N>> {
 template <typename T>
 struct inspector<T*> {
     using type = T*;
-    using value_type = T;
+    using value_type = unqualified_t<T>;
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = true;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+
+    static size_t getSizeVal(const type& val) {
+        throw DataSpaceException("Not possible to have size of a T*");
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        throw std::string("Not possible to have size of a T*");
+        throw DataSpaceException("Not possible to have size of a T*");
     }
 
     static const hdf5_type* data(const type& val) {
@@ -385,48 +389,25 @@ struct inspector<T*> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static void serialize(const type& val, hdf5_type* m) {
-        m = reinterpret_cast<const hdf5_type*>(val);
+    static void serialize(const type& /* val */, hdf5_type* /* m */) {
+        throw DataSpaceException("Not possible to serialize a T*");
     }
 };
-
-template <typename T>
-struct inspector<const T*> {
-    using type = const T*;
-    using value_type = T;
-    using base_type = typename inspector<value_type>::base_type;
-    using hdf5_type = typename inspector<value_type>::hdf5_type;
-
-    static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = true;
-
-    static std::array<size_t, recursive_ndim> getDimensions(const type& /* val */) {
-        throw std::string("Not possible to have size of a T*");
-    }
-
-    static const hdf5_type* data(const type& val) {
-        return reinterpret_cast<const hdf5_type*>(val);
-    }
-
-    /* it works because there is only T[][][] currently
-       we will fix it one day */
-    static void serialize(const type& val, const hdf5_type* m) {
-        m = reinterpret_cast<const hdf5_type*>(val);
-    }
-};
-
 
 template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
-    using value_type = T;
+    using value_type = unqualified_t<T>;
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = true;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+
+    static size_t getSizeVal(const type& val) {
+        return compute_total_size(getDimensions(val));
+    }
 
     static std::array<size_t, recursive_ndim> getDimensions(const type& val) {
         std::array<size_t, recursive_ndim> sizes{N};
@@ -443,8 +424,11 @@ struct inspector<T[N]> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static void serialize(const type& val, const hdf5_type* m) {
-        m = reinterpret_cast<const hdf5_type*>(&val[0]);
+    static void serialize(const type& val, hdf5_type* m) {
+        size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
+        for(size_t i = 0; i < N; ++i) {
+            inspector<value_type>::serialize(val[i], m + i);
+        }
     }
 };
 
