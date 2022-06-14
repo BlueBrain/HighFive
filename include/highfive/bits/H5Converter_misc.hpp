@@ -375,7 +375,7 @@ struct inspector<T*> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
 
-    static size_t getSizeVal(const type& val) {
+    static size_t getSizeVal(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
     }
 
@@ -426,8 +426,8 @@ struct inspector<T[N]> {
        we will fix it one day */
     static void serialize(const type& val, hdf5_type* m) {
         size_t subsize = compute_total_size(inspector<value_type>::getDimensions(val[0]));
-        for(size_t i = 0; i < N; ++i) {
-            inspector<value_type>::serialize(val[i], m + i);
+        for (size_t i = 0; i < N; ++i) {
+            inspector<value_type>::serialize(val[i], m + i * subsize);
         }
     }
 };
