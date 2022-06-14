@@ -161,6 +161,15 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
 template <typename Derivate>
 template <typename T>
 inline T SliceTraits<Derivate>::read() const {
+    T array;
+    read(array);
+    return array;
+}
+
+
+template <typename Derivate>
+template <typename T>
+inline void SliceTraits<Derivate>::read(T& array) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
     const details::BufferInfo<T> buffer_info(slice.getDataType(), [slice]() -> std::string {
@@ -174,27 +183,15 @@ inline T SliceTraits<Derivate>::read() const {
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
-    auto r = details::data_converter::get_reader<T>(dims);
+    auto r = details::data_converter::get_reader<T>(dims, array);
     read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
-    auto array = r.get_value();
+    r.unserialize();
     auto t = create_datatype<typename details::inspector<T>::base_type>();
     auto c = t.getClass();
     if (c == DataTypeClass::VarLen) {
         (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
     }
-    return array;
-}
-
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::read(T& array) const {
-    const auto& slice = static_cast<const Derivate&>(*this);
-    const DataSpace& mem_space = slice.getMemSpace();
-    auto dims = mem_space.getDimensions();
-    details::inspector<T>::prepare(array, dims);
-    array = read<T>();
 }
 
 

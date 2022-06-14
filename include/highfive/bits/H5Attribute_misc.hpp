@@ -53,6 +53,13 @@ inline DataSpace Attribute::getMemSpace() const {
 
 template <typename T>
 inline T Attribute::read() const {
+    T array;
+    read(array);
+    return array;
+}
+
+template <typename T>
+inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
     const details::BufferInfo<T> buffer_info(getDataType(),
                                              [this]() -> std::string { return this->getName(); });
@@ -64,24 +71,15 @@ inline T Attribute::read() const {
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
-    auto r = details::data_converter::get_reader<T>(dims);
+    auto r = details::data_converter::get_reader<T>(dims, array);
     read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
-    auto array = r.get_value();
+    r.unserialize();
     auto t = create_datatype<typename details::inspector<T>::base_type>();
     auto c = t.getClass();
     if (c == DataTypeClass::VarLen) {
         (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
     }
-    return array;
-}
-
-template <typename T>
-inline void Attribute::read(T& array) const {
-    const DataSpace& mem_space = getMemSpace();
-    auto dims = mem_space.getDimensions();
-    details::inspector<T>::prepare(array, dims);
-    array = read<T>();
 }
 
 template <typename T>

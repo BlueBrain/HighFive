@@ -685,8 +685,9 @@ struct Reader {
     using type = unqualified_t<T>;
     using hdf5_type = typename inspector<type>::hdf5_type;
 
-    Reader(const std::vector<size_t>& _dims)
-        : dims(_dims) {}
+    Reader(const std::vector<size_t>& _dims, type& _val)
+        : dims(_dims)
+        , val(_val) {}
 
     hdf5_type* get_pointer() {
         if (vec.empty()) {
@@ -696,16 +697,15 @@ struct Reader {
         }
     }
 
-    type& get_value() {
+    void unserialize() {
         if (!vec.empty()) {
             inspector<type>::unserialize(vec.data(), dims, val);
         }
-        return val;
     }
 
     std::vector<size_t> dims{};
     std::vector<hdf5_type> vec{};
-    type val{};
+    type& val{};
 };
 
 struct data_converter {
@@ -729,8 +729,8 @@ struct data_converter {
     template <typename T>
     static
         typename std::enable_if<inspector<unqualified_t<T>>::is_trivially_copyable, Reader<T>>::type
-        get_reader(const std::vector<size_t>& dims) {
-        Reader<T> r(dims);
+        get_reader(const std::vector<size_t>& dims, T& val) {
+        Reader<T> r(dims, val);
         inspector<T>::prepare(r.val, dims);
         return r;
     }
@@ -738,8 +738,8 @@ struct data_converter {
     template <typename T>
     static typename std::enable_if<!inspector<unqualified_t<T>>::is_trivially_copyable,
                                    Reader<T>>::type
-    get_reader(const std::vector<size_t>& dims) {
-        Reader<T> r(dims);
+    get_reader(const std::vector<size_t>& dims, T& val) {
+        Reader<T> r(dims, val);
         inspector<T>::prepare(r.val, dims);
         r.vec.resize(inspector<T>::getSize(dims));
         return r;
