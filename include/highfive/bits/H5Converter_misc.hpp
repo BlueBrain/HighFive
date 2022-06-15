@@ -78,7 +78,7 @@ struct type_helper {
 
     static constexpr size_t ndim = 0;
     static constexpr size_t recursive_ndim = ndim;
-    static constexpr bool is_trivially_copyable = true;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<type>::value;
 
     static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
@@ -119,8 +119,6 @@ struct inspector: type_helper<T> {};
 template <>
 struct inspector<std::string>: type_helper<std::string> {
     using hdf5_type = const char*;
-
-    static constexpr bool is_trivially_copyable = false;
 
     static hdf5_type* data(type& /* val */) {
         throw DataSpaceException("A std::string cannot be read directly.");
