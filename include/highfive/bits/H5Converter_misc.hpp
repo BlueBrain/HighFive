@@ -95,20 +95,24 @@ struct type_helper {
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
 
     static hdf5_type* data(type& val) {
+        static_assert(is_trivially_copyable, "The type is not trivially copyable");
         return &val;
     }
 
     static const hdf5_type* data(const type& val) {
+        static_assert(is_trivially_copyable, "The type is not trivially copyable");
         return &val;
     }
 
     static void serialize(const type& val, hdf5_type* m) {
+        static_assert(is_trivially_copyable, "The type is not trivially copyable");
         *m = val;
     }
 
     static void unserialize(const hdf5_type* vec,
                             const std::vector<size_t>& /* dims */,
                             type& val) {
+        static_assert(is_trivially_copyable, "The type is not trivially copyable");
         val = vec[0];
     }
 };
