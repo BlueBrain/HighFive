@@ -356,6 +356,7 @@ struct inspector<std::array<T, N>> {
     }
 };
 
+// Cannot be use for reading
 template <typename T>
 struct inspector<T*> {
     using type = T*;
@@ -386,6 +387,7 @@ struct inspector<T*> {
     }
 };
 
+// Cannot be use for reading
 template <typename T, size_t N>
 struct inspector<T[N]> {
     using type = T[N];
@@ -452,8 +454,11 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
-        val.resize(static_cast<typename type::Index>(dims[0]),
-                   static_cast<typename type::Index>(dims[1]));
+        if (dims[0] != static_cast<size_t>(val.rows()) ||
+            dims[1] != static_cast<size_t>(val.cols())) {
+            val.resize(static_cast<typename type::Index>(dims[0]),
+                       static_cast<typename type::Index>(dims[1]));
+        }
     }
 
     static hdf5_type* data(type& val) {
@@ -551,12 +556,6 @@ struct inspector<boost::multi_array<T, Dims>> {
     static void unserialize(const hdf5_type* vec_align,
                             const std::vector<size_t>& dims,
                             type& val) {
-        if (dims.size() < ndim) {
-            std::ostringstream os;
-            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
-               << " boost::multi-array.";
-            throw DataSpaceException(os.str());
-        }
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         for (size_t i = 0; i < val.num_elements(); ++i) {
@@ -594,6 +593,12 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
+        if (dims.size() < 2) {
+            std::ostringstream os;
+            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
+               << " boost::numeric::ublas::matrix";
+            throw DataSpaceException(os.str());
+        }
         val.resize(dims[0], dims[1], false);
     }
 
@@ -616,12 +621,6 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     static void unserialize(const hdf5_type* vec_align,
                             const std::vector<size_t>& dims,
                             type& val) {
-        if (dims.size() < 2) {
-            std::ostringstream os;
-            os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
-               << " boost::numeric::ublas::matrix";
-            throw DataSpaceException(os.str());
-        }
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         size_t size = val.size1() * val.size2();
