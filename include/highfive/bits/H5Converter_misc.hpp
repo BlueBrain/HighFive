@@ -593,7 +593,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
-        if (dims.size() < 2) {
+        if (dims.size() < ndim) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims.size() << " dimensions into a " << ndim
                << " boost::numeric::ublas::matrix";
