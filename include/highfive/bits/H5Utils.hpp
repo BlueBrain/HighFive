@@ -28,49 +28,7 @@ namespace HighFive {
 template <std::size_t N>
 class FixedLenStringArray;
 
-template <typename T>
-using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
-
-
 namespace details {
-// Find the type of an eventual char array, otherwise void
-template <typename>
-struct type_char_array {
-    using type = void;
-};
-
-template <typename T>
-struct type_char_array<T*> {
-    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
-                                           char*,
-                                           typename type_char_array<T>::type>::type;
-};
-
-template <typename T, std::size_t N>
-struct type_char_array<T[N]> {
-    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
-                                           char[N],
-                                           typename type_char_array<T>::type>::type;
-};
-
-
-// check if the type is a basic C-Array
-template <typename>
-struct is_c_array {
-    static const bool value = false;
-};
-
-template <typename T>
-struct is_c_array<T*> {
-    static const bool value = true;
-};
-
-template <typename T, std::size_t N>
-struct is_c_array<T[N]> {
-    static const bool value = true;
-};
-
-
 // converter function for hsize_t -> size_t when hsize_t != size_t
 template <typename Size>
 inline std::vector<std::size_t> to_vector_size_t(const std::vector<Size>& vec) {

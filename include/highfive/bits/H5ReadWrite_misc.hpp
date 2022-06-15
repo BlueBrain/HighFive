@@ -16,6 +16,29 @@ namespace HighFive {
 namespace details {
 
 template <typename T>
+using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
+
+// Find the type of an eventual char array, otherwise void
+template <typename>
+struct type_char_array {
+    using type = void;
+};
+
+template <typename T>
+struct type_char_array<T*> {
+    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                           char*,
+                                           typename type_char_array<T>::type>::type;
+};
+
+template <typename T, std::size_t N>
+struct type_char_array<T[N]> {
+    using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
+                                           char[N],
+                                           typename type_char_array<T>::type>::type;
+};
+
+template <typename T>
 struct BufferInfo {
     using type_no_const = typename std::remove_const<T>::type;
     using elem_type = typename details::inspector<type_no_const>::base_type;
