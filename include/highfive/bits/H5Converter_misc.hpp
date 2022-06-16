@@ -80,6 +80,8 @@ struct type_helper {
     static constexpr size_t recursive_ndim = ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<type>::value;
 
+    static_assert(!std::is_same<type, bool>::value, "Booleans are not supported yet.");
+
     static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
     }
