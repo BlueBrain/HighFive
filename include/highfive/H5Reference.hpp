@@ -21,6 +21,10 @@
 
 namespace HighFive {
 
+namespace details {
+template <typename T>
+struct inspector;
+}
 ///
 /// \brief An HDF5 (object) reference type
 ///
@@ -71,7 +75,7 @@ class Reference {
     std::string obj_name{};
     hid_t parent_id{};
 
-    friend details::data_converter<std::vector<Reference>>;
+    friend struct details::inspector<Reference>;
 };
 
 }  // namespace HighFive

@@ -15,10 +15,6 @@
 #include <sstream>
 #include <string>
 
-#ifdef H5_USE_BOOST
-#include <boost/multi_array.hpp>
-#endif
-
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
@@ -56,6 +52,13 @@ inline DataSpace Attribute::getMemSpace() const {
 }
 
 template <typename T>
+inline T Attribute::read() const {
+    T array;
+    read(array);
+    return array;
+}
+
+template <typename T>
 inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
     const details::BufferInfo<T> buffer_info(getDataType(),
@@ -67,10 +70,16 @@ inline void Attribute::read(T& array) const {
            << " into arrays of dimensions " << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
-    details::data_converter<T> converter(mem_space);
-    read(converter.transform_read(array), buffer_info.data_type);
+    auto dims = mem_space.getDimensions();
+    auto r = details::data_converter::get_reader<T>(dims, array);
+    read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
-    converter.process_result(array);
+    r.unserialize();
+    auto t = create_datatype<typename details::inspector<T>::base_type>();
+    auto c = t.getClass();
+    if (c == DataTypeClass::VarLen) {
+        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+    }
 }
 
 template <typename T>
@@ -99,8 +108,8 @@ inline void Attribute::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-    details::data_converter<T> converter(mem_space);
-    write_raw(converter.transform_write(buffer), buffer_info.data_type);
+    auto w = details::data_converter::serialize<T>(buffer);
+    write_raw(w.get_pointer(), buffer_info.data_type);
 }
 
 template <typename T>

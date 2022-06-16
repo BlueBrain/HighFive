@@ -1530,44 +1530,6 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteSzip", "[template]", dataset_test_types) {
     }
 }
 
-// Broadcasting is supported
-TEST_CASE("ReadInBroadcastDims") {
-    const std::string FILE_NAME("h5_missmatch1_dset.h5");
-    const std::string DATASET_NAME("dset");
-
-    // Create a new file using the default property lists.
-    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-    // Create the data space for the dataset.
-    std::vector<size_t> dims_a{1, 3};
-    std::vector<size_t> dims_b{3, 1};
-
-    // 1D input / output vectors
-    std::vector<double> some_data{5.0, 6.0, 7.0};
-    std::vector<double> data_a;
-    std::vector<double> data_b;
-
-    DataSpace dataspace_a(dims_a);
-    DataSpace dataspace_b(dims_b);
-
-    // Create a dataset with double precision floating points
-    DataSet dataset_a = file.createDataSet(DATASET_NAME + "_a", dataspace_a, AtomicType<double>());
-    DataSet dataset_b = file.createDataSet(DATASET_NAME + "_b", dataspace_b, AtomicType<double>());
-
-    dataset_a.write(some_data);
-    dataset_b.write(some_data);
-
-    DataSet out_a = file.getDataSet(DATASET_NAME + "_a");
-    DataSet out_b = file.getDataSet(DATASET_NAME + "_b");
-
-    out_a.read(data_a);
-    out_b.read(data_b);
-
-    CHECK(data_a == some_data);
-
-    CHECK(data_b == some_data);
-}
-
 TEST_CASE("HighFiveRecursiveGroups") {
     const std::string FILE_NAME("h5_ds_exist.h5");
     const std::string GROUP_1("group1"), GROUP_2("group2");
@@ -2441,24 +2403,6 @@ TEST_CASE("HighFiveEigen") {
         test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
     }
 
-    // std::vector<of EigenMatrixXd> - exception
-    {
-        const std::string DS_NAME = "ds";
-        DS_NAME_FLAVOR = "VectorEigenMatrixXdExc";
-
-        Eigen::MatrixXd m1 = 100. * Eigen::MatrixXd::Random(20, 5);
-        Eigen::MatrixXd m2 = 100. * Eigen::MatrixXd::Random(20, 5);
-        std::vector<Eigen::MatrixXd> vec_in;
-        vec_in.push_back(m1);
-        vec_in.push_back(m2);
-        file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
-
-        std::vector<Eigen::MatrixXd> vec_out_exception;
-        SilenceHDF5 silencer;
-        CHECK_THROWS_AS(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
-                        HighFive::DataSetException);
-    }
-
 #ifdef H5_USE_BOOST
     // boost::multi_array<of EigenVector3f>
     {
@@ -2497,28 +2441,6 @@ TEST_CASE("HighFiveEigen") {
                 }
             }
         test_eigen_vec(file, DS_NAME_FLAVOR, vec_in, vec_out);
-    }
-
-    // boost::mulit_array<of EigenMatrixXd> - exception
-    {
-        const std::string DS_NAME = "ds";
-        DS_NAME_FLAVOR = "BMultiEigenMatrixXdExc";
-
-        boost::multi_array<Eigen::MatrixXd, 3> vec_in(boost::extents[3][2][2]);
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 2; ++j) {
-                for (int k = 0; k < 2; ++k) {
-                    vec_in[i][j][k] = Eigen::MatrixXd::Random(3, 3);
-                }
-            }
-        }
-
-        file.createDataSet(DS_NAME + DS_NAME_FLAVOR, vec_in).write(vec_in);
-        boost::multi_array<Eigen::MatrixXd, 3> vec_out_exception(boost::extents[3][2][2]);
-
-        SilenceHDF5 silencer;
-        CHECK_THROWS_AS(file.getDataSet(DS_NAME + DS_NAME_FLAVOR).read(vec_out_exception),
-                        HighFive::DataSetException);
     }
 
 #endif
