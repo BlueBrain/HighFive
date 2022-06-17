@@ -159,12 +159,6 @@ inline AtomicType<long double>::AtomicType() {
     _hid = H5Tcopy(H5T_NATIVE_LDOUBLE);
 }
 
-// boolean mapping
-template <>
-inline AtomicType<bool>::AtomicType() {
-    _hid = H5Tcopy(H5T_NATIVE_HBOOL);
-}
-
 // std string
 template <>
 inline AtomicType<std::string>::AtomicType() {
@@ -198,6 +192,23 @@ class AtomicType<std::complex<T>>: public DataType {
                       "std::complex accepts only floating point numbers.");
     }
 };
+
+namespace details {
+enum Boolean: int8_t {
+    FALSE = 0,
+    TRUE = 1,
+};
+}
+// For boolean we act as h5py
+EnumType<details::Boolean> create_enum_boolean() {
+    return {{"FALSE", details::Boolean::FALSE}, {"TRUE", details::Boolean::TRUE}};
+}
+// template <>
+// class AtomicType<bool>: public DataType {
+//   public:
+//     inline AtomicType()
+//         : DataType(create_enum_boolean()) {}
+// };
 
 // Other cases not supported. Fail early with a user message
 template <typename T>
@@ -492,6 +503,8 @@ inline DataType create_and_check_datatype() {
 }
 
 }  // namespace HighFive
+
+HIGHFIVE_REGISTER_TYPE(HighFive::details::Boolean, HighFive::create_enum_boolean)
 
 
 #endif  // H5DATATYPE_MISC_HPP
