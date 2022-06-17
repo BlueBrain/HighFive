@@ -2204,6 +2204,29 @@ TEST_CASE("HighFiveEnum") {
     }
 }
 
+TEST_CASE("HighFiveBool") {
+    const std::string FILE_NAME("bool_test.h5");
+    const std::string DATASET_NAME1("/a");
+    const std::string DATASET_NAME2("/b");
+
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    {
+        std::vector<bool> b{true, false, true, true};
+
+        auto dataset = file.createDataSet<bool>(DATASET_NAME1, DataSpace::From(b));
+        dataset.write(b);
+
+        file.flush();
+
+        std::array<bool, 4> result = dataset.read<std::array<bool, 4>>();
+
+        for (size_t i = 0; i < 4; ++i) {
+            CHECK(b[i] == result[i]);
+        }
+    }
+}
+
 TEST_CASE("HighFiveFixedString") {
     const std::string FILE_NAME("array_atomic_types.h5");
     const std::string GROUP_1("group1");

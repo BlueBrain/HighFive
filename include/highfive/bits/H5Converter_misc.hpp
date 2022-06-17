@@ -81,8 +81,6 @@ struct type_helper {
     static constexpr size_t recursive_ndim = ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<type>::value;
 
-    static_assert(!std::is_same<type, bool>::value, "Booleans are not supported yet.");
-
     static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
     }
@@ -122,6 +120,31 @@ struct type_helper {
 
 template <typename T>
 struct inspector: type_helper<T> {};
+
+enum Boolean: int8_t;
+template <>
+struct inspector<bool>: type_helper<bool> {
+    using base_type = Boolean;
+    using hdf5_type = int8_t;
+
+    static constexpr bool is_trivially_copyable = false;
+
+    static hdf5_type* data(type& /* val */) {
+        throw DataSpaceException("A boolean cannot be read directly.");
+    }
+
+    static const hdf5_type* data(const type& /* val */) {
+        throw DataSpaceException("A boolean cannot be write directly.");
+    }
+
+    static void unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */, type& val) {
+        val = vec[0] == 1 ? true : false;
+    }
+
+    static void serialize(const type& val, hdf5_type* m) {
+        *m = val ? 1 : 0;
+    }
+};
 
 template <>
 struct inspector<std::string>: type_helper<std::string> {
