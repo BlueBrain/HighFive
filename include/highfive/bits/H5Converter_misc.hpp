@@ -258,7 +258,7 @@ struct inspector<std::vector<T>> {
     static void prepare(type& val, const std::vector<size_t>& dims) {
         val.resize(dims[0]);
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
-        for (auto& e: val) {
+        for (auto&& e: val) {
             inspector<value_type>::prepare(e, next_dims);
         }
     }
@@ -273,7 +273,7 @@ struct inspector<std::vector<T>> {
 
     static void serialize(const type& val, hdf5_type* m) {
         size_t subsize = inspector<value_type>::getSizeVal(val[0]);
-        for (auto& e: val) {
+        for (auto&& e: val) {
             inspector<value_type>::serialize(e, m);
             m += subsize;
         }
