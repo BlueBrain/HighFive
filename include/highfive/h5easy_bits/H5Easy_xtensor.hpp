@@ -59,15 +59,28 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
 
     inline static T load_part(const File& file,
                               const std::string& path,
-                              const std::vector<size_t>& idx) {
-        return load(file, path);
+                              const std::vector<size_t>& idx,
+                              const std::vector<size_t>& sizes) {
+        static_assert(
+            xt::has_data_interface<T>::value,
+            "Cannot load to xt::xfunction or xt::xgenerator, use e.g. xt::xtensor or xt::xarray");
+        DataSet dataset = file.getDataSet(path);
+        std::vector<size_t> dims = dataset.getDimensions();
+        std::vector<size_t> shape = sizes;
+
+        for (size_t i = 0; i < dims.size(); ++i) {
+            shape[i] = std::min(sizes[i], dims[i] - idx[i]);
+        }
+
+        T data = T::from_shape(shape);
+        dataset.select(idx, shape).read(data.data());
+        return data;
     }
 
     inline static T load_part(const File& file,
                               const std::string& path,
-                              const std::vector<size_t>& idx,
-                              const std::vector<size_t>& sizes) {
-        return load(file, path);
+                              const std::vector<size_t>& idx) {
+        return load_part(file, path, idx, std::vector<size_t>(idx.size(), 1));
     }
 
     inline static Attribute dumpAttribute(File& file,

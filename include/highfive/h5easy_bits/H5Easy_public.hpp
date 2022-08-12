@@ -136,7 +136,10 @@ inline DataSet dump(File& file,
 }
 
 template <class T>
-inline T load(const File& file, const std::string& path, const std::vector<size_t>& idx, const std::vector<size_t>& sizes) {
+inline T load(const File& file,
+              const std::string& path,
+              const std::vector<size_t>& idx,
+              const std::vector<size_t>& sizes) {
     return detail::io_impl<T>::load_part(file, path, idx, sizes);
 }
 
