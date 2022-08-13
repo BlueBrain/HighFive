@@ -43,7 +43,55 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
                                       const T& data,
                                       const std::vector<size_t>& idx,
                                       const DumpOptions& options) {
-        return dump(file, path, data, options);
+        using value_type = typename std::decay_t<T>::value_type;
+        std::vector<size_t> dataShape = shape(data);
+
+        if (file.exist(path)) {
+            DataSet dataset = file.getDataSet(path);
+
+            std::vector<size_t> dims = dataset.getDimensions();
+            std::vector<size_t> shape = dims;
+            if (dims.size() != idx.size()) {
+                throw detail::error(
+                    file,
+                    path,
+                    "H5Easy::dump: Dimension of the index and the existing field do not match");
+            }
+            for (size_t i = 0; i < dims.size(); ++i) {
+                shape[i] = std::max(dims[i], idx[i] + dataShape[i]);
+            }
+            if (shape != dims) {
+                dataset.resize(shape);
+            }
+            dataset.select(idx, dataShape).write_raw(data.data());
+            if (options.flush()) {
+                file.flush();
+            }
+            return dataset;
+
+        }
+
+        std::vector<size_t> shape = idx;
+        const size_t unlim = DataSpace::UNLIMITED;
+        std::vector<size_t> unlim_shape(idx.size(), unlim);
+        std::vector<hsize_t> chunks(idx.size(), dataShape.size());
+        if (options.isChunked()) {
+            chunks = options.getChunkSize();
+            if (chunks.size() != idx.size()) {
+                throw error(file, path, "H5Easy::dump: Incorrect dimension ChunkSize");
+            }
+        }
+        for (size_t i = 0; i < shape.size(); ++i) {
+            shape[i] += dataShape[i];
+        }
+        DataSetCreateProps props;
+        props.add(Chunking(chunks));
+        DataSet dataset = file.createDataSet<value_type>(path, DataSpace(shape), props, {}, true);
+        dataset.select(idx, dataShape).write_raw(data.data());
+        if (options.flush()) {
+            file.flush();
+        }
+        return dataset;
     }
 
     inline static T load(const File& file, const std::string& path) {
