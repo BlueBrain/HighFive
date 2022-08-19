@@ -38,6 +38,14 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         return dataset;
     }
 
+    inline static DataSet dump_extend(File& file,
+                                      const std::string& path,
+                                      const T& data,
+                                      const std::vector<size_t>& idx,
+                                      const DumpOptions& options) {
+        return dump(file, path, data, options);
+    }
+
     inline static T load(const File& file, const std::string& path) {
         static_assert(
             xt::has_data_interface<T>::value,
@@ -47,6 +55,19 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         T data = T::from_shape(dims);
         dataset.read(data.data());
         return data;
+    }
+
+    inline static T load_part(const File& file,
+                              const std::string& path,
+                              const std::vector<size_t>& idx) {
+        return load(file, path);
+    }
+
+    inline static T load_part(const File& file,
+                              const std::string& path,
+                              const std::vector<size_t>& idx,
+                              const std::vector<size_t>& sizes) {
+        return load(file, path);
     }
 
     inline static Attribute dumpAttribute(File& file,

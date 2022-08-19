@@ -25,6 +25,7 @@
 #ifdef H5_USE_XTENSOR
 #include <xtensor/xrandom.hpp>
 #include <xtensor/xview.hpp>
+#include <xtensor/xadapt.hpp>
 #endif
 
 #define CATCH_CONFIG_MAIN
@@ -209,6 +210,105 @@ TEST_CASE("H5Easy_xtensor") {
     CHECK(xt::all(xt::equal(B, B_r)));
 }
 
+TEST_CASE("H5Easy_xtensor_load_single") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    xt::xtensor<double, 2> A_r_single = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/A", {IDX0, IDX1});
+    xt::xtensor<int, 2> B_r_single = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/B", {IDX0, IDX1});
+
+    CHECK(xt::allclose(A(IDX0,IDX1), A_r_single));
+    CHECK(xt::all(xt::equal(B(IDX0,IDX1), B_r_single)));
+
+    CHECK(xt::all(A.shape()));
+    CHECK(xt::all(B.shape()));
+}
+
+TEST_CASE("H5Easy_xtensor_load_part") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    const size_t SIZE0 = 3;
+    const size_t SIZE1 = 2;
+
+    xt::xtensor<double, 2> A_r_part = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/A", {IDX0, IDX1}, {SIZE0, SIZE1});
+    xt::xtensor<int, 2> B_r_part = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/B", {IDX0, IDX1}, {SIZE0, SIZE1});
+
+    CHECK(xt::allclose(xt::view(A, xt::range(IDX0, IDX0 + SIZE0), xt::range(IDX1, IDX1 + SIZE1)), A_r_part));
+    CHECK(xt::all(xt::equal(xt::view(B, xt::range(IDX0, IDX0 + SIZE0), xt::range(IDX1, IDX1 + SIZE1)), B_r_part)));
+}
+
+TEST_CASE("H5Easy_xtensor_load_exceed") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    xt::xtensor<double, 2> A_r_exceed = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/A", {IDX0, IDX1}, {DIM0, DIM1});
+    xt::xtensor<int, 2> B_r_exceed = H5Easy::load<xt::xtensor<double, 2>>(file, "path/to/B", {IDX0, IDX1}, {DIM0, DIM1});
+
+    // Output will only contain as much data as is left in each dimension
+    CHECK(xt::allclose(xt::view(A, xt::range(IDX0, xt::placeholders::_), xt::range(IDX1, xt::placeholders::_)), A_r_exceed));
+    CHECK(xt::all(xt::equal(xt::view(B, xt::range(IDX0, xt::placeholders::_), xt::range(IDX1, xt::placeholders::_)), B_r_exceed)));
+}
+
+TEST_CASE("H5Easy_xtensor_dump_extend") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xtensor<int, 2> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A, {DIM0, DIM1});
+    H5Easy::dump(file, "/path/to/B", B, {DIM0, DIM1});
+
+    xt::xtensor<double, 2> A_r = H5Easy::load<xt::xarray<double>>(file, "/path/to/A");
+    xt::xtensor<int, 2> B_r = H5Easy::load<xt::xarray<int>>(file, "/path/to/B");
+
+    auto A_r_zeroes = xt::view(A_r, xt::range(0, DIM0), xt::range(0, DIM1));
+    auto B_r_zeroes = xt::view(B_r, xt::range(0, DIM0), xt::range(0, DIM1));
+    auto A_r_values = xt::view(A_r, xt::range(DIM0, 2*DIM0), xt::range(DIM1, 2*DIM1));
+    auto B_r_values = xt::view(B_r, xt::range(DIM0, 2*DIM0), xt::range(DIM1, 2*DIM1));
+
+    CHECK(!xt::any(A_r_zeroes));
+    CHECK(!xt::any(B_r_zeroes));
+    CHECK(xt::allclose(A_r_values, A));
+    CHECK(xt::all(xt::equal(B_r_values, B)));
+}
+
 TEST_CASE("H5Easy_xarray") {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -225,6 +325,102 @@ TEST_CASE("H5Easy_xarray") {
     CHECK(xt::all(xt::equal(B, B_r)));
 }
 
+TEST_CASE("H5Easy_xarray_single") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xarray<int> B = A;
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    xt::xarray<double> A_r_single = H5Easy::load<xt::xarray<double>>(file, "path/to/A", {IDX0, IDX1});
+    xt::xarray<int> B_r_single = H5Easy::load<xt::xarray<double>>(file, "path/to/B", {IDX0, IDX1});
+
+    CHECK(xt::allclose(A(IDX0,IDX1), A_r_single));
+    CHECK(xt::all(xt::equal(B(IDX0, IDX1), B_r_single)));
+}
+
+TEST_CASE("H5Easy_xarray_load_part") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xarray<int> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    const size_t SIZE0 = 3;
+    const size_t SIZE1 = 2;
+
+    xt::xarray<double> A_r_part = H5Easy::load<xt::xarray<double>>(file, "path/to/A", {IDX0, IDX1}, {SIZE0, SIZE1});
+    xt::xarray<int> B_r_part = H5Easy::load<xt::xarray<double>>(file, "path/to/B", {IDX0, IDX1}, {SIZE0, SIZE1});
+
+    CHECK(xt::allclose(xt::view(A, xt::range(IDX0, IDX0 + SIZE0), xt::range(IDX1, IDX1 + SIZE1)), A_r_part));
+    CHECK(xt::all(xt::equal(xt::view(B, xt::range(IDX0, IDX0 + SIZE0), xt::range(IDX1, IDX1 + SIZE1)), B_r_part)));
+}
+
+TEST_CASE("H5Easy_xarray_load_exceed") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xarray<int> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A);
+    H5Easy::dump(file, "/path/to/B", B);
+
+    const size_t IDX0 = 5;
+    const size_t IDX1 = 3;
+
+    xt::xarray<double> A_r_exceed = H5Easy::load<xt::xarray<double>>(file, "path/to/A", {IDX0, IDX1}, {DIM0, DIM1});
+    xt::xarray<int> B_r_exceed = H5Easy::load<xt::xarray<double>>(file, "path/to/B", {IDX0, IDX1}, {DIM0, DIM1});
+
+    // Output will only contain as much data as is left in each dimension
+    CHECK(xt::allclose(xt::view(A, xt::range(IDX0, xt::placeholders::_), xt::range(IDX1, xt::placeholders::_)), A_r_exceed));
+    CHECK(xt::all(xt::equal(xt::view(B, xt::range(IDX0, xt::placeholders::_), xt::range(IDX1, xt::placeholders::_)), B_r_exceed)));
+}
+
+TEST_CASE("H5Easy_xarray_dump_extend") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    xt::xarray<int> B = A;
+
+    H5Easy::dump(file, "/path/to/A", A, {DIM0, DIM1});
+    H5Easy::dump(file, "/path/to/B", B, {DIM0, DIM1});
+
+    xt::xarray<double> A_r = H5Easy::load<xt::xarray<double>>(file, "/path/to/A");
+    xt::xarray<int> B_r = H5Easy::load<xt::xarray<int>>(file, "/path/to/B");
+
+    auto A_r_zeroes = xt::view(A_r, xt::range(0, DIM0), xt::range(0, DIM1));
+    auto B_r_zeroes = xt::view(B_r, xt::range(0, DIM0), xt::range(0, DIM1));
+    auto A_r_values = xt::view(A_r, xt::range(DIM0, 2*DIM0), xt::range(DIM1, 2*DIM1));
+    auto B_r_values = xt::view(B_r, xt::range(DIM0, 2*DIM0), xt::range(DIM1, 2*DIM1));
+
+    CHECK(!xt::any(A_r_zeroes));
+    CHECK(!xt::any(B_r_zeroes));
+    CHECK(xt::allclose(A_r_values, A));
+    CHECK(xt::all(xt::equal(B_r_values, B)));
+}
+
 TEST_CASE("H5Easy_view") {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
 
@@ -237,6 +433,27 @@ TEST_CASE("H5Easy_view") {
 
     CHECK(xt::allclose(a, a_r));
 }
+
+TEST_CASE("H5Easy_view_dump_extend") {
+    H5Easy::File file("test.h5", H5Easy::File::Overwrite);
+
+    const size_t DIM0 = 20;
+    const size_t DIM1 = 5;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({DIM0, DIM1});
+    auto a = xt::view(A, xt::range(0, 10), xt::range(0, 10));
+
+    H5Easy::dump(file, "/path/to/A", a, {DIM0, DIM1});
+
+    xt::xarray<double> A_r = H5Easy::load<xt::xarray<double>>(file, "/path/to/A");
+
+    auto A_r_zeroes = xt::view(A_r, xt::range(0, DIM0), xt::range(0, DIM1));
+    auto A_r_values = xt::view(A_r, xt::range(DIM0, 2*DIM0), xt::range(DIM1, 2*DIM1));
+
+    CHECK(!xt::any(A_r_zeroes));
+    CHECK(xt::allclose(A_r_values, a));
+}
+
 
 TEST_CASE("H5Easy_xtensor_compress") {
     H5Easy::File file("test.h5", H5Easy::File::Overwrite);
