@@ -199,6 +199,11 @@ If you want to propose pull requests to this project, do not forget to format co
 clang-format version 12.
 The .clang-format is at the root of the git repository.
 
+# Questions?
+
+Do you have questions on how to use HighFive? Would you like to share an interesting example or
+discuss HighFive features? Head over to the [Discussions](https://github.com/BlueBrain/HighFive/discussions)
+forum and join the community.
 
 # Funding & Acknowledgment
  
