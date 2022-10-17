@@ -20,6 +20,8 @@
 #include <half.hpp>
 #endif
 
+#include "H5Converter_misc.hpp"
+
 namespace HighFive {
 
 namespace {  // unnamed
