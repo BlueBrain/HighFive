@@ -253,6 +253,10 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dt
                  static_cast<const void*>(buffer)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
+    uint32_t local_cause=0, global_cause=0;
+    H5Pget_mpio_no_collective_cause(m_plist.getId(), &local_cause, &global_cause);
+    if (local_cause || global_cause)
+        std::cout << "h5dwrite wasn't collective " << local_cause << " " << global_cause << " " << std::endl;
 }
 
 
