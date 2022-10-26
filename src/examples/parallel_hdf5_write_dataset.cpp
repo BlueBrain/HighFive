@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
 
         // Create the dataset
         DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        dataset.enable_collective();
 
         // Each node want to write its own rank two time in
         // its associated row

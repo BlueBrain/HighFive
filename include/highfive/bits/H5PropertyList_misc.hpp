@@ -140,6 +140,13 @@ inline void CreateIntermediateGroup::apply(const hid_t hid) const {
     }
 }
 
+inline void UseCollectiveIO::apply(const hid_t hid) const {
+    if (H5Pset_dxpl_mpio(hid, _enable ? H5FD_MPIO_COLLECTIVE : H5FD_MPIO_INDEPENDENT) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error setting property for create intermediate groups");
+    }
+}
+
 }  // namespace HighFive
 
 #endif  // H5PROPERTY_LIST_HPP

@@ -211,7 +211,7 @@ inline void SliceTraits<Derivate>::read(T* array, const DataType& dtype) const {
                 mem_datatype.getId(),
                 details::get_memspace_id(slice),
                 slice.getSpace().getId(),
-                H5P_DEFAULT,
+                m_plist.getId(),
                 static_cast<void*>(array)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read: ");
     }
@@ -249,7 +249,7 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataType& dt
                  mem_datatype.getId(),
                  details::get_memspace_id(slice),
                  slice.getSpace().getId(),
-                 H5P_DEFAULT,
+                 m_plist.getId(),
                  static_cast<const void*>(buffer)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
