@@ -142,8 +142,7 @@ inline void CreateIntermediateGroup::apply(const hid_t hid) const {
 
 inline void UseCollectiveIO::apply(const hid_t hid) const {
     if (H5Pset_dxpl_mpio(hid, _enable ? H5FD_MPIO_COLLECTIVE : H5FD_MPIO_INDEPENDENT) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting H5Pset_dxpl_mpio.");
+        HDF5ErrMapper::ToException<PropertyException>("Error setting H5Pset_dxpl_mpio.");
     }
 }
 

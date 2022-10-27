@@ -65,18 +65,16 @@ int main(int argc, char** argv) {
         // collective MPI-IO operations were used, one may:
         uint32_t local_cause = 0, global_cause = 0;
         auto err = H5Pget_mpio_no_collective_cause(xfer_props.getId(), &local_cause, &global_cause);
-        if(err < 0) {
+        if (err < 0) {
             throw std::runtime_error("Failed to check mpio_no_collective_cause.");
         }
         if (local_cause || global_cause) {
             std::cout << "The operation wasn't collective: " << local_cause << " " << global_cause
                       << std::endl;
             throw std::runtime_error("IO wasn't collective.");
-        }
-        else {
+        } else {
             std::cout << "Success! The operation was collective.\n";
         }
-
 
 
     } catch (Exception& err) {
