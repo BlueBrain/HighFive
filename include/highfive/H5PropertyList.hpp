@@ -138,6 +138,21 @@ class MPIOFileAccess {
     MPI_Comm _comm;
     MPI_Info _info;
 };
+
+class MPIOCollectiveMD {
+  public:
+    /* no resources or arguments to manage */
+    void apply(const hid_t list) const {
+        if (H5Pset_all_coll_metadata_ops(list, 1) < 0) {
+            HDF5ErrMapper::ToException<FileException>(
+                "Unable to request collective metadata reads");
+        }
+        if (H5Pset_coll_metadata_write(list, 1) < 0) {
+            HDF5ErrMapper::ToException<FileException>(
+                "Unable to request collective metadata writes");
+        }
+    }
+};
 #endif
 
 ///
