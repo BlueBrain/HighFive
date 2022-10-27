@@ -300,6 +300,7 @@ class CreateIntermediateGroup {
     const bool _create;
 };
 
+#ifdef H5_HAVE_PARALLEL
 class UseCollectiveIO {
   public:
     explicit UseCollectiveIO(bool enable = true)
@@ -310,6 +311,7 @@ class UseCollectiveIO {
     void apply(hid_t hid) const;
     bool _enable;
 };
+#endif
 
 }  // namespace HighFive
 
