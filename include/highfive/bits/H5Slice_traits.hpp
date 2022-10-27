@@ -284,7 +284,7 @@ class SliceTraits {
     Selection select(const ElementSet& elements) const;
 
     template <typename T>
-    T read() const;
+    T read(const DataTransferProps& xfer_props = DataTransferProps()) const;
 
     ///
     /// Read the entire dataset into a buffer
@@ -296,7 +296,7 @@ class SliceTraits {
     /// responsibility to ensure that the right amount of space has been
     /// allocated.
     template <typename T>
-    void read(T& array) const;
+    void read(T& array, const DataTransferProps& xfer_props = DataTransferProps()) const;
 
     ///
     /// Read the entire dataset into a raw buffer
@@ -307,7 +307,9 @@ class SliceTraits {
     /// \param array: A buffer containing enough space for the data
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     template <typename T>
-    void read(T* array, const DataType& dtype = DataType()) const;
+    void read(T* array,
+              const DataType& dtype = DataType(),
+              const DataTransferProps& xfer_props = DataTransferProps()) const;
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
@@ -317,7 +319,7 @@ class SliceTraits {
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
     /// dimensional array )
     template <typename T>
-    void write(const T& buffer);
+    void write(const T& buffer, const DataTransferProps& xfer_props = DataTransferProps());
 
     ///
     /// Write from a raw buffer into this dataset
@@ -328,20 +330,14 @@ class SliceTraits {
     /// default conventions.
     /// \param buffer: A buffer containing the data to be written
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
+    /// \param xfer_props: The HDF5 data transfer properties, e.g. collective MPI-IO.
     template <typename T>
-    void write_raw(const T* buffer, const DataType& dtype = DataType());
-
-    ///
-    /// Request collective I/O when writing to or reading from this dataset
-    void enable_collective() {
-        m_plist.add(UseCollectiveIO(true));
-    }
+    void write_raw(const T* buffer,
+                   const DataType& dtype = DataType(),
+                   const DataTransferProps& xfer_props = DataTransferProps());
 
   protected:
     inline Selection select_impl(const HyperSlab& hyperslab, const DataSpace& memspace) const;
-
-  private:
-    DataTransferProps m_plist;
 };
 
 }  // namespace HighFive

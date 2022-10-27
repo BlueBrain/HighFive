@@ -49,14 +49,35 @@ int main(int argc, char** argv) {
 
         // Create the dataset
         DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
-        dataset.enable_collective();
 
         // Each node want to write its own rank two time in
         // its associated row
-        double data[1][2] = {{mpi_rank*1.0, mpi_rank*1.0}};
+        double data[1][2] = {{mpi_rank * 1.0, mpi_rank * 2.0}};
+
+        auto xfer_props = DataTransferProps{};
+        xfer_props.add(UseCollectiveIO{});
 
         // write it to the associated mpi_rank
-        dataset.select({std::size_t(mpi_rank), 0}, {1, 2}).write(data);
+        dataset.select({std::size_t(mpi_rank), 0}, {1, 2}).write(data, xfer_props);
+
+        // Currently, HighFive doesn't wrap retrieving information from property lists.
+        // Therefore, one needs to use HDF5 directly. For example, so see if and why
+        // collective MPI-IO operations were used, one may:
+        uint32_t local_cause = 0, global_cause = 0;
+        auto err = H5Pget_mpio_no_collective_cause(xfer_props.getId(), &local_cause, &global_cause);
+        if(err < 0) {
+            throw std::runtime_error("Failed to check mpio_no_collective_cause.");
+        }
+        if (local_cause || global_cause) {
+            std::cout << "The operation wasn't collective: " << local_cause << " " << global_cause
+                      << std::endl;
+            throw std::runtime_error("IO wasn't collective.");
+        }
+        else {
+            std::cout << "Success! The operation was collective.\n";
+        }
+
+
 
     } catch (Exception& err) {
         // catch and print any HDF5 error
