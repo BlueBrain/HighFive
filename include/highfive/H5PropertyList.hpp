@@ -300,6 +300,17 @@ class CreateIntermediateGroup {
     const bool _create;
 };
 
+class UseCollectiveIO {
+  public:
+    explicit UseCollectiveIO(bool enable = true)
+        : _enable(enable) {}
+
+  private:
+    friend DataTransferProps;
+    void apply(hid_t hid) const;
+    bool _enable;
+};
+
 }  // namespace HighFive
 
 #include "bits/H5PropertyList_misc.hpp"

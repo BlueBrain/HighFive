@@ -49,10 +49,11 @@ int main(int argc, char** argv) {
 
         // Create the dataset
         DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        dataset.enable_collective();
 
         // Each node want to write its own rank two time in
         // its associated row
-        int data[1][2] = {{mpi_rank, mpi_rank}};
+        double data[1][2] = {{mpi_rank*1.0, mpi_rank*1.0}};
 
         // write it to the associated mpi_rank
         dataset.select({std::size_t(mpi_rank), 0}, {1, 2}).write(data);

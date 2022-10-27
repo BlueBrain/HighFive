@@ -15,6 +15,8 @@
 #include "H5_definitions.hpp"
 #include "H5Utils.hpp"
 
+#include "../H5PropertyList.hpp"
+
 namespace HighFive {
 
 class ElementSet {
@@ -329,8 +331,17 @@ class SliceTraits {
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
+    ///
+    /// Request collective I/O when writing to or reading from this dataset
+    void enable_collective() {
+        m_plist.add(UseCollectiveIO(true));
+    }
+
   protected:
     inline Selection select_impl(const HyperSlab& hyperslab, const DataSpace& memspace) const;
+
+  private:
+    DataTransferProps m_plist;
 };
 
 }  // namespace HighFive
