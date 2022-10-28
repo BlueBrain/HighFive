@@ -300,6 +300,19 @@ class CreateIntermediateGroup {
     const bool _create;
 };
 
+#ifdef H5_HAVE_PARALLEL
+class UseCollectiveIO {
+  public:
+    explicit UseCollectiveIO(bool enable = true)
+        : _enable(enable) {}
+
+  private:
+    friend DataTransferProps;
+    void apply(hid_t hid) const;
+    bool _enable;
+};
+#endif
+
 }  // namespace HighFive
 
 #include "bits/H5PropertyList_misc.hpp"
