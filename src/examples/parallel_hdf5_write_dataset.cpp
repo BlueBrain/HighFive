@@ -69,11 +69,9 @@ int main(int argc, char** argv) {
             throw std::runtime_error("Failed to check mpio_no_collective_cause.");
         }
         if (local_cause || global_cause) {
-            std::cout << "The operation wasn't collective: " << local_cause << " " << global_cause
-                      << std::endl;
-            throw std::runtime_error("IO wasn't collective.");
-        } else {
-            std::cout << "Success! The operation was collective.\n";
+            std::cout
+                << "The operation was successful, but couldn't use collective MPI-IO. local cause: "
+                << local_cause << " global cause:" << global_cause << std::endl;
         }
 
 
