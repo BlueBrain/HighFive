@@ -56,6 +56,19 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
                   const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
+    /// \brief File
+    /// \param filename: filepath of the HDF5 file
+    /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
+    /// \param fileAccessProps: the file create properties
+    /// \param fileAccessProps: the file access properties
+    ///
+    /// Open or create a new HDF5 file
+    File(const std::string& filename,
+         unsigned openFlags,
+         const FileCreateProps& fileCreateProps,
+         const FileAccessProps& fileAccessProps = FileAccessProps::Default());
+
+    ///
     /// \brief Return the name of the file
     ///
     const std::string& getName() const noexcept;
@@ -78,6 +91,9 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     /// Flushes all buffers associated with a file to disk
     ///
     void flush();
+
+  protected:
+    hid_t getAccessPList() const;
 
   private:
     using Object::Object;
