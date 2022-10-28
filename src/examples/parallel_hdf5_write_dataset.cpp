@@ -15,6 +15,7 @@
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5File.hpp>
+#include <highfive/H5PropertyList.hpp>
 
 const std::string FILE_NAME("parallel_dataset_example.h5");
 const std::string DATASET_NAME("dset");
@@ -36,9 +37,9 @@ int main(int argc, char** argv) {
     using namespace HighFive;
     try {
         // open a new file with the MPI IO driver for parallel Read/Write
-        File file(FILE_NAME,
-                  File::ReadWrite | File::Create | File::Truncate,
-                  MPIOFileDriver(MPI_COMM_WORLD, MPI_INFO_NULL));
+        FileAccessProps fapl;
+        fapl.add(MPIOFileAccess{MPI_COMM_WORLD, MPI_INFO_NULL});
+        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate, fapl);
 
         // we define the size of our dataset to
         //  lines : total number of mpi_rank

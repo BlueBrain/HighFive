@@ -10,19 +10,22 @@
 #define H5FILEDRIVER_HPP
 
 #include "H5PropertyList.hpp"
+#include "bits/H5_definitions.hpp"
 
 namespace HighFive {
 
 ///
 /// \brief file driver base concept
 ///
-class FileDriver: public FileAccessProps {};
+class H5_DEPRECATED("Use FileAccessProps directly") FileDriver: public FileAccessProps {};
 
 #ifdef H5_HAVE_PARALLEL
 ///
 /// \brief MPIIO Driver for Parallel HDF5
 ///
-class MPIOFileDriver: public FileAccessProps {
+
+class H5_DEPRECATED("Add MPIOFileAccess directly to FileAccessProps") MPIOFileDriver
+    : public FileAccessProps {
   public:
     inline MPIOFileDriver(MPI_Comm mpi_comm, MPI_Info mpi_info);
 

@@ -62,9 +62,9 @@ void selectionArraySimpleTestParallel() {
     std::generate(values.begin(), values.end(), generator);
 
     // Create a new file using the default property lists.
-    FileDriver adam;
-    adam.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, adam);
+    FileAccessProps fapl;
+    fapl.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, fapl);
 
     DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(values));
 
