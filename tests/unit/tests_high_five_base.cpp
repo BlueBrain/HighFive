@@ -144,9 +144,9 @@ TEST_CASE("Test file version bounds") {
     std::remove(FILE_NAME.c_str());
 
     {
-        FileDriver driver;
-        driver.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
-        File file(FILE_NAME, File::Truncate, driver);
+        FileAccessProps fapl;
+        fapl.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+        File file(FILE_NAME, File::Truncate, fapl);
         auto bounds = file.getVersionBounds();
         CHECK(bounds.first == H5F_LIBVER_LATEST);
         CHECK(bounds.second == H5F_LIBVER_LATEST);
@@ -167,20 +167,20 @@ TEST_CASE("Test metadata block size assignment") {
     std::remove(FILE_NAME.c_str());
 
     {
-        FileDriver driver;
-        driver.add(MetadataBlockSize(10240));
-        File file(FILE_NAME, File::Truncate, driver);
+        FileAccessProps fapl;
+        fapl.add(MetadataBlockSize(10240));
+        File file(FILE_NAME, File::Truncate, fapl);
         CHECK(file.getMetadataBlockSize() == 10240);
     }
 }
 
 TEST_CASE("Test group properties") {
     const std::string FILE_NAME("h5_group_properties.h5");
-    FileDriver adam;
+    FileAccessProps fapl;
     // When using hdf5 1.10.2 and later, the lower bound may be set to
     // H5F_LIBVER_V18
-    adam.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
-    File file(FILE_NAME, File::Truncate, adam);
+    fapl.add(FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+    File file(FILE_NAME, File::Truncate, fapl);
 
     GroupCreateProps props;
     props.add(EstimatedLinkInfo(1000, 500));
