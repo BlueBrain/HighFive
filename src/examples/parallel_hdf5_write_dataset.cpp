@@ -36,9 +36,11 @@ int main(int argc, char** argv) {
     using namespace HighFive;
     try {
         // open a new file with the MPI IO driver for parallel Read/Write
+        FileAccessProps faprops;
+        faprops.add(MPIOFileACCess{MPI_COMM_WORLD, MPI_INFO_NULL});
         File file(FILE_NAME,
                   File::ReadWrite | File::Create | File::Truncate,
-                  MPIOFileDriver(MPI_COMM_WORLD, MPI_INFO_NULL));
+                  faprops);
 
         // we define the size of our dataset to
         //  lines : total number of mpi_rank
