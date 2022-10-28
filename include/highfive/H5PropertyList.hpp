@@ -193,7 +193,59 @@ class MetadataBlockSize {
     const hsize_t _size;
 };
 
+#if H5_VERSION_GE(1, 10, 1)
 ///
+/// \brief Configure the file space strategy.
+///
+/// See the upstream documentation of `H5Pget_file_space_strategy` for more details. Essentially,
+/// it enables configuring how space is allocate in the file.
+///
+class FileSpaceStrategy {
+  public:
+    ///
+    /// \brief Create a file space strategy property.
+    ///
+    /// \param strategy  The HDF5 free space strategy.
+    /// \param perist Should free space managers be persisted across file closing and reopening.
+    /// \param threshold The free-space manager wont track sections small than this threshold.
+    FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
+
+  private:
+    friend FileCreateProps;
+
+    void apply(const hid_t list) const;
+
+    H5F_fspace_strategy_t _strategy;
+    hbool_t _persist;
+    hsize_t _threshold;
+};
+
+///
+/// \brief Configure the page size for paged allocation.
+///
+/// See the upstream documentation of `H5Pset_file_space_page_size` for more details. Essentially,
+/// it enables configuring the page size when paged allocation is used.
+///
+/// General information about paged allocation can be found in the upstream documentation "RFC: Page
+/// Buffering".
+///
+class FileSpacePageSize {
+  public:
+    ///
+    /// \brief Create a file space strategy property.
+    ///
+    /// \param page_size The page size in bytes.
+    explicit FileSpacePageSize(hsize_t page_size);
+
+  private:
+    friend FileCreateProps;
+
+    void apply(const hid_t list) const;
+
+    hsize_t _page_size;
+};
+#endif
+
 /// \brief Set hints as to how many links to expect and their average length
 ///
 class EstimatedLinkInfo {

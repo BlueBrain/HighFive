@@ -153,6 +153,47 @@ TEST_CASE("Test file version bounds") {
     }
 }
 
+#if H5_VERSION_GE(1, 10, 1)
+TEST_CASE("Test file space strategy") {
+    const std::string FILE_NAME("h5_file_space_strategy.h5");
+    auto strategies = std::vector<H5F_fspace_strategy_t>{H5F_FSPACE_STRATEGY_FSM_AGGR,
+                                                         H5F_FSPACE_STRATEGY_AGGR,
+                                                         H5F_FSPACE_STRATEGY_PAGE,
+                                                         H5F_FSPACE_STRATEGY_NONE};
+
+    for (const auto& strategy: strategies) {
+        {
+            FileCreateProps create_props;
+            create_props.add(FileSpaceStrategy(strategy, true, 0));
+
+            File file(FILE_NAME, File::Truncate, create_props);
+        }
+
+        {
+            File file(FILE_NAME, File::ReadOnly);
+            CHECK(file.getFileSpaceStrategy() == strategy);
+        }
+    }
+}
+
+TEST_CASE("Test file space page size") {
+    const std::string FILE_NAME("h5_file_space_page_size.h5");
+    hsize_t page_size = 1024;
+    {
+        FileCreateProps create_props;
+        create_props.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_PAGE, true, 0));
+        create_props.add(FileSpacePageSize(page_size));
+
+        File file(FILE_NAME, File::Truncate, create_props);
+    }
+
+    {
+        File file(FILE_NAME, File::ReadOnly);
+        CHECK(file.getFileSpacePageSize() == page_size);
+    }
+}
+#endif
+
 TEST_CASE("Test metadata block size assignment") {
     const std::string FILE_NAME("h5_meta_block_size.h5");
 
