@@ -49,26 +49,18 @@ void check_was_collective(const DataTransferProps& xfer_props) {
 }
 
 template <typename T>
-void selectionArraySimpleTestParallel() {
+void selectionArraySimpleTestParallel(File& file) {
     int mpi_rank, mpi_size;
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
     using Vector = std::vector<T>;
 
-    std::ostringstream filename;
-    filename << "h5_rw_select_parallel_test_" << typeNameHelper<T>() << "_test.h5";
-
     const auto size = static_cast<size_t>(mpi_size);
     Vector values(size);
 
     ContentGenerate<T> generator;
     std::generate(values.begin(), values.end(), generator);
-
-    // Create a new file using the default property lists.
-    FileAccessProps fapl;
-    fapl.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, fapl);
 
     const std::string d1_name("dset1");
     DataSet d1 = file.createDataSet<T>(d1_name, DataSpace::From(values));
@@ -126,8 +118,42 @@ void selectionArraySimpleTestParallel() {
     check_was_collective(xfer_props);
 }
 
-TEMPLATE_LIST_TEST_CASE("mpiSelectionArraySimple", "[template]", numerical_test_types) {
-    selectionArraySimpleTestParallel<TestType>();
+template <typename T>
+void selectionArraySimpleTestParallelDefaultProps() {
+    std::ostringstream filename;
+    filename << "h5_rw_default_props_select_parallel_test_" << typeNameHelper<T>() << "_test.h5";
+
+    // Create a new file using the default property lists.
+    auto fapl = FileAccessProps{};
+    fapl.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
+
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, fapl);
+
+    selectionArraySimpleTestParallel<T>(file);
+}
+
+template <typename T>
+void selectionArraySimpleTestParallelCollectiveMDProps() {
+    std::ostringstream filename;
+    filename << "h5_rw_collective_md_props_select_parallel_test_" << typeNameHelper<T>()
+             << "_test.h5";
+
+    // Create a new file using the default property lists.
+    auto fapl = FileAccessProps{};
+    fapl.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL));
+    fapl.add(MPIOCollectiveMetadata());
+
+    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate, fapl);
+
+    selectionArraySimpleTestParallel<T>(file);
+}
+
+TEMPLATE_LIST_TEST_CASE("mpiSelectionArraySimpleDefaultProps", "[template]", numerical_test_types) {
+    selectionArraySimpleTestParallelDefaultProps<TestType>();
+}
+
+TEMPLATE_LIST_TEST_CASE("mpiSelectionArraySimpleCollectiveMD", "[template]", numerical_test_types) {
+    selectionArraySimpleTestParallelCollectiveMDProps<TestType>();
 }
 
 

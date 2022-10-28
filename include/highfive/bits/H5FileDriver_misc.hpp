@@ -15,7 +15,7 @@ namespace HighFive {
 #ifdef H5_HAVE_PARALLEL
 inline MPIOFileDriver::MPIOFileDriver(MPI_Comm comm, MPI_Info info) {
     add(MPIOFileAccess(comm, info));
-    add(MPIOCollectiveMD());
+    add(MPIOCollectiveMetadataWrite(true));
 }
 #endif
 
