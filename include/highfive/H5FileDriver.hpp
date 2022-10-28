@@ -17,7 +17,7 @@ namespace HighFive {
 ///
 /// \brief file driver base concept
 ///
-class H5_DEPRECATED("Use FileAccessProps directly") FileDriver: public FileAccessProps{};
+class H5_DEPRECATED("Use FileAccessProps directly") FileDriver: public FileAccessProps {};
 
 #ifdef H5_HAVE_PARALLEL
 ///
