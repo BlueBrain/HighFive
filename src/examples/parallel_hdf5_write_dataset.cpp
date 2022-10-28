@@ -15,6 +15,7 @@
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5File.hpp>
+#include <highfive/H5PropertyList.hpp>
 
 const std::string FILE_NAME("parallel_dataset_example.h5");
 const std::string DATASET_NAME("dset");
