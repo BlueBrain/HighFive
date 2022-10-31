@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
         // We define the dataset have one row per MPI rank and two columns.
         std::vector<size_t> dims(2);
-        dims[0] = static_cast<std::size_t>(mpi_size);
+        dims[0] = std::size_t(mpi_size);
         dims[1] = 2ul;
 
         // We follow the path for
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
         xfer_props.add(UseCollectiveIO{});
 
         // Each MPI rank writes a non-overlapping part of the array.
-        std::vector<size_t> offset{static_cast<std::size_t>(mpi_rank), 0ul};
+        std::vector<size_t> offset{std::size_t(mpi_rank), 0ul};
         std::vector<size_t> count{1ul, 2ul};
 
         dataset.select(offset, count).write(data, xfer_props);
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
         // We'd like to read back some data. For simplicity, we'll read the
         // row from the MPI above us (wrapping)
-        offset[0] = (offset[0] + 1) % static_cast<std::size_t>(mpi_size);
+        offset[0] = (offset[0] + 1) % std::size_t(mpi_size);
 
         // MPI ranks don't have to read non-overlapping parts, but in this
         // example they happen to. Again all rank participate in this call.
