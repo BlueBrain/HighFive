@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
         // We'd like to read back some data. For simplicity, we'll read the
         // row from the MPI above us (wrapping)
-        offset[0] = (offset[0] + 1) % std::size_t(mpi_size);
+        offset[0] = (offset[0] + 1ul) % dims[0];
 
         // MPI ranks don't have to read non-overlapping parts, but in this
         // example they happen to. Again all rank participate in this call.

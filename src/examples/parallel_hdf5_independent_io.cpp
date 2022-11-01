@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
         if (mpi_rank == 0) {
             File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-            for (size_t i = 0; i < std::size_t(mpi_size); ++i) {
+            for (int i = 0; i < mpi_size; ++i) {
                 std::stringstream group_name;
                 group_name << "g" << i;
 
