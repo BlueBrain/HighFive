@@ -267,6 +267,23 @@ class Shuffle {
     void apply(hid_t hid) const;
 };
 
+/// \brief When are datasets allocated?
+///
+/// The precise time of when HDF5 requests space to store the dataset
+/// can be configured. Please, consider the upstream documentation for
+/// `H5Pset_alloc_time`.
+class AllocationTime {
+  public:
+    explicit AllocationTime(H5D_alloc_time_t alloc_time)
+        : _alloc_time(alloc_time) {}
+
+  private:
+    friend DataSetCreateProps;
+    void apply(hid_t dcpl) const;
+
+    H5D_alloc_time_t _alloc_time;
+};
+
 /// Dataset access property to control chunk cache configuration.
 /// Do not confuse with the similar file access property for H5Pset_cache
 class Caching {
