@@ -127,6 +127,12 @@ inline void Shuffle::apply(const hid_t hid) const {
     }
 }
 
+inline void AllocationTime::apply(hid_t dcpl) const {
+    if (H5Pset_alloc_time(dcpl, _alloc_time) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
+    }
+}
+
 inline void Caching::apply(const hid_t hid) const {
     if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting dataset cache parameters");

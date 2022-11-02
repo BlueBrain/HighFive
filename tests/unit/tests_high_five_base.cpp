@@ -191,6 +191,24 @@ TEST_CASE("Test group properties") {
     CHECK(sizes.second == 500);
 }
 
+TEST_CASE("Test allocation time") {
+    const std::string FILE_NAME("h5_dataset_alloc_time.h5");
+    File file(FILE_NAME, File::Truncate);
+
+    size_t n_elements = 10;
+    std::vector<double> data(n_elements);
+
+    auto dcpl = DataSetCreateProps{};
+    dcpl.add(AllocationTime(H5D_ALLOC_TIME_EARLY));
+
+    auto dataspace = DataSpace::From(data);
+    auto datatype = create_datatype<decltype(data)::value_type>();
+    auto dataset = file.createDataSet("dset", dataspace, datatype, dcpl);
+
+    auto alloc_size = H5Dget_storage_size(dataset.getId());
+    CHECK(alloc_size == data.size() * sizeof(decltype(data)::value_type));
+}
+
 TEST_CASE("Test default constructors") {
     const std::string FILE_NAME("h5_group_test.h5");
     const std::string DATASET_NAME("dset");
