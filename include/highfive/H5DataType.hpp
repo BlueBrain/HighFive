@@ -85,7 +85,7 @@ class DataType: public Object {
     bool isReference() const;
 
     DataTypeCreateProps getCreateList() const {
-        return get_plist<DataTypeCreateProps>(this, H5Tget_create_plist);
+        return get_plist<DataTypeCreateProps>(*this, H5Tget_create_plist);
     }
 
   protected:

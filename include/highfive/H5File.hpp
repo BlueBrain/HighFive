@@ -102,11 +102,11 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     void flush();
 
     FileCreateProps getCreateList() const {
-        return get_plist<FileCreateProps>(this, H5Fget_create_plist);
+        return get_plist<FileCreateProps>(*this, H5Fget_create_plist);
     }
 
     FileAccessProps getAccessList() const {
-        return get_plist<FileAccessProps>(this, H5Fget_access_plist);
+        return get_plist<FileAccessProps>(*this, H5Fget_access_plist);
     }
 
   private:

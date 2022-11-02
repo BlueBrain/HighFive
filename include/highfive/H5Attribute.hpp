@@ -91,7 +91,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     void write_raw(const T* buffer, const DataType& dtype = DataType());
 
     AttributeCreateProps getCreateList() const {
-        return get_plist<AttributeCreateProps>(this, H5Aget_create_plist);
+        return get_plist<AttributeCreateProps>(*this, H5Aget_create_plist);
     }
 
     // No empty attributes

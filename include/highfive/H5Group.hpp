@@ -34,7 +34,7 @@ class Group: public Object,
     std::pair<unsigned int, unsigned int> getEstimatedLinkInfo() const;
 
     GroupCreateProps getCreateList() const {
-        return get_plist<GroupCreateProps>(this, H5Gget_create_plist);
+        return get_plist<GroupCreateProps>(*this, H5Gget_create_plist);
     }
 
   protected:
