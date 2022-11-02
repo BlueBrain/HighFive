@@ -35,7 +35,7 @@ class Group: public Object,
 
     /// \brief Get the list of properties for creation of this group
     GroupCreateProps getCreatePropertyList() const {
-        return get_plist<GroupCreateProps>(*this, H5Gget_create_plist);
+        return details::get_plist<GroupCreateProps>(*this, H5Gget_create_plist);
     }
 
   protected:

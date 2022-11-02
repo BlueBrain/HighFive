@@ -44,6 +44,7 @@ enum class PropertyType : int {
     LINK_ACCESS,
 };
 
+namespace details {
 template <typename T, typename U>
 T get_plist(const U& obj, hid_t (*f)(hid_t)) {
     auto hid = f(obj.getId());
@@ -54,6 +55,7 @@ T get_plist(const U& obj, hid_t (*f)(hid_t)) {
     t._hid = hid;
     return t;
 }
+}  // namespace details
 
 ///
 /// \brief Base Class for Property lists, providing global default
@@ -68,7 +70,7 @@ class PropertyListBase: public Object {
 
   private:
     template <typename T, typename U>
-    friend T get_plist(const U&, hid_t (*f)(hid_t));
+    friend T details::get_plist(const U&, hid_t (*f)(hid_t));
 };
 
 ///

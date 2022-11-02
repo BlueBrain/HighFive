@@ -87,7 +87,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
 
     /// \brief Get the list of properties for creation of this attribute
     AttributeCreateProps getCreatePropertyList() const {
-        return get_plist<AttributeCreateProps>(*this, H5Aget_create_plist);
+        return details::get_plist<AttributeCreateProps>(*this, H5Aget_create_plist);
     }
 
     // No empty attributes

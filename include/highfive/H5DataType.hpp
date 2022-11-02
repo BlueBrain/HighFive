@@ -86,7 +86,7 @@ class DataType: public Object {
 
     /// \brief Get the list of properties for creation of this DataType
     DataTypeCreateProps getCreatePropertyList() const {
-        return get_plist<DataTypeCreateProps>(*this, H5Tget_create_plist);
+        return details::get_plist<DataTypeCreateProps>(*this, H5Tget_create_plist);
     }
 
   protected:
