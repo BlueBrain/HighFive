@@ -6,13 +6,16 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+
+
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include <highfive/H5File.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
+
+// This example requires HDF5 version 1.10.1 or newer.
+#if H5_VERSION_GE(1, 10, 1)
 
 const std::string FILE_NAME("create_page_allocated_files.h5");
 const std::string DATASET_NAME("array");
@@ -68,3 +71,4 @@ int main() {
 
     return 0;
 }
+#endif
