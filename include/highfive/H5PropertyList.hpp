@@ -45,7 +45,7 @@ enum class PropertyType : int {
 };
 
 template <typename T, typename U>
-T get_plist(const U* obj, hid_t(*f)(hid_t)) {
+T get_plist(const U* obj, hid_t (*f)(hid_t)) {
     auto hid = f(obj->getId());
     if (hid < 0) {
         HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
@@ -69,7 +69,7 @@ class PropertyListBase: public Object {
 
   private:
     template <typename T, typename U>
-    friend T get_plist(const U*, hid_t(*f)(hid_t));
+    friend T get_plist(const U*, hid_t (*f)(hid_t));
 };
 
 ///
