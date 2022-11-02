@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include "H5Apublic.h"
+
 #include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
@@ -87,6 +89,10 @@ class Attribute: public Object, public PathTraits<Attribute> {
     ///
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
+
+    AttributeCreateProps getCreateList() const {
+        return get_plist<AttributeCreateProps>(this, H5Aget_create_plist);
+    }
 
     // No empty attributes
     Attribute() = delete;

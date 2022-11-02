@@ -14,6 +14,8 @@
 #include "H5Object.hpp"
 #include "bits/H5Utils.hpp"
 
+#include "H5PropertyList.hpp"
+
 namespace HighFive {
 
 
@@ -81,6 +83,10 @@ class DataType: public Object {
 
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
+
+    DataTypeCreateProps getCreateList() const {
+        return get_plist<DataTypeCreateProps>(this, H5Tget_create_plist);
+    }
 
   protected:
     using Object::Object;

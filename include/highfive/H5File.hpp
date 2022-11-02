@@ -13,6 +13,7 @@
 
 #include "H5FileDriver.hpp"
 #include "H5Object.hpp"
+#include "H5PropertyList.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Node_traits.hpp"
 
@@ -100,9 +101,13 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     ///
     void flush();
 
-  protected:
-    hid_t getAccessPList() const;
-    hid_t getCreatePList() const;
+    FileCreateProps getCreateList() const {
+        return get_plist<FileCreateProps>(this, H5Fget_create_plist);
+    }
+
+    FileAccessProps getAccessList() const {
+        return get_plist<FileAccessProps>(this, H5Fget_access_plist);
+    }
 
   private:
     using Object::Object;

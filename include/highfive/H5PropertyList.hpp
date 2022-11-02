@@ -11,8 +11,6 @@
 
 #include <vector>
 
-#include <H5Apublic.h>
-#include <H5Gpublic.h>
 #include <H5Ppublic.h>
 
 // Required by MPIOFileAccess
@@ -46,11 +44,13 @@ enum class PropertyType : int {
     LINK_ACCESS,
 };
 
-template <PropertyType T, typename U, typename F>
-PropertyList<T> get_plist(const U& obj, F f) {
-    PropertyList<T> t{};
-    t._hid = f(obj.getId());
-    return t;
+template <typename T, typename U>
+T get_plist(const U* obj, hid_t(*f)(hid_t)) {
+    auto hid = f(obj->getId());
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
+    }
+    return T{hid};
 }
 
 ///
@@ -64,9 +64,12 @@ class PropertyListBase: public Object {
         return plist;
     }
 
+  protected:
+    using Object::Object;
+
   private:
-    template <PropertyType T, typename U, typename F>
-    friend PropertyList<T> get_plist(const U&, F);
+    template <typename T, typename U>
+    friend T get_plist(const U*, hid_t(*f)(hid_t));
 };
 
 ///
@@ -96,6 +99,8 @@ class PropertyList: public PropertyListBase {
     }
 
   protected:
+    using PropertyListBase::PropertyListBase;
+
     void _initializeIfNeeded();
 };
 
@@ -114,28 +119,6 @@ using AttributeCreateProps = PropertyList<PropertyType::ATTRIBUTE_CREATE>;
 using ObjectCopyProps = PropertyList<PropertyType::OBJECT_COPY>;
 using LinkCreateProps = PropertyList<PropertyType::LINK_CREATE>;
 using LinkAccessProps = PropertyList<PropertyType::LINK_ACCESS>;
-
-FileCreateProps getCreateList(const File& obj) {
-    return get_plist<PropertyType::FILE_CREATE>(obj, H5Fget_create_plist);
-};
-FileAccessProps getAccessList(const File& obj) {
-    return get_plist<PropertyType::FILE_ACCESS>(obj, H5Fget_access_plist);
-};
-DataSetCreateProps getCreateList(const DataSet& obj) {
-    return get_plist<PropertyType::DATASET_CREATE>(obj, H5Dget_create_plist);
-};
-DataSetAccessProps getAccessList(const DataSet& obj) {
-    return get_plist<PropertyType::DATASET_ACCESS>(obj, H5Dget_access_plist);
-};
-GroupCreateProps getCreateList(const Group& obj) {
-    return get_plist<PropertyType::GROUP_CREATE>(obj, H5Gget_create_plist);
-};
-DataTypeCreateProps getCreateList(const DataType& obj) {
-    return get_plist<PropertyType::DATATYPE_CREATE>(obj, H5Tget_create_plist);
-};
-AttributeCreateProps getCreateList(const Attribute& obj) {
-    return get_plist<PropertyType::ATTRIBUTE_CREATE>(obj, H5Aget_create_plist);
-};
 
 ///
 /// RawPropertyLists are to be used when advanced H5 properties
