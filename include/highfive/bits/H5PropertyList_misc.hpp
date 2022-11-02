@@ -127,7 +127,7 @@ inline void Shuffle::apply(const hid_t hid) const {
     }
 }
 
-void AllocationTime::apply(hid_t dcpl) const {
+inline void AllocationTime::apply(hid_t dcpl) const {
     if (H5Pset_alloc_time(dcpl, _alloc_time) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
     }
