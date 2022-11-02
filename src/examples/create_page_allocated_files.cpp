@@ -71,4 +71,10 @@ int main() {
 
     return 0;
 }
+#else
+#include <iostream>
+int main() {
+    std::cout << "This example can't be run prior to HDF5 1.10.1.\n";
+    return 0;
+}
 #endif
