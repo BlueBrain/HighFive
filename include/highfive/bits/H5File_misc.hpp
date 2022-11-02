@@ -113,10 +113,54 @@ inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     return std::make_pair(low, high);
 }
 
+#if H5_VERSION_GE(1, 10, 1)
+inline H5F_fspace_strategy_t File::getFileSpaceStrategy() const {
+    auto fcpl = getCreatePList();
+
+    H5F_fspace_strategy_t strategy;
+    hbool_t persist;
+    hsize_t threshold;
+
+    if (H5Pget_file_space_strategy(fcpl, &strategy, &persist, &threshold) < 0) {
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to get file space strategy"));
+    }
+
+    H5Pclose(fcpl);
+    return strategy;
+}
+
+inline hsize_t File::getFileSpacePageSize() const {
+    auto fcpl = getCreatePList();
+    hsize_t page_size;
+
+    if (getFileSpaceStrategy() != H5F_FSPACE_STRATEGY_PAGE) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Cannot obtain page size as paged allocation is not used."));
+    }
+
+    if (H5Pget_file_space_page_size(fcpl, &page_size) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to get file space page size"));
+    }
+
+    H5Pclose(fcpl);
+    return page_size;
+}
+#endif
+
 inline hid_t File::getAccessPList() const {
     auto fapl = H5Fget_access_plist(getId());
     if (fapl < 0) {
         HDF5ErrMapper::ToException<FileException>(std::string("Unable to get access plist."));
+    }
+
+    return fapl;
+}
+
+inline hid_t File::getCreatePList() const {
+    auto fapl = H5Fget_create_plist(getId());
+    if (fapl < 0) {
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to get create plist."));
     }
 
     return fapl;

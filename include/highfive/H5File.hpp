@@ -85,6 +85,14 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     /// \brief Returns the HDF5 version compatibility bounds
     std::pair<H5F_libver_t, H5F_libver_t> getVersionBounds() const;
 
+#if H5_VERSION_GE(1, 10, 1)
+    /// \brief Returns the HDF5 file space strategy.
+    H5F_fspace_strategy_t getFileSpaceStrategy() const;
+
+    /// \brief Returns the page size, if paged allocation is used.
+    hsize_t getFileSpacePageSize() const;
+#endif
+
     ///
     /// \brief flush
     ///
@@ -94,6 +102,7 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
 
   protected:
     hid_t getAccessPList() const;
+    hid_t getCreatePList() const;
 
   private:
     using Object::Object;
