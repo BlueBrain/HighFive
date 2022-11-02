@@ -50,7 +50,9 @@ T get_plist(const U& obj, hid_t (*f)(hid_t)) {
     if (hid < 0) {
         HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
     }
-    return T{hid};
+    T t{};
+    t._hid = hid;
+    return t;
 }
 
 ///
@@ -63,9 +65,6 @@ class PropertyListBase: public Object {
         static const PropertyListBase plist{};
         return plist;
     }
-
-  protected:
-    using Object::Object;
 
   private:
     template <typename T, typename U>
@@ -99,8 +98,6 @@ class PropertyList: public PropertyListBase {
     }
 
   protected:
-    using PropertyListBase::PropertyListBase;
-
     void _initializeIfNeeded();
 };
 
