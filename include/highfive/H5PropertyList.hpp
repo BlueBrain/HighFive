@@ -205,8 +205,8 @@ class FileSpaceStrategy {
     ///
     /// \brief Create a file space strategy property.
     ///
-    /// \param strategy  The HDF5 free space strategy.
-    /// \param perist Should free space managers be persisted across file closing and reopening.
+    /// \param strategy The HDF5 free space strategy.
+    /// \param persist Should free space managers be persisted across file closing and reopening.
     /// \param threshold The free-space manager wont track sections small than this threshold.
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
 

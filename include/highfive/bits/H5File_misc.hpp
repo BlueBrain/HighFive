@@ -135,7 +135,7 @@ inline hsize_t File::getFileSpacePageSize() const {
 
     if (getFileSpaceStrategy() != H5F_FSPACE_STRATEGY_PAGE) {
         HDF5ErrMapper::ToException<FileException>(
-            std::string("Cannot obtain page size, because not using paged allocation."));
+            std::string("Cannot obtain page size as paged allocation is not used."));
     }
 
     if (H5Pget_file_space_page_size(fcpl, &page_size) < 0) {
