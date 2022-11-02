@@ -1,3 +1,23 @@
+## Version 2.4.2 - 2022-11-03
+### New Features
+    - Enable collective MPI IO thought Data Transfer Property (#623). Thanks to Rob Latham.
+    - Add a support for half-precision (16-bit) floating-point based on the Half library (http://half.sourceforge.net) (#587). Thanks to Sergio Botelh.
+    - Add an AllocationTime property for DataSet Create Props (#627).
+    - Add possibility to get and set file space strategy (#618).
+    - Add API for getting Access and Create property lists from differents kind of objects (#629).
+    - Let user configure metadata reads and writes at file level (#624).
+
+### Improvments
+    - MPIOFileDriver is now deprecated. Use FileAccessprops (#622).
+    - Support of block argument in API (#584).
+    - Serialization of types is now automagic and so recursive (#586).
+    - Add an argument to specific File Access Properties in File class construtor (#626).
+
+### Bug Fixes
+    - Padding of Compound Types (#581).
+    - Compilation with Visual Studio with C++17 or later (#578). Thanks to Mark Bicknell.
+    - Avoid leaking when printing stack for error (#583).
+
 ## Version 2.4.1 - 2022-05-11
 ### New Features
     - Support `std::complex`. Thanks to Philipp.
