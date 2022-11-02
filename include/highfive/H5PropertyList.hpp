@@ -48,9 +48,9 @@ enum class PropertyType : int {
 
 template <PropertyType T, typename U, typename F>
 PropertyList<T> get_plist(const U& obj, F f) {
-  PropertyList<T> t{};
-  t._hid = f(obj.getId());
-  return t;
+    PropertyList<T> t{};
+    t._hid = f(obj.getId());
+    return t;
 }
 
 ///
@@ -99,13 +99,27 @@ class PropertyList: public PropertyListBase {
     void _initializeIfNeeded();
 };
 
-const auto& getFileCreateList = [](const File& obj) {return get_plist<PropertyType::FILE_CREATE>(obj, H5Fget_create_plist);};
-const auto& getFileAccessList = [](const File& obj) {return get_plist<PropertyType::FILE_ACCESS>(obj, H5Fget_access_plist);};
-const auto& getDataSetCreateList = [](const DataSet& obj) {return get_plist<PropertyType::DATASET_CREATE>(obj, H5Dget_create_plist);};
-const auto& getDataSetAccessList = [](const DataSet& obj) {return get_plist<PropertyType::DATASET_ACCESS>(obj, H5Dget_access_plist);};
-const auto& getGroupCreateList = [](const Group& obj) {return get_plist<PropertyType::GROUP_CREATE>(obj, H5Gget_create_plist);};
-const auto& getDataTypeCreateList = [](const DataType& obj) {return get_plist<PropertyType::DATATYPE_CREATE>(obj, H5Tget_create_plist);};
-const auto& getAttributeCreateList = [](const Attribute& obj) {return get_plist<PropertyType::ATTRIBUTE_CREATE>(obj, H5Aget_create_plist);};
+const auto& getFileCreateList = [](const File& obj) {
+    return get_plist<PropertyType::FILE_CREATE>(obj, H5Fget_create_plist);
+};
+const auto& getFileAccessList = [](const File& obj) {
+    return get_plist<PropertyType::FILE_ACCESS>(obj, H5Fget_access_plist);
+};
+const auto& getDataSetCreateList = [](const DataSet& obj) {
+    return get_plist<PropertyType::DATASET_CREATE>(obj, H5Dget_create_plist);
+};
+const auto& getDataSetAccessList = [](const DataSet& obj) {
+    return get_plist<PropertyType::DATASET_ACCESS>(obj, H5Dget_access_plist);
+};
+const auto& getGroupCreateList = [](const Group& obj) {
+    return get_plist<PropertyType::GROUP_CREATE>(obj, H5Gget_create_plist);
+};
+const auto& getDataTypeCreateList = [](const DataType& obj) {
+    return get_plist<PropertyType::DATATYPE_CREATE>(obj, H5Tget_create_plist);
+};
+const auto& getAttributeCreateList = [](const Attribute& obj) {
+    return get_plist<PropertyType::ATTRIBUTE_CREATE>(obj, H5Aget_create_plist);
+};
 
 using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
 using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
