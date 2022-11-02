@@ -89,12 +89,6 @@ inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
 
 // Specific options to be added to Property Lists
 #if H5_VERSION_GE(1, 10, 1)
-void FileSpaceStrategy::apply(const hid_t list) const {
-    if (H5Pset_file_space_strategy(list, _strategy, _persist, _threshold) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting file space strategy.");
-    }
-}
-
 FileSpaceStrategy::FileSpaceStrategy(H5F_fspace_strategy_t strategy,
                                      hbool_t persist,
                                      hsize_t threshold)
@@ -102,11 +96,16 @@ FileSpaceStrategy::FileSpaceStrategy(H5F_fspace_strategy_t strategy,
     , _persist(persist)
     , _threshold(threshold) {}
 
+inline void FileSpaceStrategy::apply(const hid_t list) const {
+    if (H5Pset_file_space_strategy(list, _strategy, _persist, _threshold) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting file space strategy.");
+    }
+}
 
 FileSpacePageSize::FileSpacePageSize(hsize_t page_size)
     : _page_size(page_size) {}
 
-void FileSpacePageSize::apply(const hid_t list) const {
+inline void FileSpacePageSize::apply(const hid_t list) const {
     if (H5Pset_file_space_page_size(list, _page_size) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting file space page size.");
     }
