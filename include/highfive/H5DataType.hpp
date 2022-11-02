@@ -84,7 +84,8 @@ class DataType: public Object {
     /// \brief Returns whether the type is a Reference
     bool isReference() const;
 
-    DataTypeCreateProps getCreateList() const {
+    /// \brief Get the list of properties for creation of this DataType
+    DataTypeCreateProps getCreatePropertyList() const {
         return get_plist<DataTypeCreateProps>(*this, H5Tget_create_plist);
     }
 

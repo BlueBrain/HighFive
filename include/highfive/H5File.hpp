@@ -101,11 +101,13 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     ///
     void flush();
 
-    FileCreateProps getCreateList() const {
+    /// \brief Get the list of properties for creation of this file
+    FileCreateProps getCreatePropertyList() const {
         return get_plist<FileCreateProps>(*this, H5Fget_create_plist);
     }
 
-    FileAccessProps getAccessList() const {
+    /// \brief Get the list of properties for accession of this file
+    FileAccessProps getAccessPropertyList() const {
         return get_plist<FileAccessProps>(*this, H5Fget_access_plist);
     }
 

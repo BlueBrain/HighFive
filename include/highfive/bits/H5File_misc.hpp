@@ -94,7 +94,7 @@ inline const std::string& File::getName() const noexcept {
 
 inline hsize_t File::getMetadataBlockSize() const {
     hsize_t size;
-    auto fapl = getAccessList();
+    auto fapl = getAccessPropertyList();
     if (H5Pget_meta_block_size(fapl.getId(), &size) < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to access file metadata block size"));
@@ -105,7 +105,7 @@ inline hsize_t File::getMetadataBlockSize() const {
 inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     H5F_libver_t low;
     H5F_libver_t high;
-    auto fapl = getAccessList();
+    auto fapl = getAccessPropertyList();
     if (H5Pget_libver_bounds(fapl.getId(), &low, &high) < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to access file version bounds"));
@@ -115,7 +115,7 @@ inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
 
 #if H5_VERSION_GE(1, 10, 1)
 inline H5F_fspace_strategy_t File::getFileSpaceStrategy() const {
-    auto fcpl = getCreateList();
+    auto fcpl = getCreatePropertyList();
 
     H5F_fspace_strategy_t strategy;
     hbool_t persist;
@@ -129,7 +129,7 @@ inline H5F_fspace_strategy_t File::getFileSpaceStrategy() const {
 }
 
 inline hsize_t File::getFileSpacePageSize() const {
-    auto fcpl = getCreateList();
+    auto fcpl = getCreatePropertyList();
     hsize_t page_size;
 
     if (getFileSpaceStrategy() != H5F_FSPACE_STRATEGY_PAGE) {

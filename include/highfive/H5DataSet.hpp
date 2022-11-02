@@ -89,11 +89,13 @@ class DataSet: public Object,
         return getSpace().getElementCount();
     }
 
-    DataSetCreateProps getCreateList() const {
+    /// \brief Get the list of properties for creation of this dataset
+    DataSetCreateProps getCreatePropertyList() const {
         return get_plist<DataSetCreateProps>(*this, H5Dget_create_plist);
     }
 
-    DataSetAccessProps getAccessList() const {
+    /// \brief Get the list of properties for accession of this dataset
+    DataSetAccessProps getAccessPropertyList() const {
         return get_plist<DataSetAccessProps>(*this, H5Dget_access_plist);
     }
 
