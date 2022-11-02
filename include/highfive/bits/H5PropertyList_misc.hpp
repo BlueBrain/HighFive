@@ -89,9 +89,9 @@ inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {
 
 // Specific options to be added to Property Lists
 #if H5_VERSION_GE(1, 10, 1)
-FileSpaceStrategy::FileSpaceStrategy(H5F_fspace_strategy_t strategy,
-                                     hbool_t persist,
-                                     hsize_t threshold)
+inline FileSpaceStrategy::FileSpaceStrategy(H5F_fspace_strategy_t strategy,
+                                            hbool_t persist,
+                                            hsize_t threshold)
     : _strategy(strategy)
     , _persist(persist)
     , _threshold(threshold) {}
@@ -102,7 +102,7 @@ inline void FileSpaceStrategy::apply(const hid_t list) const {
     }
 }
 
-FileSpacePageSize::FileSpacePageSize(hsize_t page_size)
+inline FileSpacePageSize::FileSpacePageSize(hsize_t page_size)
     : _page_size(page_size) {}
 
 inline void FileSpacePageSize::apply(const hid_t list) const {
