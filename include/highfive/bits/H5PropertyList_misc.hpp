@@ -112,6 +112,31 @@ inline void FileSpacePageSize::apply(const hid_t list) const {
 }
 #endif
 
+#ifdef H5_HAVE_PARALLEL
+
+void MPIOCollectiveMetadata::apply(const hid_t plist) const {
+    auto read = MPIOCollectiveMetadataRead{collective_};
+    auto write = MPIOCollectiveMetadataWrite{collective_};
+
+    read.apply(plist);
+    write.apply(plist);
+}
+
+void MPIOCollectiveMetadataRead::apply(const hid_t plist) const {
+    if (H5Pset_all_coll_metadata_ops(plist, collective_) < 0) {
+        HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata reads");
+    }
+}
+
+void MPIOCollectiveMetadataWrite::apply(const hid_t plist) const {
+    if (H5Pset_coll_metadata_write(plist, collective_) < 0) {
+        HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata writes");
+    }
+}
+
+#endif
+
+
 inline void EstimatedLinkInfo::apply(const hid_t hid) const {
     if (H5Pset_est_link_info(hid, _entries, _length) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting estimated link info");

@@ -138,6 +138,74 @@ class MPIOFileAccess {
     MPI_Comm _comm;
     MPI_Info _info;
 };
+
+///
+/// \brief Use collective MPI-IO for metadata read and write?
+///
+/// See `MPIOCollectiveMetadataRead` and `MPIOCollectiveMetadataWrite`.
+///
+class MPIOCollectiveMetadata {
+  public:
+    explicit MPIOCollectiveMetadata(bool collective = true)
+        : collective_(collective) {}
+
+  private:
+    friend FileAccessProps;
+    void apply(hid_t plist) const;
+    bool collective_;
+};
+
+///
+/// \brief Use collective MPI-IO for metadata read?
+///
+/// Note that when used in a file access property list, this will force all reads
+/// of meta data to be collective. HDF5 function may implicitly perform metadata
+/// reads. These functions would become collective. A list of functions that
+/// perform metadata reads can be found in the HDF5 documentation, e.g.
+///    https://docs.hdfgroup.org/hdf5/v1_12/group___g_a_c_p_l.html
+///
+/// In HighFive setting collective read is (currently) only supported on file level.
+///
+/// Please also consult upstream documentation of `H5Pset_all_coll_metadata_ops`.
+///
+class MPIOCollectiveMetadataRead {
+  public:
+    explicit MPIOCollectiveMetadataRead(bool collective = true)
+        : collective_(collective) {}
+
+  private:
+    friend FileAccessProps;
+    friend MPIOCollectiveMetadata;
+
+    void apply(hid_t plist) const;
+
+    bool collective_;
+};
+
+///
+/// \brief Use collective MPI-IO for metadata write?
+///
+/// In order to keep the in-memory representation of the file structure
+/// consistent across MPI ranks, writing meta data is always a collective
+/// operation. Meaning all MPI ranks must participate. Passing this setting
+/// enables using MPI-IO collective operations for metadata writes.
+///
+/// Please also consult upstream documentation of `H5Pset_coll_metadata_write`.
+///
+class MPIOCollectiveMetadataWrite {
+  public:
+    explicit MPIOCollectiveMetadataWrite(bool collective = true)
+        : collective_(collective) {}
+
+  private:
+    friend FileAccessProps;
+    friend MPIOCollectiveMetadata;
+
+    void apply(hid_t plist) const;
+
+    bool collective_;
+};
+
 #endif
 
 ///
