@@ -38,9 +38,15 @@ inline unsigned convert_open_flag(unsigned openFlags) {
 }
 }  // namespace
 
+inline File::File(const std::string& filename,
+                  unsigned openFlags,
+                  const FileAccessProps& fileAccessProps)
+    : File(filename, openFlags, FileCreateProps::Default(), fileAccessProps) {}
+
 
 inline File::File(const std::string& filename,
                   unsigned openFlags,
+                  const FileCreateProps& fileCreateProps,
                   const FileAccessProps& fileAccessProps) {
     openFlags = convert_open_flag(openFlags);
 
@@ -71,8 +77,9 @@ inline File::File(const std::string& filename,
         }
     }
 
-    if ((_hid = H5Fcreate(filename.c_str(), createMode, H5P_DEFAULT, fileAccessProps.getId())) <
-        0) {
+    auto fcpl = fileCreateProps.getId();
+    auto fapl = fileAccessProps.getId();
+    if ((_hid = H5Fcreate(filename.c_str(), createMode, fcpl, fapl)) < 0) {
         HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + filename));
     }
 }
@@ -98,12 +105,21 @@ inline hsize_t File::getMetadataBlockSize() const {
 inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     H5F_libver_t low;
     H5F_libver_t high;
-    auto fid_fapl = H5Fget_access_plist(getId());
+    auto fid_fapl = getAccessPList();
     if (H5Pget_libver_bounds(fid_fapl, &low, &high) < 0) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Unable to access file version bounds"));
     }
     return std::make_pair(low, high);
+}
+
+inline hid_t File::getAccessPList() const {
+    auto fapl = H5Fget_access_plist(getId());
+    if (fapl < 0) {
+        HDF5ErrMapper::ToException<FileException>(std::string("Unable to get access plist."));
+    }
+
+    return fapl;
 }
 
 inline void File::flush() {
