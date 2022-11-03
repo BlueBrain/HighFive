@@ -21,6 +21,7 @@ Kerim Khemraev
 Luc Grosheintz
 Marian Heil
 Mario Emmenlauer
+Mark Bicknell
 Mathieu Bernard
 Matthias Wolf
 Maximilian Nöthe
@@ -36,6 +37,8 @@ Philipp Gloor
 Pramod Kumbhar
 Richard Shaw
 Rick Nitsche
+Rob Latham
+Sergio Botelh
 Sergio Rivas-Gomez
 @spacescientist
 Taiguara Tupinambás

@@ -1,3 +1,23 @@
+## Version 2.5.0 - 2022-11-03
+### New Features
+    - Enable collective MPI IO using the Data Transfer Property (#623). Thanks to Rob Latham.
+    - Add a support for half-precision (16-bit) floating-point based on the Half library (http://half.sourceforge.net) (#587). Thanks to Sergio Botelh.
+    - Enable choosing the allocation time of datasets (#627).
+    - Add possibility to get and set file space strategy. For page allocated files wrap the API to set/retrieve the page size (#618).
+    - Add API for getting Access and Create property lists of HighFive objects (#629).
+    - Let users configure metadata reads and writes at file level (#624). Thanks to Rob Latham.
+
+### Improvements
+    - MPIOFileDriver is now deprecated. Use FileAccessProps (#622).
+    - Support of block argument in API (#584).
+    - Serialization of types is now automagic and so recursive (#586).
+    - Add an argument to specific File Create Properties in File class construtor (#626).
+
+### Bug Fixes
+    - Padding of Compound Types (#581).
+    - Compilation with Visual Studio with C++17 or later (#578). Thanks to Mark Bicknell.
+    - Avoid leaking when printing stack for error (#583).
+
 ## Version 2.4.1 - 2022-05-11
 ### New Features
     - Support `std::complex`. Thanks to Philipp.
