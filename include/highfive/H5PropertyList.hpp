@@ -44,6 +44,18 @@ enum class PropertyType : int {
     LINK_ACCESS,
 };
 
+namespace details {
+template <typename T, typename U>
+T get_plist(const U& obj, hid_t (*f)(hid_t)) {
+    auto hid = f(obj.getId());
+    if (hid < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
+    }
+    T t{};
+    t._hid = hid;
+    return t;
+}
+}  // namespace details
 
 ///
 /// \brief Base Class for Property lists, providing global default
@@ -55,8 +67,11 @@ class PropertyListBase: public Object {
         static const PropertyListBase plist{};
         return plist;
     }
-};
 
+  private:
+    template <typename T, typename U>
+    friend T details::get_plist(const U&, hid_t (*f)(hid_t));
+};
 
 ///
 /// \brief HDF5 property Lists

@@ -33,6 +33,11 @@ class Group: public Object,
 
     std::pair<unsigned int, unsigned int> getEstimatedLinkInfo() const;
 
+    /// \brief Get the list of properties for creation of this group
+    GroupCreateProps getCreatePropertyList() const {
+        return details::get_plist<GroupCreateProps>(*this, H5Gget_create_plist);
+    }
+
   protected:
     using Object::Object;
 
@@ -49,8 +54,8 @@ inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const
     unsigned int est_num_entries;
     unsigned int est_name_len;
 
-    auto gid_gcpl = H5Gget_create_plist(getId());
-    if (H5Pget_est_link_info(gid_gcpl, &est_num_entries, &est_name_len) < 0) {
+    auto gcpl = getCreatePropertyList();
+    if (H5Pget_est_link_info(gcpl.getId(), &est_num_entries, &est_name_len) < 0) {
         HDF5ErrMapper::ToException<GroupException>(
             std::string("Unable to access group link size property"));
     }

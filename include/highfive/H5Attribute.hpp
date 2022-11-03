@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include "H5Apublic.h"
+
 #include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
@@ -51,8 +53,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     ///
     DataSpace getMemSpace() const;
 
-    ///
-    /// Return the attribute
+    /// \brief Return the attribute
     template <typename T>
     T read() const;
 
@@ -66,9 +67,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     template <typename T>
     void read(T& array) const;
 
-    ///
-    /// Read the attribute into a buffer
-    ///
+    /// \brief Read the attribute into a buffer
     template <typename T>
     void read(T* array, const DataType& dtype = DataType()) const;
 
@@ -82,11 +81,14 @@ class Attribute: public Object, public PathTraits<Attribute> {
     template <typename T>
     void write(const T& buffer);
 
-    ///
-    /// Write a buffer to this attribute
-    ///
+    /// \brief Write a buffer to this attribute
     template <typename T>
     void write_raw(const T* buffer, const DataType& dtype = DataType());
+
+    /// \brief Get the list of properties for creation of this attribute
+    AttributeCreateProps getCreatePropertyList() const {
+        return details::get_plist<AttributeCreateProps>(*this, H5Aget_create_plist);
+    }
 
     // No empty attributes
     Attribute() = delete;

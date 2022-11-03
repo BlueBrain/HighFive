@@ -89,6 +89,16 @@ class DataSet: public Object,
         return getSpace().getElementCount();
     }
 
+    /// \brief Get the list of properties for creation of this dataset
+    DataSetCreateProps getCreatePropertyList() const {
+        return details::get_plist<DataSetCreateProps>(*this, H5Dget_create_plist);
+    }
+
+    /// \brief Get the list of properties for accession of this dataset
+    DataSetAccessProps getAccessPropertyList() const {
+        return details::get_plist<DataSetAccessProps>(*this, H5Dget_access_plist);
+    }
+
     H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
     DataSet() = default;
 
