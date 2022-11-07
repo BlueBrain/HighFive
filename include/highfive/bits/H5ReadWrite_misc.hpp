@@ -126,11 +126,11 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
                   << " -> " << dtype.string() << std::endl;
     } else if ((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) {
         if ((op == read) && (dtype.getSize() > data_type.getSize())) {
-            std::cerr << "HighFive WARNING \"" << getName()
+            std::clog << "HighFive WARNING \"" << getName()
                       << "\": hdf5 dataset has higher floating point precision than data on read: "
                       << dtype.string() << " -> " << data_type.string() << std::endl;
         } else if ((op == write) && (dtype.getSize() < data_type.getSize())) {
-            std::cerr << "HighFive WARNING \"" << getName()
+            std::clog << "HighFive WARNING \"" << getName()
                       << "\": data has higher floating point precision than hdf5 dataset on write: "
                       << data_type.string() << " -> " << dtype.string() << std::endl;
         }
