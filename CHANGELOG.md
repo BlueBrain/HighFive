@@ -1,3 +1,7 @@
+## Version 2.5.1 - 2022-11-07
+### Bug Fix
+    - Fix missing `inline` for collective metadata properties.
+
 ## Version 2.5.0 - 2022-11-03
 ### New Features
     - Enable collective MPI IO using the Data Transfer Property (#623). Thanks to Rob Latham.
