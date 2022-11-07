@@ -61,8 +61,10 @@ inline T Attribute::read() const {
 template <typename T>
 inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
-    const details::BufferInfo<T> buffer_info(getDataType(),
-                                             [this]() -> std::string { return this->getName(); });
+    const details::BufferInfo<T> buffer_info(
+        getDataType(),
+        [this]() -> std::string { return this->getName(); },
+        details::BufferInfo<T>::read);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
@@ -99,8 +101,10 @@ inline void Attribute::read(T* array, const DataType& dtype) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     const DataSpace& mem_space = getMemSpace();
-    const details::BufferInfo<T> buffer_info(getDataType(),
-                                             [this]() -> std::string { return this->getName(); });
+    const details::BufferInfo<T> buffer_info(
+        getDataType(),
+        [this]() -> std::string { return this->getName(); },
+        details::BufferInfo<T>::write);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;

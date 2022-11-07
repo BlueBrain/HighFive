@@ -45,8 +45,11 @@ struct BufferInfo {
     using char_array_t = typename details::type_char_array<type_no_const>::type;
     static constexpr bool is_char_array = !std::is_same<char_array_t, void>::value;
 
+    enum Operation { read, write };
+    const Operation op;
+
     template <class F>
-    BufferInfo(const DataType& dtype, F getName);
+    BufferInfo(const DataType& dtype, F getName, Operation _op);
 
     // member data for info depending on the destination dataset type
     const bool is_fixed_len_string;
@@ -103,8 +106,9 @@ struct string_type_checker<char*> {
 
 template <typename T>
 template <class F>
-BufferInfo<T>::BufferInfo(const DataType& dtype, F getName)
-    : is_fixed_len_string(dtype.isFixedLenStr())
+BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
+    : op(_op)
+    , is_fixed_len_string(dtype.isFixedLenStr())
     // In case we are using Fixed-len strings we need to subtract one dimension
     , n_dimensions(details::inspector<type_no_const>::recursive_ndim -
                    ((is_fixed_len_string && is_char_array) ? 1 : 0))
@@ -120,11 +124,16 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName)
         std::cerr << "HighFive WARNING \"" << getName()
                   << "\": data and hdf5 dataset have different types: " << data_type.string()
                   << " -> " << dtype.string() << std::endl;
-    } else if (((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) &&
-               (dtype.getSize() != data_type.getSize())) {
-        std::cerr << "HighFive WARNING \"" << getName()
-                  << "\": data and hdf5 dataset have differing floating point precision: "
-                  << data_type.string() << " -> " << dtype.string() << std::endl;
+    } else if ((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) {
+        if ((op == read) && (dtype.getSize() > data_type.getSize())) {
+            std::cerr << "HighFive WARNING \"" << getName()
+                      << "\": hdf5 dataset has higher floating point precision than data on read: "
+                      << dtype.string() << " -> " << data_type.string() << std::endl;
+        } else if ((op == write) && (dtype.getSize() < data_type.getSize())) {
+            std::cerr << "HighFive WARNING \"" << getName()
+                      << "\": data has higher floating point precision than hdf5 dataset on write: "
+                      << data_type.string() << " -> " << dtype.string() << std::endl;
+        }
     }
 }
 
