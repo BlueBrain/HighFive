@@ -120,6 +120,11 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName)
         std::cerr << "HighFive WARNING \"" << getName()
                   << "\": data and hdf5 dataset have different types: " << data_type.string()
                   << " -> " << dtype.string() << std::endl;
+    } else if (((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) &&
+               (dtype.getSize() != data_type.getSize())) {
+        std::cerr << "HighFive WARNING \"" << getName()
+                  << "\": data and hdf5 dataset have differing floating point precision: "
+                  << data_type.string() << " -> " << dtype.string() << std::endl;
     }
 }
 

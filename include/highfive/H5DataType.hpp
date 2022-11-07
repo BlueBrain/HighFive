@@ -9,6 +9,7 @@
 #ifndef H5DATATYPE_HPP
 #define H5DATATYPE_HPP
 
+#include <type_traits>
 #include <vector>
 
 #include "H5Object.hpp"
@@ -36,6 +37,16 @@ enum class DataTypeClass {
     Array,
     Invalid
 };
+
+inline DataTypeClass operator|(DataTypeClass lhs, DataTypeClass rhs) {
+    using T = std::underlying_type<DataTypeClass>::type;
+    return static_cast<DataTypeClass>(static_cast<T>(lhs) | static_cast<T>(rhs));
+}
+
+inline DataTypeClass operator&(DataTypeClass lhs, DataTypeClass rhs) {
+    using T = std::underlying_type<DataTypeClass>::type;
+    return static_cast<DataTypeClass>(static_cast<T>(lhs) & static_cast<T>(rhs));
+}
 
 
 ///
