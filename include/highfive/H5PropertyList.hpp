@@ -327,6 +327,40 @@ class FileSpacePageSize {
 
     hsize_t _page_size;
 };
+
+#ifndef H5_HAVE_PARALLEL
+/// \brief Set size of the page buffer.
+///
+/// Please, consult the upstream documentation of
+///    H5Pset_page_buffer_size
+///    H5Pget_page_buffer_size
+/// Note that this setting is only valid for page allocated/aggregated
+/// files, i.e. those that have file space strategy "Page".
+///
+/// Tests suggest this doesn't work in the parallel version of the
+/// library. Hence, this isn't available at compile time if the parallel
+/// library was selected.
+class PageBufferSize {
+  public:
+    /// Property to set page buffer sizes.
+    ///
+    /// @param page_buffer_size maximum size of the page buffer in bytes.
+    /// @param min_meta_percent fraction of the page buffer dedicated to meta data, in percent.
+    /// @param min_raw_percent fraction of the page buffer dedicated to raw data, in percent.
+    explicit PageBufferSize(size_t page_buffer_size,
+                            unsigned min_meta_percent = 0,
+                            unsigned min_raw_percent = 0);
+
+  private:
+    friend FileAccessProps;
+
+    void apply(hid_t list) const;
+
+    hsize_t _page_buffer_size;
+    unsigned _min_meta;
+    unsigned _min_raw;
+};
+#endif
 #endif
 
 /// \brief Set hints as to how many links to expect and their average length

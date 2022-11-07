@@ -110,6 +110,21 @@ inline void FileSpacePageSize::apply(const hid_t list) const {
         HDF5ErrMapper::ToException<PropertyException>("Error setting file space page size.");
     }
 }
+
+#ifndef H5_HAVE_PARALLEL
+inline PageBufferSize::PageBufferSize(size_t page_buffer_size,
+                                      unsigned min_meta_percent,
+                                      unsigned min_raw_percent)
+    : _page_buffer_size(page_buffer_size)
+    , _min_meta(min_meta_percent)
+    , _min_raw(min_raw_percent) {}
+
+inline void PageBufferSize::apply(const hid_t list) const {
+    if (H5Pset_page_buffer_size(list, _page_buffer_size, _min_meta, _min_raw) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting page buffer size.");
+    }
+}
+#endif
 #endif
 
 #ifdef H5_HAVE_PARALLEL
