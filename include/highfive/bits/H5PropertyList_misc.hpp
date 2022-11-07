@@ -114,7 +114,7 @@ inline void FileSpacePageSize::apply(const hid_t list) const {
 
 #ifdef H5_HAVE_PARALLEL
 
-void MPIOCollectiveMetadata::apply(const hid_t plist) const {
+inline void MPIOCollectiveMetadata::apply(const hid_t plist) const {
     auto read = MPIOCollectiveMetadataRead{collective_};
     auto write = MPIOCollectiveMetadataWrite{collective_};
 
@@ -122,13 +122,13 @@ void MPIOCollectiveMetadata::apply(const hid_t plist) const {
     write.apply(plist);
 }
 
-void MPIOCollectiveMetadataRead::apply(const hid_t plist) const {
+inline void MPIOCollectiveMetadataRead::apply(const hid_t plist) const {
     if (H5Pset_all_coll_metadata_ops(plist, collective_) < 0) {
         HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata reads");
     }
 }
 
-void MPIOCollectiveMetadataWrite::apply(const hid_t plist) const {
+inline void MPIOCollectiveMetadataWrite::apply(const hid_t plist) const {
     if (H5Pset_coll_metadata_write(plist, collective_) < 0) {
         HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata writes");
     }
