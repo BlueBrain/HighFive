@@ -24,18 +24,18 @@ namespace HighFive {
 /// \brief Enum of Fundamental data classes
 ///
 enum class DataTypeClass {
-    Time,
-    Integer,
-    Float,
-    String,
-    BitField,
-    Opaque,
-    Compound,
-    Reference,
-    Enum,
-    VarLen,
-    Array,
-    Invalid
+    Time = 1 << 1,
+    Integer = 1 << 2,
+    Float = 1 << 3,
+    String = 1 << 4,
+    BitField = 1 << 5,
+    Opaque = 1 << 6,
+    Compound = 1 << 7,
+    Reference = 1 << 8,
+    Enum = 1 << 9,
+    VarLen = 1 << 10,
+    Array = 1 << 11,
+    Invalid = 0
 };
 
 inline DataTypeClass operator|(DataTypeClass lhs, DataTypeClass rhs) {
