@@ -192,6 +192,67 @@ TEST_CASE("Test file space page size") {
         CHECK(file.getFileSpacePageSize() == page_size);
     }
 }
+
+#ifndef H5_HAVE_PARALLEL
+TEST_CASE("Test page buffer size") {
+    const std::string FILE_NAME("h5_page_buffer_size.h5");
+    hsize_t page_size = 1024;
+    {
+        FileCreateProps create_props;
+        create_props.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_PAGE, true, 0));
+        create_props.add(FileSpacePageSize(page_size));
+
+        File file(FILE_NAME, File::Truncate, create_props);
+
+        file.createDataSet("x", std::vector<double>{1.0, 2.0, 3.0});
+    }
+
+    {
+        FileAccessProps access_props;
+        access_props.add(PageBufferSize(1024));
+
+        File file(FILE_NAME, File::ReadOnly, access_props);
+
+        auto accesses = std::array<unsigned int, 2>{0, 0};
+        auto hits = std::array<unsigned int, 2>{0, 0};
+        auto misses = std::array<unsigned int, 2>{0, 0};
+        auto evictions = std::array<unsigned int, 2>{0, 0};
+        auto bypasses = std::array<unsigned int, 2>{0, 0};
+
+        auto err = H5Fget_page_buffering_stats(file.getId(),
+                                               accesses.data(),
+                                               hits.data(),
+                                               misses.data(),
+                                               evictions.data(),
+                                               bypasses.data());
+        REQUIRE(err >= 0);
+
+        CHECK(accesses[0] == 0);
+        CHECK(accesses[1] == 0);
+
+        CHECK(bypasses[0] == 0);
+        CHECK(bypasses[1] == 0);
+
+        auto x = file.getDataSet("x").read<std::vector<double>>();
+
+        err = H5Fget_page_buffering_stats(file.getId(),
+                                          accesses.data(),
+                                          hits.data(),
+                                          misses.data(),
+                                          evictions.data(),
+                                          bypasses.data());
+        REQUIRE(err >= 0);
+
+        CHECK(accesses[0] > 0);
+        CHECK(accesses[1] == 1);
+
+        CHECK(bypasses[0] == 0);
+        CHECK(bypasses[1] == 0);
+
+        CHECK(file.getFileSpacePageSize() == page_size);
+    }
+}
+#endif
 #endif
 
 TEST_CASE("Test metadata block size assignment") {
