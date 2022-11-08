@@ -1,4 +1,4 @@
-## Version 2.5.1 - 2022-11-08
+## Version 2.6.0 - 2022-11-08
 ### New Features
     - Enable page buffered reading (#639).
 
