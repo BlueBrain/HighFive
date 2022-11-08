@@ -2446,6 +2446,24 @@ TEST_CASE("HighFiveReadWriteConsts") {
     }
 }
 
+TEST_CASE("HighFiveDataTypeClass") {
+    auto Float = DataTypeClass::Float;
+    auto String = DataTypeClass::String;
+    auto Invalid = DataTypeClass::Invalid;
+
+    CHECK(Float != Invalid);
+
+    CHECK((Float & Float) == Float);
+    CHECK((Float | Float) == Float);
+
+    CHECK((Float & String) == Invalid);
+    CHECK((Float | String) != Invalid);
+
+    CHECK(((Float & String) & Float) == Invalid);
+    CHECK(((Float | String) & Float) == Float);
+    CHECK(((Float | String) & String) == String);
+}
+
 #ifdef H5_USE_EIGEN
 
 template <typename T>
