@@ -1,3 +1,10 @@
+## Version 2.5.1 - 2022-11-08
+### New Features
+    - Enable page buffered reading (#639).
+
+### Improvements
+    - Warn when detecting lossy reads or write of floating point data (#636).
+
 ## Version 2.5.1 - 2022-11-07
 ### Bug Fix
     - Fix missing `inline` for collective metadata properties.
