@@ -1,3 +1,7 @@
+## Version 2.6.1 - 2022-11-08
+### Bug Fix
+    - Version bump in `CMakeLists.txt`.
+
 ## Version 2.6.0 - 2022-11-08
 ### New Features
     - Enable page buffered reading (#639).
