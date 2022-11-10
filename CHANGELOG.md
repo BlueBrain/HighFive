@@ -1,3 +1,7 @@
+## Version 2.6.2 - 2022-11-10
+### Bug Fix
+    - Allow CMake to use Config mode to find HDF5.
+
 ## Version 2.6.1 - 2022-11-08
 ### Bug Fix
     - Version bump in `CMakeLists.txt`.
