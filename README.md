@@ -52,29 +52,37 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 #include <highfive/H5File.hpp>
 
 using namespace HighFive;
-// we create a new hdf5 file
-File file("/tmp/new_file.h5", File::ReadWrite | File::Create | File::Truncate);
 
-std::vector<int> data(50, 1);
+std::string filename = "/tmp/new_file.h5";
 
-// let's create a dataset of native integer with the size of the vector 'data'
-DataSet dataset = file.createDataSet<int>("/dataset_one",  DataSpace::From(data));
+{
+    // We create an empty HDF55 file, by truncating an existing
+    // file if required:
+    File file(filename, File::Truncate);
 
-// let's write our vector of int to the HDF5 dataset
-dataset.write(data);
+    std::vector<int> data(50, 1);
+    file.createDataSet("grp/data", data);
+}
 
-// read back
-std::vector<int> result;
-dataset.read(result);
+{
+    // We open the file as read-only:
+    File file(filename, File::ReadOnly);
+    auto dataset = file.getDataSet("grp/data");
+
+    // Read back, with allocating:
+    auto data = dataset.read<std::vector<int>>();
+
+    // Because `data` has the correct size, this will
+    // not cause `data` to be reallocated:
+    dataset.read(data);
+}
 ```
 
 **Note:** `H5File.hpp` is the top-level header of HighFive core which should be always included.
 
-**Note:** If you can use `DataSpace::From` on your data, you can combine the create and write into one statement.
-Such shortcut syntax is available for both `createDataSet` and `createAttribute`.
-```c++
-DataSet dataset = file.createDataSet("/dataset_one",  data);
-```
+**Note:** For advanced usecases the dataset can be created without immediately
+writing to it. This is common in MPI-IO related patterns, or when growing a
+dataset over the course of a simulation.
 
 #### Write a 2 dimensional C double float array to a 2D HDF5 dataset
 
