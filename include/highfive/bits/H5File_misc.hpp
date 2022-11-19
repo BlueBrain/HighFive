@@ -43,7 +43,6 @@ inline File::File(const std::string& filename,
                   const FileAccessProps& fileAccessProps)
     : File(filename, openFlags, FileCreateProps::Default(), fileAccessProps) {}
 
-
 inline File::File(const std::string& filename,
                   unsigned openFlags,
                   const FileCreateProps& fileCreateProps,
@@ -82,6 +81,10 @@ inline File::File(const std::string& filename,
     if ((_hid = H5Fcreate(filename.c_str(), createMode, fcpl, fapl)) < 0) {
         HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + filename));
     }
+}
+
+inline File::File(const hid_t hid) {
+    _hid = hid;
 }
 
 inline const std::string& File::getName() const noexcept {

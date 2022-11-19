@@ -70,6 +70,12 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
          const FileAccessProps& fileAccessProps = FileAccessProps::Default());
 
     ///
+    /// \brief File creating a HighFive::File from and already opended HDF5 file.
+    ///
+    /// \param hid: existing hid, usually created by H5Gopen (follows H5LTopen_file_image)
+    explicit File(const hid_t hid);
+
+    ///
     /// \brief Return the name of the file
     ///
     const std::string& getName() const noexcept;
