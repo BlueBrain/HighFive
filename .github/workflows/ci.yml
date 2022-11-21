@@ -95,7 +95,7 @@ jobs:
       run: |
         git clone https://github.com/HDFGroup/hdf5 --depth 1 --branch ${{ matrix.hdf5_version }}
         mkdir -p hdf5/BUILD && cd hdf5/BUILD
-        cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=$PWD/I -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DHDF5_ENABLE_SZIP_SUPPORT=ON -DHDF5_ENABLE_SZIP_ENCODING=ON -DUSE_LIBAEC=ON
+        cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=$PWD/I -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DUSE_LIBAEC=ON
         ninja && ninja install
 
     - name: Build
