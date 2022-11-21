@@ -74,6 +74,41 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
+  # Job testing several versions of hdf5
+  # ===================================================
+  Linux_HDF5_Versions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        hdf5_version : [ hdf5-1_8_22, hdf5-1_10_9, hdf5-1_12_2, hdf5-1_13_2 ]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: "Install libraries"
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq install ninja-build libsz2 zlib1g-dev libboost-all-dev
+
+    - name: Build HDF5
+      run: |
+        wget https://github.com/HDFGroup/hdf5/archive/refs/tags/${{ matrix.hdf5_version }}.tar.gz --output-document hdf5.tar.gz
+        tar xf hdf5.tar.gz
+        mkdir -p hdf5-${{ matrix.hdf5_version }}/BUILD && cd hdf5-${{ matrix.hdf5_version }}/BUILD
+        cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=$HOME/${{ matrix.hdf5_version }} -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DUSE_LIBAEC=ON
+        ninja && ninja install
+
+    - name: Build
+      run: |
+        mkdir BUILD && cd BUILD
+        cmake -GNinja -DHDF5_ROOT=$HOME/${{ matrix.hdf5_version }} ..
+        ninja
+
+    - name: Test
+      run: |
+        cd BUILD && ctest --output-on-failure
+
   # Job testing several compilers on a stable Linux
   # ====================================================
   Linux_Compilers:
