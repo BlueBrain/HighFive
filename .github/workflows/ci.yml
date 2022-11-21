@@ -89,7 +89,7 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install ninja-build libsz2 zlib1g-dev
+        sudo apt-get -qq install ninja-build libsz2 zlib1g-dev libboost-all-dev
 
     - name: Build HDF5
       run: |
