@@ -48,7 +48,8 @@ int main(void) {
         // byte-by-byte into RAM.
         auto buffer = std::vector<std::uint8_t>(1ul << 20);
         auto file = std::fopen(FILE_NAME.c_str(), "r");
-        static_cast<void>(std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file));
+        auto nread = std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file);
+        std::cout << "Bytes read: " << nread << "\n";
 
         // Create a file from a buffer.
         auto h5 = InMemoryFile(std::move(buffer));
