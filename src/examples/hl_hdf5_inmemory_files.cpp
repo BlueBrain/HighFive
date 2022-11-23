@@ -39,22 +39,27 @@ int main(void) {
         auto data = std::vector<double>{1.0, 2.0, 3.0};
 
         {
-            // we create a new hdf5 file
+            // We create an HDF5 file.
             File file(FILE_NAME, File::Truncate);
             file.createDataSet(DATASET_NAME, data);
         }
 
+        // Simulate having an inmemory file by reading a file
+        // byte-by-byte into RAM.
         auto buffer = std::vector<std::uint8_t>(1ul << 20);
         auto file = std::fopen(FILE_NAME.c_str(), "r");
-        std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file);
+        (void) std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file);
 
+        // Create a file from a buffer.
         auto h5 = InMemoryFile(std::move(buffer));
 
+        // Read a dataset as usual.
         auto read_back = h5.getDataSet(DATASET_NAME).read<std::vector<double>>();
 
+        // Check if the values match.
         for (size_t i = 0; i < read_back.size(); ++i) {
             if (read_back[i] != data[i]) {
-                std::runtime_error("Values don't match.");
+                throw std::runtime_error("Values don't match.");
             } else {
                 std::cout << "read_back[" << i << "] = " << read_back[i] << "\n";
             }
