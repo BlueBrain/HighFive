@@ -37,4 +37,4 @@ class SilenceHDF5 {
 
 }  // namespace HighFive
 
-#endif  // H5UTIL_HPP
+#endif  // H5UTILITY_HPP

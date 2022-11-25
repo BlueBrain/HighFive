@@ -62,4 +62,4 @@ struct HDF5ErrMapper {
 
 }  // namespace HighFive
 
-#endif  // H5OBJECT_MISC_HPP
+#endif  // H5EXCEPTION_MISC_HPP

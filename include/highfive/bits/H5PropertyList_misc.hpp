@@ -219,4 +219,4 @@ inline void UseCollectiveIO::apply(const hid_t hid) const {
 
 }  // namespace HighFive
 
-#endif  // H5PROPERTY_LIST_HPP
+#endif  // H5PROPERTY_LIST_MISC_HPP

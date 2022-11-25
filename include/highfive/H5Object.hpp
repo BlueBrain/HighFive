@@ -14,7 +14,6 @@
 #include <H5Ipublic.h>
 #include <H5Opublic.h>
 
-#include "H5Exception.hpp"
 #include "bits/H5_definitions.hpp"
 
 namespace HighFive {

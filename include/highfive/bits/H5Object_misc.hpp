@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include "../H5Exception.hpp"
+
 namespace HighFive {
 
 inline Object::Object()

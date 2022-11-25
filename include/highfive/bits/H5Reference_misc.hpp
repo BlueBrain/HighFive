@@ -15,6 +15,8 @@
 
 #include "H5Utils.hpp"
 
+#include "../H5Object.hpp"
+
 namespace HighFive {
 
 inline Reference::Reference(const Object& location, const Object& object)

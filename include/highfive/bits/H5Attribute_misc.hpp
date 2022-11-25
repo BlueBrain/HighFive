@@ -18,6 +18,7 @@
 #include <H5Apublic.h>
 #include <H5Ppublic.h>
 
+#include "../H5DataSpace.hpp"
 #include "H5Converter_misc.hpp"
 #include "H5ReadWrite_misc.hpp"
 #include "H5Utils.hpp"
