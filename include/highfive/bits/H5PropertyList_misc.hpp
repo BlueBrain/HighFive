@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5PROPERTY_LIST_MISC_HPP
-#define H5PROPERTY_LIST_MISC_HPP
+#pragma once
 
 #include <H5Ppublic.h>
 
@@ -218,5 +217,3 @@ inline void UseCollectiveIO::apply(const hid_t hid) const {
 #endif
 
 }  // namespace HighFive
-
-#endif  // H5PROPERTY_LIST_MISC_HPP

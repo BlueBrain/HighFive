@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5FILEDRIVER_HPP
-#define H5FILEDRIVER_HPP
+#pragma once
 
 #include "H5PropertyList.hpp"
 #include "bits/H5_definitions.hpp"
@@ -36,5 +35,3 @@ class H5_DEPRECATED("Add MPIOFileAccess directly to FileAccessProps") MPIOFileDr
 }  // namespace HighFive
 
 #include "bits/H5FileDriver_misc.hpp"
-
-#endif  // H5FILEDRIVER_HPP

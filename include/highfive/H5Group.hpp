@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef HIGHFIVE_H5GROUP_HPP
-#define HIGHFIVE_H5GROUP_HPP
+#pragma once
 
 #include <H5Gpublic.h>
 
@@ -63,5 +62,3 @@ inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const
 }
 
 }  // namespace HighFive
-
-#endif  // HIGHFIVE_H5GROUP_HPP

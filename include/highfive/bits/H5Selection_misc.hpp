@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5SELECTION_MISC_HPP
-#define H5SELECTION_MISC_HPP
+#pragma once
 
 namespace HighFive {
 
@@ -40,5 +39,3 @@ inline const DataType Selection::getDataType() const {
 }
 
 }  // namespace HighFive
-
-#endif  // H5SELECTION_MISC_HPP

@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EASY_BITS_SCALAR_HPP
-#define H5EASY_BITS_SCALAR_HPP
+#pragma once
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
@@ -131,5 +130,3 @@ struct io_impl {
 
 }  // namespace detail
 }  // namespace H5Easy
-
-#endif  // H5EASY_BITS_SCALAR_HPP

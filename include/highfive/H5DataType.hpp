@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATATYPE_HPP
-#define H5DATATYPE_HPP
+#pragma once
 
 #include <type_traits>
 #include <vector>
@@ -411,5 +410,3 @@ class FixedLenStringArray {
     }
 
 #include "bits/H5DataType_misc.hpp"
-
-#endif  // H5DATATYPE_HPP

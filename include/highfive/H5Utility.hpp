@@ -7,8 +7,7 @@
  *
  */
 
-#ifndef H5UTILITY_HPP
-#define H5UTILITY_HPP
+#pragma once
 
 #include <H5Epublic.h>
 
@@ -36,5 +35,3 @@ class SilenceHDF5 {
 };
 
 }  // namespace HighFive
-
-#endif  // H5UTILITY_HPP

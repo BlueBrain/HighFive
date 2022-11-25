@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATASPACE_MISC_HPP
-#define H5DATASPACE_MISC_HPP
+#pragma once
 
 #include <array>
 #include <initializer_list>
@@ -167,5 +166,3 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif  // H5DATASPACE_MISC_HPP

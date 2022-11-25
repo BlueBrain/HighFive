@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ATTRIBUTE_MISC_HPP
-#define H5ATTRIBUTE_MISC_HPP
+#pragma once
 
 #include <algorithm>
 #include <functional>
@@ -128,5 +127,3 @@ inline void Attribute::write_raw(const T* buffer, const DataType& dtype) {
 }
 
 }  // namespace HighFive
-
-#endif  // H5ATTRIBUTE_MISC_HPP

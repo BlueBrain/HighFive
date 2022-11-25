@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EASY_BITS_PUBLIC_HPP
-#define H5EASY_BITS_PUBLIC_HPP
+#pragma once
 
 #include "../H5Easy.hpp"
 
@@ -169,5 +168,3 @@ inline T loadAttribute(const File& file, const std::string& path, const std::str
 }
 
 }  // namespace H5Easy
-
-#endif  // H5EASY_BITS_MISC_HPP

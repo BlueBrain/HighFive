@@ -7,8 +7,7 @@
  *
  */
 
-#ifndef H5REFERENCE_HPP
-#define H5REFERENCE_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -80,5 +79,3 @@ class Reference {
 }  // namespace HighFive
 
 #include "bits/H5Reference_misc.hpp"
-
-#endif  // H5REFERENCE_HPP

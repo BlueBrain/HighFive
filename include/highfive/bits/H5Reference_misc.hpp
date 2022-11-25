@@ -7,8 +7,7 @@
  *
  */
 
-#ifndef H5REFERENCE_MISC_HPP
-#define H5REFERENCE_MISC_HPP
+#pragma once
 
 #include <string>
 #include <H5Ppublic.h>
@@ -66,5 +65,3 @@ inline Object Reference::get_ref(const Object& location) const {
 }
 
 }  // namespace HighFive
-
-#endif  // H5REFERENCE_MISC_HPP

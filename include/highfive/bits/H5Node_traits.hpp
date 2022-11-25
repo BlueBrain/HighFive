@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5NODE_TRAITS_HPP
-#define H5NODE_TRAITS_HPP
+#pragma once
 
 #include <string>
 
@@ -213,6 +212,3 @@ enum class LinkType {
 
 
 }  // namespace HighFive
-
-
-#endif  // H5NODE_TRAITS_HPP

@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5SELECTION_HPP
-#define H5SELECTION_HPP
+#pragma once
 
 #include "H5DataSet.hpp"
 #include "H5DataSpace.hpp"
@@ -59,5 +58,3 @@ class Selection: public SliceTraits<Selection> {
 };
 
 }  // namespace HighFive
-
-#endif  // H5SELECTION_HPP

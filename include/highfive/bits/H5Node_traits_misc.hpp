@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5NODE_TRAITS_MISC_HPP
-#define H5NODE_TRAITS_MISC_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -354,5 +353,3 @@ inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
 
 
 }  // namespace HighFive
-
-#endif  // H5NODE_TRAITS_MISC_HPP

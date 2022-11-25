@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5FILE_HPP
-#define H5FILE_HPP
+#pragma once
 
 #include <string>
 
@@ -126,5 +125,3 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
 #include "bits/H5File_misc.hpp"
 #include "bits/H5Node_traits_misc.hpp"
 #include "bits/H5Path_traits_misc.hpp"
-
-#endif  // H5FILE_HPP

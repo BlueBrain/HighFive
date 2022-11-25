@@ -7,8 +7,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5FILEDRIVER_MISC_HPP
-#define H5FILEDRIVER_MISC_HPP
+#pragma once
 
 namespace HighFive {
 
@@ -19,5 +18,3 @@ inline MPIOFileDriver::MPIOFileDriver(MPI_Comm comm, MPI_Info info) {
 #endif
 
 }  // namespace HighFive
-
-#endif  // H5FILEDRIVER_MISC_HPP

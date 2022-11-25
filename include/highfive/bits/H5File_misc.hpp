@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5FILE_MISC_HPP
-#define H5FILE_MISC_HPP
+#pragma once
 
 #include <string>
 
@@ -153,5 +152,3 @@ inline void File::flush() {
 }
 
 }  // namespace HighFive
-
-#endif  // H5FILE_MISC_HPP

@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5UTILS_HPP
-#define H5UTILS_HPP
+#pragma once
 
 // internal utilities functions
 #include <algorithm>
@@ -66,5 +65,3 @@ inline std::string get_name(T fct) {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif  // H5UTILS_HPP

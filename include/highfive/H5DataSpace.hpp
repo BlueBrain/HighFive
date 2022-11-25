@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATASPACE_HPP
-#define H5DATASPACE_HPP
+#pragma once
 
 #include <vector>
 #include <array>
@@ -117,5 +116,3 @@ class DataSpace: public Object {
 
 // We include bits right away since DataSpace is user-constructible
 #include "bits/H5Dataspace_misc.hpp"
-
-#endif  // H5DATASPACE_HPP

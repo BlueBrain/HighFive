@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ANNOTATE_TRAITS_HPP
-#define H5ANNOTATE_TRAITS_HPP
+#pragma once
 
 #include <string>
 
@@ -80,6 +79,3 @@ class AnnotateTraits {
     using derivate_type = Derivate;
 };
 }  // namespace HighFive
-
-
-#endif  // H5ANNOTATE_TRAITS_HPP

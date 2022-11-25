@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EASY_BITS_MISC_HPP
-#define H5EASY_BITS_MISC_HPP
+#pragma once
 
 #include "../H5Easy.hpp"
 
@@ -152,5 +151,3 @@ inline Attribute initScalarAttribute(File& file,
 
 }  // namespace detail
 }  // namespace H5Easy
-
-#endif  // H5EASY_BITS_MISC_HPP
