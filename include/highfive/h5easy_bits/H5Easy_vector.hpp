@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EASY_BITS_VECTOR_HPP
-#define H5EASY_BITS_VECTOR_HPP
+#pragma once
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
@@ -79,5 +78,3 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
 
 }  // namespace detail
 }  // namespace H5Easy
-
-#endif  // H5EASY_BITS_VECTOR_HPP

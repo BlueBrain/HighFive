@@ -6,19 +6,18 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ATTRIBUTE_HPP
-#define H5ATTRIBUTE_HPP
+#pragma once
 
 #include <vector>
 
-#include "H5Apublic.h"
+#include <H5Apublic.h>
 
-#include "H5DataSpace.hpp"
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
 #include "bits/H5Path_traits.hpp"
 
 namespace HighFive {
+class DataSpace;
 
 ///
 /// \brief Class representing an attribute of a dataset or group
@@ -69,7 +68,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
 
     /// \brief Read the attribute into a buffer
     template <typename T>
-    void read(T* array, const DataType& dtype = DataType()) const;
+    void read(T* array, const DataType& dtype = {}) const;
 
     ///
     /// Write the integrality N-dimension buffer to this attribute
@@ -83,7 +82,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
 
     /// \brief Write a buffer to this attribute
     template <typename T>
-    void write_raw(const T* buffer, const DataType& dtype = DataType());
+    void write_raw(const T* buffer, const DataType& dtype = {});
 
     /// \brief Get the list of properties for creation of this attribute
     AttributeCreateProps getCreatePropertyList() const {
@@ -101,6 +100,3 @@ class Attribute: public Object, public PathTraits<Attribute> {
 };
 
 }  // namespace HighFive
-
-
-#endif  // H5ATTRIBUTE_HPP

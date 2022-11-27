@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATATYPE_MISC_HPP
-#define H5DATATYPE_MISC_HPP
+#pragma once
 
 #include <string>
 #include <complex>
@@ -494,6 +493,3 @@ inline DataType create_and_check_datatype() {
 }
 
 }  // namespace HighFive
-
-
-#endif  // H5DATATYPE_MISC_HPP

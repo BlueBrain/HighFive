@@ -7,8 +7,7 @@
  *
  */
 
-#ifndef H5REFERENCE_HPP
-#define H5REFERENCE_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -16,7 +15,6 @@
 #include <H5Ipublic.h>
 #include <H5Rpublic.h>
 
-#include "H5Object.hpp"
 #include "bits/H5_definitions.hpp"
 
 namespace HighFive {
@@ -81,5 +79,3 @@ class Reference {
 }  // namespace HighFive
 
 #include "bits/H5Reference_misc.hpp"
-
-#endif  // H5REFERENCE_HPP

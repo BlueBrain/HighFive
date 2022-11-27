@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EASY_BITS_XTENSOR_HPP
-#define H5EASY_BITS_XTENSOR_HPP
+#pragma once
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
@@ -83,4 +82,3 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
 }  // namespace H5Easy
 
 #endif  // H5_USE_XTENSOR
-#endif  // H5EASY_BITS_XTENSOR_HPP

@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ANNOTATE_TRAITS_MISC_HPP
-#define H5ANNOTATE_TRAITS_MISC_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -117,5 +116,3 @@ inline bool AnnotateTraits<Derivate>::hasAttribute(const std::string& attr_name)
 }
 
 }  // namespace HighFive
-
-#endif  // H5ANNOTATE_TRAITS_MISC_HPP

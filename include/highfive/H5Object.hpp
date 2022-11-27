@@ -6,15 +6,13 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5OBJECT_HPP
-#define H5OBJECT_HPP
+#pragma once
 
 #include <ctime>
 
 #include <H5Ipublic.h>
 #include <H5Opublic.h>
 
-#include "H5Exception.hpp"
 #include "bits/H5_definitions.hpp"
 
 namespace HighFive {
@@ -130,5 +128,3 @@ class ObjectInfo {
 }  // namespace HighFive
 
 #include "bits/H5Object_misc.hpp"
-
-#endif  // H5OBJECT_HPP

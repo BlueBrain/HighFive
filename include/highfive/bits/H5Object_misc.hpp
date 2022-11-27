@@ -6,10 +6,11 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5OBJECT_MISC_HPP
-#define H5OBJECT_MISC_HPP
+#pragma once
 
 #include <iostream>
+
+#include "../H5Exception.hpp"
 
 namespace HighFive {
 
@@ -113,5 +114,3 @@ inline time_t ObjectInfo::getModificationTime() const noexcept {
 
 
 }  // namespace HighFive
-
-#endif  // H5OBJECT_MISC_HPP

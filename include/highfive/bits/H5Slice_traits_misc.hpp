@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5SLICE_TRAITS_MISC_HPP
-#define H5SLICE_TRAITS_MISC_HPP
+#pragma once
 
 #include <algorithm>
 #include <cassert>
@@ -263,5 +262,3 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer,
 
 
 }  // namespace HighFive
-
-#endif  // H5SLICE_TRAITS_MISC_HPP

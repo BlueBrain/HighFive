@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EXCEPTION_MISC_HPP
-#define H5EXCEPTION_MISC_HPP
+#pragma once
 
 #include <cstdlib>
 #include <sstream>
@@ -61,5 +60,3 @@ struct HDF5ErrMapper {
 };
 
 }  // namespace HighFive
-
-#endif  // H5OBJECT_MISC_HPP

@@ -7,13 +7,14 @@
  *
  */
 
-#ifndef H5REFERENCE_MISC_HPP
-#define H5REFERENCE_MISC_HPP
+#pragma once
 
 #include <string>
 #include <H5Ppublic.h>
 
 #include "H5Utils.hpp"
+
+#include "../H5Object.hpp"
 
 namespace HighFive {
 
@@ -64,5 +65,3 @@ inline Object Reference::get_ref(const Object& location) const {
 }
 
 }  // namespace HighFive
-
-#endif  // H5REFERENCE_MISC_HPP

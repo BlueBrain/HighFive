@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5EXCEPTION_HPP
-#define H5EXCEPTION_HPP
+#pragma once
 
 #include <memory>
 #include <stdexcept>
@@ -163,5 +162,3 @@ class ReferenceException: public Exception {
 }  // namespace HighFive
 
 #include "bits/H5Exception_misc.hpp"
-
-#endif  // H5EXCEPTION_HPP

@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5ITERABLE_MISC_HPP
-#define H5ITERABLE_MISC_HPP
+#pragma once
 
 #include <exception>
 #include <string>
@@ -53,5 +52,3 @@ inline herr_t internal_high_five_iterate(hid_t /*id*/,
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif  // H5ITERABLE_MISC_HPP

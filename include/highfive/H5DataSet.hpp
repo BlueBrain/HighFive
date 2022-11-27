@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATASET_HPP
-#define H5DATASET_HPP
+#pragma once
 
 #include <vector>
 
@@ -114,5 +113,3 @@ class DataSet: public Object,
 };
 
 }  // namespace HighFive
-
-#endif  // H5DATASET_HPP

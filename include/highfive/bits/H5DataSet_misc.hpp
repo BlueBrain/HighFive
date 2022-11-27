@@ -6,8 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
-#ifndef H5DATASET_MISC_HPP
-#define H5DATASET_MISC_HPP
+#pragma once
 
 #include <algorithm>
 #include <functional>
@@ -66,5 +65,3 @@ inline void DataSet::resize(const std::vector<size_t>& dims) {
 }
 
 }  // namespace HighFive
-
-#endif  // H5DATASET_MISC_HPP
