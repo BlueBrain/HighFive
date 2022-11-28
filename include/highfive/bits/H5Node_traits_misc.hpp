@@ -61,7 +61,7 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
                                                    const DataSetAccessProps& accessProps,
                                                    bool parents) {
     return createDataSet(
-        dataset_name, space, create_and_check_datatype<typename details::inspector<T>::base_type>(), createProps, accessProps, parents);
+        dataset_name, space, create_and_check_datatype<T>(), createProps, accessProps, parents);
 }
 
 template <typename Derivate>

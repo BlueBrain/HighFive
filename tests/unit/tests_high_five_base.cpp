@@ -2212,18 +2212,16 @@ TEST_CASE("HighFiveBool") {
     File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
     {
-        std::vector<bool> b{true, false, true, true};
+        bool b = true;
 
-        auto dataset = file.createDataSet<bool>(DATASET_NAME1, DataSpace::From(b));
+        auto dataset = file.createDataSet<bool>(DATASET_NAME1, b);
         dataset.write(b);
 
         file.flush();
 
-        std::array<bool, 4> result = dataset.read<std::array<bool, 4>>();
+        auto result = dataset.read<bool>();
 
-        for (size_t i = 0; i < 4; ++i) {
-            CHECK(b[i] == result[i]);
-        }
+        CHECK(b == result);
     }
 }
 
