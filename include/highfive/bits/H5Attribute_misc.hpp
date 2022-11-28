@@ -79,8 +79,14 @@ inline void Attribute::read(T& array) const {
     r.unserialize();
     auto t = create_datatype<typename details::inspector<T>::base_type>();
     auto c = t.getClass();
-    if (c == DataTypeClass::VarLen) {
+    if (c == DataTypeClass::VarLen || t.isVariableStr()) {
+#if H5_VERSION_GE(1, 12, 0)
+        // This one have been created in 1.12.0
+        (void) H5Treclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+#else
+        // This one is deprecated since 1.12.0
         (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+#endif
     }
 }
 
