@@ -121,7 +121,7 @@ struct type_helper {
 template <typename T>
 struct inspector: type_helper<T> {};
 
-enum Boolean: int8_t;
+enum Boolean : int8_t;
 template <>
 struct inspector<bool>: type_helper<bool> {
     using base_type = Boolean;
@@ -137,7 +137,9 @@ struct inspector<bool>: type_helper<bool> {
         throw DataSpaceException("A boolean cannot be write directly.");
     }
 
-    static void unserialize(const hdf5_type* vec, const std::vector<size_t>& /* dims */, type& val) {
+    static void unserialize(const hdf5_type* vec,
+                            const std::vector<size_t>& /* dims */,
+                            type& val) {
         val = vec[0] == 1 ? true : false;
     }
 

@@ -195,7 +195,7 @@ class AtomicType<std::complex<T>>: public DataType {
 };
 
 namespace details {
-enum Boolean: int8_t {
+enum Boolean : int8_t {
     FALSE = 0,
     TRUE = 1,
 };
