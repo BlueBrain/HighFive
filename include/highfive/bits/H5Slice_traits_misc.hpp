@@ -189,8 +189,14 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     r.unserialize();
     auto t = create_datatype<typename details::inspector<T>::base_type>();
     auto c = t.getClass();
-    if (c == DataTypeClass::VarLen) {
+    if (c == DataTypeClass::VarLen || t.isVariableStr()) {
+#if H5_VERSION_GE(1, 12, 0)
+        // This one have been created in 1.12.0
+        (void) H5Treclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.get_pointer());
+#else
+        // This one is deprecated since 1.12.0
         (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.get_pointer());
+#endif
     }
 }
 

@@ -10,6 +10,7 @@
 
 #include <type_traits>
 #include <cstring>
+#include <numeric>
 
 #include "../H5Reference.hpp"
 #ifdef H5_USE_BOOST
