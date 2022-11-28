@@ -61,6 +61,6 @@ jobs:
         lcov --add-tracefile coverage-base.info --add-tracefile coverage-run.info --output-file coverage-combined.info
     - uses: codecov/codecov-action@v3
       with:
-        files: ${GITHUB_WORKSPACE}/build/coverage-combined.info
+        files: ./build/coverage-combined.info
         fail_ci_if_error: true
         verbose: true
