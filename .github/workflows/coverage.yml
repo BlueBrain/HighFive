@@ -59,15 +59,8 @@ jobs:
         cmake --build $HIGHFIVE_BUILD --target test
         (cd $GITHUB_WORKSPACE; lcov --capture  --directory . --no-external --output-file build/coverage-run.info)
         lcov --add-tracefile coverage-base.info --add-tracefile coverage-run.info --output-file coverage-combined.info
-    - name: Upload Coverage
-      run: |
-        source $GITHUB_WORKSPACE/.github/build.sh
-        # Download codecov script and perform integrity checks
-        curl https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --import # One-time step 
-        curl -Os https://uploader.codecov.io/latest/linux/codecov 
-        curl -Os https://uploader.codecov.io/latest/linux/codecov.SHA256SUM 
-        curl -Os https://uploader.codecov.io/latest/linux/codecov.SHA256SUM.sig 
-        gpg --verify codecov.SHA256SUM.sig codecov.SHA256SUM 
-        shasum -a 256 -c codecov.SHA256SUM 
-        chmod +x codecov 
-        ./codecov -f $HIGHFIVE_BUILD/coverage-combined.info
+    - uses: codecov/codecov-action@v3
+      with:
+        files: ./build/coverage-combined.info
+        fail_ci_if_error: true
+        verbose: true
