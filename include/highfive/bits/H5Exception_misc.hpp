@@ -28,8 +28,8 @@ struct HDF5ErrMapper {
         std::ostringstream oss;
         oss << '(' << major_err << ") " << minor_err;
 
-        free((void*) major_err);
-        free((void*) minor_err);
+        H5free_memory((void*) major_err);
+        H5free_memory((void*) minor_err);
 
         auto* e = new ExceptionType(oss.str());
         e->_err_major = err_desc->maj_num;
