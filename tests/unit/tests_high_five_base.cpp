@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <random>
 #include <string>
@@ -24,8 +25,9 @@
 #include <highfive/H5Reference.hpp>
 #include <highfive/H5Utility.hpp>
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 #include "tests_high_five.hpp"
 
