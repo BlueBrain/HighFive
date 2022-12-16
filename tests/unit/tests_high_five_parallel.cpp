@@ -18,8 +18,9 @@
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5Group.hpp>
 
-#define CATCH_CONFIG_RUNNER
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <catch2/catch_session.hpp>
 
 #include "tests_high_five.hpp"
 
