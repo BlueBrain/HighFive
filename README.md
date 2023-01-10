@@ -86,23 +86,23 @@ dataset over the course of a simulation.
 
 #### Write a 2 dimensional C double float array to a 2D HDF5 dataset
 
-See [create_dataset_double.cpp](src/examples/create_dataset_double.cpp)
+See [create_dataset_double.cpp](https://github.com/BlueBrain/HighFive/blob/master/src/examples/create_dataset_double.cpp)
 
 #### Write and read a matrix of double float (boost::ublas) to a 2D HDF5 dataset
 
-See [boost_ublas_double.cpp](src/examples/boost_ublas_double.cpp)
+See [boost_ublas_double.cpp](https://github.com/BlueBrain/HighFive/blob/master/src/examples/boost_ublas_double.cpp)
 
 #### Write and read a subset of a 2D double dataset
 
-See [select_partial_dataset_cpp11.cpp](src/examples/select_partial_dataset_cpp11.cpp)
+See [select_partial_dataset_cpp11.cpp](https://github.com/BlueBrain/HighFive/blob/master/src/examples/select_partial_dataset_cpp11.cpp)
 
 #### Create, write and list HDF5 attributes
 
-See [create_attribute_string_integer.cpp](src/examples/create_attribute_string_integer.cpp)
+See [create_attribute_string_integer.cpp](https://github.com/BlueBrain/HighFive/blob/master/src/examples/create_attribute_string_integer.cpp)
 
 #### And others
 
-See [src/examples/](src/examples/) subdirectory for more info.
+See [src/examples/](https://github.com/BlueBrain/HighFive/blob/master/src/examples/) subdirectory for more info.
 
 
 ### Compiling with HighFive
