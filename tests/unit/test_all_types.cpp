@@ -153,8 +153,10 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, {5, 6}, create_datatype<typename details::inspector<std::vector<TestType>>::base_type>());
+        DataSet dataset = file.createDataSet(
+            DATASET_NAME,
+            {5, 6},
+            create_datatype<typename details::inspector<std::vector<TestType>>::base_type>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
@@ -202,8 +204,10 @@ TEMPLATE_TEST_CASE("Scalar in std::array",
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, {5}, create_datatype<typename details::inspector<std::array<TestType, 5>>::base_type>());
+        DataSet dataset = file.createDataSet(
+            DATASET_NAME,
+            {5},
+            create_datatype<typename details::inspector<std::array<TestType, 5>>::base_type>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
@@ -251,8 +255,11 @@ TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>",
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, {5, 6}, create_datatype<typename details::inspector<std::vector<std::array<TestType, 5>>>::base_type>());
+        DataSet dataset = file.createDataSet(
+            DATASET_NAME,
+            {5, 6},
+            create_datatype<
+                typename details::inspector<std::vector<std::array<TestType, 5>>>::base_type>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
