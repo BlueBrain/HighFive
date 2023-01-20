@@ -18,8 +18,8 @@
 #include <boost/multi_array.hpp>
 #endif
 
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
 #include "tests_high_five.hpp"
 

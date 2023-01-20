@@ -8,7 +8,7 @@ endif()
 ## Base tests
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy)
   add_executable(${test_name} "${test_name}.cpp")
-  target_link_libraries(${test_name} HighFive Catch2::Catch2)
+  target_link_libraries(${test_name} HighFive Catch2::Catch2WithMain)
   catch_discover_tests(${test_name})
 endforeach()
 
