@@ -194,12 +194,6 @@ class AtomicType<std::complex<T>>: public DataType {
     }
 };
 
-namespace details {
-enum Boolean : int8_t {
-    FALSE = 0,
-    TRUE = 1,
-};
-}
 // For boolean we act as h5py
 EnumType<details::Boolean> create_enum_boolean() {
     return {{"FALSE", details::Boolean::FALSE}, {"TRUE", details::Boolean::TRUE}};
