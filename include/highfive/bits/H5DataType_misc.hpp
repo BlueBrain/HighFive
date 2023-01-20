@@ -493,3 +493,4 @@ inline DataType create_and_check_datatype() {
 
 }  // namespace HighFive
 HIGHFIVE_REGISTER_TYPE(HighFive::details::Boolean, HighFive::create_enum_boolean)
+HIGHFIVE_REGISTER_TYPE(bool, HighFive::create_enum_boolean)
