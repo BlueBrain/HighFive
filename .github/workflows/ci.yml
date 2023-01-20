@@ -28,26 +28,28 @@ jobs:
   # Job testing compiling on several Ubuntu systems + MPI
   # =========================================================
   #
-  # For 18.04:  bare HighFive
-  # For 20.04:  activate Boost, OpenCV
+  # For 20.04:  bare and activate Boost, OpenCV
   # For latest: activate Boost, Eigen, OpenCV, with Ninja
   #
   # XTensor tests are run for conda/mamba and MacOS
   Linux_MPI:
-    runs-on: ${{matrix.os}}
+    runs-on: ${{matrix.config.os}}
+    name: ${{toJson(matrix.config)}}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-latest]
         include:
-          - os: ubuntu-18.04
-            pkgs: ''
-            flags: '-DHIGHFIVE_USE_BOOST:Bool=OFF'
-          - os: ubuntu-20.04
-            pkgs: 'libboost-all-dev libopencv-dev'
-            flags: '-DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
-          - os: ubuntu-latest
-            pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
-            flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+          - config:
+              os: ubuntu-20.04
+              pkgs: ''
+              flags: '-DHIGHFIVE_USE_BOOST:Bool=OFF'
+          - config:
+              os: ubuntu-20.04
+              pkgs: 'libboost-all-dev libopencv-dev'
+              flags: '-DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+          - config:
+              os: ubuntu-latest
+              pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
+              flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
 
     steps:
     - uses: actions/checkout@v3
@@ -62,11 +64,11 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libhdf5-openmpi-dev libsz2 ninja-build ${{ matrix.pkgs }}
+        sudo apt-get -qq install libhdf5-openmpi-dev libsz2 ninja-build ${{ matrix.config.pkgs }}
 
     - name: Build
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON ${{ matrix.flags }})
+        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON ${{ matrix.config.flags }})
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
@@ -80,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        hdf5_version : [ hdf5-1_8_22, hdf5-1_10_9, hdf5-1_12_2, hdf5-1_13_2 ]
+        hdf5_version : [ hdf5-1_8_22, hdf5-1_10_9, hdf5-1_12_2, hdf5-1_14_0 ]
 
     steps:
     - uses: actions/checkout@v3
