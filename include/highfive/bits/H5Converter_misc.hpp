@@ -137,7 +137,7 @@ struct inspector<bool>: type_helper<bool> {
     }
 
     static const hdf5_type* data(const type& /* val */) {
-        throw DataSpaceException("A boolean cannot be write directly.");
+        throw DataSpaceException("A boolean cannot be written directly.");
     }
 
     static void unserialize(const hdf5_type* vec,
