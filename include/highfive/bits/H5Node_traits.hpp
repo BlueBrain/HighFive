@@ -49,7 +49,9 @@ class NodeTraits {
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
     template <typename T,
-              typename std::enable_if<std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value, int>::type* = nullptr>
+              typename std::enable_if<
+                  std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
+                  int>::type* = nullptr>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
@@ -57,7 +59,9 @@ class NodeTraits {
                           bool parents = true);
 
     template <typename T,
-              typename std::enable_if<!std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value, int>::type* = nullptr>
+              typename std::enable_if<
+                  !std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
+                  int>::type* = nullptr>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
