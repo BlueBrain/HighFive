@@ -198,12 +198,6 @@ class AtomicType<std::complex<T>>: public DataType {
 EnumType<details::Boolean> create_enum_boolean() {
     return {{"FALSE", details::Boolean::FALSE}, {"TRUE", details::Boolean::TRUE}};
 }
-// template <>
-// class AtomicType<bool>: public DataType {
-//   public:
-//     inline AtomicType()
-//         : DataType(create_enum_boolean()) {}
-// };
 
 // Other cases not supported. Fail early with a user message
 template <typename T>
