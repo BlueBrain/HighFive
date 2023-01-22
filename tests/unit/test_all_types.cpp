@@ -52,7 +52,9 @@ TEMPLATE_TEST_CASE("Scalar in DataSet",
 
         // Create the dataset
         DataSet dataset =
-            file.createDataSet(DATASET_NAME, DataSpace(1), create_datatype<TestType>());
+            file.createDataSet(DATASET_NAME,
+                               DataSpace(1),
+                               create_datatype<typename details::inspector<TestType>::base_type>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
@@ -100,8 +102,8 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector",
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the dataset
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, {5}, create_datatype<typename TestType::value_type>());
+        DataSet dataset = file.createDataSet(
+            DATASET_NAME, {5}, create_datatype<typename details::inspector<TestType>::base_type>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
@@ -190,7 +192,7 @@ TEMPLATE_TEST_CASE("Scalar in std::array",
                    float,
                    double,
                    long double,
-                   /* bool, */
+                   bool,
                    std::string,
                    std::complex<float>,
                    std::complex<double>,
@@ -241,7 +243,7 @@ TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>",
                    float,
                    double,
                    long double,
-                   /* bool, */
+                   bool,
                    std::string,
                    std::complex<float>,
                    std::complex<double>,

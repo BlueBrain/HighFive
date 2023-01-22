@@ -160,7 +160,7 @@ struct inspector<std::string>: type_helper<std::string> {
     }
 
     static const hdf5_type* data(const type& /* val */) {
-        throw DataSpaceException("A std::string cannot be write directly.");
+        throw DataSpaceException("A std::string cannot be written directly.");
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -185,7 +185,7 @@ struct inspector<Reference>: type_helper<Reference> {
     }
 
     static const hdf5_type* data(const type& /* val */) {
-        throw DataSpaceException("A Reference cannot be write directly.");
+        throw DataSpaceException("A Reference cannot be written directly.");
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -265,7 +265,8 @@ struct inspector<std::vector<T>> {
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size()};
@@ -329,7 +330,8 @@ struct inspector<std::array<T, N>> {
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{N};
@@ -399,7 +401,8 @@ struct inspector<T*> {
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static size_t getSizeVal(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
@@ -430,7 +433,8 @@ struct inspector<T[N]> {
 
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
@@ -469,7 +473,8 @@ struct inspector<Eigen::Matrix<T, M, N>> {
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
@@ -530,7 +535,8 @@ struct inspector<boost::multi_array<T, Dims>> {
 
     static constexpr size_t ndim = Dims;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes;
@@ -608,7 +614,8 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
     static constexpr size_t ndim = 2;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
-    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size1(), val.size2()};
