@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+dependencies:
+  - boost-cpp
+  - catch2
+  - cmake
+  - doxygen
+  - eigen
+  - graphviz
+  - hdf5
+  - xtensor
+  - xtl

@@ -185,7 +185,7 @@ jobs:
 
 
   # Job testing in OSX
-  # =======================
+  # ==================
   OSX:
     runs-on: macOS-10.15
 
@@ -216,7 +216,7 @@ jobs:
 
 
   # Job testing in Windows
-  # ===========================
+  # ======================
   Windows:
     runs-on: Windows-latest
     steps:
@@ -226,7 +226,7 @@ jobs:
 
     - uses: mamba-org/provision-with-micromamba@main
       with:
-        environment-file: doc/environment.yaml
+        environment-file: doc/environment-win.yaml
         environment-name: win-test
 
     - name: Build

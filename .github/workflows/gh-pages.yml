@@ -26,7 +26,7 @@ jobs:
 
     - uses: mamba-org/provision-with-micromamba@main
       with:
-        environment-file: doc/environment.yaml
+        environment-file: doc/environment-linux.yaml
         environment-name: doc-build
 
     - name: Run doxygen
