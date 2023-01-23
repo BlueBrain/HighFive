@@ -263,6 +263,8 @@ struct inspector<std::vector<T>> {
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
+    static_assert(!std::is_same<bool, value_type>::value, "std::vector<bool> is not supported");
+
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
