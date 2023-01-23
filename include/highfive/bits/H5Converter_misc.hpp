@@ -263,8 +263,6 @@ struct inspector<std::vector<T>> {
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
-    static_assert(!std::is_same<bool, value_type>::value, "std::vector<bool> is not supported");
-
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
@@ -322,6 +320,62 @@ struct inspector<std::vector<T>> {
     }
 };
 
+template <>
+struct inspector<std::vector<bool>> {
+    using type = std::vector<bool>;
+    using value_type = bool;
+    using base_type = Boolean;
+    using hdf5_type = uint8_t;
+
+    static constexpr size_t ndim = 1;
+    static constexpr size_t recursive_ndim = ndim;
+    static constexpr bool is_trivially_copyable = false;
+
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes{val.size()};
+        return sizes;
+    }
+
+    static size_t getSizeVal(const type& val) {
+        return val.size();
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        if (dims.size() > 1) {
+            throw DataSpaceException("std::vector<bool> is only 1 dimension.");
+        }
+        return dims[0];
+    }
+
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        if (dims.size() > 1) {
+            throw DataSpaceException("std::vector<bool> is only 1 dimension.");
+        }
+        val.resize(dims[0]);
+    }
+
+    static hdf5_type* data(type& /* val */) {
+        throw DataSpaceException("A std::vector<bool> cannot be read directly.");
+    }
+
+    static const hdf5_type* data(const type& /* val */) {
+        throw DataSpaceException("A std::vector<bool> cannot be written directly.");
+    }
+
+    static void serialize(const type& val, hdf5_type* m) {
+        for (size_t i = 0; i < val.size(); ++i) {
+            m[i] = val[i] ? 1 : 0;
+        }
+    }
+
+    static void unserialize(const hdf5_type* vec_align,
+                            const std::vector<size_t>& dims,
+                            type& val) {
+        for (size_t i = 0; i < dims[0]; ++i) {
+            val[i] = vec_align[i] == 1 ? true : false;
+        }
+    }
+};
 
 template <typename T, size_t N>
 struct inspector<std::array<T, N>> {
