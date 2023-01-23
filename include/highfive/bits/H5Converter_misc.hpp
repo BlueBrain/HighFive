@@ -143,7 +143,7 @@ struct inspector<bool>: type_helper<bool> {
     static void unserialize(const hdf5_type* vec,
                             const std::vector<size_t>& /* dims */,
                             type& val) {
-        val = vec[0] == 1 ? true : false;
+        val = vec[0] != 0 ? true : false;
     }
 
     static void serialize(const type& val, hdf5_type* m) {
@@ -372,7 +372,7 @@ struct inspector<std::vector<bool>> {
                             const std::vector<size_t>& dims,
                             type& val) {
         for (size_t i = 0; i < dims[0]; ++i) {
-            val[i] = vec_align[i] == 1 ? true : false;
+            val[i] = vec_align[i] != 0 ? true : false;
         }
     }
 };
