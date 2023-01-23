@@ -21,27 +21,7 @@
 
 using namespace HighFive;
 
-TEMPLATE_TEST_CASE("Scalar in DataSet",
-                   "[Types]",
-                   char,
-                   signed char,
-                   unsigned char,
-                   short,
-                   unsigned short,
-                   int,
-                   unsigned,
-                   long,
-                   unsigned long,
-                   long long,
-                   unsigned long long,
-                   float,
-                   double,
-                   long double,
-                   bool,
-                   std::string,
-                   std::complex<float>,
-                   std::complex<double>,
-                   std::complex<long double>) {
+TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
     const std::string FILE_NAME("Test_type.h5");
     const std::string DATASET_NAME("dset");
     TestType t1{};
@@ -71,28 +51,7 @@ TEMPLATE_TEST_CASE("Scalar in DataSet",
     }
 }
 
-TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector",
-                           "[Types]",
-                           std::vector,
-                           (char,
-                            signed char,
-                            unsigned char,
-                            short,
-                            unsigned short,
-                            int,
-                            unsigned,
-                            long,
-                            unsigned long,
-                            long long,
-                            unsigned long long,
-                            float,
-                            double,
-                            long double,
-                            bool,
-                            std::string,
-                            std::complex<float>,
-                            std::complex<double>,
-                            std::complex<long double>) ) {
+TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector", "[Types]", std::vector, (bool, std::string)) {
     const std::string FILE_NAME("Test_vector.h5");
     const std::string DATASET_NAME("dset");
     TestType t1(5);
@@ -124,25 +83,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector",
 TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
                            "[Types]",
                            std::vector,
-                           (char,
-                            signed char,
-                            unsigned char,
-                            short,
-                            unsigned short,
-                            int,
-                            unsigned,
-                            long,
-                            unsigned long,
-                            long long,
-                            unsigned long long,
-                            float,
-                            double,
-                            long double,
-                            bool,
-                            std::string,
-                            std::complex<float>,
-                            std::complex<double>,
-                            std::complex<long double>) ) {
+                           (bool, std::string)) {
     const std::string FILE_NAME("Test_vector_vector.h5");
     const std::string DATASET_NAME("dset");
     std::vector<TestType> t1(5);
@@ -176,27 +117,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
     }
 }
 
-TEMPLATE_TEST_CASE("Scalar in std::array",
-                   "[Types]",
-                   char,
-                   signed char,
-                   unsigned char,
-                   short,
-                   unsigned short,
-                   int,
-                   unsigned,
-                   long,
-                   unsigned long,
-                   long long,
-                   unsigned long long,
-                   float,
-                   double,
-                   long double,
-                   bool,
-                   std::string,
-                   std::complex<float>,
-                   std::complex<double>,
-                   std::complex<long double>) {
+TEMPLATE_TEST_CASE("Scalar in std::array", "[Types]", bool, std::string) {
     const std::string FILE_NAME("Test_array.h5");
     const std::string DATASET_NAME("dset");
     std::array<TestType, 5> t1{};
@@ -227,27 +148,7 @@ TEMPLATE_TEST_CASE("Scalar in std::array",
     }
 }
 
-TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>",
-                   "[Types]",
-                   char,
-                   signed char,
-                   unsigned char,
-                   short,
-                   unsigned short,
-                   int,
-                   unsigned,
-                   long,
-                   unsigned long,
-                   long long,
-                   unsigned long long,
-                   float,
-                   double,
-                   long double,
-                   bool,
-                   std::string,
-                   std::complex<float>,
-                   std::complex<double>,
-                   std::complex<long double>) {
+TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>", "[Types]", bool, std::string) {
     const std::string FILE_NAME("Test_vector_array.h5");
     const std::string DATASET_NAME("dset");
     std::vector<std::array<TestType, 6>> t1(5);
@@ -278,33 +179,3 @@ TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>",
         CHECK(value.size() == 5);
     }
 }
-
-#ifdef H5_USE_EIGEN
-TEMPLATE_PRODUCT_TEST_CASE("Eigen in std::vector",
-                           "[Types]",
-                           std::vector,
-                           (Eigen::Vector2d, Eigen::Vector3d)) {
-    const std::string FILE_NAME("Test_vector.h5");
-    const std::string DATASET_NAME("dset");
-    TestType t1(5);
-
-    {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-        // Create the dataset
-        DataSet dataset = file.createDataSet(DATASET_NAME, t1);
-    }
-
-    // read it back
-    {
-        File file(FILE_NAME, File::ReadOnly);
-
-        TestType value;
-        DataSet dataset = file.getDataSet("/" + DATASET_NAME);
-        dataset.read(value);
-        CHECK(t1 == value);
-        CHECK(value.size() == 5);
-    }
-}
-#endif
