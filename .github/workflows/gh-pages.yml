@@ -26,7 +26,7 @@ jobs:
 
     - uses: mamba-org/provision-with-micromamba@main
       with:
-        environment-file: doc/environment.yaml
+        environment-file: doc/environment-linux.yaml
         environment-name: doc-build
 
     - name: Run doxygen
@@ -36,6 +36,7 @@ jobs:
           -DHIGHFIVE_USE_BOOST:BOOL=ON
           -DHIGHFIVE_USE_EIGEN:BOOL=ON
           -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_PARALLEL_HDF5:BOOL=ON
         )
         cmake -B build -S . "${CMAKE_OPTIONS[@]}"
         cmake --build build --target doc
