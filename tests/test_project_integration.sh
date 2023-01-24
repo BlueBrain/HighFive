@@ -16,7 +16,7 @@ test_install() {
     mkdir -p "${builddir}"
     pushd "${builddir}"
     cmake "${TESTDIR}/${project}" "$@"
-    make VERBOSE=1
+    cmake --build . --verbose
     ctest
     popd
     rm "${TESTDIR}/${project}/deps/HighFive"
@@ -29,7 +29,7 @@ cmake "${ROOT}" \
     -DHIGHFIVE_EXAMPLES=OFF \
     -DHIGHFIVE_UNIT_TESTS=OFF \
     -DCMAKE_INSTALL_PREFIX="${PWD}/install"
-make install
+cmake --build . --target install
 popd
 
 for project in test_project test_dependent_library; do

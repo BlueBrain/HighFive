@@ -12,6 +12,7 @@
 
 #include "../H5PropertyList.hpp"
 #include "H5_definitions.hpp"
+#include "H5Converter_misc.hpp"
 
 namespace HighFive {
 
@@ -47,7 +48,20 @@ class NodeTraits {
     /// \param accessProps A property list with data set access properties
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
-    template <typename Type>
+    template <typename T,
+              typename std::enable_if<
+                  std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
+                  int>::type* = nullptr>
+    DataSet createDataSet(const std::string& dataset_name,
+                          const DataSpace& space,
+                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
+                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
+                          bool parents = true);
+
+    template <typename T,
+              typename std::enable_if<
+                  !std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
+                  int>::type* = nullptr>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),

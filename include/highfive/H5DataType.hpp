@@ -403,10 +403,10 @@ class FixedLenStringArray {
 /// }
 /// HIGHFIVE_REGISTER_TYPE(FooBar, create_enum_foobar)
 /// \endcode
-#define HIGHFIVE_REGISTER_TYPE(type, function)             \
-    template <>                                            \
-    HighFive::DataType HighFive::create_datatype<type>() { \
-        return function();                                 \
+#define HIGHFIVE_REGISTER_TYPE(type, function)                    \
+    template <>                                                   \
+    inline HighFive::DataType HighFive::create_datatype<type>() { \
+        return function();                                        \
     }
 
 #include "bits/H5DataType_misc.hpp"
