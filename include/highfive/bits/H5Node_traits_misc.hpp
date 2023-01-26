@@ -9,7 +9,10 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
 #include <vector>
+#include <functional>
+#include <cmath>
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
@@ -29,6 +32,109 @@
 
 namespace HighFive {
 
+static inline std::vector<hsize_t> _guessChunkDims(const std::vector<size_t>& dims,
+                                                   const std::vector<size_t>& max_dims,
+                                                   size_t typesize) {
+    // Based on the h5py implementation
+    const size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
+    const size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
+    const size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
+    auto product = [](std::vector<size_t> vec) {
+        return std::accumulate(vec.begin(), vec.end(), size_t(1), std::multiplies<size_t>());
+    };
+
+    size_t ndims = dims.size();
+    if (ndims == 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            std::string("Chunks not allowed for scalar datasets."));
+    }
+    std::vector<size_t> chunkdims = dims;
+
+    // If the dimension is unlimited, set chunksize to 1024 along that
+    for (int i = 0; i < ndims; i++) {
+        if (max_dims[i] == DataSpace::UNLIMITED)
+            chunkdims[i] = 1024;
+    }
+
+    size_t chunk_size;
+    size_t dset_size = product(chunkdims) * typesize;
+    double target_size = CHUNK_BASE * std::pow(2.0, std::log10(dset_size / (1024. * 1024)));
+
+    if (target_size > CHUNK_MAX)
+        target_size = CHUNK_MAX;
+    else if (target_size < CHUNK_MIN)
+        target_size = CHUNK_MIN;
+
+    int idx = 0;
+    while (1) {
+        // Repeatedly loop over the axes, dividing them by 2.  Stop when:
+        // 1a. We're smaller than the target chunk size, OR
+        // 1b. We're within 50% of the target chunk size, AND
+        //  2. The chunk is smaller than the maximum chunk size
+
+        chunk_size = product(chunkdims) * typesize;
+
+        if ((chunk_size < target_size || std::abs(chunk_size - target_size) / target_size < 0.5) &&
+            chunk_size < CHUNK_MAX)
+            break;
+
+        if (product(chunkdims) == 1)
+            break;  // Element size larger than CHUNK_MAX
+
+        chunkdims[idx % ndims] = static_cast<size_t>(std::ceil(chunkdims[idx % ndims] / 2.0));
+        idx++;
+    }
+
+    return details::to_vector_hsize_t(chunkdims);
+}
+
+template <typename Derivate>
+inline DataSetCreateProps NodeTraits<Derivate>::_chunkIfNecessary(
+    const std::string& dataset_name,
+    const DataSpace& space,
+    const DataType& dtype,
+    const DataSetCreateProps& createProps) {
+    bool shuffleSet, deflateSet, szipSet, chunkedLayout;
+
+    // Check whether the dataset layout is chunked or not
+    if (createProps.getId() == H5P_DEFAULT) {
+        chunkedLayout = false;  // Default dataset layout is contiguous
+    } else {
+        H5D_layout_t layout = H5Pget_layout(createProps.getId());
+        if (layout < 0) {
+            HDF5ErrMapper::ToException<DataSetException>(
+                std::string("Unable to query the layout for dataset \"") + dataset_name + "\":");
+        }
+        chunkedLayout = (layout == H5D_CHUNKED);
+    }
+
+    // Query options which require chunked layout
+    {
+        SilenceHDF5 silencer;
+        const hid_t& hid = createProps._hid;
+        unsigned int flags;
+        shuffleSet =
+            H5Pget_filter_by_id(hid, H5Z_FILTER_SHUFFLE, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
+        deflateSet =
+            H5Pget_filter_by_id(hid, H5Z_FILTER_DEFLATE, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
+        szipSet = H5Pget_filter_by_id(hid, H5Z_FILTER_SZIP, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
+    }
+    bool extendable = !std::equal(space.getDimensions().begin(),
+                                  space.getDimensions().end(),
+                                  space.getMaxDimensions().begin());
+
+    // If layout is not chunked but necessary, guess chunk size
+    if ((extendable || shuffleSet || deflateSet || szipSet) && !chunkedLayout) {
+        DataSetCreateProps createPropsNew;
+        createPropsNew._hid = H5Pcopy(createProps.getId());
+        std::vector<hsize_t> chunkDims;
+        chunkDims =
+            _guessChunkDims(space.getDimensions(), space.getMaxDimensions(), dtype.getSize());
+        createPropsNew.add(Chunking(chunkDims));
+        return createPropsNew;
+    }
+    return createProps;
+}
 
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
@@ -39,12 +145,14 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
                                                    bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
+    DataSetCreateProps finalCreateProps;
+    finalCreateProps = _chunkIfNecessary(dataset_name, space, dtype, createProps);
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(),
                                 dtype._hid,
                                 space._hid,
                                 lcpl.getId(),
-                                createProps.getId(),
+                                finalCreateProps.getId(),
                                 accessProps.getId());
     if (hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(
