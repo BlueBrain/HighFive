@@ -55,7 +55,8 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
     }
 
     std::size_t dset_size = compute_total_size(chunkdims) * typesize;
-    double target_size = CHUNK_BASE * std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
+    double target_size = CHUNK_BASE *
+                         std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
 
     if (target_size > CHUNK_MAX) {
         target_size = CHUNK_MAX;
@@ -72,7 +73,8 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
 
         std::size_t chunk_size = compute_total_size(chunkdims) * typesize;
 
-        if ((static_cast<double>(chunk_size) < target_size || std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
+        if ((static_cast<double>(chunk_size) < target_size ||
+             std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
             chunk_size < CHUNK_MAX) {
             break;
         }
@@ -81,7 +83,8 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
             break;  // Element size larger than CHUNK_MAX
         }
 
-        chunkdims[idx % ndims] = static_cast<std::size_t>(std::ceil(static_cast<double>(chunkdims[idx % ndims]) / 2.));
+        chunkdims[idx % ndims] = static_cast<std::size_t>(
+            std::ceil(static_cast<double>(chunkdims[idx % ndims]) / 2.));
         idx++;
     }
 
