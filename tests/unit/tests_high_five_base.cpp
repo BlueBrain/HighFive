@@ -437,7 +437,9 @@ TEST_CASE("Test extensible datasets") {
 
         // Use chunking
         DataSetCreateProps props;
+        CHECK(props.has_chunking() == false);
         props.add(Chunking(std::vector<hsize_t>{2, 2}));
+        CHECK(props.has_chunking() == true);
 
         // Create the dataset
         DataSet dataset =
@@ -1547,10 +1549,16 @@ void readWriteShuffleDeflateTest() {
         props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
 
         // Enable shuffle
+        CHECK(props.needs_chunking() == false);
+        CHECK(props.has_filter(H5Z_FILTER_SHUFFLE) == false);
         props.add(Shuffle());
+        CHECK(props.needs_chunking() == true);
+        CHECK(props.has_filter(H5Z_FILTER_SHUFFLE) == true);
 
         // Enable deflate
+        CHECK(props.has_filter(H5Z_FILTER_DEFLATE) == false);
         props.add(Deflate(deflate_level));
+        CHECK(props.has_filter(H5Z_FILTER_DEFLATE) == true);
 
         // Create a dataset with arbitrary type
         DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);
@@ -1613,7 +1621,11 @@ void readWriteSzipTest() {
         props.add(Chunking(std::vector<hsize_t>{x_chunk, y_chunk}));
 
         // Enable szip
+        CHECK(props.needs_chunking() == false);
+        CHECK(props.has_filter(H5Z_FILTER_DEFLATE) == false);
         props.add(Szip(options_mask, pixels_per_block));
+        CHECK(props.needs_chunking() == true);
+        CHECK(props.has_filter(H5Z_FILTER_SZIP) == true);
 
         // Create a dataset with arbitrary type
         DataSet dataset = file.createDataSet<T>(DATASET_NAME, dataspace, props);

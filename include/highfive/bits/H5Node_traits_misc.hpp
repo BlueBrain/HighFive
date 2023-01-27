@@ -105,8 +105,7 @@ inline DataSetCreateProps NodeTraits<Derivate>::_chunkIfNecessary(
     if ((extendable || createProps.needs_chunking()) && !createProps.has_chunking()) {
         DataSetCreateProps createPropsNew;
         createPropsNew._hid = H5Pcopy(createProps.getId());
-        std::vector<hsize_t> chunkDims;
-        chunkDims =
+        std::vector<hsize_t> chunkDims =
             _guessChunkDims(space.getDimensions(), space.getMaxDimensions(), dtype.getSize());
         createPropsNew.add(Chunking(chunkDims));
         return createPropsNew;
