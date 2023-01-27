@@ -448,7 +448,9 @@ class Chunking {
         return _dims;
     }
 
-    static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims, const std::vector<std::size_t>& max_dims, std::size_t typesize);
+    static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims,
+                                                      const std::vector<std::size_t>& max_dims,
+                                                      std::size_t typesize);
 
   private:
     friend DataSetCreateProps;

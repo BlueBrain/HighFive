@@ -180,7 +180,9 @@ inline void Chunking::apply(const hid_t hid) const {
     }
 }
 
-std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size_t>& dims, const std::vector<std::size_t>& max_dims, std::size_t typesize) {
+std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size_t>& dims,
+                                                     const std::vector<std::size_t>& max_dims,
+                                                     std::size_t typesize) {
     const std::size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
     const std::size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
     const std::size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
@@ -195,7 +197,7 @@ std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size
 
     std::size_t dset_size = details::compute_total_size(chunkingDims) * typesize;
     double target_size = CHUNK_BASE *
-        std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
+                         std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
 
     if (target_size > CHUNK_MAX) {
         target_size = CHUNK_MAX;
@@ -213,8 +215,8 @@ std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size
         std::size_t chunk_size = details::compute_total_size(chunkingDims) * typesize;
 
         if ((static_cast<double>(chunk_size) < target_size ||
-                    std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
-                chunk_size < CHUNK_MAX) {
+             std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
+            chunk_size < CHUNK_MAX) {
             break;
         }
 
@@ -223,7 +225,7 @@ std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size
         }
 
         chunkingDims[idx % chunkingDims.size()] = static_cast<std::size_t>(
-                std::ceil(static_cast<double>(chunkingDims[idx % chunkingDims.size()]) / 2.));
+            std::ceil(static_cast<double>(chunkingDims[idx % chunkingDims.size()]) / 2.));
         idx++;
     }
 

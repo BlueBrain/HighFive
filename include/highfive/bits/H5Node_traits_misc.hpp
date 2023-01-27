@@ -43,12 +43,11 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 
     auto dims = space.getDimensions();
     auto max_dims = space.getMaxDimensions();
-    bool extendable = !std::equal(dims.begin(),
-                                  dims.end(),
-                                  max_dims.begin());
+    bool extendable = !std::equal(dims.begin(), dims.end(), max_dims.begin());
 
     if ((extendable || createProps.needs_chunking()) && !createProps.has_chunking()) {
-        HDF5ErrMapper::ToException<DataSetException>(std::string("Chunking is needed but not set for dataset \"") + dataset_name + "\":");
+        HDF5ErrMapper::ToException<DataSetException>(
+            std::string("Chunking is needed but not set for dataset \"") + dataset_name + "\":");
     }
 
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
