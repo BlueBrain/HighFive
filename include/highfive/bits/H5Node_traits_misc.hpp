@@ -93,41 +93,16 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
 
 template <typename Derivate>
 inline DataSetCreateProps NodeTraits<Derivate>::_chunkIfNecessary(
-    const std::string& dataset_name,
     const DataSpace& space,
     const DataType& dtype,
     const DataSetCreateProps& createProps) {
-    bool shuffleSet, deflateSet, szipSet, chunkedLayout;
+    // If layout is not chunked but necessary, guess chunk size
 
-    // Check whether the dataset layout is chunked or not
-    if (createProps.getId() == H5P_DEFAULT) {
-        chunkedLayout = false;  // Default dataset layout is contiguous
-    } else {
-        H5D_layout_t layout = H5Pget_layout(createProps.getId());
-        if (layout < 0) {
-            HDF5ErrMapper::ToException<DataSetException>(
-                std::string("Unable to query the layout for dataset \"") + dataset_name + "\":");
-        }
-        chunkedLayout = (layout == H5D_CHUNKED);
-    }
-
-    // Query options which require chunked layout
-    {
-        SilenceHDF5 silencer;
-        const hid_t& hid = createProps._hid;
-        unsigned int flags;
-        shuffleSet =
-            H5Pget_filter_by_id(hid, H5Z_FILTER_SHUFFLE, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
-        deflateSet =
-            H5Pget_filter_by_id(hid, H5Z_FILTER_DEFLATE, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
-        szipSet = H5Pget_filter_by_id(hid, H5Z_FILTER_SZIP, &flags, NULL, NULL, 0, NULL, NULL) >= 0;
-    }
     bool extendable = !std::equal(space.getDimensions().begin(),
                                   space.getDimensions().end(),
                                   space.getMaxDimensions().begin());
 
-    // If layout is not chunked but necessary, guess chunk size
-    if ((extendable || shuffleSet || deflateSet || szipSet) && !chunkedLayout) {
+    if ((extendable || createProps.needs_chunking()) && !createProps.has_chunking()) {
         DataSetCreateProps createPropsNew;
         createPropsNew._hid = H5Pcopy(createProps.getId());
         std::vector<hsize_t> chunkDims;
@@ -149,7 +124,7 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
     DataSetCreateProps finalCreateProps;
-    finalCreateProps = _chunkIfNecessary(dataset_name, space, dtype, createProps);
+    finalCreateProps = _chunkIfNecessary(space, dtype, createProps);
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(),
                                 dtype._hid,

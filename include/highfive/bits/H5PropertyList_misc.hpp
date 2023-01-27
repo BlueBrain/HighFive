@@ -76,6 +76,21 @@ inline void PropertyList<T>::add(const P& property) {
     property.apply(_hid);
 }
 
+inline void PropertyList<PropertyType::DATASET_CREATE>::_initializeIfNeeded() {
+    if (_hid != H5P_DEFAULT) {
+        return;
+    }
+    if ((_hid = H5Pcreate(convert_plist_type(PropertyType::DATASET_CREATE))) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Unable to create property list");
+    }
+}
+
+template <typename P>
+inline void PropertyList<PropertyType::DATASET_CREATE>::add(const P& property) {
+    _initializeIfNeeded();
+    property.apply(_hid);
+}
+
 template <PropertyType T>
 template <typename F, typename... Args>
 inline void RawPropertyList<T>::add(const F& funct, const Args&... args) {

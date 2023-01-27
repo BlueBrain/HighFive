@@ -102,6 +102,56 @@ class PropertyList: public PropertyListBase {
     void _initializeIfNeeded();
 };
 
+template <>
+class PropertyList<PropertyType::DATASET_CREATE>: public PropertyListBase {
+  public:
+    ///
+    /// \brief return the type of this PropertyList
+    constexpr PropertyType getType() const noexcept {
+        return PropertyType::DATASET_CREATE;
+    }
+
+    ///
+    /// Add a property to this property list.
+    /// A property is an object which is expected to have a method with the
+    /// following signature void apply(hid_t hid) const
+    ///
+    template <typename P>
+    void add(const P& property);
+
+    ///
+    /// Return the Default property type object
+    static const PropertyList<PropertyType::DATASET_CREATE>& Default() noexcept {
+        return static_cast<const PropertyList<PropertyType::DATASET_CREATE>&>(
+            PropertyListBase::Default());
+    }
+
+    bool has_chunking() const {
+        if (this->getId() == H5P_DEFAULT) {
+            return false;
+        }
+        auto layout = H5Pget_layout(this->getId());
+        if (layout < 0) {
+            HDF5ErrMapper::ToException<DataSetException>("Unable to query the layout");
+        }
+        return layout == H5D_CHUNKED;
+    }
+
+    bool has_filter(H5Z_filter_t filterId) const {
+        unsigned int flags;
+        return H5Pget_filter_by_id(
+                   this->getId(), filterId, &flags, nullptr, nullptr, 0, nullptr, nullptr) >= 0;
+    }
+
+    bool needs_chunking() const {
+        return has_filter(H5Z_FILTER_SHUFFLE) || has_filter(H5Z_FILTER_DEFLATE) ||
+               has_filter(H5Z_FILTER_SZIP);
+    }
+
+  protected:
+    void _initializeIfNeeded();
+};
+
 using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
 using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
 using FileAccessProps = PropertyList<PropertyType::FILE_ACCESS>;

@@ -212,8 +212,7 @@ class NodeTraits {
     Object _open(const std::string& node_name,
                  const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
 
-    DataSetCreateProps _chunkIfNecessary(const std::string& dataset_name,
-                                         const DataSpace& space,
+    DataSetCreateProps _chunkIfNecessary(const DataSpace& space,
                                          const DataType& dtype,
                                          const DataSetCreateProps& createProps);
 };
