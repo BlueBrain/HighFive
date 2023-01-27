@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <vector>
 #include <functional>
-#include <cmath>
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
@@ -32,87 +31,6 @@
 
 namespace HighFive {
 
-static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t>& dims,
-                                                   const std::vector<std::size_t>& max_dims,
-                                                   std::size_t typesize) {
-    // Based on the h5py implementation
-    const std::size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
-    const std::size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
-    const std::size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
-
-    std::size_t ndims = dims.size();
-    if (ndims == 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            std::string("Chunks not allowed for scalar datasets."));
-    }
-    std::vector<std::size_t> chunkdims = dims;
-
-    // If the dimension is unlimited, set chunksize to 1024 along that
-    for (std::size_t i = 0; i < ndims; i++) {
-        if (max_dims[i] == DataSpace::UNLIMITED) {
-            chunkdims[i] = 1024;
-        }
-    }
-
-    std::size_t dset_size = compute_total_size(chunkdims) * typesize;
-    double target_size = CHUNK_BASE *
-                         std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
-
-    if (target_size > CHUNK_MAX) {
-        target_size = CHUNK_MAX;
-    } else if (target_size < CHUNK_MIN) {
-        target_size = CHUNK_MIN;
-    }
-
-    std::size_t idx = 0;
-    while (1) {
-        // Repeatedly loop over the axes, dividing them by 2.  Stop when:
-        // 1a. We're smaller than the target chunk size, OR
-        // 1b. We're within 50% of the target chunk size, AND
-        //  2. The chunk is smaller than the maximum chunk size
-
-        std::size_t chunk_size = compute_total_size(chunkdims) * typesize;
-
-        if ((static_cast<double>(chunk_size) < target_size ||
-             std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
-            chunk_size < CHUNK_MAX) {
-            break;
-        }
-
-        if (compute_total_size(chunkdims) == 1) {
-            break;  // Element size larger than CHUNK_MAX
-        }
-
-        chunkdims[idx % ndims] = static_cast<std::size_t>(
-            std::ceil(static_cast<double>(chunkdims[idx % ndims]) / 2.));
-        idx++;
-    }
-
-    return details::to_vector_hsize_t(chunkdims);
-}
-
-template <typename Derivate>
-inline DataSetCreateProps NodeTraits<Derivate>::_chunkIfNecessary(
-    const DataSpace& space,
-    const DataType& dtype,
-    const DataSetCreateProps& createProps) {
-    // If layout is not chunked but necessary, guess chunk size
-
-    bool extendable = !std::equal(space.getDimensions().begin(),
-                                  space.getDimensions().end(),
-                                  space.getMaxDimensions().begin());
-
-    if ((extendable || createProps.needs_chunking()) && !createProps.has_chunking()) {
-        DataSetCreateProps createPropsNew;
-        createPropsNew._hid = H5Pcopy(createProps.getId());
-        std::vector<hsize_t> chunkDims =
-            _guessChunkDims(space.getDimensions(), space.getMaxDimensions(), dtype.getSize());
-        createPropsNew.add(Chunking(chunkDims));
-        return createPropsNew;
-    }
-    return createProps;
-}
-
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                                    const DataSpace& space,
@@ -122,14 +40,21 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
                                                    bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
-    DataSetCreateProps finalCreateProps;
-    finalCreateProps = _chunkIfNecessary(space, dtype, createProps);
+
+    bool extendable = !std::equal(space.getDimensions().begin(),
+                                  space.getDimensions().end(),
+                                  space.getMaxDimensions().begin());
+
+    if ((extendable || createProps.needs_chunking()) && !createProps.has_chunking()) {
+        HDF5ErrMapper::ToException<DataSetException>(std::string("Chunking is needed but not set for dataset \"") + dataset_name + "\":");
+    }
+
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(),
                                 dtype._hid,
                                 space._hid,
                                 lcpl.getId(),
-                                finalCreateProps.getId(),
+                                createProps.getId(),
                                 accessProps.getId());
     if (hid < 0) {
         HDF5ErrMapper::ToException<DataSetException>(

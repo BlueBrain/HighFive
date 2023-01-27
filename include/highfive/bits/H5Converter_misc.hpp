@@ -10,7 +10,6 @@
 
 #include <type_traits>
 #include <cstring>
-#include <numeric>
 
 #include "../H5Reference.hpp"
 #ifdef H5_USE_BOOST
@@ -24,10 +23,6 @@
 #endif
 
 namespace HighFive {
-inline size_t compute_total_size(const std::vector<std::size_t>& dims) {
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<std::size_t>());
-}
-
 template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 

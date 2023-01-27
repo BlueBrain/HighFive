@@ -8,6 +8,8 @@
  */
 #pragma once
 
+#include <cmath>
+
 #include <H5Ppublic.h>
 
 namespace HighFive {
@@ -176,6 +178,56 @@ inline void Chunking::apply(const hid_t hid) const {
     if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting chunk property");
     }
+}
+
+std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size_t>& dims, const std::vector<std::size_t>& max_dims, std::size_t typesize) {
+    const std::size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
+    const std::size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
+    const std::size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
+
+    std::vector<std::size_t> chunkingDims = dims;
+    // If the dimension is unlimited, set chunksize to 1024 along that
+    for (std::size_t i = 0; i < dims.size(); i++) {
+        if (max_dims[i] == SIZE_MAX) {
+            chunkingDims[i] = 1024;
+        }
+    }
+
+    std::size_t dset_size = details::compute_total_size(chunkingDims) * typesize;
+    double target_size = CHUNK_BASE *
+        std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
+
+    if (target_size > CHUNK_MAX) {
+        target_size = CHUNK_MAX;
+    } else if (target_size < CHUNK_MIN) {
+        target_size = CHUNK_MIN;
+    }
+
+    std::size_t idx = 0;
+    while (1) {
+        // Repeatedly loop over the axes, dividing them by 2.  Stop when:
+        // 1a. We're smaller than the target chunk size, OR
+        // 1b. We're within 50% of the target chunk size, AND
+        //  2. The chunk is smaller than the maximum chunk size
+
+        std::size_t chunk_size = details::compute_total_size(chunkingDims) * typesize;
+
+        if ((static_cast<double>(chunk_size) < target_size ||
+                    std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
+                chunk_size < CHUNK_MAX) {
+            break;
+        }
+
+        if (details::compute_total_size(chunkingDims) == 1) {
+            break;  // Element size larger than CHUNK_MAX
+        }
+
+        chunkingDims[idx % chunkingDims.size()] = static_cast<std::size_t>(
+                std::ceil(static_cast<double>(chunkingDims[idx % chunkingDims.size()]) / 2.));
+        idx++;
+    }
+
+    return chunkingDims;
 }
 
 inline void Deflate::apply(const hid_t hid) const {

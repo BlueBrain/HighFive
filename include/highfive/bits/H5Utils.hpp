@@ -13,6 +13,7 @@
 #include <array>
 #include <cstddef>  // __GLIBCXX__
 #include <exception>
+#include <numeric>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -59,6 +60,14 @@ inline std::vector<hsize_t> to_vector_hsize_t(const std::vector<Size>& vec) {
 // converter function for size_t -> hsize_t when hsize_t == size_t
 inline std::vector<hsize_t> to_vector_hsize_t(const std::vector<hsize_t>& vec) {
     return vec;
+}
+
+inline hsize_t compute_total_size(const std::vector<hsize_t>& dims) {
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<std::size_t>());
+}
+
+inline size_t compute_total_size(const std::vector<std::size_t>& dims) {
+    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<std::size_t>());
 }
 
 // read name from a H5 object using the specified function

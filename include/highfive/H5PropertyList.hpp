@@ -19,6 +19,8 @@
 
 #include "H5Exception.hpp"
 #include "H5Object.hpp"
+#include "bits/H5Utils.hpp"
+
 
 namespace HighFive {
 
@@ -427,9 +429,11 @@ class EstimatedLinkInfo {
     const unsigned _length;
 };
 
-
 class Chunking {
   public:
+    explicit Chunking(const std::vector<size_t>& dims)
+        : _dims(details::to_vector_hsize_t(dims)) {}
+
     explicit Chunking(const std::vector<hsize_t>& dims)
         : _dims(dims) {}
 
@@ -444,9 +448,11 @@ class Chunking {
         return _dims;
     }
 
+    static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims, const std::vector<std::size_t>& max_dims, std::size_t typesize);
+
   private:
     friend DataSetCreateProps;
-    void apply(hid_t hid) const;
+    void apply(const hid_t hid) const;
     const std::vector<hsize_t> _dims;
 };
 
