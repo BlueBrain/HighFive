@@ -48,8 +48,7 @@ inline std::vector<std::size_t> to_vector_size_t(const std::vector<std::size_t>&
 // converter function for size_t -> hsize_t when size_t != hsize_t
 template <typename Size>
 inline std::vector<hsize_t> to_vector_hsize_t(const std::vector<Size>& vec) {
-    static_assert(std::is_same<Size, hsize_t>::value == false,
-                  " size_t != hsize_t mandatory here");
+    static_assert(std::is_same<Size, hsize_t>::value == false, " size_t != hsize_t mandatory here");
     std::vector<hsize_t> res(vec.size());
     std::transform(vec.cbegin(), vec.cend(), res.begin(), [](Size e) {
         return static_cast<hsize_t>(e);

@@ -32,38 +32,36 @@
 
 namespace HighFive {
 
-static inline std::vector<hsize_t> _guessChunkDims(const std::vector<size_t>& dims,
-                                                   const std::vector<size_t>& max_dims,
-                                                   size_t typesize) {
+static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t>& dims,
+                                                   const std::vector<std::size_t>& max_dims,
+                                                   std::size_t typesize) {
     // Based on the h5py implementation
-    const size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
-    const size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
-    const size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
-    auto product = [](std::vector<size_t> vec) {
-        return std::accumulate(vec.begin(), vec.end(), size_t(1), std::multiplies<size_t>());
-    };
+    const std::size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
+    const std::size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
+    const std::size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
 
-    size_t ndims = dims.size();
+    std::size_t ndims = dims.size();
     if (ndims == 0) {
         HDF5ErrMapper::ToException<DataSetException>(
             std::string("Chunks not allowed for scalar datasets."));
     }
-    std::vector<size_t> chunkdims = dims;
+    std::vector<std::size_t> chunkdims = dims;
 
     // If the dimension is unlimited, set chunksize to 1024 along that
     for (int i = 0; i < ndims; i++) {
-        if (max_dims[i] == DataSpace::UNLIMITED)
+        if (max_dims[i] == DataSpace::UNLIMITED) {
             chunkdims[i] = 1024;
+        }
     }
 
-    size_t chunk_size;
-    size_t dset_size = product(chunkdims) * typesize;
+    std::size_t dset_size = compute_total_size(chunkdims) * typesize;
     double target_size = CHUNK_BASE * std::pow(2.0, std::log10(dset_size / (1024. * 1024)));
 
-    if (target_size > CHUNK_MAX)
+    if (target_size > CHUNK_MAX) {
         target_size = CHUNK_MAX;
-    else if (target_size < CHUNK_MIN)
+    } else if (target_size < CHUNK_MIN) {
         target_size = CHUNK_MIN;
+    }
 
     int idx = 0;
     while (1) {
@@ -72,16 +70,18 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<size_t>& di
         // 1b. We're within 50% of the target chunk size, AND
         //  2. The chunk is smaller than the maximum chunk size
 
-        chunk_size = product(chunkdims) * typesize;
+        std::size_t chunk_size = compute_total_size(chunkdims) * typesize;
 
         if ((chunk_size < target_size || std::abs(chunk_size - target_size) / target_size < 0.5) &&
-            chunk_size < CHUNK_MAX)
+            chunk_size < CHUNK_MAX) {
             break;
+        }
 
-        if (product(chunkdims) == 1)
+        if (compute_total_size(chunkdims) == 1) {
             break;  // Element size larger than CHUNK_MAX
+        }
 
-        chunkdims[idx % ndims] = static_cast<size_t>(std::ceil(chunkdims[idx % ndims] / 2.0));
+        chunkdims[idx % ndims] = static_cast<std::size_t>(std::ceil(chunkdims[idx % ndims] / 2.0));
         idx++;
     }
 
