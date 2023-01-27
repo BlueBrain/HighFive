@@ -82,7 +82,7 @@ class PropertyList: public PropertyListBase {
   public:
     ///
     /// \brief return the type of this PropertyList
-    constexpr PropertyType getType() const noexcept {
+    constexpr static PropertyType getType() noexcept {
         return T;
     }
 
@@ -109,7 +109,7 @@ class PropertyList<PropertyType::DATASET_CREATE>: public PropertyListBase {
   public:
     ///
     /// \brief return the type of this PropertyList
-    constexpr PropertyType getType() const noexcept {
+    constexpr static PropertyType getType() noexcept {
         return PropertyType::DATASET_CREATE;
     }
 
