@@ -48,14 +48,14 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
     std::vector<std::size_t> chunkdims = dims;
 
     // If the dimension is unlimited, set chunksize to 1024 along that
-    for (int i = 0; i < ndims; i++) {
+    for (std::size_t i = 0; i < ndims; i++) {
         if (max_dims[i] == DataSpace::UNLIMITED) {
             chunkdims[i] = 1024;
         }
     }
 
     std::size_t dset_size = compute_total_size(chunkdims) * typesize;
-    double target_size = CHUNK_BASE * std::pow(2.0, std::log10(dset_size / (1024. * 1024)));
+    double target_size = CHUNK_BASE * std::exp2(std::log10(static_cast<double>(dset_size) / (1024. * 1024.)));
 
     if (target_size > CHUNK_MAX) {
         target_size = CHUNK_MAX;
@@ -63,7 +63,7 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
         target_size = CHUNK_MIN;
     }
 
-    int idx = 0;
+    std::size_t idx = 0;
     while (1) {
         // Repeatedly loop over the axes, dividing them by 2.  Stop when:
         // 1a. We're smaller than the target chunk size, OR
@@ -72,7 +72,7 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
 
         std::size_t chunk_size = compute_total_size(chunkdims) * typesize;
 
-        if ((chunk_size < target_size || std::abs(chunk_size - target_size) / target_size < 0.5) &&
+        if ((static_cast<double>(chunk_size) < target_size || std::abs(static_cast<double>(chunk_size) - target_size) / target_size < 0.5) &&
             chunk_size < CHUNK_MAX) {
             break;
         }
@@ -81,7 +81,7 @@ static inline std::vector<hsize_t> _guessChunkDims(const std::vector<std::size_t
             break;  // Element size larger than CHUNK_MAX
         }
 
-        chunkdims[idx % ndims] = static_cast<std::size_t>(std::ceil(chunkdims[idx % ndims] / 2.0));
+        chunkdims[idx % ndims] = static_cast<std::size_t>(std::ceil(static_cast<double>(chunkdims[idx % ndims]) / 2.));
         idx++;
     }
 
