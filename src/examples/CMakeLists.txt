@@ -32,6 +32,11 @@ function(compile_example exemple_source)
     add_executable(${example_name} ${exemple_source})
     target_link_libraries(${example_name} HighFive)
 
+    if(${example_name} MATCHES ".*hl_hdf5.*")
+        find_package(HDF5 REQUIRED C HL)
+        target_link_libraries(${example_name} ${HDF5_HL_LIBRARIES})
+    endif()
+
 endfunction()
 
 file(GLOB list_example "*.cpp")
