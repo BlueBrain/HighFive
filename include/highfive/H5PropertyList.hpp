@@ -498,6 +498,32 @@ class UseCollectiveIO {
 };
 #endif
 
+enum CreationOrder {
+    Tracked = H5P_CRT_ORDER_TRACKED,
+    Indexed = H5P_CRT_ORDER_INDEXED,
+};
+
+///
+/// \brief Track and index creation order time
+///
+/// Let user retrieve objects by creation order time instead of name.
+///
+class LinkCreationOrder {
+  public:
+    ///
+    /// \brief Create the property
+    /// \param flags Should be a composition of HighFive::CreationOrder.
+    ///
+    explicit LinkCreationOrder(unsigned flags)
+        : _flags(flags) {}
+
+  private:
+    friend FileCreateProps;
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+    unsigned _flags;
+};
+
 }  // namespace HighFive
 
 #include "bits/H5PropertyList_misc.hpp"

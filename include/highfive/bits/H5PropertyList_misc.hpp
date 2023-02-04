@@ -216,4 +216,9 @@ inline void UseCollectiveIO::apply(const hid_t hid) const {
 }
 #endif
 
+inline void LinkCreationOrder::apply(const hid_t hid) const {
+    if (H5Pset_link_creation_order(hid, _flags) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting LinkCreationOrder.");
+    }
+}
 }  // namespace HighFive
