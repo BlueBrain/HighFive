@@ -216,4 +216,11 @@ inline void UseCollectiveIO::apply(const hid_t hid) const {
 }
 #endif
 
+void de::hdf::TrackOrder::apply(hid_t hid) const {
+    if (H5Pset_link_creation_order(hid, H5P_CRT_ORDER_TRACKED | H5P_CRT_ORDER_INDEXED)) {
+        HighFive::HDF5ErrMapper::ToException<HighFive::PropertyException>(
+            "Error setting track order property");
+    }
+}
+
 }  // namespace HighFive

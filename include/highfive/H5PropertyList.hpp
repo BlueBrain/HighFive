@@ -498,6 +498,10 @@ class UseCollectiveIO {
 };
 #endif
 
+struct TrackOrderProperty {
+    void apply(hid_t hid) const;
+};
+
 }  // namespace HighFive
 
 #include "bits/H5PropertyList_misc.hpp"
