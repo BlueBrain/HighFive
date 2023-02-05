@@ -41,12 +41,9 @@ struct MpiFixture {
 };
 
 void check_was_collective(const DataTransferProps& xfer_props) {
-    uint32_t local_cause = 0, global_cause = 0;
-    if (H5Pget_mpio_no_collective_cause(xfer_props.getId(), &local_cause, &global_cause) < 0) {
-        throw std::runtime_error("Failed to check mpio_no_collective_cause.");
-    }
-    CHECK(local_cause == 0);
-    CHECK(global_cause == 0);
+    auto mnccp = MpioNoCollectiveCause(xfer_props);
+    CHECK(mnccp.get_local_cause() == 0);
+    CHECK(mnccp.get_global_cause() == 0);
 }
 
 template <typename T>

@@ -48,7 +48,7 @@ template <typename T, typename U>
 T get_plist(const U& obj, hid_t (*f)(hid_t)) {
     auto hid = f(obj.getId());
     if (hid < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
+        HDF5ErrMapper::ToException<PropertyException>("Unable to get property list");
     }
     T t{};
     t._hid = hid;
@@ -244,6 +244,20 @@ class FileVersionBounds {
         : _low(low)
         , _high(high) {}
 
+    FileVersionBounds(const FileAccessProps& fapl) {
+        if (H5Pget_libver_bounds(fapl.getId(), &_low, &_high) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Unable to access file version bounds");
+        }
+    }
+
+    H5F_libver_t get_low() const {
+        return _low;
+    }
+
+    H5F_libver_t get_high() const {
+        return _high;
+    }
+
   private:
     friend FileAccessProps;
     void apply(const hid_t list) const {
@@ -251,8 +265,8 @@ class FileVersionBounds {
             HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
         }
     }
-    const H5F_libver_t _low;
-    const H5F_libver_t _high;
+    H5F_libver_t _low;
+    H5F_libver_t _high;
 };
 
 ///
@@ -265,6 +279,17 @@ class MetadataBlockSize {
     MetadataBlockSize(hsize_t size)
         : _size(size) {}
 
+    MetadataBlockSize(const FileAccessProps& fapl) {
+        if (H5Pget_meta_block_size(fapl.getId(), &_size) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Unable to access file metadata block size");
+        }
+    }
+
+    hsize_t get_size() const {
+        return _size;
+    }
+
   private:
     friend FileAccessProps;
     void apply(const hid_t list) const {
@@ -272,7 +297,7 @@ class MetadataBlockSize {
             HDF5ErrMapper::ToException<PropertyException>("Error setting metadata block size");
         }
     }
-    const hsize_t _size;
+    hsize_t _size;
 };
 
 #if H5_VERSION_GE(1, 10, 1)
@@ -291,6 +316,25 @@ class FileSpaceStrategy {
     /// \param persist Should free space managers be persisted across file closing and reopening.
     /// \param threshold The free-space manager wont track sections small than this threshold.
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
+
+
+    FileSpaceStrategy(const FileCreateProps& fcpl) {
+        if (H5Pget_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Unable to get file space strategy");
+        }
+    }
+
+    H5F_fspace_strategy_t get_strategy() const {
+        return _strategy;
+    }
+
+    hbool_t get_persist() const {
+        return _persist;
+    }
+
+    hsize_t get_threshold() const {
+        return _threshold;
+    }
 
   private:
     friend FileCreateProps;
@@ -318,6 +362,16 @@ class FileSpacePageSize {
     ///
     /// \param page_size The page size in bytes.
     explicit FileSpacePageSize(hsize_t page_size);
+
+    FileSpacePageSize(const FileCreateProps& fcpl) {
+        if (H5Pget_file_space_page_size(fcpl.getId(), &_page_size) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Unable to get file space page size");
+        }
+    }
+
+    hsize_t get_page_size() const {
+        return _page_size;
+    }
 
   private:
     friend FileCreateProps;
@@ -370,11 +424,26 @@ class EstimatedLinkInfo {
         : _entries(entries)
         , _length(length) {}
 
+    EstimatedLinkInfo(const GroupCreateProps& gcpl) {
+        if (H5Pget_est_link_info(gcpl.getId(), &_entries, &_length) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Unable to access group link size property");
+        }
+    }
+
+    unsigned num_entries() const {
+        return _entries;
+    }
+
+    unsigned name_len() const {
+        return _length;
+    }
+
   private:
     friend GroupCreateProps;
     void apply(hid_t hid) const;
-    const unsigned _entries;
-    const unsigned _length;
+    unsigned _entries;
+    unsigned _length;
 };
 
 
@@ -495,6 +564,29 @@ class UseCollectiveIO {
     friend DataTransferProps;
     void apply(hid_t hid) const;
     bool _enable;
+};
+
+class MpioNoCollectiveCause {
+  public:
+    MpioNoCollectiveCause(const DataTransferProps& dxpl) {
+        if (H5Pget_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Failed to check mpio_no_collective_cause.");
+        }
+    }
+
+    uint32_t get_local_cause() const {
+        return _local_cause;
+    }
+
+    uint32_t get_global_cause() const {
+        return _global_cause;
+    }
+
+  private:
+    friend DataTransferProps;
+    uint32_t _local_cause;
+    uint32_t _global_cause;
 };
 #endif
 
