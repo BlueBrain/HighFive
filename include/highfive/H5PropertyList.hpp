@@ -142,19 +142,34 @@ class MPIOFileAccess {
         : _comm(comm)
         , _info(info) {}
 
+    MPIOFileAccess(const FileAccessProps& fapl) {
+        if (H5Pget_fapl_mpio(fapl.getId(), &_comm, &_info) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>(
+                "Unable to get MPIO Driver configuration");
+        }
+    }
+
+    MPI_Comm get_comm() const {
+        return _comm;
+    }
+
+    MPI_Info get_info() const {
+        return _info;
+    }
+
+  private:
+    friend FileAccessProps;
     void apply(const hid_t list) const {
         if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
             HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
         }
     }
-
-  private:
     MPI_Comm _comm;
     MPI_Info _info;
 };
 
 ///
-/// \brief Use collective MPI-IO for metadata read and write?
+/// \brief Use collective MPI-IO for metadata read and write.
 ///
 /// See `MPIOCollectiveMetadataRead` and `MPIOCollectiveMetadataWrite`.
 ///
@@ -404,12 +419,30 @@ class PageBufferSize {
                             unsigned min_meta_percent = 0,
                             unsigned min_raw_percent = 0);
 
+    explicit PageBufferSize(const FileAccessProps& fapl) {
+        if (H5Pget_page_buffer_size(fapl.getId(), &_page_buffer_size, &_min_meta, &_min_raw) < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Unable to get page buffer size");
+        }
+    }
+
+    size_t get_page_buffer_size() const {
+        return _page_buffer_size;
+    }
+
+    unsigned get_min_meta() const {
+        return _min_meta;
+    }
+
+    unsigned get_min_raw() const {
+        return _min_raw;
+    }
+
   private:
     friend FileAccessProps;
 
     void apply(hid_t list) const;
 
-    hsize_t _page_buffer_size;
+    size_t _page_buffer_size;
     unsigned _min_meta;
     unsigned _min_raw;
 };
