@@ -99,7 +99,7 @@ inline hsize_t File::getMetadataBlockSize() const {
 inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     auto fapl = getAccessPropertyList();
     auto fileVer = FileVersionBounds(fapl);
-    return std::make_pair(fileVer.get_low(), fileVer.get_high());
+    return fileVer.get_version();
 }
 
 #if H5_VERSION_GE(1, 10, 1)

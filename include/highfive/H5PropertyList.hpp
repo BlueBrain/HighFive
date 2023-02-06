@@ -265,12 +265,8 @@ class FileVersionBounds {
         }
     }
 
-    H5F_libver_t get_low() const {
-        return _low;
-    }
-
-    H5F_libver_t get_high() const {
-        return _high;
+    std::pair<H5F_libver_t, H5F_libver_t> get_version() const {
+        return std::make_pair(_low, _high);
     }
 
   private:
