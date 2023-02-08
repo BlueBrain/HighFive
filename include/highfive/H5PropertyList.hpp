@@ -163,6 +163,7 @@ class MPIOCollectiveMetadata {
     explicit MPIOCollectiveMetadata(bool collective = true)
         : collective_(collective) {}
 
+
   private:
     friend FileAccessProps;
     void apply(hid_t plist) const;
