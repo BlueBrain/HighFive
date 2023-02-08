@@ -464,7 +464,7 @@ inline void CreateIntermediateGroup::fromPropertyList(hid_t hid) {
     _create = bool(c_bool);
 }
 
-bool CreateIntermediateGroup::isSet() const {
+inline bool CreateIntermediateGroup::isSet() const {
     return _create;
 }
 
