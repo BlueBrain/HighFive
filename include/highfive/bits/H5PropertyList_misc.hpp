@@ -118,10 +118,28 @@ inline PageBufferSize::PageBufferSize(size_t page_buffer_size,
     , _min_meta(min_meta_percent)
     , _min_raw(min_raw_percent) {}
 
+inline PageBufferSize::PageBufferSize(const FileAccessProps& plist) {
+    if (H5Pget_page_buffer_size(plist.getId(), &_page_buffer_size, &_min_meta, &_min_raw) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting page buffer size.");
+    }
+}
+
 inline void PageBufferSize::apply(const hid_t list) const {
     if (H5Pset_page_buffer_size(list, _page_buffer_size, _min_meta, _min_raw) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting page buffer size.");
     }
+}
+
+inline hsize_t PageBufferSize::getPageBufferSize() const {
+    return _page_buffer_size;
+}
+
+inline unsigned PageBufferSize::getMinPercent() const {
+    return _min_meta;
+}
+
+inline unsigned PageBufferSize::getRawPercent() const {
+    return _min_raw;
 }
 #endif
 #endif
@@ -129,16 +147,31 @@ inline void PageBufferSize::apply(const hid_t list) const {
 #ifdef H5_HAVE_PARALLEL
 
 inline void MPIOCollectiveMetadata::apply(const hid_t plist) const {
-    auto read = MPIOCollectiveMetadataRead{collective_};
-    auto write = MPIOCollectiveMetadataWrite{collective_};
+    auto read = MPIOCollectiveMetadataRead{collective_read_};
+    auto write = MPIOCollectiveMetadataWrite{collective_write_};
 
     read.apply(plist);
     write.apply(plist);
 }
 
+MPIOCollectiveMetadata::MPIOCollectiveMetadata(const FileAccessProps& plist)
+    : collective_read_(MPIOCollectiveMetadataRead(plist).isCollective())
+    , collective_write_(MPIOCollectiveMetadataWrite(plist).isCollective()) {}
+
+
 inline void MPIOCollectiveMetadataRead::apply(const hid_t plist) const {
     if (H5Pset_all_coll_metadata_ops(plist, collective_) < 0) {
         HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata reads");
+    }
+}
+
+inline bool MPIOCollectiveMetadataRead::isCollective() const {
+    return collective_;
+}
+
+MPIOCollectiveMetadataRead::MPIOCollectiveMetadataRead(const FileAccessProps& plist) {
+    if (H5Pget_all_coll_metadata_ops(plist.getId(), &collective_) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error loading MPI metadata read.");
     }
 }
 
@@ -148,8 +181,17 @@ inline void MPIOCollectiveMetadataWrite::apply(const hid_t plist) const {
     }
 }
 
-#endif
+inline bool MPIOCollectiveMetadataWrite::isCollective() const {
+    return collective_;
+}
 
+MPIOCollectiveMetadataWrite::MPIOCollectiveMetadataWrite(const FileAccessProps& plist) {
+    if (H5Pget_coll_metadata_write(plist.getId(), &collective_) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error loading MPI metadata write.");
+    }
+}
+
+#endif
 
 inline void EstimatedLinkInfo::apply(const hid_t hid) const {
     if (H5Pset_est_link_info(hid, _entries, _length) < 0) {

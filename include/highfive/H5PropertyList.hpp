@@ -149,6 +149,7 @@ class MPIOFileAccess {
             HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
         }
     }
+
     MPI_Comm _comm;
     MPI_Info _info;
 };
@@ -161,13 +162,26 @@ class MPIOFileAccess {
 class MPIOCollectiveMetadata {
   public:
     explicit MPIOCollectiveMetadata(bool collective = true)
-        : collective_(collective) {}
+        : collective_read_(collective)
+        , collective_write_(collective) {}
+
+    explicit MPIOCollectiveMetadata(const FileAccessProps& plist);
+
+    bool isCollectiveRead() const {
+        return collective_read_;
+    }
+
+    bool isCollectiveWrite() const {
+        return collective_write_;
+    }
 
 
   private:
     friend FileAccessProps;
     void apply(hid_t plist) const;
-    bool collective_;
+
+    bool collective_read_;
+    bool collective_write_;
 };
 
 ///
@@ -187,6 +201,10 @@ class MPIOCollectiveMetadataRead {
   public:
     explicit MPIOCollectiveMetadataRead(bool collective = true)
         : collective_(collective) {}
+
+    explicit MPIOCollectiveMetadataRead(const FileAccessProps& plist);
+
+    bool isCollective() const;
 
   private:
     friend FileAccessProps;
@@ -211,6 +229,10 @@ class MPIOCollectiveMetadataWrite {
   public:
     explicit MPIOCollectiveMetadataWrite(bool collective = true)
         : collective_(collective) {}
+
+    explicit MPIOCollectiveMetadataWrite(const FileAccessProps& plist);
+
+    bool isCollective() const;
 
   private:
     friend FileAccessProps;
@@ -262,6 +284,7 @@ class FileVersionBounds {
             HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
         }
     }
+
     H5F_libver_t _low;
     H5F_libver_t _high;
 };
@@ -313,7 +336,6 @@ class FileSpaceStrategy {
     /// \param persist Should free space managers be persisted across file closing and reopening.
     /// \param threshold The free-space manager wont track sections small than this threshold.
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
-
 
     explicit FileSpaceStrategy(const FileCreateProps& fcpl) {
         if (H5Pget_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold) < 0) {
@@ -480,6 +502,20 @@ class Chunking {
     explicit Chunking(hsize_t item, Args... args)
         : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
 
+    explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32)
+        : _dims(max_dims + 1) {
+        auto n_loaded = H5Pget_chunk(plist.getId(), static_cast<int>(_dims.size()), _dims.data());
+        if (n_loaded < 0) {
+            HDF5ErrMapper::ToException<PropertyException>("Error getting chunk size");
+        }
+
+        if (n_loaded >= static_cast<int>(_dims.size())) {
+            *this = Chunking(plist, 8 * max_dims);
+        } else {
+            _dims.resize(static_cast<size_t>(n_loaded));
+        }
+    }
+
     const std::vector<hsize_t>& getDimensions() const noexcept {
         return _dims;
     }
@@ -487,7 +523,7 @@ class Chunking {
   private:
     friend DataSetCreateProps;
     void apply(hid_t hid) const;
-    const std::vector<hsize_t> _dims;
+    std::vector<hsize_t> _dims;
 };
 
 class Deflate {
@@ -508,6 +544,14 @@ class Szip {
                   unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
         : _options_mask(options_mask)
         , _pixels_per_block(pixels_per_block) {}
+
+    unsigned getOptionsMask() const {
+        return _options_mask;
+    }
+
+    unsigned getPixelsPerBlock() const {
+        return _pixels_per_block;
+    }
 
   private:
     friend DataSetCreateProps;
