@@ -449,6 +449,10 @@ class PageBufferSize {
 ///
 class EstimatedLinkInfo {
   public:
+    /// \brief Create a property with the request parameters.
+    ///
+    /// @param entries The estimated number of links in a group.
+    /// @param length The estimated length of the names of links.
     explicit EstimatedLinkInfo(unsigned entries, unsigned length)
         : _entries(entries)
         , _length(length) {}
