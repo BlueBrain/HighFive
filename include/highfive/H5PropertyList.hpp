@@ -142,7 +142,7 @@ class MPIOFileAccess {
         : _comm(comm)
         , _info(info) {}
 
-    MPIOFileAccess(const FileAccessProps& fapl) {
+    explicit MPIOFileAccess(const FileAccessProps& fapl) {
         if (H5Pget_fapl_mpio(fapl.getId(), &_comm, &_info) < 0) {
             HDF5ErrMapper::ToException<PropertyException>(
                 "Unable to get MPIO Driver configuration");
@@ -287,10 +287,10 @@ class FileVersionBounds {
 ///
 class MetadataBlockSize {
   public:
-    MetadataBlockSize(hsize_t size)
+    explicit MetadataBlockSize(hsize_t size)
         : _size(size) {}
 
-    MetadataBlockSize(const FileAccessProps& fapl) {
+    explicit MetadataBlockSize(const FileAccessProps& fapl) {
         if (H5Pget_meta_block_size(fapl.getId(), &_size) < 0) {
             HDF5ErrMapper::ToException<PropertyException>(
                 "Unable to access file metadata block size");
@@ -329,7 +329,7 @@ class FileSpaceStrategy {
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
 
 
-    FileSpaceStrategy(const FileCreateProps& fcpl) {
+    explicit FileSpaceStrategy(const FileCreateProps& fcpl) {
         if (H5Pget_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold) < 0) {
             HDF5ErrMapper::ToException<PropertyException>("Unable to get file space strategy");
         }
@@ -453,7 +453,7 @@ class EstimatedLinkInfo {
         : _entries(entries)
         , _length(length) {}
 
-    EstimatedLinkInfo(const GroupCreateProps& gcpl) {
+    explicit EstimatedLinkInfo(const GroupCreateProps& gcpl) {
         if (H5Pget_est_link_info(gcpl.getId(), &_entries, &_length) < 0) {
             HDF5ErrMapper::ToException<PropertyException>(
                 "Unable to access group link size property");
@@ -599,7 +599,7 @@ class UseCollectiveIO {
 
 class MpioNoCollectiveCause {
   public:
-    MpioNoCollectiveCause(const DataTransferProps& dxpl) {
+    explicit MpioNoCollectiveCause(const DataTransferProps& dxpl) {
         if (H5Pget_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause) < 0) {
             HDF5ErrMapper::ToException<PropertyException>(
                 "Failed to check mpio_no_collective_cause.");
