@@ -138,17 +138,11 @@ class RawPropertyList: public PropertyList<T> {
 ///
 class MPIOFileAccess {
   public:
-    MPIOFileAccess(MPI_Comm comm, MPI_Info info)
-        : _comm(comm)
-        , _info(info) {}
+    MPIOFileAccess(MPI_Comm comm, MPI_Info info);
 
   private:
     friend FileAccessProps;
-    void apply(const hid_t list) const {
-        if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
-            HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
-        }
-    }
+    void apply(const hid_t list) const;
 
     MPI_Comm _comm;
     MPI_Info _info;
@@ -161,19 +155,11 @@ class MPIOFileAccess {
 ///
 class MPIOCollectiveMetadata {
   public:
-    explicit MPIOCollectiveMetadata(bool collective = true)
-        : collective_read_(collective)
-        , collective_write_(collective) {}
-
+    explicit MPIOCollectiveMetadata(bool collective = true);
     explicit MPIOCollectiveMetadata(const FileAccessProps& plist);
 
-    bool isCollectiveRead() const {
-        return collective_read_;
-    }
-
-    bool isCollectiveWrite() const {
-        return collective_write_;
-    }
+    bool isCollectiveRead() const;
+    bool isCollectiveWrite() const;
 
 
   private:
@@ -199,9 +185,7 @@ class MPIOCollectiveMetadata {
 ///
 class MPIOCollectiveMetadataRead {
   public:
-    explicit MPIOCollectiveMetadataRead(bool collective = true)
-        : collective_(collective) {}
-
+    explicit MPIOCollectiveMetadataRead(bool collective = true);
     explicit MPIOCollectiveMetadataRead(const FileAccessProps& plist);
 
     bool isCollective() const;
@@ -227,9 +211,7 @@ class MPIOCollectiveMetadataRead {
 ///
 class MPIOCollectiveMetadataWrite {
   public:
-    explicit MPIOCollectiveMetadataWrite(bool collective = true)
-        : collective_(collective) {}
-
+    explicit MPIOCollectiveMetadataWrite(bool collective = true);
     explicit MPIOCollectiveMetadataWrite(const FileAccessProps& plist);
 
     bool isCollective() const;
@@ -263,27 +245,14 @@ class MPIOCollectiveMetadataWrite {
 ///
 class FileVersionBounds {
   public:
-    FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
-        : _low(low)
-        , _high(high) {}
+    FileVersionBounds(H5F_libver_t low, H5F_libver_t high);
+    explicit FileVersionBounds(const FileAccessProps& fapl);
 
-    explicit FileVersionBounds(const FileAccessProps& fapl) {
-        if (H5Pget_libver_bounds(fapl.getId(), &_low, &_high) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Unable to access file version bounds");
-        }
-    }
-
-    std::pair<H5F_libver_t, H5F_libver_t> getVersion() const {
-        return std::make_pair(_low, _high);
-    }
+    std::pair<H5F_libver_t, H5F_libver_t> getVersion() const;
 
   private:
     friend FileAccessProps;
-    void apply(const hid_t list) const {
-        if (H5Pset_libver_bounds(list, _low, _high) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
-        }
-    }
+    void apply(const hid_t list) const;
 
     H5F_libver_t _low;
     H5F_libver_t _high;
@@ -296,27 +265,14 @@ class FileVersionBounds {
 ///
 class MetadataBlockSize {
   public:
-    explicit MetadataBlockSize(hsize_t size)
-        : _size(size) {}
+    explicit MetadataBlockSize(hsize_t size);
+    explicit MetadataBlockSize(const FileAccessProps& fapl);
 
-    explicit MetadataBlockSize(const FileAccessProps& fapl) {
-        if (H5Pget_meta_block_size(fapl.getId(), &_size) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>(
-                "Unable to access file metadata block size");
-        }
-    }
-
-    hsize_t getSize() const {
-        return _size;
-    }
+    hsize_t getSize() const;
 
   private:
     friend FileAccessProps;
-    void apply(const hid_t list) const {
-        if (H5Pset_meta_block_size(list, _size) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Error setting metadata block size");
-        }
-    }
+    void apply(const hid_t list) const;
     hsize_t _size;
 };
 
@@ -336,24 +292,11 @@ class FileSpaceStrategy {
     /// \param persist Should free space managers be persisted across file closing and reopening.
     /// \param threshold The free-space manager wont track sections small than this threshold.
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
+    explicit FileSpaceStrategy(const FileCreateProps& fcpl);
 
-    explicit FileSpaceStrategy(const FileCreateProps& fcpl) {
-        if (H5Pget_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Unable to get file space strategy");
-        }
-    }
-
-    H5F_fspace_strategy_t getStrategy() const {
-        return _strategy;
-    }
-
-    hbool_t getPersist() const {
-        return _persist;
-    }
-
-    hsize_t getThreshold() const {
-        return _threshold;
-    }
+    H5F_fspace_strategy_t getStrategy() const;
+    hbool_t getPersist() const;
+    hsize_t getThreshold() const;
 
   private:
     friend FileCreateProps;
@@ -381,20 +324,12 @@ class FileSpacePageSize {
     ///
     /// \param page_size The page size in bytes.
     explicit FileSpacePageSize(hsize_t page_size);
+    explicit FileSpacePageSize(const FileCreateProps& fcpl);
 
-    explicit FileSpacePageSize(const FileCreateProps& fcpl) {
-        if (H5Pget_file_space_page_size(fcpl.getId(), &_page_size) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Unable to get file space page size");
-        }
-    }
-
-    hsize_t getPageSize() const {
-        return _page_size;
-    }
+    hsize_t getPageSize() const;
 
   private:
     friend FileCreateProps;
-
     void apply(const hid_t list) const;
 
     hsize_t _page_size;
@@ -423,23 +358,11 @@ class PageBufferSize {
                             unsigned min_meta_percent = 0,
                             unsigned min_raw_percent = 0);
 
-    explicit PageBufferSize(const FileAccessProps& fapl) {
-        if (H5Pget_page_buffer_size(fapl.getId(), &_page_buffer_size, &_min_meta, &_min_raw) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Unable to get page buffer size");
-        }
-    }
+    explicit PageBufferSize(const FileAccessProps& fapl);
 
-    size_t getPageBufferSize() const {
-        return _page_buffer_size;
-    }
-
-    unsigned getMinMeta() const {
-        return _min_meta;
-    }
-
-    unsigned getMinRaw() const {
-        return _min_raw;
-    }
+    size_t getPageBufferSize() const;
+    unsigned getMinMetaPercent() const;
+    unsigned getMinRawPercent() const;
 
   private:
     friend FileAccessProps;
@@ -461,26 +384,15 @@ class EstimatedLinkInfo {
     ///
     /// @param entries The estimated number of links in a group.
     /// @param length The estimated length of the names of links.
-    explicit EstimatedLinkInfo(unsigned entries, unsigned length)
-        : _entries(entries)
-        , _length(length) {}
+    explicit EstimatedLinkInfo(unsigned entries, unsigned length);
 
-    explicit EstimatedLinkInfo(const GroupCreateProps& gcpl) {
-        if (H5Pget_est_link_info(gcpl.getId(), &_entries, &_length) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>(
-                "Unable to access group link size property");
-        }
-    }
+    explicit EstimatedLinkInfo(const GroupCreateProps& gcpl);
 
     /// \brief The estimated number of links in a group.
-    unsigned getEntries() const {
-        return _entries;
-    }
+    unsigned getEntries() const;
 
     /// \brief The estimated length of the names of links.
-    unsigned getNameLength() const {
-        return _length;
-    }
+    unsigned getNameLength() const;
 
   private:
     friend GroupCreateProps;
@@ -492,33 +404,15 @@ class EstimatedLinkInfo {
 
 class Chunking {
   public:
-    explicit Chunking(const std::vector<hsize_t>& dims)
-        : _dims(dims) {}
-
-    Chunking(const std::initializer_list<hsize_t>& items)
-        : Chunking(std::vector<hsize_t>{items}) {}
+    explicit Chunking(const std::vector<hsize_t>& dims);
+    Chunking(const std::initializer_list<hsize_t>& items);
 
     template <typename... Args>
-    explicit Chunking(hsize_t item, Args... args)
-        : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
+    explicit Chunking(hsize_t item, Args... args);
 
-    explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32)
-        : _dims(max_dims + 1) {
-        auto n_loaded = H5Pget_chunk(plist.getId(), static_cast<int>(_dims.size()), _dims.data());
-        if (n_loaded < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Error getting chunk size");
-        }
+    explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32);
 
-        if (n_loaded >= static_cast<int>(_dims.size())) {
-            *this = Chunking(plist, 8 * max_dims);
-        } else {
-            _dims.resize(static_cast<size_t>(n_loaded));
-        }
-    }
-
-    const std::vector<hsize_t>& getDimensions() const noexcept {
-        return _dims;
-    }
+    const std::vector<hsize_t>& getDimensions() const noexcept;
 
   private:
     friend DataSetCreateProps;
@@ -528,8 +422,7 @@ class Chunking {
 
 class Deflate {
   public:
-    explicit Deflate(unsigned level)
-        : _level(level) {}
+    explicit Deflate(unsigned level);
 
   private:
     friend DataSetCreateProps;
@@ -541,17 +434,10 @@ class Deflate {
 class Szip {
   public:
     explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK,
-                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
-        : _options_mask(options_mask)
-        , _pixels_per_block(pixels_per_block) {}
+                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK);
 
-    unsigned getOptionsMask() const {
-        return _options_mask;
-    }
-
-    unsigned getPixelsPerBlock() const {
-        return _pixels_per_block;
-    }
+    unsigned getOptionsMask() const;
+    unsigned getPixelsPerBlock() const;
 
   private:
     friend DataSetCreateProps;
@@ -576,8 +462,7 @@ class Shuffle {
 /// `H5Pset_alloc_time`.
 class AllocationTime {
   public:
-    explicit AllocationTime(H5D_alloc_time_t alloc_time)
-        : _alloc_time(alloc_time) {}
+    explicit AllocationTime(H5D_alloc_time_t alloc_time);
 
   private:
     friend DataSetCreateProps;
