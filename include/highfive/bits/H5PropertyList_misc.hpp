@@ -435,7 +435,7 @@ inline double Caching::getW0() const {
     return _w0;
 }
 
-CreateIntermediateGroup::CreateIntermediateGroup(bool create)
+inline CreateIntermediateGroup::CreateIntermediateGroup(bool create)
     : _create(create) {}
 
 inline CreateIntermediateGroup::CreateIntermediateGroup(const ObjectCreateProps& ocpl) {
