@@ -387,17 +387,17 @@ inline void Shuffle::apply(const hid_t hid) const {
     }
 }
 
-inline void AllocationTime::apply(hid_t dcpl) const {
-    if (H5Pset_alloc_time(dcpl, _alloc_time) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
-    }
-}
-
 inline AllocationTime::AllocationTime(H5D_alloc_time_t alloc_time)
     : _alloc_time(alloc_time) {}
 
 inline AllocationTime::AllocationTime(const DataSetCreateProps& dcpl) {
     if (H5Pget_alloc_time(dcpl.getId(), &_alloc_time) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error getting allocation time");
+    }
+}
+
+inline void AllocationTime::apply(hid_t dcpl) const {
+    if (H5Pset_alloc_time(dcpl, _alloc_time) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
     }
 }
