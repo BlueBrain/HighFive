@@ -463,6 +463,9 @@ class Shuffle {
 class AllocationTime {
   public:
     explicit AllocationTime(H5D_alloc_time_t alloc_time);
+    explicit AllocationTime(const DataSetCreateProps& dcpl);
+
+    H5D_alloc_time_t getAllocationTime();
 
   private:
     friend DataSetCreateProps;
@@ -479,17 +482,20 @@ class Caching {
     /// details.
     Caching(const size_t numSlots,
             const size_t cacheSize,
-            const double w0 = static_cast<double>(H5D_CHUNK_CACHE_W0_DEFAULT))
-        : _numSlots(numSlots)
-        , _cacheSize(cacheSize)
-        , _w0(w0) {}
+            const double w0 = static_cast<double>(H5D_CHUNK_CACHE_W0_DEFAULT));
+
+    explicit Caching(const DataSetCreateProps& dcpl);
+
+    size_t getNumSlots() const;
+    size_t getCacheSize() const;
+    double getW0() const;
 
   private:
     friend DataSetAccessProps;
     void apply(hid_t hid) const;
-    const size_t _numSlots;
-    const size_t _cacheSize;
-    const double _w0;
+    size_t _numSlots;
+    size_t _cacheSize;
+    double _w0;
 };
 
 class CreateIntermediateGroup {
@@ -497,11 +503,21 @@ class CreateIntermediateGroup {
     explicit CreateIntermediateGroup(bool create = true)
         : _create(create) {}
 
+    explicit CreateIntermediateGroup(const ObjectCreateProps& ocpl);
+    explicit CreateIntermediateGroup(const LinkCreateProps& lcpl);
+
+    bool isSet() const {
+        return _create;
+    }
+
+  protected:
+    void fromPropertyList(hid_t hid);
+
   private:
     friend ObjectCreateProps;
     friend LinkCreateProps;
     void apply(hid_t hid) const;
-    const bool _create;
+    bool _create;
 };
 
 #ifdef H5_HAVE_PARALLEL
@@ -515,6 +531,7 @@ class UseCollectiveIO {
     void apply(hid_t hid) const;
     bool _enable;
 };
+
 
 class MpioNoCollectiveCause {
   public:

@@ -394,17 +394,69 @@ inline void AllocationTime::apply(hid_t dcpl) const {
 AllocationTime::AllocationTime(H5D_alloc_time_t alloc_time)
     : _alloc_time(alloc_time) {}
 
+AllocationTime::AllocationTime(const DataSetCreateProps& dcpl) {
+    if (H5Pget_alloc_time(dcpl.getId(), &_alloc_time) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
+    }
+}
+
+H5D_alloc_time_t AllocationTime::getAllocationTime() {
+    return _alloc_time;
+}
+
+Caching::Caching(const DataSetCreateProps& dcpl) {
+    if (H5Pget_chunk_cache(dcpl.getId(), &_numSlots, &_cacheSize, &_w0) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error getting dataset cache parameters");
+    }
+}
+
 inline void Caching::apply(const hid_t hid) const {
     if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting dataset cache parameters");
     }
 }
 
+Caching::Caching(const size_t numSlots, const size_t cacheSize, const double w0)
+    : _numSlots(numSlots)
+    , _cacheSize(cacheSize)
+    , _w0(w0) {}
+
+size_t Caching::getNumSlots() const {
+    return _numSlots;
+}
+
+size_t Caching::getCacheSize() const {
+    return _cacheSize;
+}
+
+double Caching::getW0() const {
+    return _w0;
+}
+
+CreateIntermediateGroup::CreateIntermediateGroup(const ObjectCreateProps& ocpl) {
+    fromPropertyList(ocpl.getId());
+}
+
+
 inline void CreateIntermediateGroup::apply(const hid_t hid) const {
     if (H5Pset_create_intermediate_group(hid, _create ? 1 : 0) < 0) {
         HDF5ErrMapper::ToException<PropertyException>(
             "Error setting property for create intermediate groups");
     }
+}
+
+CreateIntermediateGroup::CreateIntermediateGroup(const LinkCreateProps& lcpl) {
+    fromPropertyList(lcpl.getId());
+}
+
+void CreateIntermediateGroup::fromPropertyList(hid_t hid) {
+    unsigned c_bool = 0;
+    if (H5Pget_create_intermediate_group(hid, &c_bool) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error getting property for create intermediate groups");
+    }
+
+    _create = bool(c_bool);
 }
 
 #ifdef H5_HAVE_PARALLEL
