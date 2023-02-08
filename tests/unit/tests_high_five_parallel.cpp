@@ -42,8 +42,9 @@ struct MpiFixture {
 
 void check_was_collective(const DataTransferProps& xfer_props) {
     auto mnccp = MpioNoCollectiveCause(xfer_props);
-    CHECK(mnccp.get_local_cause() == 0);
-    CHECK(mnccp.get_global_cause() == 0);
+    CHECK(mnccp.wasCollective());
+    CHECK(mnccp.getLocalCause() == 0);
+    CHECK(mnccp.getGlobalCause() == 0);
 }
 
 template <typename T>

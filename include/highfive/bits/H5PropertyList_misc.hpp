@@ -460,10 +460,53 @@ void CreateIntermediateGroup::fromPropertyList(hid_t hid) {
 }
 
 #ifdef H5_HAVE_PARALLEL
+UseCollectiveIO::UseCollectiveIO(bool enable)
+    : _enable(enable) {}
+
 inline void UseCollectiveIO::apply(const hid_t hid) const {
     if (H5Pset_dxpl_mpio(hid, _enable ? H5FD_MPIO_COLLECTIVE : H5FD_MPIO_INDEPENDENT) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting H5Pset_dxpl_mpio.");
     }
+}
+
+UseCollectiveIO::UseCollectiveIO(const DataTransferProps& dxpl) {
+    H5FD_mpio_xfer_t collective;
+
+    if (H5Pget_dxpl_mpio(dxpl.getId(), &collective) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error getting H5Pset_dxpl_mpio.");
+    }
+
+    if (collective != H5FD_MPIO_COLLECTIVE && collective != H5FD_MPIO_INDEPENDENT) {
+        throw std::logic_error("H5Pget_dxpl_mpio returned something strange.");
+    }
+
+    _enable = collective == H5FD_MPIO_COLLECTIVE;
+}
+
+bool UseCollectiveIO::isCollective() const {
+    return _enable;
+}
+
+MpioNoCollectiveCause::MpioNoCollectiveCause(const DataTransferProps& dxpl) {
+    if (H5Pget_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Failed to check mpio_no_collective_cause.");
+    }
+}
+
+bool MpioNoCollectiveCause::wasCollective() const {
+    return _local_cause == 0 && _global_cause == 0;
+}
+
+uint32_t MpioNoCollectiveCause::getLocalCause() const {
+    return _local_cause;
+}
+
+uint32_t MpioNoCollectiveCause::getGlobalCause() const {
+    return _global_cause;
+}
+
+std::pair<uint32_t, uint32_t> MpioNoCollectiveCause::getCause() const {
+    return {_local_cause, _global_cause};
 }
 #endif
 

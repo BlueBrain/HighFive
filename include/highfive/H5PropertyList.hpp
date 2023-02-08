@@ -523,8 +523,12 @@ class CreateIntermediateGroup {
 #ifdef H5_HAVE_PARALLEL
 class UseCollectiveIO {
   public:
-    explicit UseCollectiveIO(bool enable = true)
-        : _enable(enable) {}
+    explicit UseCollectiveIO(bool enable = true);
+
+    explicit UseCollectiveIO(const DataTransferProps& dxpl);
+
+    /// \brief Does the property request collective IO?
+    bool isCollective() const;
 
   private:
     friend DataTransferProps;
@@ -533,22 +537,27 @@ class UseCollectiveIO {
 };
 
 
+/// \brief The cause for non-collective I/O.
+///
+/// The cause refers to the most recent I/O with data transfer property list  `dxpl` at time of
+/// creation of this object. This object will not update automatically for later data transfers,
+/// i.e. `H5Pget_mpio_no_collective_cause` is called in the constructor, and not when fetching
+/// a value, such as `wasCollective`.
 class MpioNoCollectiveCause {
   public:
-    explicit MpioNoCollectiveCause(const DataTransferProps& dxpl) {
-        if (H5Pget_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>(
-                "Failed to check mpio_no_collective_cause.");
-        }
-    }
+    explicit MpioNoCollectiveCause(const DataTransferProps& dxpl);
 
-    uint32_t get_local_cause() const {
-        return _local_cause;
-    }
+    /// \brief Was the datatransfer collective?
+    bool wasCollective() const;
 
-    uint32_t get_global_cause() const {
-        return _global_cause;
-    }
+    /// \brief The local cause for a non-collective I/O.
+    uint32_t getLocalCause() const;
+
+    /// \brief The global cause for a non-collective I/O.
+    uint32_t getGlobalCause() const;
+
+    /// \brief A pair of the local and global cause for non-collective I/O.
+    std::pair<uint32_t, uint32_t> getCause() const;
 
   private:
     friend DataTransferProps;
