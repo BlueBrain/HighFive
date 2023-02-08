@@ -38,4 +38,12 @@ inline const DataType Selection::getDataType() const {
     return _set.getDataType();
 }
 
+namespace detail {
+inline Selection make_selection(const DataSpace& mem_space,
+                                const DataSpace& file_space,
+                                const DataSet& set) {
+    return Selection(mem_space, file_space, set);
+}
+}  // namespace detail
+
 }  // namespace HighFive

@@ -13,6 +13,12 @@
 #include "../H5Exception.hpp"
 
 namespace HighFive {
+namespace detail {
+inline Object make_object(hid_t hid) {
+    return Object(hid);
+}
+}  // namespace detail
+
 
 inline Object::Object()
     : _hid(H5I_INVALID_HID) {}

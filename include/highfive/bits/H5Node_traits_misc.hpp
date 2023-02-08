@@ -41,8 +41,8 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
     lcpl.add(CreateIntermediateGroup(parents));
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(),
-                                dtype._hid,
-                                space._hid,
+                                dtype.getId(),
+                                space.getId(),
                                 lcpl.getId(),
                                 createProps.getId(),
                                 accessProps.getId());
@@ -142,7 +142,7 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name, bo
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create the group \"") +
                                                    group_name + "\":");
     }
-    return Group(hid);
+    return detail::make_group(hid);
 }
 
 template <typename Derivate>
@@ -160,7 +160,7 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create the group \"") +
                                                    group_name + "\":");
     }
-    return Group(hid);
+    return detail::make_group(hid);
 }
 
 template <typename Derivate>
@@ -171,7 +171,7 @@ inline Group NodeTraits<Derivate>::getGroup(const std::string& group_name) const
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open the group \"") +
                                                    group_name + "\":");
     }
-    return Group(hid);
+    return detail::make_group(hid);
 }
 
 template <typename Derivate>
@@ -369,7 +369,7 @@ inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open \"") + node_name +
                                                    "\":");
     }
-    return Object(id);
+    return detail::make_object(id);
 }
 
 
