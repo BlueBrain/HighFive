@@ -244,7 +244,7 @@ class FileVersionBounds {
         : _low(low)
         , _high(high) {}
 
-    FileVersionBounds(const FileAccessProps& fapl) {
+    explicit FileVersionBounds(const FileAccessProps& fapl) {
         if (H5Pget_libver_bounds(fapl.getId(), &_low, &_high) < 0) {
             HDF5ErrMapper::ToException<PropertyException>("Unable to access file version bounds");
         }
