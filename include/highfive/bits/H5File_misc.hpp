@@ -93,20 +93,20 @@ inline const std::string& File::getName() const noexcept {
 
 inline hsize_t File::getMetadataBlockSize() const {
     auto fapl = getAccessPropertyList();
-    return MetadataBlockSize(fapl).get_size();
+    return MetadataBlockSize(fapl).getSize();
 }
 
 inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
     auto fapl = getAccessPropertyList();
     auto fileVer = FileVersionBounds(fapl);
-    return fileVer.get_version();
+    return fileVer.getVersion();
 }
 
 #if H5_VERSION_GE(1, 10, 1)
 inline H5F_fspace_strategy_t File::getFileSpaceStrategy() const {
     auto fcpl = getCreatePropertyList();
     FileSpaceStrategy spaceStrategy(fcpl);
-    return spaceStrategy.get_strategy();
+    return spaceStrategy.getStrategy();
 }
 
 inline hsize_t File::getFileSpacePageSize() const {
@@ -117,7 +117,7 @@ inline hsize_t File::getFileSpacePageSize() const {
             std::string("Cannot obtain page size as paged allocation is not used."));
     }
 
-    return FileSpacePageSize(fcpl).get_page_size();
+    return FileSpacePageSize(fcpl).getPageSize();
 }
 #endif
 

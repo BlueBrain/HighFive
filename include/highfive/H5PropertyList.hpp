@@ -149,11 +149,11 @@ class MPIOFileAccess {
         }
     }
 
-    MPI_Comm get_comm() const {
+    MPI_Comm getComm() const {
         return _comm;
     }
 
-    MPI_Info get_info() const {
+    MPI_Info getInfo() const {
         return _info;
     }
 
@@ -265,7 +265,7 @@ class FileVersionBounds {
         }
     }
 
-    std::pair<H5F_libver_t, H5F_libver_t> get_version() const {
+    std::pair<H5F_libver_t, H5F_libver_t> getVersion() const {
         return std::make_pair(_low, _high);
     }
 
@@ -297,7 +297,7 @@ class MetadataBlockSize {
         }
     }
 
-    hsize_t get_size() const {
+    hsize_t getSize() const {
         return _size;
     }
 
@@ -335,15 +335,15 @@ class FileSpaceStrategy {
         }
     }
 
-    H5F_fspace_strategy_t get_strategy() const {
+    H5F_fspace_strategy_t getStrategy() const {
         return _strategy;
     }
 
-    hbool_t get_persist() const {
+    hbool_t getPersist() const {
         return _persist;
     }
 
-    hsize_t get_threshold() const {
+    hsize_t getThreshold() const {
         return _threshold;
     }
 
@@ -374,13 +374,13 @@ class FileSpacePageSize {
     /// \param page_size The page size in bytes.
     explicit FileSpacePageSize(hsize_t page_size);
 
-    FileSpacePageSize(const FileCreateProps& fcpl) {
+    explicit FileSpacePageSize(const FileCreateProps& fcpl) {
         if (H5Pget_file_space_page_size(fcpl.getId(), &_page_size) < 0) {
             HDF5ErrMapper::ToException<PropertyException>("Unable to get file space page size");
         }
     }
 
-    hsize_t get_page_size() const {
+    hsize_t getPageSize() const {
         return _page_size;
     }
 
@@ -421,15 +421,15 @@ class PageBufferSize {
         }
     }
 
-    size_t get_page_buffer_size() const {
+    size_t getPageBufferSize() const {
         return _page_buffer_size;
     }
 
-    unsigned get_min_meta() const {
+    unsigned getMinMeta() const {
         return _min_meta;
     }
 
-    unsigned get_min_raw() const {
+    unsigned getMinRaw() const {
         return _min_raw;
     }
 
@@ -460,11 +460,13 @@ class EstimatedLinkInfo {
         }
     }
 
-    unsigned num_entries() const {
+    /// \brief The estimated number of links in a group.
+    unsigned getEntries() const {
         return _entries;
     }
 
-    unsigned name_len() const {
+    /// \brief The estimated length of the names of links.
+    unsigned getNameLength() const {
         return _length;
     }
 

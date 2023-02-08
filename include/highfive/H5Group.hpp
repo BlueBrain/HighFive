@@ -52,7 +52,7 @@ class Group: public Object,
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
     auto gcpl = getCreatePropertyList();
     auto eli = EstimatedLinkInfo(gcpl);
-    return std::make_pair(eli.num_entries(), eli.name_len());
+    return std::make_pair(eli.getEntries(), eli.getNameLength());
 }
 
 }  // namespace HighFive
