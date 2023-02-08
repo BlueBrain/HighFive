@@ -500,15 +500,12 @@ class Caching {
 
 class CreateIntermediateGroup {
   public:
-    explicit CreateIntermediateGroup(bool create = true)
-        : _create(create) {}
+    explicit CreateIntermediateGroup(bool create = true);
 
     explicit CreateIntermediateGroup(const ObjectCreateProps& ocpl);
     explicit CreateIntermediateGroup(const LinkCreateProps& lcpl);
 
-    bool isSet() const {
-        return _create;
-    }
+    bool isSet() const;
 
   protected:
     void fromPropertyList(hid_t hid);

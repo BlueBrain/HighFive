@@ -157,15 +157,15 @@ inline void PageBufferSize::apply(const hid_t list) const {
     }
 }
 
-inline hsize_t PageBufferSize::getPageBufferSize() const {
+inline size_t PageBufferSize::getPageBufferSize() const {
     return _page_buffer_size;
 }
 
-inline unsigned PageBufferSize::getMinPercent() const {
+inline unsigned PageBufferSize::getMinMetaPercent() const {
     return _min_meta;
 }
 
-inline unsigned PageBufferSize::getRawPercent() const {
+inline unsigned PageBufferSize::getMinRawPercent() const {
     return _min_raw;
 }
 #endif
@@ -435,6 +435,9 @@ inline double Caching::getW0() const {
     return _w0;
 }
 
+CreateIntermediateGroup::CreateIntermediateGroup(bool create)
+    : _create(create) {}
+
 inline CreateIntermediateGroup::CreateIntermediateGroup(const ObjectCreateProps& ocpl) {
     fromPropertyList(ocpl.getId());
 }
@@ -459,6 +462,10 @@ inline void CreateIntermediateGroup::fromPropertyList(hid_t hid) {
     }
 
     _create = bool(c_bool);
+}
+
+bool CreateIntermediateGroup::isSet() const {
+    return _create;
 }
 
 #ifdef H5_HAVE_PARALLEL
