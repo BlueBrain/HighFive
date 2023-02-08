@@ -142,21 +142,6 @@ class MPIOFileAccess {
         : _comm(comm)
         , _info(info) {}
 
-    explicit MPIOFileAccess(const FileAccessProps& fapl) {
-        if (H5Pget_fapl_mpio(fapl.getId(), &_comm, &_info) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>(
-                "Unable to get MPIO Driver configuration");
-        }
-    }
-
-    MPI_Comm getComm() const {
-        return _comm;
-    }
-
-    MPI_Info getInfo() const {
-        return _info;
-    }
-
   private:
     friend FileAccessProps;
     void apply(const hid_t list) const {
