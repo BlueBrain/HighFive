@@ -519,4 +519,28 @@ inline std::pair<uint32_t, uint32_t> MpioNoCollectiveCause::getCause() const {
 }
 #endif
 
+inline LinkCreationOrder::LinkCreationOrder(const FileCreateProps& fcpl) {
+    fromPropertyList(fcpl.getId());
+}
+
+inline LinkCreationOrder::LinkCreationOrder(const GroupCreateProps& gcpl) {
+    fromPropertyList(gcpl.getId());
+}
+
+inline unsigned LinkCreationOrder::getFlags() const {
+    return _flags;
+}
+
+inline void LinkCreationOrder::LinkCreationOrder::apply(const hid_t hid) const {
+    if (H5Pset_link_creation_order(hid, _flags) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting LinkCreationOrder.");
+    }
+}
+
+inline void LinkCreationOrder::fromPropertyList(hid_t hid) {
+    if (H5Pget_link_creation_order(hid, &_flags) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error getting property for link creation order");
+    }
+}
 }  // namespace HighFive

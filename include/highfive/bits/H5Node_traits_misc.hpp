@@ -219,7 +219,7 @@ inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
 }
 
 template <typename Derivate>
-inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
+inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames(IndexType idx_type) const {
     std::vector<std::string> names;
     details::HighFiveIterateData iterateData(names);
 
@@ -227,7 +227,7 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames() const {
     names.reserve(num_objs);
 
     if (H5Literate(static_cast<const Derivate*>(this)->getId(),
-                   H5_INDEX_NAME,
+                   static_cast<H5_index_t>(idx_type),
                    H5_ITER_INC,
                    NULL,
                    &details::internal_high_five_iterate<H5L_info_t>,
