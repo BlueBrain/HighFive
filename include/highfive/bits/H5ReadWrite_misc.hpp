@@ -121,19 +121,19 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
     }
     // We warn. In case they are really not convertible an exception will rise on read/write
     if (dtype.getClass() != data_type.getClass()) {
-        std::cerr << "HighFive WARNING \"" << getName()
-                  << "\": data and hdf5 dataset have different types: " << data_type.string()
-                  << " -> " << dtype.string() << std::endl;
+        HIGHFIVE_LOG_WARN(getName() + "\": data and hdf5 dataset have different types: " +
+                          data_type.string() + " -> " + dtype.string());
     } else if ((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) {
-        if ((op == read) && (dtype.getSize() > data_type.getSize())) {
-            std::clog << "HighFive WARNING \"" << getName()
-                      << "\": hdf5 dataset has higher floating point precision than data on read: "
-                      << dtype.string() << " -> " << data_type.string() << std::endl;
-        } else if ((op == write) && (dtype.getSize() < data_type.getSize())) {
-            std::clog << "HighFive WARNING \"" << getName()
-                      << "\": data has higher floating point precision than hdf5 dataset on write: "
-                      << data_type.string() << " -> " << dtype.string() << std::endl;
-        }
+        HIGHFIVE_LOG_WARN_IF(
+            (op == read) && (dtype.getSize() > data_type.getSize()),
+            getName() + "\": hdf5 dataset has higher floating point precision than data on read: " +
+                dtype.string() + " -> " + data_type.string());
+
+        HIGHFIVE_LOG_WARN_IF(
+            (op == write) && (dtype.getSize() < data_type.getSize()),
+            getName() +
+                "\": data has higher floating point precision than hdf5 dataset on write: " +
+                data_type.string() + " -> " + dtype.string());
     }
 }
 
