@@ -26,15 +26,11 @@ const std::string DATASET_NAME("dset");
 // MPI-IO operations were used, one may. Conveniently, this also provides identifiers
 // of the cause for not using collective MPI calls.
 void check_collective_io(const HighFive::DataTransferProps& xfer_props) {
-    uint32_t local_cause = 0, global_cause = 0;
-    auto err = H5Pget_mpio_no_collective_cause(xfer_props.getId(), &local_cause, &global_cause);
-    if (err < 0) {
-        throw std::runtime_error("Failed to check mpio_no_collective_cause.");
-    }
-    if (local_cause || global_cause) {
+    auto mnccp = HighFive::MpioNoCollectiveCause(xfer_props);
+    if (mnccp.getLocalCause() || mnccp.getGlobalCause()) {
         std::cout
             << "The operation was successful, but couldn't use collective MPI-IO. local cause: "
-            << local_cause << " global cause:" << global_cause << std::endl;
+            << mnccp.getLocalCause() << " global cause:" << mnccp.getGlobalCause() << std::endl;
     }
 }
 
