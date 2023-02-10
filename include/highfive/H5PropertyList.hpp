@@ -563,9 +563,11 @@ class MpioNoCollectiveCause {
 };
 #endif
 
-enum CreationOrder {
-    Tracked = H5P_CRT_ORDER_TRACKED,
-    Indexed = H5P_CRT_ORDER_INDEXED,
+struct CreationOrder {
+    enum _CreationOrder {
+        Tracked = H5P_CRT_ORDER_TRACKED,
+        Indexed = H5P_CRT_ORDER_INDEXED,
+    };
 };
 
 ///
@@ -581,6 +583,14 @@ class LinkCreationOrder {
     ///
     explicit LinkCreationOrder(unsigned flags)
         : _flags(flags) {}
+
+    explicit LinkCreationOrder(const FileCreateProps& fcpl);
+    explicit LinkCreationOrder(const GroupCreateProps& gcpl);
+
+    unsigned getFlags() const;
+
+  protected:
+    void fromPropertyList(hid_t hid);
 
   private:
     friend FileCreateProps;

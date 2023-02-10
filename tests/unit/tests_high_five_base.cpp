@@ -1871,7 +1871,7 @@ TEST_CASE("HighFiveLinkCreationOrderProperty") {
     {  // For file
         const std::string FILE_NAME("h5_keep_creation_order_file.h5");
         FileCreateProps keepCreationOrder{};
-        keepCreationOrder.add(LinkCreationOrder(Tracked | Indexed));
+        keepCreationOrder.add(LinkCreationOrder(CreationOrder::Tracked | CreationOrder::Indexed));
 
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate, keepCreationOrder);
         file.createGroup("1");
@@ -1881,11 +1881,16 @@ TEST_CASE("HighFiveLinkCreationOrderProperty") {
         CHECK(file.listObjectNames(IndexType::CRT_ORDER) ==
               std::vector<std::string>{"1", "2", "10"});
         CHECK(file.listObjectNames(IndexType::NAME) == std::vector<std::string>{"1", "10", "2"});
+
+        auto fcpl = file.getCreatePropertyList();
+        LinkCreationOrder linkCreationOrder(fcpl);
+        CHECK((linkCreationOrder.getFlags() & CreationOrder::Tracked) != 0);
+        CHECK((linkCreationOrder.getFlags() & CreationOrder::Indexed) != 0);
     }
     {  // For groups
         const std::string FILE_NAME("h5_keep_creation_order_group.h5");
         GroupCreateProps keepCreationOrder{};
-        keepCreationOrder.add(LinkCreationOrder(Tracked | Indexed));
+        keepCreationOrder.add(LinkCreationOrder(CreationOrder::Tracked | CreationOrder::Indexed));
 
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
         auto group = file.createGroup("group_crt", keepCreationOrder);
@@ -1903,6 +1908,19 @@ TEST_CASE("HighFiveLinkCreationOrderProperty") {
         group2.createGroup("10");
 
         CHECK(group2.listObjectNames() == std::vector<std::string>{"1", "10", "2"});
+
+        {
+            auto gcpl = group.getCreatePropertyList();
+            LinkCreationOrder linkCreationOrder(gcpl);
+            CHECK((linkCreationOrder.getFlags() & CreationOrder::Tracked) != 0);
+            CHECK((linkCreationOrder.getFlags() & CreationOrder::Indexed) != 0);
+        }
+        {
+            auto gcpl = group2.getCreatePropertyList();
+            LinkCreationOrder linkCreationOrder(gcpl);
+            CHECK((linkCreationOrder.getFlags() & CreationOrder::Tracked) == 0);
+            CHECK((linkCreationOrder.getFlags() & CreationOrder::Indexed) == 0);
+        }
     }
 }
 
