@@ -22,7 +22,16 @@ if(NOT TARGET libdeps)
 
   # Boost
   if(HIGHFIVE_USE_BOOST)
-    set(Boost_NO_BOOST_CMAKE TRUE)  # Consistency
+    if(NOT DEFINED Boost_NO_BOOST_CMAKE)
+      # HighFive deactivated finding Boost via Boost's own CMake files
+      # in Oct 2016 (commit '25627b085'). Likely to appease one cluster.
+      # Boost's CMake support has since improved and likely this setting
+      # isn't needed anymore. It is kept for backwards compatibility.
+      # However, a rework of HighFive's CMake code should consider removing
+      # this default. Hard coding this to true has been reported to cause
+      # build failures.
+      set(Boost_NO_BOOST_CMAKE TRUE)
+    endif()
     find_package(Boost REQUIRED COMPONENTS system serialization)
     # Dont use imported targets yet, not avail before cmake 3.5
     target_include_directories(libdeps SYSTEM INTERFACE ${Boost_INCLUDE_DIR})
