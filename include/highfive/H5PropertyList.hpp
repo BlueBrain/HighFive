@@ -453,6 +453,29 @@ class EstimatedLinkInfo {
     unsigned _length;
 };
 
+/// \brief Set chunking to DataSet.
+///
+/// To set a chunking size:
+/// \code{.cpp}
+/// DataSetCreateProps dcpl{};
+/// dcpl.add(Chuking(std::vector<hsize_t>{2, 2}));
+/// auto dset = file.createDataSet<float>{"chunked", dataspace, dcpl);
+/// \endcode
+///
+/// To get chunking size:
+/// \code{.cpp}
+/// auto dcpl = dset.getCreatePropertyList();
+/// auto chunk = Chunking(dcpl);
+/// auto dims = chunk.getDimensions();
+/// \endcode
+///
+/// To set guessed chunking size:
+/// \code{.cpp}
+/// if ((dpcl.needs_chunking() || dataspace.isExtendable) && !dpcl.has_chunking()) {
+///     dpcl.add(Chunking(Chunking::guessChunkingSize(dataspace.getDimensions(),
+///                                                   dataspace.getMaxDimensions()
+///                                                   AtomicType<float>{}.getSize());
+/// }
 class Chunking {
   public:
     explicit Chunking(const std::vector<hsize_t>& dims);
@@ -463,8 +486,14 @@ class Chunking {
 
     explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32);
 
+    /// \brief Return size of the chunking for this dataset.
     const std::vector<hsize_t>& getDimensions() const noexcept;
 
+    /// \brief Function to get a default chunk vector
+    /// If you don't want to choose a chunking size yourself, this function will do for you.
+    /// See also: DataSpace::isExpendable() and PropertyList<DATASET_CREATE>::needs_chunking() and
+    /// PropertyList<DATASET_CREATE>::has_chunking() to know if your Dataset needs chunking.
+    /// \return a vector of dimensions for chunking
     static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims,
                                                       const std::vector<std::size_t>& max_dims,
                                                       std::size_t typesize);
