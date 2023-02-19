@@ -363,9 +363,10 @@ template <typename... Args>
 inline Chunking::Chunking(hsize_t item, Args... args)
     : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
 
-std::vector<std::size_t> Chunking::guessChunkingSize(const std::vector<std::size_t>& dims,
-                                                     const std::vector<std::size_t>& max_dims,
-                                                     std::size_t typesize) {
+inline std::vector<std::size_t> Chunking::guessChunkingSize(
+    const std::vector<std::size_t>& dims,
+    const std::vector<std::size_t>& max_dims,
+    std::size_t typesize) {
     const std::size_t CHUNK_BASE = 16 * 1024;   // Multiplier by which chunks are adjusted
     const std::size_t CHUNK_MIN = 8 * 1024;     // Soft lower limit (8k)
     const std::size_t CHUNK_MAX = 1024 * 1024;  // Hard upper limit (1M)
