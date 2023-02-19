@@ -127,6 +127,12 @@ inline std::vector<size_t> DataSpace::getMaxDimensions() const {
     return details::to_vector_size_t(maxdims);
 }
 
+inline bool DataSpace::isExtendable() const {
+    const auto maxdims = getMaxDimensions();
+    const auto dims = getDimensions();
+    return !std::equal(dims.begin(), dims.end(), maxdims.begin());
+}
+
 template <typename T>
 inline DataSpace DataSpace::From(const T& value) {
     auto dims = details::inspector<T>::getDimensions(value);
