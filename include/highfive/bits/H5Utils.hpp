@@ -62,12 +62,9 @@ inline std::vector<hsize_t> to_vector_hsize_t(const std::vector<hsize_t>& vec) {
     return vec;
 }
 
-inline hsize_t compute_total_size(const std::vector<hsize_t>& dims) {
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<std::size_t>());
-}
-
-inline size_t compute_total_size(const std::vector<std::size_t>& dims) {
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<std::size_t>());
+template<typename T>
+inline T compute_total_size(const std::vector<T>& dims) {
+    return std::accumulate(dims.begin(), dims.end(), T{1u}, std::multiplies<T>());
 }
 
 // read name from a H5 object using the specified function
