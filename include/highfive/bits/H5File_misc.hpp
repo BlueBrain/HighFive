@@ -92,56 +92,32 @@ inline const std::string& File::getName() const noexcept {
 }
 
 inline hsize_t File::getMetadataBlockSize() const {
-    hsize_t size;
     auto fapl = getAccessPropertyList();
-    if (H5Pget_meta_block_size(fapl.getId(), &size) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to access file metadata block size"));
-    }
-    return size;
+    return MetadataBlockSize(fapl).getSize();
 }
 
 inline std::pair<H5F_libver_t, H5F_libver_t> File::getVersionBounds() const {
-    H5F_libver_t low;
-    H5F_libver_t high;
     auto fapl = getAccessPropertyList();
-    if (H5Pget_libver_bounds(fapl.getId(), &low, &high) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to access file version bounds"));
-    }
-    return std::make_pair(low, high);
+    auto fileVer = FileVersionBounds(fapl);
+    return fileVer.getVersion();
 }
 
 #if H5_VERSION_GE(1, 10, 1)
 inline H5F_fspace_strategy_t File::getFileSpaceStrategy() const {
     auto fcpl = getCreatePropertyList();
-
-    H5F_fspace_strategy_t strategy;
-    hbool_t persist;
-    hsize_t threshold;
-
-    if (H5Pget_file_space_strategy(fcpl.getId(), &strategy, &persist, &threshold) < 0) {
-        HDF5ErrMapper::ToException<FileException>(std::string("Unable to get file space strategy"));
-    }
-
-    return strategy;
+    FileSpaceStrategy spaceStrategy(fcpl);
+    return spaceStrategy.getStrategy();
 }
 
 inline hsize_t File::getFileSpacePageSize() const {
     auto fcpl = getCreatePropertyList();
-    hsize_t page_size;
 
     if (getFileSpaceStrategy() != H5F_FSPACE_STRATEGY_PAGE) {
         HDF5ErrMapper::ToException<FileException>(
             std::string("Cannot obtain page size as paged allocation is not used."));
     }
 
-    if (H5Pget_file_space_page_size(fcpl.getId(), &page_size) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to get file space page size"));
-    }
-
-    return page_size;
+    return FileSpacePageSize(fcpl).getPageSize();
 }
 #endif
 

@@ -109,6 +109,9 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
         return details::get_plist<FileAccessProps>(*this, H5Fget_access_plist);
     }
 
+  protected:
+    File() = default;
+
   private:
     using Object::Object;
 

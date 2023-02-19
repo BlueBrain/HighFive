@@ -50,7 +50,7 @@ template <typename T, typename U>
 T get_plist(const U& obj, hid_t (*f)(hid_t)) {
     auto hid = f(obj.getId());
     if (hid < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(std::string("Unable to get property list"));
+        HDF5ErrMapper::ToException<PropertyException>("Unable to get property list");
     }
     T t{};
     t._hid = hid;
@@ -190,35 +190,36 @@ class RawPropertyList: public PropertyList<T> {
 ///
 class MPIOFileAccess {
   public:
-    MPIOFileAccess(MPI_Comm comm, MPI_Info info)
-        : _comm(comm)
-        , _info(info) {}
-
-    void apply(const hid_t list) const {
-        if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
-            HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
-        }
-    }
+    MPIOFileAccess(MPI_Comm comm, MPI_Info info);
 
   private:
+    friend FileAccessProps;
+    void apply(const hid_t list) const;
+
     MPI_Comm _comm;
     MPI_Info _info;
 };
 
 ///
-/// \brief Use collective MPI-IO for metadata read and write?
+/// \brief Use collective MPI-IO for metadata read and write.
 ///
 /// See `MPIOCollectiveMetadataRead` and `MPIOCollectiveMetadataWrite`.
 ///
 class MPIOCollectiveMetadata {
   public:
-    explicit MPIOCollectiveMetadata(bool collective = true)
-        : collective_(collective) {}
+    explicit MPIOCollectiveMetadata(bool collective = true);
+    explicit MPIOCollectiveMetadata(const FileAccessProps& plist);
+
+    bool isCollectiveRead() const;
+    bool isCollectiveWrite() const;
+
 
   private:
     friend FileAccessProps;
     void apply(hid_t plist) const;
-    bool collective_;
+
+    bool collective_read_;
+    bool collective_write_;
 };
 
 ///
@@ -236,8 +237,10 @@ class MPIOCollectiveMetadata {
 ///
 class MPIOCollectiveMetadataRead {
   public:
-    explicit MPIOCollectiveMetadataRead(bool collective = true)
-        : collective_(collective) {}
+    explicit MPIOCollectiveMetadataRead(bool collective = true);
+    explicit MPIOCollectiveMetadataRead(const FileAccessProps& plist);
+
+    bool isCollective() const;
 
   private:
     friend FileAccessProps;
@@ -260,8 +263,10 @@ class MPIOCollectiveMetadataRead {
 ///
 class MPIOCollectiveMetadataWrite {
   public:
-    explicit MPIOCollectiveMetadataWrite(bool collective = true)
-        : collective_(collective) {}
+    explicit MPIOCollectiveMetadataWrite(bool collective = true);
+    explicit MPIOCollectiveMetadataWrite(const FileAccessProps& plist);
+
+    bool isCollective() const;
 
   private:
     friend FileAccessProps;
@@ -292,19 +297,17 @@ class MPIOCollectiveMetadataWrite {
 ///
 class FileVersionBounds {
   public:
-    FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
-        : _low(low)
-        , _high(high) {}
+    FileVersionBounds(H5F_libver_t low, H5F_libver_t high);
+    explicit FileVersionBounds(const FileAccessProps& fapl);
+
+    std::pair<H5F_libver_t, H5F_libver_t> getVersion() const;
 
   private:
     friend FileAccessProps;
-    void apply(const hid_t list) const {
-        if (H5Pset_libver_bounds(list, _low, _high) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
-        }
-    }
-    const H5F_libver_t _low;
-    const H5F_libver_t _high;
+    void apply(const hid_t list) const;
+
+    H5F_libver_t _low;
+    H5F_libver_t _high;
 };
 
 ///
@@ -314,17 +317,15 @@ class FileVersionBounds {
 ///
 class MetadataBlockSize {
   public:
-    MetadataBlockSize(hsize_t size)
-        : _size(size) {}
+    explicit MetadataBlockSize(hsize_t size);
+    explicit MetadataBlockSize(const FileAccessProps& fapl);
+
+    hsize_t getSize() const;
 
   private:
     friend FileAccessProps;
-    void apply(const hid_t list) const {
-        if (H5Pset_meta_block_size(list, _size) < 0) {
-            HDF5ErrMapper::ToException<PropertyException>("Error setting metadata block size");
-        }
-    }
-    const hsize_t _size;
+    void apply(const hid_t list) const;
+    hsize_t _size;
 };
 
 #if H5_VERSION_GE(1, 10, 1)
@@ -343,6 +344,11 @@ class FileSpaceStrategy {
     /// \param persist Should free space managers be persisted across file closing and reopening.
     /// \param threshold The free-space manager wont track sections small than this threshold.
     FileSpaceStrategy(H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
+    explicit FileSpaceStrategy(const FileCreateProps& fcpl);
+
+    H5F_fspace_strategy_t getStrategy() const;
+    hbool_t getPersist() const;
+    hsize_t getThreshold() const;
 
   private:
     friend FileCreateProps;
@@ -370,10 +376,12 @@ class FileSpacePageSize {
     ///
     /// \param page_size The page size in bytes.
     explicit FileSpacePageSize(hsize_t page_size);
+    explicit FileSpacePageSize(const FileCreateProps& fcpl);
+
+    hsize_t getPageSize() const;
 
   private:
     friend FileCreateProps;
-
     void apply(const hid_t list) const;
 
     hsize_t _page_size;
@@ -402,12 +410,18 @@ class PageBufferSize {
                             unsigned min_meta_percent = 0,
                             unsigned min_raw_percent = 0);
 
+    explicit PageBufferSize(const FileAccessProps& fapl);
+
+    size_t getPageBufferSize() const;
+    unsigned getMinMetaPercent() const;
+    unsigned getMinRawPercent() const;
+
   private:
     friend FileAccessProps;
 
     void apply(hid_t list) const;
 
-    hsize_t _page_buffer_size;
+    size_t _page_buffer_size;
     unsigned _min_meta;
     unsigned _min_raw;
 };
@@ -418,35 +432,38 @@ class PageBufferSize {
 ///
 class EstimatedLinkInfo {
   public:
-    explicit EstimatedLinkInfo(unsigned entries, unsigned length)
-        : _entries(entries)
-        , _length(length) {}
+    /// \brief Create a property with the request parameters.
+    ///
+    /// @param entries The estimated number of links in a group.
+    /// @param length The estimated length of the names of links.
+    explicit EstimatedLinkInfo(unsigned entries, unsigned length);
+
+    explicit EstimatedLinkInfo(const GroupCreateProps& gcpl);
+
+    /// \brief The estimated number of links in a group.
+    unsigned getEntries() const;
+
+    /// \brief The estimated length of the names of links.
+    unsigned getNameLength() const;
 
   private:
     friend GroupCreateProps;
     void apply(hid_t hid) const;
-    const unsigned _entries;
-    const unsigned _length;
+    unsigned _entries;
+    unsigned _length;
 };
 
 class Chunking {
   public:
-    explicit Chunking(const std::vector<size_t>& dims)
-        : _dims(details::to_vector_hsize_t(dims)) {}
-
-    explicit Chunking(const std::vector<hsize_t>& dims)
-        : _dims(dims) {}
-
-    Chunking(const std::initializer_list<hsize_t>& items)
-        : Chunking(std::vector<hsize_t>{items}) {}
+    explicit Chunking(const std::vector<hsize_t>& dims);
+    Chunking(const std::initializer_list<hsize_t>& items);
 
     template <typename... Args>
-    explicit Chunking(hsize_t item, Args... args)
-        : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
+    explicit Chunking(hsize_t item, Args... args);
 
-    const std::vector<hsize_t>& getDimensions() const noexcept {
-        return _dims;
-    }
+    explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32);
+
+    const std::vector<hsize_t>& getDimensions() const noexcept;
 
     static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims,
                                                       const std::vector<std::size_t>& max_dims,
@@ -455,13 +472,12 @@ class Chunking {
   private:
     friend DataSetCreateProps;
     void apply(const hid_t hid) const;
-    const std::vector<hsize_t> _dims;
+    std::vector<hsize_t> _dims;
 };
 
 class Deflate {
   public:
-    explicit Deflate(unsigned level)
-        : _level(level) {}
+    explicit Deflate(unsigned level);
 
   private:
     friend DataSetCreateProps;
@@ -473,9 +489,10 @@ class Deflate {
 class Szip {
   public:
     explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK,
-                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK)
-        : _options_mask(options_mask)
-        , _pixels_per_block(pixels_per_block) {}
+                  unsigned pixels_per_block = H5_SZIP_MAX_PIXELS_PER_BLOCK);
+
+    unsigned getOptionsMask() const;
+    unsigned getPixelsPerBlock() const;
 
   private:
     friend DataSetCreateProps;
@@ -500,8 +517,10 @@ class Shuffle {
 /// `H5Pset_alloc_time`.
 class AllocationTime {
   public:
-    explicit AllocationTime(H5D_alloc_time_t alloc_time)
-        : _alloc_time(alloc_time) {}
+    explicit AllocationTime(H5D_alloc_time_t alloc_time);
+    explicit AllocationTime(const DataSetCreateProps& dcpl);
+
+    H5D_alloc_time_t getAllocationTime();
 
   private:
     friend DataSetCreateProps;
@@ -518,43 +537,122 @@ class Caching {
     /// details.
     Caching(const size_t numSlots,
             const size_t cacheSize,
-            const double w0 = static_cast<double>(H5D_CHUNK_CACHE_W0_DEFAULT))
-        : _numSlots(numSlots)
-        , _cacheSize(cacheSize)
-        , _w0(w0) {}
+            const double w0 = static_cast<double>(H5D_CHUNK_CACHE_W0_DEFAULT));
+
+    explicit Caching(const DataSetCreateProps& dcpl);
+
+    size_t getNumSlots() const;
+    size_t getCacheSize() const;
+    double getW0() const;
 
   private:
     friend DataSetAccessProps;
     void apply(hid_t hid) const;
-    const size_t _numSlots;
-    const size_t _cacheSize;
-    const double _w0;
+    size_t _numSlots;
+    size_t _cacheSize;
+    double _w0;
 };
 
 class CreateIntermediateGroup {
   public:
-    explicit CreateIntermediateGroup(bool create = true)
-        : _create(create) {}
+    explicit CreateIntermediateGroup(bool create = true);
+
+    explicit CreateIntermediateGroup(const ObjectCreateProps& ocpl);
+    explicit CreateIntermediateGroup(const LinkCreateProps& lcpl);
+
+    bool isSet() const;
+
+  protected:
+    void fromPropertyList(hid_t hid);
 
   private:
     friend ObjectCreateProps;
     friend LinkCreateProps;
     void apply(hid_t hid) const;
-    const bool _create;
+    bool _create;
 };
 
 #ifdef H5_HAVE_PARALLEL
 class UseCollectiveIO {
   public:
-    explicit UseCollectiveIO(bool enable = true)
-        : _enable(enable) {}
+    explicit UseCollectiveIO(bool enable = true);
+
+    explicit UseCollectiveIO(const DataTransferProps& dxpl);
+
+    /// \brief Does the property request collective IO?
+    bool isCollective() const;
 
   private:
     friend DataTransferProps;
     void apply(hid_t hid) const;
     bool _enable;
 };
+
+
+/// \brief The cause for non-collective I/O.
+///
+/// The cause refers to the most recent I/O with data transfer property list  `dxpl` at time of
+/// creation of this object. This object will not update automatically for later data transfers,
+/// i.e. `H5Pget_mpio_no_collective_cause` is called in the constructor, and not when fetching
+/// a value, such as `wasCollective`.
+class MpioNoCollectiveCause {
+  public:
+    explicit MpioNoCollectiveCause(const DataTransferProps& dxpl);
+
+    /// \brief Was the datatransfer collective?
+    bool wasCollective() const;
+
+    /// \brief The local cause for a non-collective I/O.
+    uint32_t getLocalCause() const;
+
+    /// \brief The global cause for a non-collective I/O.
+    uint32_t getGlobalCause() const;
+
+    /// \brief A pair of the local and global cause for non-collective I/O.
+    std::pair<uint32_t, uint32_t> getCause() const;
+
+  private:
+    friend DataTransferProps;
+    uint32_t _local_cause;
+    uint32_t _global_cause;
+};
 #endif
+
+struct CreationOrder {
+    enum _CreationOrder {
+        Tracked = H5P_CRT_ORDER_TRACKED,
+        Indexed = H5P_CRT_ORDER_INDEXED,
+    };
+};
+
+///
+/// \brief Track and index creation order time
+///
+/// Let user retrieve objects by creation order time instead of name.
+///
+class LinkCreationOrder {
+  public:
+    ///
+    /// \brief Create the property
+    /// \param flags Should be a composition of HighFive::CreationOrder.
+    ///
+    explicit LinkCreationOrder(unsigned flags)
+        : _flags(flags) {}
+
+    explicit LinkCreationOrder(const FileCreateProps& fcpl);
+    explicit LinkCreationOrder(const GroupCreateProps& gcpl);
+
+    unsigned getFlags() const;
+
+  protected:
+    void fromPropertyList(hid_t hid);
+
+  private:
+    friend FileCreateProps;
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+    unsigned _flags;
+};
 
 }  // namespace HighFive
 

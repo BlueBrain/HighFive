@@ -50,15 +50,9 @@ class Group: public Object,
 };
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
-    unsigned int est_num_entries;
-    unsigned int est_name_len;
-
     auto gcpl = getCreatePropertyList();
-    if (H5Pget_est_link_info(gcpl.getId(), &est_num_entries, &est_name_len) < 0) {
-        HDF5ErrMapper::ToException<GroupException>(
-            std::string("Unable to access group link size property"));
-    }
-    return std::make_pair(est_num_entries, est_name_len);
+    auto eli = EstimatedLinkInfo(gcpl);
+    return std::make_pair(eli.getEntries(), eli.getNameLength());
 }
 
 }  // namespace HighFive

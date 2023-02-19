@@ -16,6 +16,11 @@
 
 namespace HighFive {
 
+enum class IndexType : std::underlying_type<H5_index_t>::type {
+    NAME = H5_INDEX_NAME,
+    CRT_ORDER = H5_INDEX_CRT_ORDER,
+};
+
 ///
 /// \brief NodeTraits: Base class for Group and File
 ///
@@ -146,8 +151,11 @@ class NodeTraits {
 
     ///
     /// \brief list all leaf objects name of the node / group
+    /// \param idx_type tell if the list should be ordered by Name or CreationOrderTime.
+    /// CreationOrderTime can be use only if the file/group has been created with
+    /// the HighFive::LinkCreationTime property.
     /// \return number of leaf objects
-    std::vector<std::string> listObjectNames() const;
+    std::vector<std::string> listObjectNames(IndexType idx_type = IndexType::NAME) const;
 
     ///
     /// \brief check a dataset or group exists in the current node / group
