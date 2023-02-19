@@ -9,9 +9,10 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
 #include <initializer_list>
-#include <vector>
 #include <numeric>
+#include <vector>
 
 #include <H5Spublic.h>
 

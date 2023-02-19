@@ -9,9 +9,7 @@
 #pragma once
 
 #include <string>
-#include <algorithm>
 #include <vector>
-#include <functional>
 
 #include <H5Apublic.h>
 #include <H5Dpublic.h>
