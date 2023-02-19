@@ -476,6 +476,7 @@ class EstimatedLinkInfo {
 ///                                                   dataspace.getMaxDimensions()
 ///                                                   AtomicType<float>{}.getSize());
 /// }
+/// \endcode
 class Chunking {
   public:
     explicit Chunking(const std::vector<hsize_t>& dims);
