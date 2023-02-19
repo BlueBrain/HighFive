@@ -6,7 +6,7 @@
 #define H5_DEPRECATED(msg) __declspec(deprecated(#msg))
 #else
 #pragma message("WARNING: Compiler doesnt support deprecation")
-#define H5_DEPRECATED
+#define H5_DEPRECATED(msg)
 #endif
 
 

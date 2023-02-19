@@ -305,6 +305,7 @@ class SliceTraits {
     /// allocated.
     /// \param array: A buffer containing enough space for the data
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
+    /// \param xfer_props: Data Transfer properties
     template <typename T>
     void read(T* array,
               const DataType& dtype = DataType(),

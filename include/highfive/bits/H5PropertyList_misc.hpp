@@ -294,7 +294,7 @@ inline void EstimatedLinkInfo::apply(const hid_t hid) const {
     }
 }
 
-inline EstimatedLinkInfo::EstimatedLinkInfo(unsigned int entries, unsigned int length)
+inline EstimatedLinkInfo::EstimatedLinkInfo(unsigned entries, unsigned length)
     : _entries(entries)
     , _length(length) {}
 
@@ -531,7 +531,7 @@ inline unsigned LinkCreationOrder::getFlags() const {
     return _flags;
 }
 
-inline void LinkCreationOrder::LinkCreationOrder::apply(const hid_t hid) const {
+inline void LinkCreationOrder::apply(const hid_t hid) const {
     if (H5Pset_link_creation_order(hid, _flags) < 0) {
         HDF5ErrMapper::ToException<PropertyException>("Error setting LinkCreationOrder.");
     }
