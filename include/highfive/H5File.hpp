@@ -58,7 +58,7 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     /// \brief File
     /// \param filename: filepath of the HDF5 file
     /// \param openFlags: Open mode / flags ( ReadOnly, ReadWrite)
-    /// \param fileAccessProps: the file create properties
+    /// \param fileCreateProps: the file create properties
     /// \param fileAccessProps: the file access properties
     ///
     /// Open or create a new HDF5 file
