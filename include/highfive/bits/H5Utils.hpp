@@ -62,7 +62,7 @@ inline std::vector<hsize_t> to_vector_hsize_t(const std::vector<hsize_t>& vec) {
     return vec;
 }
 
-template<typename T>
+template <typename T>
 inline T compute_total_size(const std::vector<T>& dims) {
     return std::accumulate(dims.begin(), dims.end(), T{1u}, std::multiplies<T>());
 }
