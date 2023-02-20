@@ -2651,7 +2651,7 @@ TEST_CASE("Logging") {
 
         void operator()(LogSeverity log_severity,
                         const std::string& message,
-                        const std::string& file,
+                        const std::string&,
                         int) {
             std::cout << "Something got logged !!!" << message << " " << to_string(log_severity)
                       << std::endl;
