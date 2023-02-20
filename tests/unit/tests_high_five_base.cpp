@@ -2643,3 +2643,110 @@ TEST_CASE("HighFiveEigen") {
 #endif
 }
 #endif
+
+TEST_CASE("Logging") {
+    struct TestLogger {
+        LogSeverity last_log_severity = LogSeverity(11);
+        std::string last_message = "---";
+
+        void operator()(LogSeverity log_severity,
+                        const std::string& message,
+                        const std::string&,
+                        int) {
+            std::cout << "Something got logged !!!" << message << " " << to_string(log_severity)
+                      << std::endl;
+            last_log_severity = log_severity;
+            last_message = message;
+        }
+    };
+
+    auto test_logger = TestLogger();
+
+    register_logging_callback(
+        [&test_logger](LogSeverity log_severity,
+                       const std::string& message,
+                       const std::string& file,
+                       int line) { test_logger(log_severity, message, file, line); });
+
+    auto check = [&test_logger](bool should_log, const auto& message, LogSeverity log_severity) {
+        if (should_log && (HIGHFIVE_LOG_LEVEL <= int(log_severity))) {
+            REQUIRE(test_logger.last_message == message);
+            REQUIRE(test_logger.last_log_severity == log_severity);
+        } else {
+            REQUIRE(test_logger.last_message != message);
+            REQUIRE(test_logger.last_log_severity != log_severity);
+        }
+    };
+
+    SECTION("LOG_DEBUG") {
+        auto message = "DEBUG!";
+        HIGHFIVE_LOG_DEBUG(message);
+        check(true, message, LogSeverity::DEBUG);
+    }
+
+    SECTION("LOG_DEBUG_IF true") {
+        auto message = "DEBUG_IF true!";
+        HIGHFIVE_LOG_DEBUG_IF(true, message);
+        check(true, message, LogSeverity::DEBUG);
+    }
+
+    SECTION("LOG_DEBUG_IF false") {
+        auto message = "DEBUG_IF false!";
+        HIGHFIVE_LOG_DEBUG_IF(false, message);
+        check(false, message, LogSeverity::DEBUG);
+    }
+
+    SECTION("LOG_INFO") {
+        auto message = "INFO!";
+        HIGHFIVE_LOG_INFO(message);
+        check(true, message, LogSeverity::INFO);
+    }
+
+    SECTION("LOG_INFO_IF true") {
+        auto message = "INFO_IF true!";
+        HIGHFIVE_LOG_INFO_IF(true, message);
+        check(true, message, LogSeverity::INFO);
+    }
+
+    SECTION("LOG_INFO_IF false") {
+        auto message = "INFO_IF false!";
+        HIGHFIVE_LOG_INFO_IF(false, message);
+        check(false, message, LogSeverity::INFO);
+    }
+
+    SECTION("LOG_WARN") {
+        auto message = "WARN!";
+        HIGHFIVE_LOG_WARN(message);
+        check(true, message, LogSeverity::WARN);
+    }
+
+    SECTION("LOG_WARN_IF true") {
+        auto message = "WARN_IF true!";
+        HIGHFIVE_LOG_WARN_IF(true, message);
+        check(true, message, LogSeverity::WARN);
+    }
+
+    SECTION("LOG_WARN_IF false") {
+        auto message = "WARN_IF false!";
+        HIGHFIVE_LOG_WARN_IF(false, message);
+        check(false, message, LogSeverity::WARN);
+    }
+
+    SECTION("LOG_ERROR") {
+        auto message = "ERROR!";
+        HIGHFIVE_LOG_ERROR(message);
+        check(true, message, LogSeverity::ERROR);
+    }
+
+    SECTION("LOG_ERROR_IF true") {
+        auto message = "ERROR_IF true!";
+        HIGHFIVE_LOG_ERROR_IF(true, message);
+        check(true, message, LogSeverity::ERROR);
+    }
+
+    SECTION("LOG_ERROR_IF false") {
+        auto message = "ERROR_IF false!";
+        HIGHFIVE_LOG_ERROR_IF(false, message);
+        check(false, message, LogSeverity::ERROR);
+    }
+}

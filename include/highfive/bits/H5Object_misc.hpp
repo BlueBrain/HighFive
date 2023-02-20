@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "../H5Exception.hpp"
+#include "highfive/H5Utility.hpp"
 
 namespace HighFive {
 
@@ -47,7 +48,7 @@ inline Object& Object::operator=(const Object& other) {
 
 inline Object::~Object() {
     if (isValid() && H5Idec_ref(_hid) < 0) {
-        std::cerr << "HighFive::~Object: reference counter decrease failure" << std::endl;
+        HIGHFIVE_LOG_ERROR("HighFive::~Object: reference counter decrease failure");
     }
 }
 

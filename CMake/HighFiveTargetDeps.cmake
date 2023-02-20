@@ -6,6 +6,10 @@ if(NOT TARGET libdeps)
   # Independent target to make it possible to have new dependencies each build
   add_library(libdeps INTERFACE)
 
+  if(HIGHFIVE_VERBOSE)
+    target_compile_definitions(libdeps INTERFACE -DHIGHFIVE_LOG_LEVEL=0)
+  endif()
+
   # HDF5
   if(NOT DEFINED HDF5_C_LIBRARIES)
     set(HDF5_PREFER_PARALLEL ${HIGHFIVE_PARALLEL_HDF5})
