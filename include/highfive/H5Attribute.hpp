@@ -19,6 +19,26 @@
 namespace HighFive {
 class DataSpace;
 
+namespace detail {
+
+/// \brief Internal hack to create an `Attribute` from an ID.
+///
+/// WARNING: Creating an Attribute from an ID has implications w.r.t. the lifetime of the object
+///          that got passed via its ID. Using this method careless opens up the suite of issues
+///          related to C-style resource management, including the analog of double free, dangling
+///          pointers, etc.
+///
+/// NOTE: This is not part of the API and only serves to work around a compiler issue in GCC which
+///       prevents us from using `friend`s instead. This function should only be used for internal
+///       purposes. The problematic construct is:
+///
+///           template<class Derived>
+///           friend class SomeCRTP<Derived>;
+///
+/// \private
+Attribute make_attribute(hid_t hid);
+}  // namespace detail
+
 ///
 /// \brief Class representing an attribute of a dataset or group
 ///
@@ -95,8 +115,13 @@ class Attribute: public Object, public PathTraits<Attribute> {
   private:
     using Object::Object;
 
-    template <typename Derivate>
-    friend class ::HighFive::AnnotateTraits;
+    friend Attribute detail::make_attribute(hid_t);
 };
+
+namespace detail {
+inline Attribute make_attribute(hid_t hid) {
+    return Attribute(hid);
+}
+}  // namespace detail
 
 }  // namespace HighFive

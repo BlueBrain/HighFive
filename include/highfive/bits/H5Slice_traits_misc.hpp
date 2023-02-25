@@ -75,7 +75,7 @@ inline Selection SliceTraits<Derivate>::select_impl(const HyperSlab& hyperslab,
     const auto& slice = static_cast<const Derivate&>(*this);
     auto filespace = hyperslab.apply(slice.getSpace());
 
-    return Selection(memspace, filespace, details::get_dataset(slice));
+    return detail::make_selection(memspace, filespace, details::get_dataset(slice));
 }
 
 template <typename Derivate>
@@ -87,7 +87,7 @@ inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) cons
     auto n_elements = H5Sget_select_npoints(filespace.getId());
     auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
 
-    return Selection(memspace, filespace, details::get_dataset(slice));
+    return detail::make_selection(memspace, filespace, details::get_dataset(slice));
 }
 
 
@@ -153,7 +153,7 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
         HDF5ErrMapper::ToException<DataSpaceException>("Unable to select elements");
     }
 
-    return Selection(DataSpace(num_elements), space, details::get_dataset(slice));
+    return detail::make_selection(DataSpace(num_elements), space, details::get_dataset(slice));
 }
 
 

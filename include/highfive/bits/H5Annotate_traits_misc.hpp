@@ -25,15 +25,15 @@ inline Attribute AnnotateTraits<Derivate>::createAttribute(const std::string& at
                                                            const DataType& dtype) {
     auto attr_id = H5Acreate2(static_cast<Derivate*>(this)->getId(),
                               attribute_name.c_str(),
-                              dtype._hid,
-                              space._hid,
+                              dtype.getId(),
+                              space.getId(),
                               H5P_DEFAULT,
                               H5P_DEFAULT);
     if (attr_id < 0) {
         HDF5ErrMapper::ToException<AttributeException>(
             std::string("Unable to create the attribute \"") + attribute_name + "\":");
     }
-    return Attribute(attr_id);
+    return detail::make_attribute(attr_id);
 }
 
 template <typename Derivate>
@@ -71,7 +71,7 @@ inline Attribute AnnotateTraits<Derivate>::getAttribute(const std::string& attri
         HDF5ErrMapper::ToException<AttributeException>(
             std::string("Unable to open the attribute \"") + attribute_name + "\":");
     }
-    return Attribute(attr_id);
+    return detail::make_attribute(attr_id);
 }
 
 template <typename Derivate>

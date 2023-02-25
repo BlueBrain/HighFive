@@ -14,6 +14,10 @@
 
 namespace HighFive {
 
+namespace detail {
+Selection make_selection(const DataSpace&, const DataSpace&, const DataSet&);
+}
+
 ///
 /// \brief Selection: represent a view on a slice/part of a dataset
 ///
@@ -52,9 +56,7 @@ class Selection: public SliceTraits<Selection> {
     DataSpace _mem_space, _file_space;
     DataSet _set;
 
-    template <typename Derivate>
-    friend class ::HighFive::SliceTraits;
-    // absolute namespace naming due to GCC bug 52625
+    friend Selection detail::make_selection(const DataSpace&, const DataSpace&, const DataSet&);
 };
 
 }  // namespace HighFive

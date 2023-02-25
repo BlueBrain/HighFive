@@ -30,9 +30,31 @@ enum class ObjectType {
     Other  // Internal/custom object type
 };
 
+namespace detail {
+/// \brief Internal hack to create an `Object` from an ID.
+///
+/// WARNING: Creating an Object from an ID has implications w.r.t. the lifetime of the object
+///          that got passed via its ID. Using this method careless opens up the suite of issues
+///          related to C-style resource management, including the analog of double free, dangling
+///          pointers, etc.
+///
+/// NOTE: This is not part of the API and only serves to work around a compiler issue in GCC which
+///       prevents us from using `friend`s instead. This function should only be used for internal
+///       purposes. The problematic construct is:
+///
+///           template<class Derived>
+///           friend class SomeCRTP<Derived>;
+///
+/// \private
+Object make_object(hid_t hid);
+}  // namespace detail
+
 
 class Object {
   public:
+    // move constructor, reuse hid
+    Object(Object&& other) noexcept;
+
     // decrease reference counter
     ~Object();
 
@@ -73,9 +95,6 @@ class Object {
     // copy constructor, increase reference counter
     Object(const Object& other);
 
-    // move constructor, reuse hid
-    Object(Object&& other) noexcept;
-
     // Init with an low-level object id
     explicit Object(hid_t);
 
@@ -85,14 +104,9 @@ class Object {
     hid_t _hid;
 
   private:
-    template <typename Derivate>
-    friend class NodeTraits;
-    template <typename Derivate>
-    friend class AnnotateTraits;
+    friend Object detail::make_object(hid_t);
     friend class Reference;
     friend class CompoundType;
-    template <typename Derivate>
-    friend class PathTraits;
 };
 
 
