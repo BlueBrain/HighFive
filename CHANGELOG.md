@@ -11,7 +11,7 @@
 ### Bug Fix
     - To avoid build failure in certain circumstances, user can not set `Boost_NO_BOOST_CMAKE` (#687).
     - Fix leak when reading variable length strings (#660).
-    - Use `H5free_memory` instead of `free` in error handler (#665). Thanks to lefi7z
+    - Use `H5free_memory` instead of `free` in error handler (#665). Thanks to Moritz Koenemann
     - Fix a bug with old GCC due to templated friend classes (#688).
 
 ## Version 2.6.2 - 2022-11-10
