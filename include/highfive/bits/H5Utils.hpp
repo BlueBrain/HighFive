@@ -16,6 +16,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <sstream>
 
 #include <H5public.h>
 
@@ -61,6 +62,19 @@ inline std::string get_name(T fct) {
     std::vector<char> bigBuffer(length + 1, 0);
     fct(bigBuffer.data(), length + 1);
     return std::string(bigBuffer.data(), length);
+}
+
+template <class Container>
+inline std::string format_vector(const Container& container) {
+    auto sout = std::stringstream{};
+
+    sout << "[ ";
+    for (size_t i = 0; i < container.size(); ++i) {
+        sout << container[i] << (i == container.size() - 1 ? "" : ", ");
+    }
+    sout << "]";
+
+    return sout.str();
 }
 
 }  // namespace details

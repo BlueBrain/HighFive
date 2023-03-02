@@ -238,8 +238,9 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
-        ss << "Impossible to write buffer of dimensions " << buffer_info.n_dimensions
-           << " into dataset of dimensions " << mem_space.getNumberDimensions();
+        ss << "Impossible to write buffer of dimensions "
+           << details::format_vector(mem_space.getDimensions())
+           << " into dataset with n = " << buffer_info.n_dimensions << " dimensions.";
         throw DataSpaceException(ss.str());
     }
     auto w = details::data_converter::serialize<T>(buffer);

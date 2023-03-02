@@ -1652,6 +1652,161 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteSzip", "[template]", dataset_test_types) {
     }
 }
 
+TEST_CASE("CheckDimensions") {
+    // List of dims which can all be one-dimensional.
+    std::vector<std::vector<size_t>> test_cases{
+        {1ul, 3ul}, {3ul, 1ul}, {1ul, 1ul, 3ul}, {3ul, 1ul, 1ul}, {1ul, 3ul, 1ul}};
+
+    for (const auto& dims: test_cases) {
+        auto actual = details::checkDimensions(dims, 1ul);
+
+        INFO("dims = " + details::format_vector(dims) + ", n_dims = 1");
+        CHECK(actual);
+
+        INFO("dims = " + details::format_vector(dims) + ", n_dims = 1");
+        CHECK(!details::checkDimensions(dims, dims.size() + 1));
+    }
+
+    CHECK(details::checkDimensions(std::vector<size_t>{1ul}, 0ul));
+    CHECK(details::checkDimensions(std::vector<size_t>{1ul}, 1ul));
+
+    CHECK(!details::checkDimensions(std::vector<size_t>{0ul}, 0ul));
+    CHECK(!details::checkDimensions(std::vector<size_t>{2ul}, 0ul));
+
+    CHECK(!details::checkDimensions(std::vector<size_t>{1ul, 2ul, 3ul}, 2ul));
+    CHECK(details::checkDimensions(std::vector<size_t>{3ul, 2ul, 1ul}, 2ul));
+
+    CHECK(details::checkDimensions(std::vector<size_t>{1ul, 1ul, 1ul, 1ul}, 1ul));
+
+    CHECK(details::checkDimensions(std::vector<size_t>{}, 0ul));
+    CHECK(!details::checkDimensions(std::vector<size_t>{}, 1ul));
+    CHECK(!details::checkDimensions(std::vector<size_t>{}, 2ul));
+}
+
+
+TEST_CASE("SqueezeDimensions") {
+    SECTION("possible") {
+        // List of testcases: the first number is n_dims then the input dimensions
+        // and finally the squeezed dimensions.
+        std::vector<std::tuple<size_t, std::vector<size_t>, std::vector<size_t>>> test_cases{
+            {1ul, {3ul, 1ul}, {3ul}},
+
+            {1ul, {1ul, 1ul, 1ul}, {1ul}},
+
+            {1ul, {1ul, 3ul, 1ul}, {3ul}},
+
+            {1ul, {3ul, 1ul, 1ul}, {3ul}},
+            {2ul, {3ul, 1ul, 1ul}, {3ul, 1ul}},
+            {3ul, {3ul, 1ul, 1ul}, {3ul, 1ul, 1ul}},
+
+            {3ul, {2ul, 1ul, 3ul}, {2ul, 1ul, 3ul}}};
+
+        for (const auto& tc: test_cases) {
+            auto n_dim_requested = std::get<0>(tc);
+            auto dims = std::get<1>(tc);
+            auto expected = std::get<2>(tc);
+            auto actual = details::squeezeDimensions(dims, n_dim_requested);
+
+            CHECK(actual == expected);
+        }
+    }
+
+    SECTION("impossible") {
+        // List of testcases: the first number is n_dims then the input dimensions
+        // and finally the squeezed dimensions.
+        std::vector<std::tuple<size_t, std::vector<size_t>>> test_cases{{1ul, {1ul, 2ul, 3ul}},
+                                                                        {2ul, {1ul, 2ul, 3ul, 1ul}},
+
+                                                                        {1ul, {2ul, 1ul, 3ul}},
+                                                                        {2ul, {2ul, 1ul, 3ul}}};
+
+        for (const auto& tc: test_cases) {
+            auto n_dim_requested = std::get<0>(tc);
+            auto dims = std::get<1>(tc);
+
+            CHECK_THROWS(details::squeezeDimensions(dims, n_dim_requested));
+        }
+    }
+}
+
+void check_broadcast_1d(HighFive::File& file,
+                        const std::vector<size_t> dims,
+                        const std::string& dataset_name) {
+    // This checks that:
+    //   - we can write 1D array into 2D dataset.
+    //   - we can read 2D dataset into a 1D array.
+    std::vector<double> input_data{5.0, 6.0, 7.0};
+
+
+    DataSpace dataspace(dims);
+    DataSet dataset = file.createDataSet(dataset_name, dataspace, AtomicType<double>());
+
+    dataset.write(input_data);
+
+    {
+        std::vector<double> read_back;
+        dataset.read(read_back);
+
+        CHECK(read_back == input_data);
+    }
+
+    {
+        auto read_back = dataset.read<std::vector<double>>();
+        CHECK(read_back == input_data);
+    }
+}
+
+// Broadcasting is supported
+TEST_CASE("ReadInBroadcastDims") {
+    const std::string FILE_NAME("h5_missmatch1_dset.h5");
+    const std::string DATASET_NAME("dset");
+
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+
+    SECTION("one-dimensional (1, 3)") {
+        check_broadcast_1d(file, {1, 3}, DATASET_NAME + "_a");
+    }
+
+    SECTION("one-dimensional (3, 1)") {
+        check_broadcast_1d(file, {3, 1}, DATASET_NAME + "_b");
+    }
+
+    SECTION("two-dimensional (2, 3, 1)") {
+        std::vector<size_t> dims{2, 3, 1};
+        std::vector<std::vector<double>> input_data_2d{{2.0, 3.0, 4.0}, {10.0, 11.0, 12.0}};
+
+        DataSpace dataspace(dims);
+        DataSet dataset = file.createDataSet(DATASET_NAME + "_c", dataspace, AtomicType<double>());
+
+        dataset.write(input_data_2d);
+
+        auto check = [](const std::vector<std::vector<double>>& lhs,
+                        const std::vector<std::vector<double>>& rhs) {
+            CHECK(lhs.size() == rhs.size());
+            for (size_t i = 0; i < rhs.size(); ++i) {
+                CHECK(lhs[i].size() == rhs[i].size());
+
+                for (size_t j = 0; j < rhs[i].size(); ++j) {
+                    CHECK(lhs[i][j] == rhs[i][j]);
+                }
+            }
+        };
+
+        {
+            std::vector<std::vector<double>> read_back;
+            dataset.read(read_back);
+
+            check(read_back, input_data_2d);
+        }
+
+        {
+            auto read_back = dataset.read<std::vector<std::vector<double>>>();
+            check(read_back, input_data_2d);
+        }
+    }
+}
+
 TEST_CASE("HighFiveRecursiveGroups") {
     const std::string FILE_NAME("h5_ds_exist.h5");
     const std::string GROUP_1("group1"), GROUP_2("group2");
