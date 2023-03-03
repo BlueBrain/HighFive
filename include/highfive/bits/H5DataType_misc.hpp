@@ -11,7 +11,9 @@
 #include <string>
 #include <complex>
 #include <cstring>
+#if HIGHFIVE_CXX_STD >= 17
 #include <cstddef>
+#endif
 
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>

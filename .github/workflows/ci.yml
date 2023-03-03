@@ -53,7 +53,7 @@ jobs:
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
-              flags: 'CMAKE_CXX_STANDARD=17'
+              flags: '-DCMAKE_CXX_STANDARD=17'
 
     steps:
     - uses: actions/checkout@v3
