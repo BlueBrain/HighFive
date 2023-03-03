@@ -59,6 +59,7 @@ if(HIGHFIVE_USE_XTENSOR)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
+add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
 
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)

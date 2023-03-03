@@ -11,6 +11,7 @@
 #include <string>
 #include <complex>
 #include <cstring>
+#include <cstddef>
 
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
@@ -165,6 +166,14 @@ template <>
 inline AtomicType<std::string>::AtomicType() {
     _hid = create_string(H5T_VARIABLE);
 }
+
+#if HIGHFIVE_CXX_STD >= 17
+// std byte
+template <>
+inline AtomicType<std::byte>::AtomicType() {
+    _hid = H5Tcopy(H5T_NATIVE_B8);
+}
+#endif
 
 // Fixed-Length strings
 // require class specialization templated for the char length
