@@ -50,6 +50,10 @@ jobs:
               os: ubuntu-latest
               pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
               flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+          - config:
+              os: ubuntu-20.04
+              pkgs: 'libboost-all-dev'
+              flags: '-DCMAKE_CXX_STANDARD=17'
 
     steps:
     - uses: actions/checkout@v3
