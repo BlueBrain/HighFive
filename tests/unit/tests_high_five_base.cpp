@@ -1758,11 +1758,11 @@ void check_broadcast_1d(HighFive::File& file,
 
 // Broadcasting is supported
 TEST_CASE("ReadInBroadcastDims") {
-    const std::string FILE_NAME("h5_missmatch1_dset.h5");
+    const std::string FILE_NAME("h5_broadcast_dset.h5");
     const std::string DATASET_NAME("dset");
 
     // Create a new file using the default property lists.
-    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    File file(FILE_NAME, File::Truncate);
 
     SECTION("one-dimensional (1, 3)") {
         check_broadcast_1d(file, {1, 3}, DATASET_NAME + "_a");
@@ -1803,6 +1803,23 @@ TEST_CASE("ReadInBroadcastDims") {
         {
             auto read_back = dataset.read<std::vector<std::vector<double>>>();
             check(read_back, input_data_2d);
+        }
+    }
+
+    SECTION("one-dimensional fixed length string") {
+        std::vector<size_t> dims{1, 1, 2};
+        char input_data[2] = "a";
+
+        DataSpace dataspace(dims);
+        DataSet dataset = file.createDataSet(DATASET_NAME + "_d", dataspace, AtomicType<char>());
+        dataset.write(input_data);
+
+        {
+            char read_back[2];
+            dataset.read(read_back);
+
+            CHECK(read_back[0] == 'a');
+            CHECK(read_back[1] == '\0');
         }
     }
 }
