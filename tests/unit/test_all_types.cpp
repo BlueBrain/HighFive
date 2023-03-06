@@ -191,8 +191,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::byte>", "[Types]", std::v
         File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
         // Create the dataset
-        DataSet dataset = file.createDataSet(
-            DATASET_NAME, {5}, create_datatype<typename details::inspector<TestType>::base_type>());
+        DataSet dataset = file.createDataSet(DATASET_NAME, {5}, create_datatype<std::byte>());
 
         // Write into the initial part of the dataset
         dataset.write(t1);
