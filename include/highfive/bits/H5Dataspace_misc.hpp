@@ -141,27 +141,8 @@ inline DataSpace DataSpace::FromCharArrayStrings(const char (&)[N][Width]) {
 namespace details {
 
 /// dimension checks @internal
-inline bool checkDimensions(const DataSpace& mem_space, size_t input_dims) {
-    size_t dataset_dims = mem_space.getNumberDimensions();
-    if (input_dims == dataset_dims)
-        return true;
-
-    const std::vector<size_t>& dims = mem_space.getDimensions();
-    for (auto i = dims.crbegin(); i != --dims.crend() && *i == 1; ++i)
-        --dataset_dims;
-
-    if (input_dims == dataset_dims)
-        return true;
-
-    dataset_dims = dims.size();
-    for (auto i = dims.cbegin(); i != --dims.cend() && *i == 1; ++i)
-        --dataset_dims;
-
-    if (input_dims == dataset_dims)
-        return true;
-
-    // The final tests is for scalars
-    return input_dims == 0 && dataset_dims == 1 && dims.back() == 1;
+inline bool checkDimensions(const DataSpace& mem_space, size_t n_dim_requested) {
+    return checkDimensions(mem_space.getDimensions(), n_dim_requested);
 }
 
 }  // namespace details

@@ -24,6 +24,97 @@
 #endif
 
 namespace HighFive {
+namespace details {
+
+inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_requested) {
+    size_t n_dim_actual = dims.size();
+
+    // We should allow reading scalar from shapes like `(1, 1, 1)`.
+    if (n_dim_requested == 0) {
+        if (n_dim_actual == 0ul) {
+            return true;
+        }
+
+        return size_t(std::count(dims.begin(), dims.end(), 1ul)) == n_dim_actual;
+    }
+
+    // For non-scalar datasets, we can squeeze away singleton dimension, but
+    // we never add any.
+    if (n_dim_actual < n_dim_requested) {
+        return false;
+    }
+
+    // Special case for 1-dimensional arrays, which can squeeze `1`s from either
+    // side simultaneously if needed.
+    if (n_dim_requested == 1ul) {
+        return n_dim_actual >= 1ul &&
+               size_t(std::count(dims.begin(), dims.end(), 1ul)) >= n_dim_actual - 1ul;
+    }
+
+    // All other cases strip front only. This avoid unstable behaviour when
+    // squeezing singleton dimensions.
+    size_t n_dim_excess = n_dim_actual - n_dim_requested;
+
+    bool squeeze_back = true;
+    for (size_t i = 1; i <= n_dim_excess; ++i) {
+        if (dims[n_dim_actual - i] != 1) {
+            squeeze_back = false;
+            break;
+        }
+    }
+
+    return squeeze_back;
+}
+
+
+inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
+                                             size_t n_dim_requested) {
+    auto format_error_message = [&]() -> std::string {
+        return "Can't interpret dims = " + format_vector(dims) + " as " +
+               std::to_string(n_dim_requested) + "-dimensional.";
+    };
+
+    if (n_dim_requested == 0) {
+        if (!checkDimensions(dims, n_dim_requested)) {
+            throw std::invalid_argument(format_error_message());
+        }
+
+        return {1ul};
+    }
+
+    auto n_dim = dims.size();
+    if (n_dim < n_dim_requested) {
+        throw std::invalid_argument(format_error_message());
+    }
+
+    if (n_dim_requested == 1ul) {
+        size_t non_singleton_dim = size_t(-1);
+        for (size_t i = 0; i < n_dim; ++i) {
+            if (dims[i] != 1ul) {
+                if (non_singleton_dim == size_t(-1)) {
+                    non_singleton_dim = i;
+                } else {
+                    throw std::invalid_argument(format_error_message());
+                }
+            }
+        }
+
+        return {dims[std::min(non_singleton_dim, n_dim - 1)]};
+    }
+
+    size_t n_dim_excess = dims.size() - n_dim_requested;
+    for (size_t i = 1; i <= n_dim_excess; ++i) {
+        if (dims[n_dim - i] != 1) {
+            throw std::invalid_argument(format_error_message());
+        }
+    }
+
+    return std::vector<size_t>(dims.begin(),
+                               dims.end() - static_cast<std::ptrdiff_t>(n_dim_excess));
+}
+}  // namespace details
+
+
 inline size_t compute_total_size(const std::vector<size_t>& dims) {
     return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
 }
@@ -793,8 +884,9 @@ struct data_converter {
     static
         typename std::enable_if<inspector<unqualified_t<T>>::is_trivially_copyable, Reader<T>>::type
         get_reader(const std::vector<size_t>& dims, T& val) {
-        Reader<T> r(dims, val);
-        inspector<T>::prepare(r.val, dims);
+        auto effective_dims = details::squeezeDimensions(dims, inspector<T>::recursive_ndim);
+        Reader<T> r(effective_dims, val);
+        inspector<T>::prepare(r.val, effective_dims);
         return r;
     }
 
@@ -802,9 +894,11 @@ struct data_converter {
     static typename std::enable_if<!inspector<unqualified_t<T>>::is_trivially_copyable,
                                    Reader<T>>::type
     get_reader(const std::vector<size_t>& dims, T& val) {
-        Reader<T> r(dims, val);
-        inspector<T>::prepare(r.val, dims);
-        r.vec.resize(inspector<T>::getSize(dims));
+        auto effective_dims = details::squeezeDimensions(dims, inspector<T>::recursive_ndim);
+
+        Reader<T> r(effective_dims, val);
+        inspector<T>::prepare(r.val, effective_dims);
+        r.vec.resize(inspector<T>::getSize(effective_dims));
         return r;
     }
 };
