@@ -97,6 +97,10 @@ class DataSpace: public Object {
     /// associated dataset maximum dimension
     std::vector<size_t> getMaxDimensions() const;
 
+    /// \brief isExtendable
+    /// \return return true if this dataspace is extendable, false otherwise
+    bool isExtendable() const;
+
     /// Create a dataspace matching a type accepted by details::inspector
     template <typename T>
     static DataSpace From(const T& value);

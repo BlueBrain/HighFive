@@ -9,9 +9,10 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
 #include <initializer_list>
-#include <vector>
 #include <numeric>
+#include <vector>
 
 #include <H5Spublic.h>
 
@@ -125,6 +126,12 @@ inline std::vector<size_t> DataSpace::getMaxDimensions() const {
                  H5S_UNLIMITED,
                  static_cast<hsize_t>(DataSpace::UNLIMITED));
     return details::to_vector_size_t(maxdims);
+}
+
+inline bool DataSpace::isExtendable() const {
+    const auto maxdims = getMaxDimensions();
+    const auto dims = getDimensions();
+    return !std::equal(dims.begin(), dims.end(), maxdims.begin());
 }
 
 template <typename T>

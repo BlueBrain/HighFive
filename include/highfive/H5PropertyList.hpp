@@ -19,6 +19,8 @@
 
 #include "H5Exception.hpp"
 #include "H5Object.hpp"
+#include "bits/H5Utils.hpp"
+
 
 namespace HighFive {
 
@@ -80,7 +82,7 @@ class PropertyList: public PropertyListBase {
   public:
     ///
     /// \brief return the type of this PropertyList
-    constexpr PropertyType getType() const noexcept {
+    constexpr static PropertyType getType() noexcept {
         return T;
     }
 
@@ -96,6 +98,56 @@ class PropertyList: public PropertyListBase {
     /// Return the Default property type object
     static const PropertyList<T>& Default() noexcept {
         return static_cast<const PropertyList<T>&>(PropertyListBase::Default());
+    }
+
+  protected:
+    void _initializeIfNeeded();
+};
+
+template <>
+class PropertyList<PropertyType::DATASET_CREATE>: public PropertyListBase {
+  public:
+    ///
+    /// \brief return the type of this PropertyList
+    constexpr static PropertyType getType() noexcept {
+        return PropertyType::DATASET_CREATE;
+    }
+
+    ///
+    /// Add a property to this property list.
+    /// A property is an object which is expected to have a method with the
+    /// following signature void apply(hid_t hid) const
+    ///
+    template <typename P>
+    void add(const P& property);
+
+    ///
+    /// Return the Default property type object
+    static const PropertyList<PropertyType::DATASET_CREATE>& Default() noexcept {
+        return static_cast<const PropertyList<PropertyType::DATASET_CREATE>&>(
+            PropertyListBase::Default());
+    }
+
+    bool has_chunking() const {
+        if (this->getId() == H5P_DEFAULT) {
+            return false;
+        }
+        auto layout = H5Pget_layout(this->getId());
+        if (layout < 0) {
+            HDF5ErrMapper::ToException<DataSetException>("Unable to query the layout");
+        }
+        return layout == H5D_CHUNKED;
+    }
+
+    bool has_filter(H5Z_filter_t filterId) const {
+        unsigned int flags;
+        return H5Pget_filter_by_id(
+                   this->getId(), filterId, &flags, nullptr, nullptr, 0, nullptr, nullptr) >= 0;
+    }
+
+    bool needs_chunking() const {
+        return has_filter(H5Z_FILTER_SHUFFLE) || has_filter(H5Z_FILTER_DEFLATE) ||
+               has_filter(H5Z_FILTER_SZIP);
     }
 
   protected:
@@ -401,7 +453,30 @@ class EstimatedLinkInfo {
     unsigned _length;
 };
 
-
+/// \brief Set chunking to DataSet.
+///
+/// To set a chunking size:
+/// \code{.cpp}
+/// DataSetCreateProps dcpl{};
+/// dcpl.add(Chuking(std::vector<hsize_t>{2, 2}));
+/// auto dset = file.createDataSet<float>{"chunked", dataspace, dcpl);
+/// \endcode
+///
+/// To get chunking size:
+/// \code{.cpp}
+/// auto dcpl = dset.getCreatePropertyList();
+/// auto chunk = Chunking(dcpl);
+/// auto dims = chunk.getDimensions();
+/// \endcode
+///
+/// To set guessed chunking size:
+/// \code{.cpp}
+/// if ((dpcl.needs_chunking() || dataspace.isExtendable) && !dpcl.has_chunking()) {
+///     dpcl.add(Chunking(Chunking::guessChunkingSize(dataspace.getDimensions(),
+///                                                   dataspace.getMaxDimensions()
+///                                                   AtomicType<float>{}.getSize());
+/// }
+/// \endcode
 class Chunking {
   public:
     explicit Chunking(const std::vector<hsize_t>& dims);
@@ -412,11 +487,21 @@ class Chunking {
 
     explicit Chunking(DataSetCreateProps& plist, size_t max_dims = 32);
 
+    /// \brief Return size of the chunking for this dataset.
     const std::vector<hsize_t>& getDimensions() const noexcept;
+
+    /// \brief Function to get a default chunk vector
+    /// If you don't want to choose a chunking size yourself, this function will do for you.
+    /// See also: DataSpace::isExpendable() and PropertyList<DATASET_CREATE>::needs_chunking() and
+    /// PropertyList<DATASET_CREATE>::has_chunking() to know if your Dataset needs chunking.
+    /// \return a vector of dimensions for chunking
+    static std::vector<std::size_t> guessChunkingSize(const std::vector<std::size_t>& dims,
+                                                      const std::vector<std::size_t>& max_dims,
+                                                      std::size_t typesize);
 
   private:
     friend DataSetCreateProps;
-    void apply(hid_t hid) const;
+    void apply(const hid_t hid) const;
     std::vector<hsize_t> _dims;
 };
 

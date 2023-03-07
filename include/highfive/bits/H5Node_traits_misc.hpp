@@ -29,7 +29,6 @@
 
 namespace HighFive {
 
-
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                                    const DataSpace& space,
@@ -39,6 +38,12 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
                                                    bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
+
+    if ((space.isExtendable() || createProps.needs_chunking()) && !createProps.has_chunking()) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            std::string("Chunking is needed but not set for dataset \"") + dataset_name + "\":");
+    }
+
     const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
                                 dataset_name.c_str(),
                                 dtype.getId(),
