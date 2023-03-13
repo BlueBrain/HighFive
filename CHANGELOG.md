@@ -1,4 +1,4 @@
-## Version 2.6.3 - 2023-02-28
+## Version 2.7.0 - 2023-02-28
 ### New Features
     - Properties can now be read (#684).
     - Adding a property for LinkCreationOrder (#683).
