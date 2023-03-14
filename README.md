@@ -33,6 +33,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - parallel Read/Write operations from several nodes with Parallel HDF5
 - Advanced types: Compound, Enum, Arrays of Fixed-length strings, References
 - half-precision (16-bit) floating-point datasets
+- `std::byte` in C++17 mode (with `-DCMAKE_CXX_STANDARD=17` or higher)
 - etc... (see [ChangeLog](./CHANGELOG.md))
 
 ### Dependencies
