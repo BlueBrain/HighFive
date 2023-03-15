@@ -10,6 +10,15 @@ if(NOT TARGET libdeps)
     target_compile_definitions(libdeps INTERFACE -DHIGHFIVE_LOG_LEVEL=0)
   endif()
 
+  if(HIGHFIVE_GLIBCXX_ASSERTIONS)
+    target_compile_definitions(libdeps INTERFACE -D_GLIBCXX_ASSERTIONS)
+  endif()
+
+  if(HIGHFIVE_SANITIZER)
+    target_compile_options(libdeps INTERFACE -fsanitize=${HIGHFIVE_SANITIZER})
+    target_link_options(libdeps INTERFACE -fsanitize=${HIGHFIVE_SANITIZER})
+  endif()
+
   # HDF5
   if(NOT DEFINED HDF5_C_LIBRARIES)
     set(HDF5_PREFER_PARALLEL ${HIGHFIVE_PARALLEL_HDF5})

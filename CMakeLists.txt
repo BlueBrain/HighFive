@@ -35,6 +35,10 @@ option(HIGHFIVE_EXAMPLES "Compile examples" ON)
 option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
+option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
+
+set(HIGHFIVE_SANITIZER OFF CACHE STRING "Enable a group of sanitizers, requires compiler support. Supported: 'address' and 'undefined'.")
+mark_as_advanced(HIGHFIVE_SANITIZER)
 
 # In deployments we probably don't want/cant have dynamic dependencies
 option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
