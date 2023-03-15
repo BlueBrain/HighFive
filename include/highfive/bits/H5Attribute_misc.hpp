@@ -73,6 +73,15 @@ inline void Attribute::read(T& array) const {
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
+
+    if (mem_space.getElementCount() == 0) {
+        auto effective_dims = details::squeezeDimensions(dims,
+                                                         details::inspector<T>::recursive_ndim);
+
+        details::inspector<T>::prepare(array, effective_dims);
+        return;
+    }
+
     auto r = details::data_converter::get_reader<T>(dims, array);
     read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
@@ -107,6 +116,11 @@ inline void Attribute::read(T* array, const DataType& dtype) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     const DataSpace& mem_space = getMemSpace();
+
+    if (mem_space.getElementCount() == 0) {
+        return;
+    }
+
     const details::BufferInfo<T> buffer_info(
         getDataType(),
         [this]() -> std::string { return this->getName(); },
