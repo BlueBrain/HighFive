@@ -1996,7 +1996,7 @@ void check_empty_everything(const std::vector<size_t>& dims) {
 
 #ifdef H5_USE_EIGEN
 template <int ndim>
-void check_empty_eigen(const std::vector<size_t>& dims) {}
+void check_empty_eigen(const std::vector<size_t>&) {}
 
 template <>
 void check_empty_eigen<1>(const std::vector<size_t>& dims) {
