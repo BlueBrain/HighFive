@@ -82,7 +82,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
 
 # Disable test if Boost was expressly disabled, or if HighFive is a sub-project
 if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  if(HIGHFIVE_UNIT_TESTS)
+  if(HIGHFIVE_UNIT_TESTS AND NOT HighFive_FIND_QUIETLY)
     message(WARNING "Unit tests have been DISABLED.")
   endif()
   set(HIGHFIVE_UNIT_TESTS FALSE)
