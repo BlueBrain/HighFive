@@ -204,7 +204,10 @@ TEST_CASE("Test page buffer size") {
         create_props.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_PAGE, true, 0));
         create_props.add(FileSpacePageSize(page_size));
 
-        File file(FILE_NAME, File::Truncate, create_props);
+        FileAccessProps access_props;
+        access_props.add(FileVersionBounds(H5F_LIBVER_V110, H5F_LIBVER_V110));
+
+        File file(FILE_NAME, File::Truncate, create_props, access_props);
 
         file.createDataSet("x", std::vector<double>{1.0, 2.0, 3.0});
     }
