@@ -34,7 +34,7 @@ jobs:
   # XTensor tests are run for conda/mamba and MacOS
   Linux_MPI:
     runs-on: ${{matrix.config.os}}
-    name: ${{toJson(matrix.config)}}
+    name: Linux_MPI (${{toJson(matrix.config)}})
     strategy:
       matrix:
         include:
@@ -142,6 +142,45 @@ jobs:
       env: ${{matrix.env}}
       run: |
         CMAKE_OPTIONS=(-GNinja)
+        source $GITHUB_WORKSPACE/.github/build.sh
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure -C $BUILD_TYPE
+
+  # Job running unit-test with sanitizers
+  # =====================================
+  Linux_Sanitizers:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        env: [
+          {CC: clang-12, CXX: clang++-12, HIGHFIVE_SANITIZER: address},
+          {CC: clang-12, CXX: clang++-12, HIGHFIVE_SANITIZER: undefined},
+          {CC: gcc-10, CXX: g++-10, HIGHFIVE_GLIBCXX_ASSERTIONS: On},
+        ]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq install libboost-all-dev libeigen3-dev libhdf5-dev libsz2 ninja-build
+
+    - name: Build
+      env: ${{matrix.env}}
+      run: |
+        CMAKE_OPTIONS=(
+          -GNinja
+          -DHIGHFIVE_USE_BOOST:BOOL=ON
+          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
+          -DHIGHFIVE_GLIBCXX_ASSERTIONS=${HIGHFIVE_GLIBCXX_ASSERTIONS:-OFF}
+          -DHIGHFIVE_SANITIZER=${HIGHFIVE_SANITIZER:-OFF}
+        )
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
