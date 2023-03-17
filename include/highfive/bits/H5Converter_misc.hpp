@@ -360,10 +360,11 @@ struct inspector<std::vector<T>> {
                                                   inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
-        std::vector<size_t> sizes{val.size()};
+        std::vector<size_t> sizes(recursive_ndim, 1ul);
+        sizes[0] = val.size();
         if (!val.empty()) {
             auto s = inspector<value_type>::getDimensions(val[0]);
-            sizes.insert(sizes.end(), s.begin(), s.end());
+            std::copy(s.begin(), s.end(), sizes.begin() + 1);
         }
         return sizes;
     }

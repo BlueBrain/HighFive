@@ -171,6 +171,7 @@ template <typename T>
 inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_props) const {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
+
     const details::BufferInfo<T> buffer_info(
         slice.getDataType(),
         [slice]() -> std::string { return details::get_dataset(slice).getPath(); },
@@ -183,6 +184,15 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
+
+    if (mem_space.getElementCount() == 0) {
+        auto effective_dims = details::squeezeDimensions(dims,
+                                                         details::inspector<T>::recursive_ndim);
+
+        details::inspector<T>::prepare(array, effective_dims);
+        return;
+    }
+
     auto r = details::data_converter::get_reader<T>(dims, array);
     read(r.get_pointer(), buffer_info.data_type, xfer_props);
     // re-arrange results
@@ -231,6 +241,11 @@ template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProps& xfer_props) {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
+
+    if (mem_space.getElementCount() == 0) {
+        return;
+    }
+
     const details::BufferInfo<T> buffer_info(
         slice.getDataType(),
         [slice]() -> std::string { return details::get_dataset(slice).getPath(); },
