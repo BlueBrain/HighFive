@@ -174,7 +174,7 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
 
     const details::BufferInfo<T> buffer_info(
         slice.getDataType(),
-        [slice]() -> std::string { return details::get_dataset(slice).getPath(); },
+        [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::read);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
@@ -248,7 +248,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
 
     const details::BufferInfo<T> buffer_info(
         slice.getDataType(),
-        [slice]() -> std::string { return details::get_dataset(slice).getPath(); },
+        [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::write);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
