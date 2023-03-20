@@ -64,3 +64,4 @@ jobs:
         files: ./build/coverage-combined.info
         fail_ci_if_error: true
         verbose: true
+        token: ${{ secrets.CODECOV_TOKEN }}
