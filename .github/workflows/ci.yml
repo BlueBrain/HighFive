@@ -230,7 +230,7 @@ jobs:
   # Job testing in OSX
   # ==================
   OSX:
-    runs-on: macOS-10.15
+    runs-on: macOS-12
 
     steps:
     - uses: actions/checkout@v3
