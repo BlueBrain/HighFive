@@ -1,21 +1,14 @@
+@PACKAGE_INIT@
+
 if(TARGET HighFive)
     return()
-endif()
-
-# Lifted from a regular cmake installation
-# Compute the installation prefix relative to this file.
-get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
-get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
-if(_IMPORT_PREFIX STREQUAL "/")
-  set(_IMPORT_PREFIX "")
 endif()
 
 # Recreate combined HighFive
 add_library(HighFive INTERFACE IMPORTED)
 set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS MPI_NO_CPPBIND)  # No c++ bindings
-target_include_directories(HighFive INTERFACE "${_IMPORT_PREFIX}/include")
+# PACKAGE_PREFIX_DIR comes from the expanded PACKAGE_INIT
+target_include_directories(HighFive INTERFACE "${PACKAGE_PREFIX_DIR}/include")
 
 # Ensure we activate required C++ std
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -45,3 +38,6 @@ endif()
 
 message(STATUS "HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
 include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
+
+# This seems canonical to check that no unnecessary components were passed
+check_required_components("HighFive")
