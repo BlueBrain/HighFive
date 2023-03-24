@@ -65,6 +65,13 @@ endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
 
+# Define the HighFive INTERFACE library
+add_library(HighFive INTERFACE)
+
+target_include_directories(HighFive INTERFACE
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include>")
+target_compile_definitions(HighFive INTERFACE MPI_NO_CPPBIND)  # No c++ bindings
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 

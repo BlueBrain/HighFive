@@ -1,26 +1,21 @@
-function(copy_interface_properties target source)
-  foreach(prop
-          INTERFACE_COMPILE_DEFINITIONS
-          INTERFACE_COMPILE_FEATURES
-          INTERFACE_COMPILE_OPTIONS
-          INTERFACE_INCLUDE_DIRECTORIES
-          INTERFACE_LINK_LIBRARIES
-          INTERFACE_SOURCES
-          INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
-    set_property(TARGET ${target} APPEND PROPERTY ${prop} $<TARGET_PROPERTY:${source},${prop}>)
-  endforeach()
-endfunction()
-
 if(TARGET HighFive)
     return()
 endif()
 
-# Get HighFive targets
-include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
+# Lifted from a regular cmake installation
+# Compute the installation prefix relative to this file.
+get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+if(_IMPORT_PREFIX STREQUAL "/")
+  set(_IMPORT_PREFIX "")
+endif()
 
 # Recreate combined HighFive
 add_library(HighFive INTERFACE IMPORTED)
 set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS MPI_NO_CPPBIND)  # No c++ bindings
+target_include_directories(HighFive INTERFACE "${_IMPORT_PREFIX}/include")
 
 # Ensure we activate required C++ std
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -31,19 +26,6 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     # A client request for a higher std overrides this
     target_compile_features(HighFive INTERFACE cxx_std_11)
   endif()
-endif()
-
-# If the user sets this flag, all dependencies are preserved.
-# Useful in central deployments where dependencies are not prepared later
-set(HIGHFIVE_USE_INSTALL_DEPS @HIGHFIVE_USE_INSTALL_DEPS@ CACHE BOOL "Use original Highfive dependencies")
-if(HIGHFIVE_USE_INSTALL_DEPS)
-  # If enabled in the deploy config, request c++14
-  if(@HIGHFIVE_USE_XTENSOR@ AND NOT CMAKE_VERSION VERSION_LESS 3.8)
-    set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_FEATURES cxx_std_14)
-  endif()
-  message(STATUS "HIGHFIVE @PROJECT_VERSION@: Using original dependencies (HIGHFIVE_USE_INSTALL_DEPS=YES)")
-  copy_interface_properties(HighFive HighFive_HighFive)
-  return()
 endif()
 
 # When not using the pre-built dependencies, give user options
@@ -63,6 +45,3 @@ endif()
 
 message(STATUS "HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
 include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
-foreach(dependency HighFive_libheaders libdeps)
-    copy_interface_properties(HighFive ${dependency})
-endforeach()
