@@ -1,3 +1,22 @@
+## Version 2.7.0 - 2023-03-31
+### New Features
+    - Properties can now be read (#684).
+    - Adding a property for LinkCreationOrder (#683).
+    - Adding a logging infrastructure (#690).
+    - Support of bool in the way of h5py (#654).
+    - Support `std::bool` in C++17 mode (#698).
+
+### Improvements
+    - Catch2 move to v3 (#655).
+
+### Bug Fix
+    - To avoid build failure in certain circumstances, user can not set `Boost_NO_BOOST_CMAKE` (#687).
+    - Fix leak when reading variable length strings (#660).
+    - Use `H5free_memory` instead of `free` in error handler (#665). Thanks to Moritz Koenemann.
+    - Fix a bug with old GCC due to templated friend classes (#688).
+    - Fix regression in broadcasting support (#697).
+    - Fix bug related to zero-length datasets (#702).
+
 ## Version 2.6.2 - 2022-11-10
 ### Bug Fix
     - Allow CMake to use Config mode to find HDF5.

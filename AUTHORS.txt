@@ -28,6 +28,7 @@ Maximilian Nöthe
 @Mightrider
 Mike DePalatis
 Mike Gevaert
+Moritz Koenemann
 Nico Jahn
 Nicolas Cornu (maintainer)
 Omar Awile
