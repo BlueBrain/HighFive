@@ -1,3 +1,11 @@
+## Version 2.7.1 - 2023-04-04
+### Bug Fix
+    - Revert removing `#include "H5FileDriver.hpp"` from `H5File.hpp` (#711).
+    - Change relative import to "../H5Utility.hpp" (#726).
+    - Fix nameclash with macros on Windows (#717 #722 #723).
+    - Add workaround for MSVC bug (#728).
+    - Don't downgrade the requested C++ standard (#729).
+
 ## Version 2.7.0 - 2023-03-31
 ### New Features
     - Properties can now be read (#684).
