@@ -14,6 +14,6 @@
 
 /** \brief String representation of the HighFive version.
  *
- *  \warning This macros should only be used from 2.7.1 onwards.
+ *  \warning This macro should only be used from 2.7.1 onwards.
  */
 #define HIGHFIVE_VERSION "@PROJECT_VERSION@"
