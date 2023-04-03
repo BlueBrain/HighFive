@@ -12,8 +12,22 @@
 #define HIGHFIVE_VERSION_MINOR @PROJECT_VERSION_MINOR@
 #define HIGHFIVE_VERSION_PATCH @PROJECT_VERSION_PATCH@
 
+/** \brief Concatenated representation of the HighFive version.
+ *
+ *  \warning The macro `HIGHFIVE_VERSION` by itself isn't valid C/C++.
+ *
+ *  However, it can be stringified with two layers of macros, e.g.,
+ *  \code{.cpp}
+ *  #define STRINGIFY_VALUE(s) STRINGIFY_NAME(s)
+ *  #define STRINGIFY_NAME(s) #s
+ *
+ *  std::cout << STRINGIFY_VALUE(HIGHFIVE_VERSION) << "\n";
+ *  \endcode
+ */
+#define HIGHFIVE_VERSION @PROJECT_VERSION@
+
 /** \brief String representation of the HighFive version.
  *
- *  \warning This macro should only be used from 2.7.1 onwards.
+ *  \warning This macro only exists from 2.7.1 onwards.
  */
-#define HIGHFIVE_VERSION "@PROJECT_VERSION@"
+#define HIGHFIVE_VERSION_STRING "@PROJECT_VERSION@"
