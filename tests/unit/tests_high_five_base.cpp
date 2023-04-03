@@ -3164,7 +3164,7 @@ TEST_CASE("Logging") {
 }
 
 #define HIGHFIVE_STRINGIFY_VALUE(s) HIGHFIVE_STRINGIFY_NAME(s)
-#define HIGHFIVE_STRINGIFY_NAME(s) #s
+#define HIGHFIVE_STRINGIFY_NAME(s)  #s
 
 
 TEST_CASE("Version Numbers") {
