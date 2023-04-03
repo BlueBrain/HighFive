@@ -11,4 +11,9 @@
 #define HIGHFIVE_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
 #define HIGHFIVE_VERSION_MINOR @PROJECT_VERSION_MINOR@
 #define HIGHFIVE_VERSION_PATCH @PROJECT_VERSION_PATCH@
+
+/** \brief String representation of the HighFive version.
+ *
+ *  \warning This macros should only be used from 2.7.1 onwards.
+ */
 #define HIGHFIVE_VERSION "@PROJECT_VERSION@"
