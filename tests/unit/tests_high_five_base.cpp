@@ -3162,3 +3162,13 @@ TEST_CASE("Logging") {
         check(false, message, LogSeverity::ERROR);
     }
 }
+
+TEST_CASE("Version Numbers") {
+    int major = HIGHFIVE_VERSION_MAJOR;
+    int minor = HIGHFIVE_VERSION_MINOR;
+    int patch = HIGHFIVE_VERSION_PATCH;
+    std::string version = HIGHFIVE_VERSION;
+    auto expected = std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+
+    CHECK(version == expected);
+}
