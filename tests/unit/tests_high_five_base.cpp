@@ -24,6 +24,7 @@
 #include <highfive/H5Group.hpp>
 #include <highfive/H5Reference.hpp>
 #include <highfive/H5Utility.hpp>
+#include <highfive/H5Version.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
