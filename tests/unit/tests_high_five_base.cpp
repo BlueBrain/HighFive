@@ -3090,74 +3090,74 @@ TEST_CASE("Logging") {
     };
 
     SECTION("LOG_DEBUG") {
-        auto message = "DEBUG!";
+        auto message = "Debug!";
         HIGHFIVE_LOG_DEBUG(message);
-        check(true, message, LogSeverity::DEBUG);
+        check(true, message, LogSeverity::Debug);
     }
 
     SECTION("LOG_DEBUG_IF true") {
         auto message = "DEBUG_IF true!";
         HIGHFIVE_LOG_DEBUG_IF(true, message);
-        check(true, message, LogSeverity::DEBUG);
+        check(true, message, LogSeverity::Debug);
     }
 
     SECTION("LOG_DEBUG_IF false") {
         auto message = "DEBUG_IF false!";
         HIGHFIVE_LOG_DEBUG_IF(false, message);
-        check(false, message, LogSeverity::DEBUG);
+        check(false, message, LogSeverity::Debug);
     }
 
     SECTION("LOG_INFO") {
-        auto message = "INFO!";
+        auto message = "Info!";
         HIGHFIVE_LOG_INFO(message);
-        check(true, message, LogSeverity::INFO);
+        check(true, message, LogSeverity::Info);
     }
 
     SECTION("LOG_INFO_IF true") {
         auto message = "INFO_IF true!";
         HIGHFIVE_LOG_INFO_IF(true, message);
-        check(true, message, LogSeverity::INFO);
+        check(true, message, LogSeverity::Info);
     }
 
     SECTION("LOG_INFO_IF false") {
         auto message = "INFO_IF false!";
         HIGHFIVE_LOG_INFO_IF(false, message);
-        check(false, message, LogSeverity::INFO);
+        check(false, message, LogSeverity::Info);
     }
 
     SECTION("LOG_WARN") {
-        auto message = "WARN!";
+        auto message = "Warn!";
         HIGHFIVE_LOG_WARN(message);
-        check(true, message, LogSeverity::WARN);
+        check(true, message, LogSeverity::Warn);
     }
 
     SECTION("LOG_WARN_IF true") {
         auto message = "WARN_IF true!";
         HIGHFIVE_LOG_WARN_IF(true, message);
-        check(true, message, LogSeverity::WARN);
+        check(true, message, LogSeverity::Warn);
     }
 
     SECTION("LOG_WARN_IF false") {
         auto message = "WARN_IF false!";
         HIGHFIVE_LOG_WARN_IF(false, message);
-        check(false, message, LogSeverity::WARN);
+        check(false, message, LogSeverity::Warn);
     }
 
     SECTION("LOG_ERROR") {
-        auto message = "ERROR!";
+        auto message = "Error!";
         HIGHFIVE_LOG_ERROR(message);
-        check(true, message, LogSeverity::ERROR);
+        check(true, message, LogSeverity::Error);
     }
 
     SECTION("LOG_ERROR_IF true") {
         auto message = "ERROR_IF true!";
         HIGHFIVE_LOG_ERROR_IF(true, message);
-        check(true, message, LogSeverity::ERROR);
+        check(true, message, LogSeverity::Error);
     }
 
     SECTION("LOG_ERROR_IF false") {
         auto message = "ERROR_IF false!";
         HIGHFIVE_LOG_ERROR_IF(false, message);
-        check(false, message, LogSeverity::ERROR);
+        check(false, message, LogSeverity::Error);
     }
 }

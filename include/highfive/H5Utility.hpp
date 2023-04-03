@@ -47,21 +47,21 @@ class SilenceHDF5 {
 #endif
 
 enum class LogSeverity {
-    DEBUG = HIGHFIVE_LOG_LEVEL_DEBUG,
-    INFO = HIGHFIVE_LOG_LEVEL_INFO,
-    WARN = HIGHFIVE_LOG_LEVEL_WARN,
-    ERROR = HIGHFIVE_LOG_LEVEL_ERROR
+    Debug = HIGHFIVE_LOG_LEVEL_DEBUG,
+    Info = HIGHFIVE_LOG_LEVEL_INFO,
+    Warn = HIGHFIVE_LOG_LEVEL_WARN,
+    Error = HIGHFIVE_LOG_LEVEL_ERROR
 };
 
 inline std::string to_string(LogSeverity severity) {
     switch (severity) {
-    case LogSeverity::DEBUG:
+    case LogSeverity::Debug:
         return "DEBUG";
-    case LogSeverity::INFO:
+    case LogSeverity::Info:
         return "INFO";
-    case LogSeverity::WARN:
+    case LogSeverity::Warn:
         return "WARN";
-    case LogSeverity::ERROR:
+    case LogSeverity::Error:
         return "ERROR";
     default:
         return "??";
@@ -151,7 +151,7 @@ inline void log(LogSeverity severity,
 
 #if HIGHFIVE_LOG_LEVEL <= HIGHFIVE_LOG_LEVEL_DEBUG
 #define HIGHFIVE_LOG_DEBUG(message) \
-    ::HighFive::detail::log(::HighFive::LogSeverity::DEBUG, (message), __FILE__, __LINE__);
+    ::HighFive::detail::log(::HighFive::LogSeverity::Debug, (message), __FILE__, __LINE__);
 
 // Useful, for the common pattern: if ...; then log something.
 #define HIGHFIVE_LOG_DEBUG_IF(cond, message) \
@@ -166,7 +166,7 @@ inline void log(LogSeverity severity,
 
 #if HIGHFIVE_LOG_LEVEL <= HIGHFIVE_LOG_LEVEL_INFO
 #define HIGHFIVE_LOG_INFO(message) \
-    ::HighFive::detail::log(::HighFive::LogSeverity::INFO, (message), __FILE__, __LINE__);
+    ::HighFive::detail::log(::HighFive::LogSeverity::Info, (message), __FILE__, __LINE__);
 
 // Useful, for the common pattern: if ...; then log something.
 #define HIGHFIVE_LOG_INFO_IF(cond, message) \
@@ -182,7 +182,7 @@ inline void log(LogSeverity severity,
 
 #if HIGHFIVE_LOG_LEVEL <= HIGHFIVE_LOG_LEVEL_WARN
 #define HIGHFIVE_LOG_WARN(message) \
-    ::HighFive::detail::log(::HighFive::LogSeverity::WARN, (message), __FILE__, __LINE__);
+    ::HighFive::detail::log(::HighFive::LogSeverity::Warn, (message), __FILE__, __LINE__);
 
 // Useful, for the common pattern: if ...; then log something.
 #define HIGHFIVE_LOG_WARN_IF(cond, message) \
@@ -197,7 +197,7 @@ inline void log(LogSeverity severity,
 
 #if HIGHFIVE_LOG_LEVEL <= HIGHFIVE_LOG_LEVEL_ERROR
 #define HIGHFIVE_LOG_ERROR(message) \
-    ::HighFive::detail::log(::HighFive::LogSeverity::ERROR, (message), __FILE__, __LINE__);
+    ::HighFive::detail::log(::HighFive::LogSeverity::Error, (message), __FILE__, __LINE__);
 
 // Useful, for the common pattern: if ...; then log something.
 #define HIGHFIVE_LOG_ERROR_IF(cond, message) \
