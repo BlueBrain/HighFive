@@ -3168,7 +3168,8 @@ TEST_CASE("Version Numbers") {
     int minor = HIGHFIVE_VERSION_MINOR;
     int patch = HIGHFIVE_VERSION_PATCH;
     std::string version = HIGHFIVE_VERSION;
-    auto expected = std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+    auto expected = std::to_string(major) + "." + std::to_string(minor) + "." +
+                    std::to_string(patch);
 
     CHECK(version == expected);
 }
