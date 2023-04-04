@@ -13,6 +13,14 @@
 #include <vector>
 #include <tuple>
 
+// We don't need windows specific functionality. However, to better detect defects caused by macros,
+// we include this header.
+// The list of identifiers is taken from `Boost::Predef`.
+#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || \
+    defined(__WINDOWS__)
+#include <Windows.h>
+#endif
+
 using ldcomplex = std::complex<long double>;
 using dcomplex = std::complex<double>;
 using fcomplex = std::complex<float>;
