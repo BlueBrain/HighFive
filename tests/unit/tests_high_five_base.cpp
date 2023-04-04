@@ -24,6 +24,7 @@
 #include <highfive/H5Group.hpp>
 #include <highfive/H5Reference.hpp>
 #include <highfive/H5Utility.hpp>
+#include <highfive/H5Version.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
@@ -3161,3 +3162,23 @@ TEST_CASE("Logging") {
         check(false, message, LogSeverity::Error);
     }
 }
+
+#define HIGHFIVE_STRINGIFY_VALUE(s) HIGHFIVE_STRINGIFY_NAME(s)
+#define HIGHFIVE_STRINGIFY_NAME(s)  #s
+
+
+TEST_CASE("Version Numbers") {
+    int major = HIGHFIVE_VERSION_MAJOR;
+    int minor = HIGHFIVE_VERSION_MINOR;
+    int patch = HIGHFIVE_VERSION_PATCH;
+    std::string version = HIGHFIVE_STRINGIFY_VALUE(HIGHFIVE_VERSION);
+
+    auto expected = std::to_string(major) + "." + std::to_string(minor) + "." +
+                    std::to_string(patch);
+
+    CHECK(version == expected);
+    CHECK(HIGHFIVE_VERSION_STRING == expected);
+}
+
+#undef HIGHFIVE_STRINGIFY_VALUE
+#undef HIGHFIVE_STRINGIFY_NAME
