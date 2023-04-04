@@ -71,7 +71,6 @@ class Group: public Object,
     template <typename Derivate>
     friend class ::HighFive::NodeTraits;
 #endif
-
 };
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {
