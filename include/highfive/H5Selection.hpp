@@ -11,6 +11,7 @@
 #include "H5DataSet.hpp"
 #include "H5DataSpace.hpp"
 #include "bits/H5Slice_traits.hpp"
+#include "bits/H5Friends.hpp"
 
 namespace HighFive {
 
@@ -56,6 +57,10 @@ class Selection: public SliceTraits<Selection> {
     DataSpace _mem_space, _file_space;
     DataSet _set;
 
+#if HIGHFIVE_HAS_FRIENDS
+    template <typename Derivate>
+    friend class ::HighFive::SliceTraits;
+#endif
     friend Selection detail::make_selection(const DataSpace&, const DataSpace&, const DataSet&);
 };
 

@@ -14,6 +14,10 @@ if(NOT TARGET libdeps)
     target_compile_definitions(libdeps INTERFACE -D_GLIBCXX_ASSERTIONS)
   endif()
 
+  if(HIGHFIVE_HAS_FRIENDS)
+    target_compile_definitions(libdeps INTERFACE -DHIGHFIVE_HAS_FRIENDS=1)
+  endif()
+
   if(HIGHFIVE_SANITIZER)
     target_compile_options(libdeps INTERFACE -fsanitize=${HIGHFIVE_SANITIZER})
     target_link_options(libdeps INTERFACE -fsanitize=${HIGHFIVE_SANITIZER})
