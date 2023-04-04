@@ -207,7 +207,7 @@ class AtomicType<std::complex<T>>: public DataType {
 
 // For boolean we act as h5py
 inline EnumType<details::Boolean> create_enum_boolean() {
-    return {{"FALSE", details::Boolean::FALSE}, {"TRUE", details::Boolean::TRUE}};
+    return {{"FALSE", details::Boolean::HighFiveFalse}, {"TRUE", details::Boolean::HighFiveTrue}};
 }
 
 // Other cases not supported. Fail early with a user message

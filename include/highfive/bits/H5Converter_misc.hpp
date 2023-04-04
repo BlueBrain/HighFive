@@ -212,10 +212,11 @@ struct type_helper {
 template <typename T>
 struct inspector: type_helper<T> {};
 
-enum Boolean : int8_t {
-    FALSE = 0,
-    TRUE = 1,
+enum class Boolean : int8_t {
+    HighFiveFalse = 0,
+    HighFiveTrue = 1,
 };
+
 template <>
 struct inspector<bool>: type_helper<bool> {
     using base_type = Boolean;
