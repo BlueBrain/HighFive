@@ -11,6 +11,7 @@
 #include <H5Gpublic.h>
 
 #include "H5Object.hpp"
+#include "bits/H5Friends.hpp"
 #include "bits/H5_definitions.hpp"
 #include "bits/H5Annotate_traits.hpp"
 #include "bits/H5Node_traits.hpp"
@@ -66,6 +67,10 @@ class Group: public Object,
     friend Group detail::make_group(hid_t);
     friend class File;
     friend class Reference;
+#if HIGHFIVE_HAS_FRIEND_DECLARATIONS
+    template <typename Derivate>
+    friend class ::HighFive::NodeTraits;
+#endif
 };
 
 inline std::pair<unsigned int, unsigned int> Group::getEstimatedLinkInfo() const {

@@ -14,6 +14,8 @@
 #include <string>
 #include <iostream>
 
+#include "bits/H5Friends.hpp"
+
 namespace HighFive {
 
 ///

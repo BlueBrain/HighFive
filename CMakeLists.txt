@@ -37,6 +37,33 @@ option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
 option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
 
+# Controls if HighFive classes are friends of each other.
+#
+# There are two compiler bugs that require incompatible choices. The
+# GCC compiler bug [1] prevents us from writing:
+#
+#     template<class D>
+#     friend class NodeTraits<D>;
+#
+# While a MSVC compiler bug [2] complains that it can't access a
+# protected constructor, e.g., `HighFive::Object::Object`.
+#
+# Starting with `2.7.0` these friend declarations don't matter
+# anymore. It's mearly a means of appeasing a compiler.
+#
+# The values of `HIGHFIVE_HAS_FRIEND_DECLARATIONS` are:
+#   - that the macro is undefined.
+#   - `0` which implies not adding the friend declarations.
+#   - any non-zero integer, i.e. `1`, to add the friend declarations.
+#
+# Not defining the macro implies that it'll be set to `1` if MSVC is
+# detected (or other compilers requiring the friend declarations).
+#
+# [1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52625
+# [2]: https://developercommunity.visualstudio.com/t/MSVC-compiler-improperly-implements-N489/1516410
+option(HIGHFIVE_HAS_FRIEND_DECLARATIONS "Enable additional friend declarations. Certain compiler require this On, others Off." OFF)
+mark_as_advanced(HIGHFIVE_HAS_FRIEND_DECLARATIONS)
+
 set(HIGHFIVE_SANITIZER OFF CACHE STRING "Enable a group of sanitizers, requires compiler support. Supported: 'address' and 'undefined'.")
 mark_as_advanced(HIGHFIVE_SANITIZER)
 
