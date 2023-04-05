@@ -14,6 +14,7 @@
 
 #include "H5DataType.hpp"
 #include "H5Object.hpp"
+#include "bits/H5Friends.hpp"
 #include "bits/H5Path_traits.hpp"
 
 namespace HighFive {
@@ -112,8 +113,14 @@ class Attribute: public Object, public PathTraits<Attribute> {
     // No empty attributes
     Attribute() = delete;
 
-  private:
+  protected:
     using Object::Object;
+
+  private:
+#if HIGHFIVE_HAS_FRIEND_DECLARATIONS
+    template <typename Derivate>
+    friend class ::HighFive::AnnotateTraits;
+#endif
 
     friend Attribute detail::make_attribute(hid_t);
 };

@@ -14,6 +14,7 @@
 #include <H5Opublic.h>
 
 #include "bits/H5_definitions.hpp"
+#include "bits/H5Friends.hpp"
 
 namespace HighFive {
 
@@ -107,6 +108,15 @@ class Object {
     friend Object detail::make_object(hid_t);
     friend class Reference;
     friend class CompoundType;
+
+#if HIGHFIVE_HAS_FRIEND_DECLARATIONS
+    template <typename Derivate>
+    friend class NodeTraits;
+    template <typename Derivate>
+    friend class AnnotateTraits;
+    template <typename Derivate>
+    friend class PathTraits;
+#endif
 };
 
 

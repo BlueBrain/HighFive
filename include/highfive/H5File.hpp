@@ -112,10 +112,9 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
 
   protected:
     File() = default;
-
-  private:
     using Object::Object;
 
+  private:
     mutable std::string _filename{};
 
     template <typename>
