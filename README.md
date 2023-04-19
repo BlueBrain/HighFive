@@ -11,11 +11,10 @@ Documentation: https://bluebrain.github.io/HighFive/
 
 HighFive is a modern header-only C++11 friendly interface for libhdf5.
 
-HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array, Eigen and Xtensor. It handles C++ from/to HDF5 with automatic type mapping.
-HighFive does not require additional libraries (see dependencies) and supports both HDF5 thread safety and Parallel HDF5 (contrary to the official hdf5 cpp)
+HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array and Xtensor. It handles C++ from/to HDF5 with automatic type mapping.
+HighFive does not require additional libraries (see dependencies).
 
 It integrates nicely with other CMake projects by defining (and exporting) a HighFive target.
-
 
 ### Design
 - Simple C++-ish minimalist interface
@@ -42,6 +41,12 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
 - xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
 - half (optional, opt-in with -D*HIGHFIVE_USE_HALF_FLOAT*=ON)
+
+### Known flaws
+- HighFive has been claiming that it is threadsafe. This isn't the case.
+- Eigen support in core HighFive is broken. See https://github.com/BlueBrain/HighFive/issues/532. H5Easy is not
+  affected.
+- The support of fixed length strings isn't ideal.
 
 
 ## Examples
