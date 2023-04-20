@@ -43,7 +43,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - half (optional, opt-in with -D*HIGHFIVE_USE_HALF_FLOAT*=ON)
 
 ### Known flaws
-- HighFive is not thread-safe. At best it has the same limitations has the HDF5 library. However, HighFive objects modify their members without protecting these writes. Users have reported that HighFive is not thread-safe even when using the threadsafe HDF5 library.
+- HighFive is not thread-safe. At best it has the same limitations as the HDF5 library. However, HighFive objects modify their members without protecting these writes. Users have reported that HighFive is not thread-safe even when using the threadsafe HDF5 library.
 - Eigen support in core HighFive is broken. See https://github.com/BlueBrain/HighFive/issues/532. H5Easy is not
   affected.
 - The support of fixed length strings isn't ideal.
