@@ -153,6 +153,11 @@ inline CharacterSet StringType::getCharacterSet() const {
 inline FixedLengthStringType::FixedLengthStringType(size_t size,
                                                     StringPadding padding,
                                                     CharacterSet character_set) {
+    if (size == 0 && padding == StringPadding::NullTerminated) {
+        throw DataTypeException(
+            "Fixed-length, null-terminated need at least one byte to store the null-character.");
+    }
+
     _hid = detail::h5t_copy(H5T_C_S1);
 
     detail::h5t_set_size(_hid, hsize_t(size));
