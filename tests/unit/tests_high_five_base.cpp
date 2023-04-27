@@ -633,6 +633,45 @@ TEST_CASE("Simple test for type equality") {
     CHECK(int_var != uint_var);
 }
 
+TEST_CASE("StringType") {
+    SECTION("enshrine-defaults") {
+        auto fixed_length = FixedLengthStringType(32, StringPadding::SpacePadded);
+        auto variable_length = VariableLengthStringType();
+
+        REQUIRE(fixed_length.getCharacterSet() == CharacterSet::Ascii);
+        REQUIRE(variable_length.getCharacterSet() == CharacterSet::Ascii);
+    }
+
+    SECTION("fixed-length") {
+        auto fixed_length =
+            FixedLengthStringType(32, StringPadding::SpacePadded, CharacterSet::Utf8);
+        auto string_type = fixed_length.asStringType();
+
+        REQUIRE(string_type.getId() == fixed_length.getId());
+        REQUIRE(string_type.getCharacterSet() == CharacterSet::Utf8);
+        REQUIRE(string_type.getPadding() == StringPadding::SpacePadded);
+        REQUIRE(string_type.getSize() == 32);
+        REQUIRE(!string_type.isVariableStr());
+        REQUIRE(string_type.isFixedLenStr());
+    }
+
+    SECTION("variable-length") {
+        auto variable_length = VariableLengthStringType(CharacterSet::Utf8);
+        auto string_type = variable_length.asStringType();
+
+        REQUIRE(string_type.getId() == variable_length.getId());
+        REQUIRE(string_type.getCharacterSet() == CharacterSet::Utf8);
+        REQUIRE(string_type.isVariableStr());
+        REQUIRE(!string_type.isFixedLenStr());
+    }
+
+    SECTION("atomic") {
+        auto atomic = AtomicType<double>();
+        REQUIRE_THROWS(atomic.asStringType());
+    }
+}
+
+
 TEST_CASE("DataTypeEqualTakeBack") {
     const std::string file_name("h5tutr_dset.h5");
     const std::string dataset_name("dset");
@@ -2751,6 +2790,62 @@ TEST_CASE("HighFiveFixedString") {
         CHECK(array_back.getString(1) == "1y1");
         for (auto iter = array_back.cbegin(); iter != array_back.cend(); ++iter) {
             CHECK((*iter)[1] == 'y');
+        }
+    }
+
+    {
+        // Direct way of writing `std::string` as a fixed length
+        // HDF5 string.
+
+        std::string value = "foo";
+        auto n_chars = value.size() + 1;
+
+        auto datatype = FixedLengthStringType(n_chars, StringPadding::NullTerminated);
+        auto dataspace = DataSpace(1);
+
+        auto ds = file.createDataSet("ds8", dataspace, datatype);
+        ds.write_raw(value.data(), datatype);
+
+        {
+            // Due to missing non-const overload of `data()` until C++17 we'll
+            // read into something else instead (don't forget the '\0').
+            auto expected = std::vector<char>(n_chars, '!');
+            ds.read(expected.data(), datatype);
+
+            CHECK(expected.size() == value.size() + 1);
+            for (size_t i = 0; i < value.size(); ++i) {
+                REQUIRE(expected[i] == value[i]);
+            }
+        }
+
+#if HIGHFIVE_CXX_STD >= 17
+        {
+            auto expected = std::string(value.size(), '-');
+            ds.read(expected.data(), datatype);
+
+            REQUIRE(expected == value);
+        }
+#endif
+    }
+
+    {
+        size_t n_chars = 4;
+        size_t n_strings = 2;
+
+        std::vector<char> value(n_chars * n_strings, '!');
+
+        auto datatype = FixedLengthStringType(n_chars, StringPadding::NullTerminated);
+        auto dataspace = DataSpace(n_strings);
+
+        auto ds = file.createDataSet("ds9", dataspace, datatype);
+        ds.write_raw(value.data(), datatype);
+
+        auto expected = std::vector<char>(value.size(), '-');
+        ds.read(expected.data(), datatype);
+
+        CHECK(expected.size() == value.size());
+        for (size_t i = 0; i < value.size(); ++i) {
+            REQUIRE(expected[i] == value[i]);
         }
     }
 }

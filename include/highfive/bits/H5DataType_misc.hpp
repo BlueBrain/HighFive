@@ -126,8 +126,45 @@ inline bool DataType::isReference() const {
     return H5Tequal(_hid, H5T_STD_REF_OBJ) > 0;
 }
 
+inline StringType DataType::asStringType() const {
+    if (getClass() != DataTypeClass::String) {
+        throw DataTypeException("Invalid conversion to StringType.");
+    }
+
+    if (isValid() && H5Iinc_ref(_hid) < 0) {
+        throw ObjectException("Reference counter increase failure");
+    }
+
+    return StringType(_hid);
+}
+
 inline std::string DataType::string() const {
     return type_class_string(getClass()) + std::to_string(getSize() * 8);
+}
+
+inline StringPadding StringType::getPadding() const {
+    return StringPadding(detail::h5t_get_strpad(_hid));
+}
+
+inline CharacterSet StringType::getCharacterSet() const {
+    return CharacterSet(detail::h5t_get_cset(_hid));
+}
+
+inline FixedLengthStringType::FixedLengthStringType(size_t size,
+                                                    StringPadding padding,
+                                                    CharacterSet character_set) {
+    _hid = detail::h5t_copy(H5T_C_S1);
+
+    detail::h5t_set_size(_hid, hsize_t(size));
+    detail::h5t_set_cset(_hid, H5T_cset_t(character_set));
+    detail::h5t_set_strpad(_hid, H5T_str_t(padding));
+}
+
+inline VariableLengthStringType::VariableLengthStringType(CharacterSet character_set) {
+    _hid = detail::h5t_copy(H5T_C_S1);
+
+    detail::h5t_set_size(_hid, H5T_VARIABLE);
+    detail::h5t_set_cset(_hid, H5T_cset_t(character_set));
 }
 
 // char mapping
