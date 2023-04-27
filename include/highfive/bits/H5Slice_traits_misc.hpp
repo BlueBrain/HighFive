@@ -214,16 +214,12 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::read(T* array,
-                                        const DataType& dtype,
+                                        const DataType& mem_datatype,
                                         const DataTransferProps& xfer_props) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
-    const auto& slice = static_cast<const Derivate&>(*this);
-    using element_type = typename details::inspector<T>::base_type;
 
-    // Auto-detect mem datatype if not provided
-    const DataType& mem_datatype = dtype.empty() ? create_and_check_datatype<element_type>()
-                                                 : dtype;
+    const auto& slice = static_cast<const Derivate&>(*this);
 
     if (H5Dread(details::get_dataset(slice).getId(),
                 mem_datatype.getId(),
@@ -233,6 +229,15 @@ inline void SliceTraits<Derivate>::read(T* array,
                 static_cast<void*>(array)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read.");
     }
+}
+
+template <typename Derivate>
+template <typename T>
+inline void SliceTraits<Derivate>::read(T* array, const DataTransferProps& xfer_props) const {
+    using element_type = typename details::inspector<T>::base_type;
+    const DataType& mem_datatype = create_and_check_datatype<element_type>();
+
+    read(array, mem_datatype, xfer_props);
 }
 
 
@@ -266,11 +271,9 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
 template <typename Derivate>
 template <typename T>
 inline void SliceTraits<Derivate>::write_raw(const T* buffer,
-                                             const DataType& dtype,
+                                             const DataType& mem_datatype,
                                              const DataTransferProps& xfer_props) {
-    using element_type = typename details::inspector<T>::base_type;
     const auto& slice = static_cast<const Derivate&>(*this);
-    const auto& mem_datatype = dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
 
     if (H5Dwrite(details::get_dataset(slice).getId(),
                  mem_datatype.getId(),
@@ -280,6 +283,15 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer,
                  static_cast<const void*>(buffer)) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
+}
+
+template <typename Derivate>
+template <typename T>
+inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataTransferProps& xfer_props) {
+    using element_type = typename details::inspector<T>::base_type;
+    const auto& mem_datatype = create_and_check_datatype<element_type>();
+
+    write_raw(buffer, mem_datatype, xfer_props);
 }
 
 

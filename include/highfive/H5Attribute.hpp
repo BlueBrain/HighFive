@@ -87,9 +87,17 @@ class Attribute: public Object, public PathTraits<Attribute> {
     template <typename T>
     void read(T& array) const;
 
-    /// \brief Read the attribute into a buffer
+    /// \brief Read the attribute into a buffer.
+    ///
+    /// Note, this is the shallowest wrapper around `H5Aread`.
     template <typename T>
-    void read(T* array, const DataType& dtype = {}) const;
+    void read(T* array, const DataType& mem_datatype) const;
+
+    /// \brief Read the attribute into a buffer
+    ///
+    /// This overload deduces the memory datatype from `T`.
+    template <typename T>
+    void read(T* array) const;
 
     ///
     /// Write the integrality N-dimension buffer to this attribute
@@ -101,9 +109,19 @@ class Attribute: public Object, public PathTraits<Attribute> {
     template <typename T>
     void write(const T& buffer);
 
-    /// \brief Write a buffer to this attribute
+    /// \brief Write to this attribute from `buffer`.
+    ///
+    /// Note that this is the shallowest wrapper around `H5Awrite`. It's useful
+    /// if you need full control. If possible prefer `Attribute::write`.
     template <typename T>
-    void write_raw(const T* buffer, const DataType& dtype = {});
+    void write_raw(const T* buffer, const DataType& mem_dtype);
+
+    /// \brief Write to this attribute from `buffer`.
+    ///
+    /// This version attempts to automatically deduce the datatype
+    /// of the buffer. Note, that the file datatype is already set.
+    template <typename T>
+    void write_raw(const T* buffer);
 
     /// \brief Get the list of properties for creation of this attribute
     AttributeCreateProps getCreatePropertyList() const {
