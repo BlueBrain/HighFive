@@ -100,17 +100,21 @@ inline void Attribute::read(T& array) const {
 }
 
 template <typename T>
-inline void Attribute::read(T* array, const DataType& dtype) const {
+inline void Attribute::read(T* array, const DataType& mem_datatype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
-    using element_type = typename details::inspector<T>::base_type;
-    // Auto-detect mem datatype if not provided
-    const DataType& mem_datatype = dtype.empty() ? create_and_check_datatype<element_type>()
-                                                 : dtype;
 
     if (H5Aread(getId(), mem_datatype.getId(), static_cast<void*>(array)) < 0) {
         HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
     }
+}
+
+template <typename T>
+inline void Attribute::read(T* array) const {
+    using element_type = typename details::inspector<T>::base_type;
+    const DataType& mem_datatype = create_and_check_datatype<element_type>();
+
+    read(array, mem_datatype);
 }
 
 template <typename T>
@@ -137,13 +141,18 @@ inline void Attribute::write(const T& buffer) {
 }
 
 template <typename T>
-inline void Attribute::write_raw(const T* buffer, const DataType& dtype) {
-    using element_type = typename details::inspector<T>::base_type;
-    const auto& mem_datatype = dtype.empty() ? create_and_check_datatype<element_type>() : dtype;
-
+inline void Attribute::write_raw(const T* buffer, const DataType& mem_datatype) {
     if (H5Awrite(getId(), mem_datatype.getId(), buffer) < 0) {
         HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
     }
+}
+
+template <typename T>
+inline void Attribute::write_raw(const T* buffer) {
+    using element_type = typename details::inspector<T>::base_type;
+    const auto& mem_datatype = create_and_check_datatype<element_type>();
+
+    write_raw(buffer, mem_datatype);
 }
 
 }  // namespace HighFive
