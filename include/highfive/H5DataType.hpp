@@ -140,6 +140,7 @@ class StringType: public DataType {
 
   protected:
     using DataType::DataType;
+    friend class DataType;
 };
 
 class FixedLengthStringType: public StringType {
