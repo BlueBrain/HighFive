@@ -63,15 +63,23 @@ struct string_type_checker {
     static DataType getDataType(const DataType&, const DataType&);
 };
 
+inline void enforce_ascii_hack(const DataType& dst, const DataType& src) {
+    // Note: constness only refers to constness of the DataType object, which
+    // is just an ID, we can/will change properties of `dst`.
+
+    // TEMP. CHANGE: Ensure that the character set is properly configured to prevent
+    // converter issues on HDF5 <=v1.12.0 when loading ASCII strings first.
+    // See https://github.com/HDFGroup/hdf5/issues/544 for further information.
+    if (H5Tget_cset(src.getId()) == H5T_CSET_ASCII) {
+        H5Tset_cset(dst.getId(), H5T_CSET_ASCII);
+    }
+}
+
 template <>
 struct string_type_checker<void> {
     inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
-        // TEMP. CHANGE: Ensure that the character set is properly configured to prevent
-        // converter issues on HDF5 <=v1.12.0 when loading ASCII strings first.
-        // See https://github.com/HDFGroup/hdf5/issues/544 for further information.
-        if (H5Tget_class(element_type.getId()) == H5T_STRING &&
-            H5Tget_cset(dtype.getId()) == H5T_CSET_ASCII) {
-            H5Tset_cset(element_type.getId(), H5T_CSET_ASCII);
+        if (H5Tget_class(element_type.getId()) == H5T_STRING) {
+            enforce_ascii_hack(element_type, dtype);
         }
         return element_type;
     }
@@ -82,10 +90,7 @@ struct string_type_checker<char[FixedLen]> {
     inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
         DataType return_type = (dtype.isFixedLenStr()) ? AtomicType<char[FixedLen]>()
                                                        : element_type;
-        // TEMP. CHANGE: See string_type_checker<void> definition
-        if (H5Tget_cset(dtype.getId()) == H5T_CSET_ASCII) {
-            H5Tset_cset(return_type.getId(), H5T_CSET_ASCII);
-        }
+        enforce_ascii_hack(return_type, dtype);
         return return_type;
     }
 };
@@ -95,11 +100,8 @@ struct string_type_checker<char*> {
     inline static DataType getDataType(const DataType&, const DataType& dtype) {
         if (dtype.isFixedLenStr())
             throw DataSetException("Can't output variable-length to fixed-length strings");
-        // TEMP. CHANGE: See string_type_checker<void> definition
         DataType return_type = AtomicType<std::string>();
-        if (H5Tget_cset(dtype.getId()) == H5T_CSET_ASCII) {
-            H5Tset_cset(return_type.getId(), H5T_CSET_ASCII);
-        }
+        enforce_ascii_hack(return_type, dtype);
         return return_type;
     }
 };
