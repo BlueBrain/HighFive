@@ -64,8 +64,8 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
 }
 
 template <typename Derivate>
-inline Selection SliceTraits<Derivate>::select_impl(const HyperSlab& hyperslab,
-                                                    const DataSpace& memspace) const {
+inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyperslab,
+                                               const DataSpace& memspace) const {
     // Note: The current limitation are that memspace must describe a
     //       packed memspace.
     //
@@ -98,7 +98,7 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& offset
                                                const std::vector<size_t>& block) const {
     auto slab = HyperSlab(RegularHyperSlab(offset, count, stride, block));
     auto memspace = DataSpace(count);
-    return select_impl(slab, memspace);
+    return select(slab, memspace);
 }
 
 template <typename Derivate>
@@ -121,7 +121,7 @@ inline Selection SliceTraits<Derivate>::select(const std::vector<size_t>& column
     std::vector<size_t> memdims = dims;
     memdims.back() = columns.size();
 
-    return select_impl(slab, DataSpace(memdims));
+    return select(slab, DataSpace(memdims));
 }
 
 template <typename Derivate>
