@@ -19,9 +19,13 @@ template <typename T>
 using unqualified_t = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
 // Find the type of an eventual char array, otherwise void
-template <typename>
+template <typename T>
 struct type_char_array {
-    using type = void;
+    using type = typename std::conditional<
+        std::is_same<typename inspector<T>::base_type, std::string>::value,
+        std::string,
+        void>::type;
+    static constexpr bool is_char_array = false;
 };
 
 template <typename T>
@@ -29,6 +33,7 @@ struct type_char_array<T*> {
     using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
                                            char*,
                                            typename type_char_array<T>::type>::type;
+    static constexpr bool is_char_array = true;
 };
 
 template <typename T, std::size_t N>
@@ -36,6 +41,7 @@ struct type_char_array<T[N]> {
     using type = typename std::conditional<std::is_same<unqualified_t<T>, char>::value,
                                            char[N],
                                            typename type_char_array<T>::type>::type;
+    static constexpr bool is_char_array = true;
 };
 
 template <typename T>
@@ -43,7 +49,7 @@ struct BufferInfo {
     using type_no_const = typename std::remove_const<T>::type;
     using elem_type = typename details::inspector<type_no_const>::base_type;
     using char_array_t = typename details::type_char_array<type_no_const>::type;
-    static constexpr bool is_char_array = !std::is_same<char_array_t, void>::value;
+    static constexpr bool is_char_array = details::type_char_array<type_no_const>::is_char_array;
 
     enum Operation { read, write };
     const Operation op;
@@ -85,6 +91,16 @@ struct string_type_checker<void> {
     }
 };
 
+template <>
+struct string_type_checker<std::string> {
+    inline static DataType getDataType(const DataType&, const DataType& file_datatype) {
+        // The StringBuffer ensures that the data is transformed such that it
+        // matches the datatype of the dataset, i.e. `file_datatype` and
+        // `mem_datatype` are the same.
+        return file_datatype;
+    }
+};
+
 template <std::size_t FixedLen>
 struct string_type_checker<char[FixedLen]> {
     inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
@@ -98,8 +114,9 @@ struct string_type_checker<char[FixedLen]> {
 template <>
 struct string_type_checker<char*> {
     inline static DataType getDataType(const DataType&, const DataType& dtype) {
-        if (dtype.isFixedLenStr())
+        if (dtype.isFixedLenStr()) {
             throw DataSetException("Can't output variable-length to fixed-length strings");
+        }
         DataType return_type = AtomicType<std::string>();
         enforce_ascii_hack(return_type, dtype);
         return return_type;
@@ -116,11 +133,6 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
                    ((is_fixed_len_string && is_char_array) ? 1 : 0))
     , data_type(
           string_type_checker<char_array_t>::getDataType(create_datatype<elem_type>(), dtype)) {
-    if (is_fixed_len_string && std::is_same<elem_type, std::string>::value) {
-        throw DataSetException(
-            "Can't output std::string as fixed-length. "
-            "Use raw arrays or FixedLenStringArray");
-    }
     // We warn. In case they are really not convertible an exception will rise on read/write
     if (dtype.getClass() != data_type.getClass()) {
         HIGHFIVE_LOG_WARN(getName() + "\": data and hdf5 dataset have different types: " +

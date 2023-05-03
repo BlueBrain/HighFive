@@ -22,7 +22,7 @@
 #include <half.hpp>
 #endif
 
-#include "H5Converter_misc.hpp"
+#include "H5Inspector_misc.hpp"
 
 namespace HighFive {
 
