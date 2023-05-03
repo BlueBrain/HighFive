@@ -196,7 +196,7 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     }
 
     auto r = details::data_converter::get_reader<T>(dims, array, file_datatype);
-    read(r.get_pointer(), buffer_info.data_type, xfer_props);
+    read(r.getPointer(), buffer_info.data_type, xfer_props);
     // re-arrange results
     r.unserialize(array);
     auto t = create_datatype<typename details::inspector<T>::base_type>();
@@ -204,10 +204,10 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     if (c == DataTypeClass::VarLen || t.isVariableStr()) {
 #if H5_VERSION_GE(1, 12, 0)
         // This one have been created in 1.12.0
-        (void) H5Treclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.get_pointer());
+        (void) H5Treclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.getPointer());
 #else
         // This one is deprecated since 1.12.0
-        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.get_pointer());
+        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.getPointer());
 #endif
     }
 }
@@ -268,7 +268,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
         throw DataSpaceException(ss.str());
     }
     auto w = details::data_converter::serialize<T>(buffer, file_datatype);
-    write_raw(w.get_pointer(), buffer_info.data_type, xfer_props);
+    write_raw(w.getPointer(), buffer_info.data_type, xfer_props);
 }
 
 

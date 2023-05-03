@@ -84,7 +84,7 @@ inline void Attribute::read(T& array) const {
     }
 
     auto r = details::data_converter::get_reader<T>(dims, array, file_datatype);
-    read(r.get_pointer(), buffer_info.data_type);
+    read(r.getPointer(), buffer_info.data_type);
     // re-arrange results
     r.unserialize(array);
     auto t = create_datatype<typename details::inspector<T>::base_type>();
@@ -92,10 +92,10 @@ inline void Attribute::read(T& array) const {
     if (c == DataTypeClass::VarLen || t.isVariableStr()) {
 #if H5_VERSION_GE(1, 12, 0)
         // This one have been created in 1.12.0
-        (void) H5Treclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+        (void) H5Treclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
 #else
         // This one is deprecated since 1.12.0
-        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.get_pointer());
+        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
 #endif
     }
 }
@@ -140,7 +140,7 @@ inline void Attribute::write(const T& buffer) {
         throw DataSpaceException(ss.str());
     }
     auto w = details::data_converter::serialize<T>(buffer, file_datatype);
-    write_raw(w.get_pointer(), buffer_info.data_type);
+    write_raw(w.getPointer(), buffer_info.data_type);
 }
 
 template <typename T>

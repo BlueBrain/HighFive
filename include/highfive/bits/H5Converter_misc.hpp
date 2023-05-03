@@ -22,7 +22,6 @@ struct enable_shallow_copy: public std::enable_if<inspector<T>::is_trivially_cop
 template <class T, class V = void>
 struct enable_deep_copy: public std::enable_if<!inspector<T>::is_trivially_copyable, V> {};
 
-
 template <typename T, bool IsReadOnly>
 struct ShallowCopyBuffer {
     using type = unqualified_t<T>;
@@ -36,8 +35,12 @@ struct ShallowCopyBuffer {
     explicit ShallowCopyBuffer(typename std::conditional<IsReadOnly, const T&, T&>::type val)
         : ptr(inspector<T>::data(val)){};
 
-    hdf5_type* get_pointer() const {
+    hdf5_type* getPointer() const {
         return ptr;
+    }
+
+    hdf5_type* begin() const {
+        return getPointer();
     }
 
     void unserialize(T& /* val */) const {
@@ -57,12 +60,20 @@ struct DeepCopyBuffer {
         : buffer(inspector<T>::getSize(_dims))
         , dims(_dims) {}
 
-    hdf5_type* get_pointer() {
+    hdf5_type* getPointer() {
         return buffer.data();
     }
 
-    hdf5_type const* get_pointer() const {
+    hdf5_type const* getPointer() const {
         return buffer.data();
+    }
+
+    hdf5_type* begin() {
+        return getPointer();
+    }
+
+    hdf5_type const* begin() const {
+        return getPointer();
     }
 
     void unserialize(T& val) const {
@@ -92,7 +103,7 @@ template <typename T>
 struct Writer<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
     explicit Writer(const T& val, const DataType& /* file_datatype */)
         : DeepCopyBuffer<T>(inspector<T>::getDimensions(val)) {
-        inspector<T>::serialize(val, this->get_pointer());
+        inspector<T>::serialize(val, this->begin());
     }
 };
 
