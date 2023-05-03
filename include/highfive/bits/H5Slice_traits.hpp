@@ -259,6 +259,15 @@ class SliceTraits {
     Selection select(const HyperSlab& hyperslab) const;
 
     ///
+    /// \brief Select an \p hyperslab in the current Slice/Dataset.
+    ///
+    /// If the selection can be read into a simple, multi-dimensional dataspace,
+    /// then this overload enable specifying the shape of the memory dataspace
+    /// with `memspace`. Note, that simple implies no offsets, strides or
+    /// number of blocks, just the size of the block in each dimension.
+    Selection select(const HyperSlab& hyperslab, const DataSpace& memspace) const;
+
+    ///
     /// \brief Select a region in the current Slice/Dataset of \p count points at
     /// \p offset separated by \p stride. If strides are not provided they will
     /// default to 1 in all dimensions.
@@ -361,10 +370,6 @@ class SliceTraits {
     ///
     template <typename T>
     void write_raw(const T* buffer, const DataTransferProps& xfer_props = DataTransferProps());
-
-
-  protected:
-    inline Selection select_impl(const HyperSlab& hyperslab, const DataSpace& memspace) const;
 };
 
 }  // namespace HighFive
