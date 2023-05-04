@@ -15,7 +15,7 @@ option(USE_BUNDLED_HIGHFIVE "Use highfive from deps folder. Otherwise must be in
 if(USE_BUNDLED_HIGHFIVE)
     add_subdirectory("deps/HighFive" EXCLUDE_FROM_ALL)
 else()
-    find_package(HighFive REQUIRED)
+    find_package(HighFive REQUIRED QUIET)
 endif()
 
 add_library(simpleton SHARED "src/simpleton.cpp" "src/otherton.cpp")

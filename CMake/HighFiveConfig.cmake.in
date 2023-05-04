@@ -15,6 +15,8 @@ if(TARGET HighFive)
     return()
 endif()
 
+@PACKAGE_INIT@
+
 # Get HighFive targets
 include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargets.cmake")
 
@@ -61,8 +63,12 @@ if(HIGHFIVE_USE_XTENSOR AND NOT CMAKE_VERSION VERSION_LESS 3.8)
   set_property(TARGET HighFive APPEND PROPERTY INTERFACE_COMPILE_FEATURES cxx_std_14)
 endif()
 
-message(STATUS "HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
+if(NOT HighFive_FIND_QUIETLY)
+  message(STATUS "HIGHFIVE @PROJECT_VERSION@: (Re)Detecting Highfive dependencies (HIGHFIVE_USE_INSTALL_DEPS=NO)")
+endif()
 include("${CMAKE_CURRENT_LIST_DIR}/HighFiveTargetDeps.cmake")
 foreach(dependency HighFive_libheaders libdeps)
     copy_interface_properties(HighFive ${dependency})
 endforeach()
+
+check_required_components(HighFive)
