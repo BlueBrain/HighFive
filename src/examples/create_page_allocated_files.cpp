@@ -17,9 +17,6 @@
 // This example requires HDF5 version 1.10.1 or newer.
 #if H5_VERSION_GE(1, 10, 1)
 
-const std::string FILE_NAME("create_page_allocated_files.h5");
-const std::string DATASET_NAME("array");
-
 // This example show how to create an HDF5 file that internally aggregates
 // metadata and raw data into separate pages. The advantage of this approach
 // is that reading a single page, pulls in the metadata for a large chunk of
@@ -40,34 +37,29 @@ const std::string DATASET_NAME("array");
 
 int main() {
     using namespace HighFive;
-    try {
-        // Create a new file requesting paged allocation.
-        auto create_props = FileCreateProps{};
 
-        // Let request pagesizes of 16 kB. This setting should be tuned
-        // in real applications. We'll allow HDF5 to not keep track of
-        // left-over free space of size less than 128 bytes. Finally,
-        // we don't need the free space manager to be stored in the
-        // HDF5 file.
-        size_t pagesize = 16 * 1024;  // Must be tuned.
-        size_t threshold = 128;
-        size_t persist = false;
+    // Create a new file requesting paged allocation.
+    auto create_props = FileCreateProps{};
 
-        create_props.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_PAGE, persist, threshold));
-        create_props.add(FileSpacePageSize(pagesize));
+    // Let request pagesizes of 16 kB. This setting should be tuned
+    // in real applications. We'll allow HDF5 to not keep track of
+    // left-over free space of size less than 128 bytes. Finally,
+    // we don't need the free space manager to be stored in the
+    // HDF5 file.
+    size_t pagesize = 16 * 1024;  // Must be tuned.
+    size_t threshold = 128;
+    size_t persist = false;
 
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate, create_props);
+    create_props.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_PAGE, persist, threshold));
+    create_props.add(FileSpacePageSize(pagesize));
 
-        // The `file` (and also the low-level `file.getId()`) behave as normal, i.e.
-        // one can proceed to add content to the file as usual.
+    File file("create_page_allocated_files.h5", File::Truncate, create_props);
 
-        auto data = std::vector<double>{0.0, 1.0, 2.0};
-        file.createDataSet(DATASET_NAME, data);
+    // The `file` (and also the low-level `file.getId()`) behave as normal, i.e.
+    // one can proceed to add content to the file as usual.
 
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
-    }
+    auto data = std::vector<double>{0.0, 1.0, 2.0};
+    file.createDataSet("data", data);
 
     return 0;
 }

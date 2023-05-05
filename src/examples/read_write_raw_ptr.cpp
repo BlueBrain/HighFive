@@ -15,8 +15,8 @@
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 
-const std::string FILE_NAME("read_write_raw_ptr.h5");
-const std::string DATASET_NAME("array");
+const std::string file_name("read_write_raw_ptr.h5");
+const std::string dataset_name("array");
 
 // This create a "multi-dimensional" array. Meaning a pointer with
 // dimensions. The `std::vector<double>` is mearly a convenient way
@@ -40,41 +40,35 @@ std::vector<double> make_array(const std::vector<size_t>& dims) {
 
 int main(void) {
     using namespace HighFive;
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Let's write to file.
-        {
-            std::vector<size_t> dims{3, 5};
-            auto nd_array = make_array(dims);
+    // Create a new file using the default property lists.
+    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
-            // First, create a dataset with the correct dimensions.
-            auto dataset = file.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+    // Let's write to file.
+    {
+        std::vector<size_t> dims{3, 5};
+        auto nd_array = make_array(dims);
 
-            // Then write, using the raw pointer.
-            dataset.write_raw(nd_array.data());
-        }
+        // First, create a dataset with the correct dimensions.
+        auto dataset = file.createDataSet<double>(dataset_name, DataSpace(dims));
 
-        // Let's read from file.
-        {
-            auto dataset = file.getDataSet(DATASET_NAME);
+        // Then write, using the raw pointer.
+        dataset.write_raw(nd_array.data());
+    }
 
-            // First read the dimensions.
-            auto dims = dataset.getDimensions();
+    // Let's read from file.
+    {
+        auto dataset = file.getDataSet(dataset_name);
 
-            // Then allocate memory.
-            auto n_elements = dims[0] * dims[1];
-            auto nd_array = std::vector<double>(n_elements);
+        // First read the dimensions.
+        auto dims = dataset.getDimensions();
 
-            // Finally, read into the memory by passing a raw pointer to the library.
-            dataset.read<double>(nd_array.data());
-        }
+        // Then allocate memory.
+        auto n_elements = dims[0] * dims[1];
+        auto nd_array = std::vector<double>(n_elements);
 
-
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+        // Finally, read into the memory by passing a raw pointer to the library.
+        dataset.read<double>(nd_array.data());
     }
 
     return 0;

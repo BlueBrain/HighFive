@@ -21,51 +21,45 @@ const std::string DATASET_NAME("dset");
 //
 int main(void) {
     using namespace HighFive;
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Create a dataspace with initial shape and max shape
-        DataSpace dataspace = DataSpace({4, 5}, {17, DataSpace::UNLIMITED});
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Use chunking
-        DataSetCreateProps props;
-        props.add(Chunking(std::vector<hsize_t>{2, 2}));
+    // Create a dataspace with initial shape and max shape
+    DataSpace dataspace = DataSpace({4, 5}, {17, DataSpace::UNLIMITED});
 
-        // Create the dataset
-        DataSet dataset =
-            file.createDataSet(DATASET_NAME, dataspace, create_datatype<double>(), props);
+    // Use chunking
+    DataSetCreateProps props;
+    props.add(Chunking(std::vector<hsize_t>{2, 2}));
 
-        // Write into the initial part of the dataset
-        double t1[3][1] = {{2.0}, {2.0}, {4.0}};
-        dataset.select({0, 0}, {3, 1}).write(t1);
+    // Create the dataset
+    DataSet dataset = file.createDataSet(DATASET_NAME, dataspace, create_datatype<double>(), props);
 
-        // Resize the dataset to a larger size
-        dataset.resize({4, 6});
+    // Write into the initial part of the dataset
+    double t1[3][1] = {{2.0}, {2.0}, {4.0}};
+    dataset.select({0, 0}, {3, 1}).write(t1);
 
-        // Write into the new part of the dataset
-        double t2[1][3] = {{4.0, 8.0, 6.0}};
-        dataset.select({3, 3}, {1, 3}).write(t2);
+    // Resize the dataset to a larger size
+    dataset.resize({4, 6});
 
-        // now we read it back
-        std::vector<std::vector<double>> result;
-        dataset.read(result);
+    // Write into the new part of the dataset
+    double t2[1][3] = {{4.0, 8.0, 6.0}};
+    dataset.select({3, 3}, {1, 3}).write(t2);
 
-        // we print it out and see:
-        // 2 0 0 0 0 0
-        // 2 0 0 0 0 0
-        // 4 0 0 0 0 0
-        // 0 0 0 4 8 6
-        for (auto row: result) {
-            for (auto col: row)
-                std::cout << " " << col;
-            std::cout << std::endl;
-        }
+    // now we read it back
+    std::vector<std::vector<double>> result;
+    dataset.read(result);
 
-    } catch (const Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    // we print it out and see:
+    // 2 0 0 0 0 0
+    // 2 0 0 0 0 0
+    // 4 0 0 0 0 0
+    // 0 0 0 4 8 6
+    for (auto row: result) {
+        for (auto col: row)
+            std::cout << " " << col;
+        std::cout << std::endl;
     }
 
-    return 0;  // successfully terminated
+    return 0;
 }

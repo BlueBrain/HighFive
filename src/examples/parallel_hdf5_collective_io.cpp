@@ -18,8 +18,8 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5PropertyList.hpp>
 
-const std::string FILE_NAME("parallel_collective_example.h5");
-const std::string DATASET_NAME("dset");
+const std::string file_name("parallel_collective_example.h5");
+const std::string dataset_name("dset");
 
 // Currently, HighFive doesn't wrap retrieving information from property lists.
 // Therefore, one needs to use HDF5 directly. For example, to see if collective
@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
     using namespace HighFive;
+
     try {
         // MPI-IO requires informing HDF5 that we want something other than
         // the default behaviour. This is done through property lists. We
@@ -70,7 +71,7 @@ int main(int argc, char** argv) {
         fapl.add(MPIOCollectiveMetadata{});
 
         // Now we can create the file as usual.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate, fapl);
+        File file(file_name, File::Truncate, fapl);
 
         // We can create a group as usual, but all MPI ranks must participate.
         auto group = file.createGroup("grp");
@@ -81,7 +82,7 @@ int main(int argc, char** argv) {
         dims[1] = 2ul;
 
         // We follow the path for
-        DataSet dataset = group.createDataSet<double>(DATASET_NAME, DataSpace(dims));
+        DataSet dataset = group.createDataSet<double>(dataset_name, DataSpace(dims));
 
         // Each node want to write its own rank two time in
         // its associated row

@@ -18,8 +18,7 @@
 #include <highfive/H5File.hpp>
 #include <highfive/H5PropertyList.hpp>
 
-const std::string FILE_NAME("parallel_independent_example.h5");
-const std::string DATASET_NAME("dset");
+const std::string file_name("parallel_independent_example.h5");
 
 // This is an example of how to let MPI ranks read independent parts of the
 // HDF5 file.
@@ -41,7 +40,7 @@ int main(int argc, char** argv) {
         //   ...
         // }
         if (mpi_rank == 0) {
-            File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+            File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
             for (int i = 0; i < mpi_size; ++i) {
                 std::stringstream group_name;
@@ -74,7 +73,7 @@ int main(int argc, char** argv) {
         // fapl.add(MPIOCollectiveMetadataWrite{});
 
         // Now we can create the file as usual.
-        File file(FILE_NAME, File::ReadOnly, fapl);
+        File file(file_name, File::ReadOnly, fapl);
 
         // Note that this operation isn't collective. Each MPI rank is requesting to
         // open a different group.

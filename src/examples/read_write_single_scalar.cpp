@@ -14,40 +14,35 @@
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
 
-const std::string FILE_NAME("read_write_scalar.h5");
-const std::string DATASET_NAME("single_scalar");
+const std::string file_name("read_write_scalar.h5");
+const std::string dataset_name("single_scalar");
 
 // Create a dataset name "single_scalar"
 // which contains only the perfect integer number "42"
 //
 int main(void) {
     using namespace HighFive;
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        int perfect_number = 42;
+    // Create a new file using the default property lists.
+    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
-        // Create the dataset
-        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(perfect_number));
+    int perfect_number = 42;
 
-        // write it
-        dataset.write(perfect_number);
+    // Create the dataset
+    DataSet dataset = file.createDataSet<double>(dataset_name, DataSpace::From(perfect_number));
 
-        // flush everything
-        file.flush();
+    // write it
+    dataset.write(perfect_number);
 
-        // let's read it back
-        int potentially_perfect_number;
+    // flush everything
+    file.flush();
 
-        dataset.read(potentially_perfect_number);
+    // let's read it back
+    int potentially_perfect_number;
 
-        std::cout << "perfect number: " << potentially_perfect_number << std::endl;
+    dataset.read(potentially_perfect_number);
 
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
-    }
+    std::cout << "perfect number: " << potentially_perfect_number << std::endl;
 
     return 0;  // successfully terminated
 }
