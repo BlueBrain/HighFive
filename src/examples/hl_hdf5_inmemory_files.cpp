@@ -32,43 +32,38 @@ class InMemoryFile: public HighFive::File {
 // Create a 2D dataset 10x3 of double with eigen matrix
 // and write it to a file
 int main(void) {
-    const std::string FILE_NAME("inmemory_file.h5");
-    const std::string DATASET_NAME("dset");
+    const std::string file_name("inmemory_file.h5");
+    const std::string dataset_name("dset");
 
-    try {
-        auto data = std::vector<double>{1.0, 2.0, 3.0};
+    auto data = std::vector<double>{1.0, 2.0, 3.0};
 
-        {
-            // We create an HDF5 file.
-            File file(FILE_NAME, File::Truncate);
-            file.createDataSet(DATASET_NAME, data);
-        }
-
-        // Simulate having an inmemory file by reading a file
-        // byte-by-byte into RAM.
-        auto buffer = std::vector<std::uint8_t>(1ul << 20);
-        auto file = std::fopen(FILE_NAME.c_str(), "r");
-        auto nread = std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file);
-        std::cout << "Bytes read: " << nread << "\n";
-
-        // Create a file from a buffer.
-        auto h5 = InMemoryFile(std::move(buffer));
-
-        // Read a dataset as usual.
-        auto read_back = h5.getDataSet(DATASET_NAME).read<std::vector<double>>();
-
-        // Check if the values match.
-        for (size_t i = 0; i < read_back.size(); ++i) {
-            if (read_back[i] != data[i]) {
-                throw std::runtime_error("Values don't match.");
-            } else {
-                std::cout << "read_back[" << i << "] = " << read_back[i] << "\n";
-            }
-        }
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    {
+        // We create an HDF5 file.
+        File file(file_name, File::Truncate);
+        file.createDataSet(dataset_name, data);
     }
 
-    return 0;  // successfully terminated
+    // Simulate having an inmemory file by reading a file
+    // byte-by-byte into RAM.
+    auto buffer = std::vector<std::uint8_t>(1ul << 20);
+    auto file = std::fopen(file_name.c_str(), "r");
+    auto nread = std::fread(buffer.data(), sizeof(buffer[0]), buffer.size(), file);
+    std::cout << "Bytes read: " << nread << "\n";
+
+    // Create a file from a buffer.
+    auto h5 = InMemoryFile(std::move(buffer));
+
+    // Read a dataset as usual.
+    auto read_back = h5.getDataSet(dataset_name).read<std::vector<double>>();
+
+    // Check if the values match.
+    for (size_t i = 0; i < read_back.size(); ++i) {
+        if (read_back[i] != data[i]) {
+            throw std::runtime_error("Values don't match.");
+        } else {
+            std::cout << "read_back[" << i << "] = " << read_back[i] << "\n";
+        }
+    }
+
+    return 0;
 }

@@ -22,9 +22,10 @@ int main() {
         // Read back, with allocating:
         auto data = dataset.read<std::vector<int>>();
 
-        // Because `data` has the correct size, this will
-        // not cause `data` to be reallocated:
-        dataset.read(data);
+        // Because `pre_allocated` has the correct size, this will
+        // not cause `pre_allocated` to be reallocated:
+        auto pre_allocated = std::vector<int>(50);
+        dataset.read(pre_allocated);
     }
 
     return 0;

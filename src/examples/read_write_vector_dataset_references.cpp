@@ -69,13 +69,8 @@ void read_dataset() {
 }
 
 int main() {
-    try {
-        write_dataset();
-        read_dataset();
+    write_dataset();
+    read_dataset();
 
-    } catch (const HighFive::Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
-    }
-    return 0;  // successfully terminated
+    return 0;
 }
