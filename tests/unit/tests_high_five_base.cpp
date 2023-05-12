@@ -2987,7 +2987,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in << 1, 2, 3, 4, 5, 6, 7, 8, 9;
         Eigen::Matrix<double, 3, 3> vec_out;
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
     // Eigen MatrixXd
@@ -2996,7 +2996,7 @@ TEST_CASE("HighFiveEigen") {
         Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
         Eigen::MatrixXd vec_out(20, 5);
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
     // std::vector<of EigenMatrixXd>
@@ -3010,7 +3010,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in.push_back(m2);
         std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20, 5));
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
 #ifdef H5_USE_BOOST
@@ -3044,13 +3044,15 @@ TEST_CASE("HighFiveEigen") {
             }
         }
         boost::multi_array<Eigen::MatrixXd, 3> vec_out(boost::extents[3][2][2]);
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 2; ++j) {
                 for (int k = 0; k < 2; ++k) {
                     vec_out[i][j][k] = Eigen::MatrixXd::Zero(3, 3);
                 }
             }
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        }
+
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
 #endif
