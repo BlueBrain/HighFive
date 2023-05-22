@@ -40,6 +40,13 @@ int main(void) {
 
     Attribute v = dataset.createAttribute("version", version);
 
+    // We can also create attributes on the file:
+    file.createAttribute("file_version", 1);
+
+    // and on groups in the file:
+    auto group = file.createGroup("group");
+    group.createAttribute("secret", 123);
+
     // let's now list the keys of all attributes
     std::vector<std::string> all_attributes_keys = dataset.listAttributeNames();
     for (const auto& attr: all_attributes_keys) {
