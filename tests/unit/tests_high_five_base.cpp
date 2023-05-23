@@ -291,7 +291,7 @@ TEST_CASE("Test group properties") {
     File file(file_name, File::Truncate, fapl);
 
     GroupCreateProps props;
-    props.add(EstimatedLinkInfo(1000, 500));
+    props.add(EstimatedLinkInfo(10, 60));
     auto group = file.createGroup("g", props);
     auto sizes = group.getEstimatedLinkInfo();
 
