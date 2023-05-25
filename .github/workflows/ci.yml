@@ -102,7 +102,7 @@ jobs:
         wget https://github.com/HDFGroup/hdf5/archive/refs/tags/${{ matrix.hdf5_version }}.tar.gz --output-document hdf5.tar.gz
         tar xf hdf5.tar.gz
         mkdir -p hdf5-${{ matrix.hdf5_version }}/BUILD && cd hdf5-${{ matrix.hdf5_version }}/BUILD
-        cmake .. -GNinja -DCMAKE_INSTALL_PREFIX=$HOME/${{ matrix.hdf5_version }} -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DUSE_LIBAEC=ON
+        cmake .. -DCMAKE_BUILD_TYPE=Release -GNinja -DCMAKE_INSTALL_PREFIX=$HOME/${{ matrix.hdf5_version }} -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DUSE_LIBAEC=ON
         ninja && ninja install
 
     - name: Build
