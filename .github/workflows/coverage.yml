@@ -57,7 +57,7 @@ jobs:
     - name: Test for code coverage
       run: |
         lcov --capture  --initial --directory . --no-external --output-file build/coverage-base.info
-        (cd build; cmake --build build --target test)
+        (cd build; cmake --build . --target test)
         lcov --capture  --directory . --no-external --output-file build/coverage-run.info
         (cd build; lcov --add-tracefile coverage-base.info --add-tracefile coverage-run.info --output-file coverage-combined.info)
     - uses: codecov/codecov-action@v3
