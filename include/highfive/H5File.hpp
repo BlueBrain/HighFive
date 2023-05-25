@@ -110,6 +110,12 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
         return details::get_plist<FileAccessProps>(*this, H5Fget_access_plist);
     }
 
+    /// \brief Get the disk size of this file in bytes
+    size_t getDiskSize() const;
+
+    /// \brief Get the tracked unused space of this file in bytes
+    size_t getUnusedSpace() const;
+
   protected:
     File() = default;
     using Object::Object;

@@ -127,4 +127,22 @@ inline void File::flush() {
     }
 }
 
+inline size_t File::getDiskSize() const {
+    hsize_t sizeValue = 0;
+    if (H5Fget_filesize(_hid, &sizeValue) < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to retrieve size of file " + getName()));
+    }
+    return sizeValue;
+}
+
+inline size_t File::getUnusedSpace() const {
+    hssize_t unusedSize = H5Fget_freespace(_hid);
+    if (unusedSize < 0) {
+        HDF5ErrMapper::ToException<FileException>(
+            std::string("Unable to retrieve unused space of file " + getName()));
+    }
+    return static_cast<size_t>(unusedSize);
+}
+
 }  // namespace HighFive
