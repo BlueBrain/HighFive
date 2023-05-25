@@ -295,8 +295,8 @@ TEST_CASE("Test group properties") {
     auto group = file.createGroup("g", props);
     auto sizes = group.getEstimatedLinkInfo();
 
-    CHECK(sizes.first == 1000);
-    CHECK(sizes.second == 500);
+    CHECK(sizes.first == 10);
+    CHECK(sizes.second == 60);
 }
 
 TEST_CASE("Test allocation time") {
