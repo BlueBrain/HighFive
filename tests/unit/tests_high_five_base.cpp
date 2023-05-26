@@ -2211,6 +2211,26 @@ TEST_CASE("HighFiveSoftLinks") {
     }
 }
 
+TEST_CASE("HighFiveHardLinks") {
+    const std::string file_name("hardlinks.h5");
+    const std::string ds_path("/original_link/dataset");
+    const std::string link_path("/hard_link/to_ds");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::ReadWrite | File::Create | File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+        file.createHardLink(link_path, dset);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        std::vector<int> data_out;
+        file.getDataSet(link_path).read(data_out);
+        CHECK(data == data_out);
+    }
+}
+
 TEST_CASE("HighFiveRename") {
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
 
