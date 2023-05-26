@@ -192,15 +192,32 @@ jobs:
   # =====================================================
   CMake_Project:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        parallelism: [ serial, parallel ]
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
 
-    - name: "Install libraries"
+    - name: "Update Ubuntu"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
+
+    - name: "Install common libraries"
+      run: |
+        sudo apt-get -qq install libboost-all-dev libsz2 ninja-build
+
+    - name: "Install serial HDF5"
+      if: matrix.parallelism == 'serial'
+      run: |
+        sudo apt-get -qq install libhdf5-dev
+
+
+    - name: "Install parallel HDF5"
+      if: matrix.parallelism == 'parallel'
+      run: |
+        sudo apt-get -qq install libhdf5-openmpi-dev
 
     - name: "CMake Project Integration"
       run: bash tests/test_project_integration.sh
@@ -260,13 +277,23 @@ jobs:
 
   # Job testing in Windows
   # ======================
-  Windows-2022:
+  Windows:
     runs-on:  ${{matrix.os}}
     strategy:
       matrix:
         os: [ "windows-2022"]
         vs-toolset: [ "v141", "v143" ]
         cxxstd: ["14", "17"]
+
+        include:
+          - os: "windows-2019"
+            vs-toolset: "v142"
+            cxxstd: "14"
+
+          - os: "windows-2019"
+            vs-toolset: "v142"
+            cxxstd: "17"
+
     steps:
     - uses: actions/checkout@v3
       with:
@@ -296,39 +323,4 @@ jobs:
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
 
-  Windows-2019:
-    runs-on:  ${{matrix.os}}
-    strategy:
-      matrix:
-        os: [ "windows-2019"]
-        vs-toolset: [ "v142" ]
-        cxxstd: ["14", "17"]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: doc/environment.yaml
-          environment-name: win-test
-
-      - name: Build
-        shell: bash -l {0}
-        run: |
-          CMAKE_OPTIONS=(
-            -T ${{matrix.vs-toolset}}
-            -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
-            -DHIGHFIVE_UNIT_TESTS=ON
-            -DHIGHFIVE_USE_BOOST:BOOL=ON
-            -DHIGHFIVE_USE_EIGEN:BOOL=ON
-            -DHIGHFIVE_USE_XTENSOR:BOOL=ON
-            -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
-          )
-          source $GITHUB_WORKSPACE/.github/build.sh
-
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        shell: bash -l {0}
-        run: ctest --output-on-failure -C $BUILD_TYPE
 
