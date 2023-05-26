@@ -366,16 +366,16 @@ inline void NodeTraits<Derivate>::createHardLink(const std::string& link_name,
                                                  const LinkAccessProps& linkAccessProps,
                                                  const bool parents) {
     static_assert(!std::is_same<T, Attribute>::value,
-                    "hdf5 doesn't support hard links to Attributes");
+                  "hdf5 doesn't support hard links to Attributes");
     if (parents) {
         linkCreateProps.add(CreateIntermediateGroup{});
     }
     auto status = H5Lcreate_hard(target_obj.getId(),
-                                ".",
-                                static_cast<const Derivate*>(this)->getId(),
-                                link_name.c_str(),
-                                linkCreateProps.getId(),
-                                linkAccessProps.getId());
+                                 ".",
+                                 static_cast<const Derivate*>(this)->getId(),
+                                 link_name.c_str(),
+                                 linkCreateProps.getId(),
+                                 linkAccessProps.getId());
     if (status < 0) {
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create hard link: "));
     }
