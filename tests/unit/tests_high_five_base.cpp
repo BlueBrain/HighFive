@@ -291,12 +291,12 @@ TEST_CASE("Test group properties") {
     File file(file_name, File::Truncate, fapl);
 
     GroupCreateProps props;
-    props.add(EstimatedLinkInfo(1000, 500));
+    props.add(EstimatedLinkInfo(10, 60));
     auto group = file.createGroup("g", props);
     auto sizes = group.getEstimatedLinkInfo();
 
-    CHECK(sizes.first == 1000);
-    CHECK(sizes.second == 500);
+    CHECK(sizes.first == 10);
+    CHECK(sizes.second == 60);
 }
 
 TEST_CASE("Test allocation time") {
