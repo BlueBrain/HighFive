@@ -192,15 +192,32 @@ jobs:
   # =====================================================
   CMake_Project:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        parallelism: [ serial, parallel ]
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
 
-    - name: "Install libraries"
+    - name: "Update Ubuntu"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
+
+    - name: "Install common libraries"
+      run: |
+        sudo apt-get -qq install libboost-all-dev libsz2 ninja-build
+
+    - name: "Install serial HDF5"
+      if: matrix.parallelism == 'serial'
+      run: |
+        sudo apt-get -qq install libhdf5-dev
+
+
+    - name: "Install parallel HDF5"
+      if: matrix.parallelism == 'parallel'
+      run: |
+        sudo apt-get -qq install libhdf5-openmpi-dev
 
     - name: "CMake Project Integration"
       run: bash tests/test_project_integration.sh
