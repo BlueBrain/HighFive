@@ -444,8 +444,8 @@ TEST_CASE("FileSizeAndUnusedSpace") {
     }
 
     {
-	FileCreateProps fcp;
-	fcp.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_FSM_AGGR, true, 0));
+        FileCreateProps fcp;
+        fcp.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_FSM_AGGR, true, 0));
         File file(file_name_tracked, File::ReadWrite | File::Create | File::Truncate, fcp);
         auto dset = file.createDataSet(ds_path, data);
     }
@@ -473,7 +473,6 @@ TEST_CASE("FileSizeAndUnusedSpace") {
         CHECK(file.getDiskSize() == tracked_file_size);
         CHECK(file.getUnusedSpace() == tracked_unused_space);
     }
-
 }
 #endif
 
