@@ -1,4 +1,4 @@
-## Version 2.7.2 - 2023-MM-DD
+## Version 2.8.0 - 2023-MM-DD
 ### New Features
     - Implement creation of hard links (#765). Thanks to @Quark-X10.
     - Get the size of file and amound of tracked unused space (#764). Thanks to @Quark-X10.
