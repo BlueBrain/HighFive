@@ -110,11 +110,16 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
         return details::get_plist<FileAccessProps>(*this, H5Fget_access_plist);
     }
 
-    /// \brief Get the disk size of this file in bytes
-    size_t getDiskSize() const;
+    /// \brief Get the size of this file in bytes
+    size_t getFileSize() const;
 
-    /// \brief Get the tracked unused space of this file in bytes
-    size_t getUnusedSpace() const;
+    /// \brief Get the amount of tracked, unused space in bytes.
+    ///
+    /// Note, this is a wrapper for `H5Fget_freespace` and returns the number
+    /// bytes in the free space manager. This might be different from the total
+    /// amount of unused space in the HDF5 file, since the free space manager
+    /// might not track everything or not track across open-close cycles.
+    size_t getFreeSpace() const;
 
   protected:
     File() = default;

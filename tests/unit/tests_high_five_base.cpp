@@ -426,52 +426,63 @@ TEST_CASE("Test groups and datasets") {
     }
 }
 
-#if H5_VERSION_GE(1, 10, 1)
-TEST_CASE("FileSizeAndUnusedSpace") {
-    const std::string file_name_untracked("filesize_untracked_unused.h5");
-    const std::string file_name_tracked("filesize_tracked_unused.h5");
-    const std::string ds_path("/dataset");
+TEST_CASE("FileSpace") {
+    const std::string filename = "filespace.h5";
+    const std::string ds_path = "dataset";
     const std::vector<int> data{13, 24, 36};
-    const size_t untracked_file_size = 2048;
-    const size_t untracked_unused_space = 600;
-    const size_t tracked_file_size = 1158;
-    const size_t tracked_unused_space = 103;
 
+    File file(filename, File::Truncate);
+    file.createDataSet(ds_path, data);
+
+    CHECK(file.getFileSize() > 0);
+}
+
+TEST_CASE("FreeSpace (default)") {
+    const std::string filename = "freespace_default.h5";
+    const std::string ds_path = "dataset";
+    const std::vector<int> data{13, 24, 36};
 
     {
-        File file(file_name_untracked, File::ReadWrite | File::Create | File::Truncate);
+        File file(filename, File::Truncate);
         auto dset = file.createDataSet(ds_path, data);
     }
+
+    {
+        File file(filename, File::ReadWrite);
+        file.unlink(ds_path);
+        CHECK(file.getFreeSpace() > 0);
+        CHECK(file.getFreeSpace() < file.getFileSize());
+    }
+}
+
+#if H5_VERSION_GE(1, 10, 1)
+TEST_CASE("FreeSpace (tracked)") {
+    const std::string filename = "freespace_tracked.h5";
+    const std::string ds_path = "dataset";
+    const std::vector<int> data{13, 24, 36};
 
     {
         FileCreateProps fcp;
         fcp.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_FSM_AGGR, true, 0));
-        File file(file_name_tracked, File::ReadWrite | File::Create | File::Truncate, fcp);
+        File file(filename, File::Truncate, fcp);
         auto dset = file.createDataSet(ds_path, data);
     }
 
     {
-        File file(file_name_untracked, File::ReadWrite);
-        CHECK(file.getUnusedSpace() == 0);
+        File file(filename, File::ReadWrite);
         file.unlink(ds_path);
-        CHECK(file.getUnusedSpace() == untracked_unused_space);
+
+#if H5_VERSION_GE(1, 12, 0)
+        // This fails on 1.10.x but starts working in 1.12.0
+        CHECK(file.getFreeSpace() > 0);
+#endif
+        CHECK(file.getFreeSpace() < file.getFileSize());
     }
 
     {
-        File file(file_name_untracked, File::ReadWrite);
-        CHECK(file.getDiskSize() == untracked_file_size);
-        CHECK(file.getUnusedSpace() == 0);
-    }
-
-    {
-        File file(file_name_tracked, File::ReadWrite);
-        file.unlink(ds_path);
-    }
-
-    {
-        File file(file_name_tracked, File::ReadWrite);
-        CHECK(file.getDiskSize() == tracked_file_size);
-        CHECK(file.getUnusedSpace() == tracked_unused_space);
+        File file(filename, File::ReadOnly);
+        CHECK(file.getFreeSpace() > 0);
+        CHECK(file.getFreeSpace() < file.getFileSize());
     }
 }
 #endif
