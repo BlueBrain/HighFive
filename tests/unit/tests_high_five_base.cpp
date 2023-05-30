@@ -426,6 +426,56 @@ TEST_CASE("Test groups and datasets") {
     }
 }
 
+#if H5_VERSION_GE(1, 10, 1)
+TEST_CASE("FileSizeAndUnusedSpace") {
+    const std::string file_name_untracked("filesize_untracked_unused.h5");
+    const std::string file_name_tracked("filesize_tracked_unused.h5");
+    const std::string ds_path("/dataset");
+    const std::vector<int> data{13, 24, 36};
+    const size_t untracked_file_size = 2048;
+    const size_t untracked_unused_space = 600;
+    const size_t tracked_file_size = 1158;
+    const size_t tracked_unused_space = 103;
+
+
+    {
+        File file(file_name_untracked, File::ReadWrite | File::Create | File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+    }
+
+    {
+        FileCreateProps fcp;
+        fcp.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_FSM_AGGR, true, 0));
+        File file(file_name_tracked, File::ReadWrite | File::Create | File::Truncate, fcp);
+        auto dset = file.createDataSet(ds_path, data);
+    }
+
+    {
+        File file(file_name_untracked, File::ReadWrite);
+        CHECK(file.getUnusedSpace() == 0);
+        file.unlink(ds_path);
+        CHECK(file.getUnusedSpace() == untracked_unused_space);
+    }
+
+    {
+        File file(file_name_untracked, File::ReadWrite);
+        CHECK(file.getDiskSize() == untracked_file_size);
+        CHECK(file.getUnusedSpace() == 0);
+    }
+
+    {
+        File file(file_name_tracked, File::ReadWrite);
+        file.unlink(ds_path);
+    }
+
+    {
+        File file(file_name_tracked, File::ReadWrite);
+        CHECK(file.getDiskSize() == tracked_file_size);
+        CHECK(file.getUnusedSpace() == tracked_unused_space);
+    }
+}
+#endif
+
 TEST_CASE("Test extensible datasets") {
     const std::string file_name("create_extensible_dataset_example.h5");
     const std::string dataset_name("dset");
