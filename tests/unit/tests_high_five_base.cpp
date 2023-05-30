@@ -2211,6 +2211,70 @@ TEST_CASE("HighFiveSoftLinks") {
     }
 }
 
+TEST_CASE("HighFiveHardLinks Dataset (create intermediate)") {
+    const std::string file_name("hardlinks_dataset_intermiate.h5");
+    const std::string ds_path("/group/dataset");
+    const std::string ds_link_path("/alternate/dataset");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+        file.createHardLink(ds_link_path, dset);
+        file.unlink(ds_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(ds_link_path).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
+TEST_CASE("HighFiveHardLinks Dataset (relative paths)") {
+    const std::string file_name("hardlinks_dataset_relative.h5");
+    const std::string ds_path("/group/dataset");
+    const std::string ds_link_path("/alternate/dataset");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+
+        auto alternate = file.createGroup("/alternate");
+        alternate.createHardLink("dataset", dset);
+        file.unlink(ds_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(ds_link_path).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
+TEST_CASE("HighFiveHardLinks Group") {
+    const std::string file_name("hardlinks_group.h5");
+    const std::string group_path("/group");
+    const std::string ds_name("dataset");
+    const std::string group_link_path("/alternate");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(group_path + "/" + ds_name, data);
+        auto group = file.getGroup(group_path);
+        file.createHardLink(group_link_path, group);
+        file.unlink(group_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(group_link_path + "/" + ds_name).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
 TEST_CASE("HighFiveRename") {
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
 

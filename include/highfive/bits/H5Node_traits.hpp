@@ -208,6 +208,20 @@ class NodeTraits {
                             const LinkAccessProps& linkAccessProps = LinkAccessProps(),
                             const bool parents = true);
 
+    ///
+    /// \brief Creates hardlinks
+    /// \param link_name The name of the link
+    /// \param target_obj The target object
+    /// \param linkCreateProps A Link_Create property list. Notice "parents=true" overrides
+    /// \param linkAccessProps The Link_Access property list
+    /// \param parents Whether parent groups should be created: Default: true
+    template <typename T, typename = decltype(&T::getPath)>
+    void createHardLink(const std::string& link_name,
+                        const T& target_obj,
+                        LinkCreateProps linkCreateProps = LinkCreateProps(),
+                        const LinkAccessProps& linkAccessProps = LinkAccessProps(),
+                        const bool parents = true);
+
   private:
     using derivate_type = Derivate;
 
