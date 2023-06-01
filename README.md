@@ -243,39 +243,6 @@ target_link_libraries(foo HighFive)
 One known case where this is required is when vendoring the optional
 dependencies of HighFive.
 
-## Developer Instructions
-First clone the repository and remember the `--recursive`:
-```bash
-git clone --recursive git@github.com:BlueBrain/HighFive.git
-```
-The instructions to recover if you forgot are:
-```bash
-git submodule update --init --recursive
-```
-
-One remark on submodules: each HighFive commit expects that the submodules are
-at a particular commit. The catch is that performing `git checkout` will not
-update the submodules automatically. Hence, sometimes a `git submodule update
---recursive` might be needed to checkout the expected version of the
-submodules.
-
-### Compiling and Running the Tests
-The instructions for compiling with examples and unit-tests are:
-
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE={Debug,Release} .
-cmake --build build --parallel
-ctest --test-dir build
-```
-
-You might want to turn off Boost `-DHIGHFIVE_USE_BOOST=Off` or turn on other
-optional dependencies.
-
-### Code formatting
-If you want to propose pull requests to this project, do not forget to format
-code with clang-format version 12.0.1. The `.clang-format` is at the root of
-the git repository.
-
 # Questions?
 
 Do you have questions on how to use HighFive? Would you like to share an interesting example or
