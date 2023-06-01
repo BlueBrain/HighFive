@@ -22,6 +22,67 @@
 
 namespace HighFive {
 
+/// \defgroup PropertyLists Property Lists
+/// HDF5 is configured through what they call property lists. In HDF5 the
+/// process has four steps:
+///
+/// 1. Create a property list. As users we now have an `hid_t` identifying the
+/// property list.
+/// 2. Set properties as desired.
+/// 3. Pass the HID to the HDF5 function to be configured.
+/// 4. Free the property list.
+///
+/// Note that the mental picture is that one creates a settings object, and
+/// then passes those settings to a function such as `H5Dwrite`. In and of
+/// themselves the settings don't change the behaviour of HDF5. Rather they
+/// need to be used to take affect.
+///
+/// The second aspect is that property lists represent any number of related
+/// settings, e.g. there's property lists anything related to creating files
+/// and another for accessing files, same for creating and accessing datasets,
+/// etc. Settings that affect creating files, must be passed a file creation
+/// property list, while settings that affect file access require a file access
+/// property list.
+///
+/// In HighFive the `PropertyList` works similar in that it's a object
+/// representing the settings, i.e. internally it's just the property lists
+/// HID. Just like in HDF5 one adds the settings to the settings object; and
+/// then passes the settings object to the respective method. Example:
+///
+///
+///     // Create an object which contains the setting to
+///     // open files with MPI-IO.
+///     auto fapl = FileAccessProps();
+///     fapl.add(MPIOFileAccess(MPI_COMM_WORLD, MPI_INFO_NULL);
+///
+///     // To open a specific file with MPI-IO, we do:
+///     auto file = File("foo.h5", File::ReadOnly, fapl);
+///
+/// Note that the `MPIOFileAccess` object by itself doesn't affect the
+/// `FileAccessProps`. Rather it needs to be explicitly added to the `fapl`
+/// (the group of file access related settings), and then the `fapl` needs to
+/// be passed to the constructor of `File` for the settings to take affect.
+///
+/// This is important to understand when reading properties. Example:
+///
+///     // Obtain the file access property list:
+///     auto fapl = file.getAccessPropertyList()
+///
+///     // Extracts a copy of the collective MPI-IO metadata settings from
+///     // the group of file access related setting, i.e. the `fapl`:
+///     auto mpio_metadata = MPIOCollectiveMetadata(fapl);
+///
+///     if(mpio_metadata.isCollectiveRead()) {
+///       // something specific if meta data is read collectively.
+///     }
+///
+///     // Careful, this only affects the `mpio_metadata` object, but not the
+///     //  `fapl`, and also not whether `file` uses collective MPI-IO for
+///     // metadata.
+///     mpio_metadata = MPIOCollectiveMetadata(false, false);
+///
+/// @{
+
 ///
 /// \brief Types of property lists
 ///
@@ -598,6 +659,8 @@ class LinkCreationOrder {
     void apply(hid_t hid) const;
     unsigned _flags;
 };
+
+/// @}
 
 }  // namespace HighFive
 
