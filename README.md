@@ -249,6 +249,8 @@ Do you have questions on how to use HighFive? Would you like to share an interes
 discuss HighFive features? Head over to the [Discussions](https://github.com/BlueBrain/HighFive/discussions)
 forum and join the community.
 
+For bugs and issues please use [Issues](https://github.com/BlueBrain/HighFive/issues).
+
 # Funding & Acknowledgment
  
 The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
