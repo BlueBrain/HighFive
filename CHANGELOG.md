@@ -1,3 +1,4 @@
+# Changes
 ## Version 2.8.0 - 2023-MM-DD
 ### New Features
     - Implement creation of hard links (#765). Thanks to @Quark-X10.
