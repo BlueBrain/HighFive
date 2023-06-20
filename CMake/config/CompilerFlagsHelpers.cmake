@@ -37,7 +37,7 @@ foreach(COMPILER_LANGUAGE ${SUPPORTED_COMPILER_LANGUAGE_LIST})
 		set(CMAKE_${COMPILER_LANGUAGE}_WARNING_ALL " -Wall -Wextra")
 		string(CONCAT CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG " -Wshadow -Wnon-virtual-dtor -Wunused -Woverloaded-virtual -Wformat=2 -Wconversion -Wsign-conversion -Wno-error=deprecated-declarations"
 		)
-		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_IS_ICC)
+		if(NOT CMAKE_${COMPILER_LANGUAGE}_COMPILER_ID MATCHES "Intel")
 			string(CONCAT CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG
 				${CMAKE_${COMPILER_LANGUAGE}_WARNING_DEBUG}
 				" -Wpedantic -Wcast-align -Wdouble-promotion"
