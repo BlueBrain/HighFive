@@ -250,7 +250,7 @@ class EnumType: public DataType {
     }
 
     EnumType(std::initializer_list<member_def> t_members)
-        : EnumType(std::vector<member_def>({t_members})) {}
+        : EnumType(std::vector<member_def>(t_members)) {}
 
     /// \brief Commit datatype into the given Object
     /// \param object Location to commit object into
