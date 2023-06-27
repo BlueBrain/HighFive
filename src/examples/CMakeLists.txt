@@ -31,7 +31,7 @@ function(compile_example exemple_source)
 
     if(${example_name} MATCHES ".*hl_hdf5.*")
         find_package(HDF5 QUIET COMPONENTS HL NAMES HDF5_HL)
-        if(${HDF5_FL_FOUND})
+        if(${HDF5_HL_FOUND})
             add_executable(${example_name} ${exemple_source})
             target_link_libraries(${example_name} HighFive ${HDF5_HL_LIBRARIES})
         endif()
