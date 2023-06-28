@@ -17,6 +17,7 @@
 #include <highfive/H5Reference.hpp>
 #include <highfive/H5Selection.hpp>
 #include <highfive/H5Utility.hpp>
+#include <highfive/H5Version.hpp>
 
 // Boost should always be found in this setup
 #include <boost/numeric/ublas/matrix.hpp>
