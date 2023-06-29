@@ -118,6 +118,10 @@ jobs:
       run: ctest --output-on-failure -C $BUILD_TYPE
 
 
+    - name: Examples
+      working-directory: ${{github.workspace}}/build/src/examples
+      run: $GITHUB_WORKSPACE/.github/run_examples.sh
+
   # Job testing several compilers on a stable Linux
   # ====================================================
   Linux_Compilers:
@@ -150,6 +154,10 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest --output-on-failure -C $BUILD_TYPE
+
+    - name: Examples
+      working-directory: ${{github.workspace}}/build/src/examples
+      run: $GITHUB_WORKSPACE/.github/run_examples.sh
 
   # Job running unit-test with sanitizers
   # =====================================
@@ -189,6 +197,10 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest --output-on-failure -C $BUILD_TYPE
+
+    - name: Examples
+      working-directory: ${{github.workspace}}/build/src/examples
+      run: $GITHUB_WORKSPACE/.github/run_examples.sh
 
 
   # Job to check using HighFive from other CMake projects
@@ -277,6 +289,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest --output-on-failure -C $BUILD_TYPE
 
+    - name: Examples
+      working-directory: ${{github.workspace}}/build/src/examples
+      run: $GITHUB_WORKSPACE/.github/run_examples.sh
+
 
   # Job testing in Windows
   # ======================
@@ -325,5 +341,3 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash -l {0}
       run: ctest --output-on-failure -C $BUILD_TYPE
-
-
