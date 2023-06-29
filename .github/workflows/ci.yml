@@ -107,13 +107,16 @@ jobs:
 
     - name: Build
       run: |
-        mkdir BUILD && cd BUILD
-        cmake -GNinja -DHDF5_ROOT=$HOME/${{ matrix.hdf5_version }} ..
-        ninja
+        CMAKE_OPTIONS=(
+          -GNinja
+          -DHDF5_ROOT=$HOME/${{ matrix.hdf5_version }}
+        )
+        source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
-      run: |
-        cd BUILD && ctest --output-on-failure
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure -C $BUILD_TYPE
+
 
   # Job testing several compilers on a stable Linux
   # ====================================================
