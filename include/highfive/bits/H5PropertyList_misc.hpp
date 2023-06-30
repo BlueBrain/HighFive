@@ -543,4 +543,32 @@ inline void LinkCreationOrder::fromPropertyList(hid_t hid) {
             "Error getting property for link creation order");
     }
 }
+
+inline AttributePhaseChange::AttributePhaseChange(unsigned max_compact, unsigned min_dense)
+    : _max_compact(max_compact)
+    , _min_dense(min_dense) {}
+
+inline AttributePhaseChange::AttributePhaseChange(const GroupCreateProps& gcpl) {
+    if (H5Pget_attr_phase_change(gcpl.getId(), &_max_compact, &_min_dense) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error getting property for attribute phase change");
+    }
+}
+
+inline unsigned AttributePhaseChange::max_compact() const {
+    return _max_compact;
+}
+
+inline unsigned AttributePhaseChange::min_dense() const {
+    return _min_dense;
+}
+
+inline void AttributePhaseChange::apply(hid_t hid) const {
+    if (H5Pset_attr_phase_change(hid, _max_compact, _min_dense) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>(
+            "Error getting property for attribute phase change");
+    }
+}
+
+
 }  // namespace HighFive
