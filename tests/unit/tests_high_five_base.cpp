@@ -745,6 +745,33 @@ TEST_CASE("DataSpaceTest") {
     CHECK(space.getDimensions()[1] == 1);
 }
 
+TEST_CASE("DataSpace::getElementCount") {
+    SECTION("null") {
+        auto space = DataSpace(DataSpace::dataspace_null);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("scalar") {
+        auto space = DataSpace(DataSpace::dataspace_scalar);
+        CHECK(space.getElementCount() == 1);
+    }
+
+    SECTION("simple, empty (1D)") {
+        auto space = DataSpace(0);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("simple, empty (2D)") {
+        auto space = DataSpace(0, 0);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("simple, non-empty (2D)") {
+        auto space = DataSpace(2, 3);
+        CHECK(space.getElementCount() == 6);
+    }
+}
+
 TEST_CASE("DataSpaceVectorTest") {
     // Create 1D shortcut dataspace
     DataSpace space(7);

@@ -110,8 +110,13 @@ inline std::vector<size_t> DataSpace::getDimensions() const {
 }
 
 inline size_t DataSpace::getElementCount() const {
-    const std::vector<size_t>& dims = getDimensions();
-    return std::accumulate(dims.begin(), dims.end(), size_t{1u}, std::multiplies<size_t>());
+    hssize_t nelements = H5Sget_simple_extent_npoints(_hid);
+    if (nelements < 0) {
+        HDF5ErrMapper::ToException<DataSetException>(
+            "Unable to get number of elements in dataspace");
+    }
+
+    return static_cast<size_t>(nelements);
 }
 
 inline std::vector<size_t> DataSpace::getMaxDimensions() const {
