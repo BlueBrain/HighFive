@@ -1,4 +1,4 @@
-# Build env
+#! /usr/bin/env bash
 
 [ "$CC" ] && $CC --version
 cmake --version
