@@ -73,7 +73,7 @@ jobs:
     - name: Build
       run: |
         CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON ${{ matrix.config.flags }})
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -111,7 +111,7 @@ jobs:
           -GNinja
           -DHDF5_ROOT=$HOME/${{ matrix.hdf5_version }}
         )
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -149,7 +149,7 @@ jobs:
       env: ${{matrix.env}}
       run: |
         CMAKE_OPTIONS=(-GNinja)
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -192,7 +192,7 @@ jobs:
           -DHIGHFIVE_GLIBCXX_ASSERTIONS=${HIGHFIVE_GLIBCXX_ASSERTIONS:-OFF}
           -DHIGHFIVE_SANITIZER=${HIGHFIVE_SANITIZER:-OFF}
         )
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -283,7 +283,7 @@ jobs:
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
           -DCMAKE_CXX_FLAGS="-coverage -O0"
         )
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -335,7 +335,7 @@ jobs:
           -DHIGHFIVE_USE_XTENSOR:BOOL=ON
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
         )
-        source $GITHUB_WORKSPACE/.github/build.sh
+        $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
