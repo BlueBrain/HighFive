@@ -1,6 +1,5 @@
 # HighFive - HDF5 header-only C++ Library
 
-[![Build Status](https://travis-ci.org/BlueBrain/HighFive.svg?branch=master)](https://travis-ci.org/BlueBrain/HighFive)
 [![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg)](https://BlueBrain.github.io/HighFive)
 [![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
 [![HighFive_Integration_tests](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml/badge.svg)](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml)
@@ -110,12 +109,6 @@ See [create_attribute_string_integer.cpp](https://github.com/BlueBrain/HighFive/
 See [src/examples/](https://github.com/BlueBrain/HighFive/blob/master/src/examples/) subdirectory for more info.
 
 
-### Compiling with HighFive
-
-```bash
-c++ -o program -I/path/to/highfive/include source.cpp  -lhdf5
-```
-
 ### H5Easy
 
 For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Easy.hpp) interface is available. It allows:
@@ -157,66 +150,106 @@ whereby the `int` type of this example can be replaced by any of the above types
 
 
 ## CMake integration
+There's two common paths of integrating HighFive into a CMake based project.
+The first is to "vendor" HighFive, the second is to install HighFive as a
+normal C++ library. Due to how HighFive CMake code works, sometimes following
+the third Bailout Approach is needed.
 
-HighFive can easily be used by other C++ CMake projects.
+### Vendoring HighFive
 
-You may use HighFive from a folder in your project (typically a git submodule).
+In this approach the HighFive sources are included in a subdirectory of the
+project (typically as a git submodule), for example in `third_party/HighFive`.
+
+The projects `CMakeLists.txt` add the following lines
 ```cmake
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project(foo)
-set(CMAKE_CXX_STANDARD 11)
+add_executable(foo foo.cpp)
 
-add_subdirectory(highfive_folder)
-add_executable(bar bar.cpp)
-target_link_libraries(bar HighFive)
+# You might want to turn off Boost support:
+if(NOT DEFINED HIGHFIVE_USE_BOOST)
+  set(HIGHFIVE_USE_BOOST Off)
+endif()
+
+# Include the subdirectory and use the target HighFive.
+add_subdirectory(third_party/HighFive)
+target_link_libraries(foo HighFive)
 ```
 
-Alternativelly you can install HighFive once and use it in several projects via `find_package()`.
+**Note:** `add_subdirectory(third_party/HighFive)` will search and "link" HDF5
+and optional dependencies such as Boost.
 
-A HighFive target will bring the compilation settings to find HighFive headers and all chosen dependencies.
+### Regular Installation of HighFive
 
+Alternatively you can install HighFive once and use it in several projects via
+`find_package()`. First one should clone the sources:
+```bash
+git clone --recursive https://github.com/BlueBrain/HighFive.git HighFive-src
+```
+By default CMake will install systemwide, which is likely not appropriate. The
+instruction below allow users to select a custom path where HighFive will be
+installed, e.g. `HIGHFIVE_INSTALL_PREFIX=${HOME}/third_party/HighFive` or some
+other location. The CMake invocations would be
+```bash
+cmake -DHIGHFIVE_EXAMPLES=Off \
+      -DHIGHFIVE_USE_BOOST=Off \
+      -DHIGHFIVE_UNIT_TESTS=Off \
+      -DCMAKE_INSTALL_PREFIX=${HIGHFIVE_INSTALL_PREFIX} \
+      -B HighFive-src/build \
+      HighFive-src
+
+cmake --build HighFive-src/build
+cmake --install HighFive-src/build
+```
+This will install (i.e. copy) the headers to
+`${HIGHFIVE_INSTALL_PREFIX}/include` and some CMake files into an appropriate
+subfolder of `${HIGHFIVE_INSTALL_PREFIX}`.
+
+The projects `CMakeLists.txt` should add the following:
 ```cmake
 # ...
+add_executable(foo foo.cpp)
+
 find_package(HighFive REQUIRED)
-add_executable(bar bar.cpp)
-target_link_libraries(bar HighFive)
+target_link_libraries(foo HighFive)
 ```
-**Note:** Like with other libraries you may need to provide CMake the location to find highfive: `CMAKE_PREFIX_PATH=<highfive_install_dir>`
 
-**Note:** `find_package(HighFive)` will search dependencies as well (e.g. Boost if requested). In order to use the same dependencies found at HighFive install time (e.g. for system deployments) you may set `HIGHFIVE_USE_INSTALL_DEPS=YES`
+**Note:** If HighFive hasn't been installed in a default location, CMake needs
+to be told where to find it which can be done by adding
+`-DCMAKE_PREFIX_PATH=${HIGHFIVE_INSTALL_PREFIX}` to the CMake command for
+building the project using HighFive. The variable `CMAKE_PREFIX_PATH` is a
+semi-colon `;` separated list of directories.
 
-### Installing
-When installing via CMake, besides the headers, a HighFiveConfig.cmake is generated which provides the HighFive target, as seen before. Note: You may need to set `CMAKE_INSTALL_PREFIX`:
+**Note:** `find_package(HighFive)` will search and "link" HDF5 and optional
+dependencies such as Boost.
+
+### The Bailout Approach
+Since both `add_subdirectory` and `find_package` will trigger finding HDF5 and
+other optional dependencies of HighFive as well as the `target_link_libraries`
+code for "linking" with the dependencies, things can go wrong.
+
+Fortunately, HighFive is a header only library and all that's needed is the
+headers. Preferably, the version obtained by installing HighFive, since those
+include `H5Version.hpp`. Let's assume they've been copied to
+`third_party/HighFive`. Then one could create a target:
+
 ```bash
-mkdir build && cd build
-# Look up HighFive CMake options, consider inspecting with `ccmake`
-cmake .. -DHIGHFIVE_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="<highfive_install_dir>"
-make install
+add_library(HighFive INTERFACE)
+target_include_directory(HighFive INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/HighFive/include)
+
+
+add_executable(foo foo.cpp)
+target_link_libraries(foo HighFive)
 ```
 
-### Test Compilation
-As a header-only library, HighFive doesn't require compilation. You may however build tests and examples.
-
-```bash
-mkdir build && cd build
-cmake ../
-make  # build tests and examples
-make test  # build and run unit tests
-```
-
-**Note:** Unit tests require Boost. In case it's unavailable you may use `-DHIGHFIVE_USE_BOOST=OFF`.
-HighFive with disable support for Boost types as well as unit tests (though most examples will build).
-
-### Code formatting
-If you want to propose pull requests to this project, do not forget to format code with
-clang-format version 12.
-The .clang-format is at the root of the git repository.
+One known case where this is required is when vendoring the optional
+dependencies of HighFive.
 
 # Questions?
 
 Do you have questions on how to use HighFive? Would you like to share an interesting example or
 discuss HighFive features? Head over to the [Discussions](https://github.com/BlueBrain/HighFive/discussions)
 forum and join the community.
+
+For bugs and issues please use [Issues](https://github.com/BlueBrain/HighFive/issues).
 
 # Funding & Acknowledgment
  

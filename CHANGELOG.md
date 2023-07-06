@@ -1,3 +1,14 @@
+# Changes
+## Version 2.8.0 - 2023-MM-DD
+### New Features
+    - Implement creation of hard links (#765). Thanks to @Quark-X10.
+    - Get the size of file and amound of tracked unused space (#764). Thanks to @Quark-X10.
+
+### Improvements
+    - Add parallel HDF5 test in CI (#760).
+    - Simplify github workflow (#761).
+    - Move inspectors in their own file to be able to better implements strings (#759).
+
 ## Version 2.7.1 - 2023-04-04
 ### Bug Fix
     - Revert removing `#include "H5FileDriver.hpp"` from `H5File.hpp` (#711).

@@ -291,12 +291,12 @@ TEST_CASE("Test group properties") {
     File file(file_name, File::Truncate, fapl);
 
     GroupCreateProps props;
-    props.add(EstimatedLinkInfo(1000, 500));
+    props.add(EstimatedLinkInfo(10, 60));
     auto group = file.createGroup("g", props);
     auto sizes = group.getEstimatedLinkInfo();
 
-    CHECK(sizes.first == 1000);
-    CHECK(sizes.second == 500);
+    CHECK(sizes.first == 10);
+    CHECK(sizes.second == 60);
 }
 
 TEST_CASE("Test allocation time") {
@@ -425,6 +425,67 @@ TEST_CASE("Test groups and datasets") {
         CHECK(1 == dataset_chunked_small.getSpace().getDimensions()[0]);
     }
 }
+
+TEST_CASE("FileSpace") {
+    const std::string filename = "filespace.h5";
+    const std::string ds_path = "dataset";
+    const std::vector<int> data{13, 24, 36};
+
+    File file(filename, File::Truncate);
+    file.createDataSet(ds_path, data);
+
+    CHECK(file.getFileSize() > 0);
+}
+
+TEST_CASE("FreeSpace (default)") {
+    const std::string filename = "freespace_default.h5";
+    const std::string ds_path = "dataset";
+    const std::vector<int> data{13, 24, 36};
+
+    {
+        File file(filename, File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+    }
+
+    {
+        File file(filename, File::ReadWrite);
+        file.unlink(ds_path);
+        CHECK(file.getFreeSpace() > 0);
+        CHECK(file.getFreeSpace() < file.getFileSize());
+    }
+}
+
+#if H5_VERSION_GE(1, 10, 1)
+TEST_CASE("FreeSpace (tracked)") {
+    const std::string filename = "freespace_tracked.h5";
+    const std::string ds_path = "dataset";
+    const std::vector<int> data{13, 24, 36};
+
+    {
+        FileCreateProps fcp;
+        fcp.add(FileSpaceStrategy(H5F_FSPACE_STRATEGY_FSM_AGGR, true, 0));
+        File file(filename, File::Truncate, fcp);
+        auto dset = file.createDataSet(ds_path, data);
+    }
+
+    {
+        File file(filename, File::ReadWrite);
+        file.unlink(ds_path);
+
+#if H5_VERSION_GE(1, 12, 0)
+        // This fails on 1.10.x but starts working in 1.12.0
+        CHECK(file.getFreeSpace() > 0);
+#endif
+        CHECK(file.getFreeSpace() < file.getFileSize());
+    }
+
+    {
+        File file(filename, File::ReadOnly);
+        CHECK(file.getFreeSpace() > 0);
+        CHECK(file.getFreeSpace() < file.getFileSize());
+    }
+}
+#endif
 
 TEST_CASE("Test extensible datasets") {
     const std::string file_name("create_extensible_dataset_example.h5");
@@ -721,6 +782,33 @@ TEST_CASE("DataSpaceTest") {
     CHECK(space.getDimensions().size() == 2);
     CHECK(space.getDimensions()[0] == 10);
     CHECK(space.getDimensions()[1] == 1);
+}
+
+TEST_CASE("DataSpace::getElementCount") {
+    SECTION("null") {
+        auto space = DataSpace(DataSpace::dataspace_null);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("scalar") {
+        auto space = DataSpace(DataSpace::dataspace_scalar);
+        CHECK(space.getElementCount() == 1);
+    }
+
+    SECTION("simple, empty (1D)") {
+        auto space = DataSpace(0);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("simple, empty (2D)") {
+        auto space = DataSpace(0, 0);
+        CHECK(space.getElementCount() == 0);
+    }
+
+    SECTION("simple, non-empty (2D)") {
+        auto space = DataSpace(2, 3);
+        CHECK(space.getElementCount() == 6);
+    }
 }
 
 TEST_CASE("DataSpaceVectorTest") {
@@ -2250,6 +2338,70 @@ TEST_CASE("HighFiveSoftLinks") {
     }
 }
 
+TEST_CASE("HighFiveHardLinks Dataset (create intermediate)") {
+    const std::string file_name("hardlinks_dataset_intermiate.h5");
+    const std::string ds_path("/group/dataset");
+    const std::string ds_link_path("/alternate/dataset");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+        file.createHardLink(ds_link_path, dset);
+        file.unlink(ds_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(ds_link_path).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
+TEST_CASE("HighFiveHardLinks Dataset (relative paths)") {
+    const std::string file_name("hardlinks_dataset_relative.h5");
+    const std::string ds_path("/group/dataset");
+    const std::string ds_link_path("/alternate/dataset");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(ds_path, data);
+
+        auto alternate = file.createGroup("/alternate");
+        alternate.createHardLink("dataset", dset);
+        file.unlink(ds_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(ds_link_path).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
+TEST_CASE("HighFiveHardLinks Group") {
+    const std::string file_name("hardlinks_group.h5");
+    const std::string group_path("/group");
+    const std::string ds_name("dataset");
+    const std::string group_link_path("/alternate");
+    const std::vector<int> data{12, 24, 36};
+
+    {
+        File file(file_name, File::Truncate);
+        auto dset = file.createDataSet(group_path + "/" + ds_name, data);
+        auto group = file.getGroup(group_path);
+        file.createHardLink(group_link_path, group);
+        file.unlink(group_path);
+    }
+
+    {
+        File file(file_name, File::ReadWrite);
+        auto data_out = file.getDataSet(group_link_path + "/" + ds_name).read<std::vector<int>>();
+        CHECK(data == data_out);
+    }
+}
+
 TEST_CASE("HighFiveRename") {
     File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
 
@@ -3082,7 +3234,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in << 1, 2, 3, 4, 5, 6, 7, 8, 9;
         Eigen::Matrix<double, 3, 3> vec_out;
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
     // Eigen MatrixXd
@@ -3091,7 +3243,7 @@ TEST_CASE("HighFiveEigen") {
         Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
         Eigen::MatrixXd vec_out(20, 5);
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
     // std::vector<of EigenMatrixXd>
@@ -3105,7 +3257,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in.push_back(m2);
         std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20, 5));
 
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
 #ifdef H5_USE_BOOST
@@ -3139,13 +3291,15 @@ TEST_CASE("HighFiveEigen") {
             }
         }
         boost::multi_array<Eigen::MatrixXd, 3> vec_out(boost::extents[3][2][2]);
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 2; ++j) {
                 for (int k = 0; k < 2; ++k) {
                     vec_out[i][j][k] = Eigen::MatrixXd::Zero(3, 3);
                 }
             }
-        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
+        }
+
+        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
 #endif

@@ -16,36 +16,25 @@
 
 using namespace HighFive;
 
-const std::string FILE_NAME("boost_multiarray_example.h5");
-const std::string DATASET_NAME("dset");
-const int size_x = 10;
-const int size_y = 3;
-
 // Create a 2D dataset 10x3 of double with boost multi array
-// and write it to a file
+// and write it to a file.
 int main(void) {
-    try {
-        boost::multi_array<double, 2> my_array(boost::extents[size_x][size_y]);
+    const int nx = 10;
+    const int ny = 3;
 
-        for (int i = 0; i < size_x; ++i) {
-            for (int j = 0; j < size_y; ++j) {
-                my_array[i][j] = double(j + i * size_y);
-            }
+    boost::multi_array<double, 2> array(boost::extents[nx][ny]);
+
+    for (int i = 0; i < nx; ++i) {
+        for (int j = 0; j < ny; ++j) {
+            array[i][j] = double(j + i * ny);
         }
-
-        // we create a new hdf5 file
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
-
-        // let's create our dataset of the size of the boost::multi_array
-        DataSet dataset = file.createDataSet<double>(DATASET_NAME, DataSpace::From(my_array));
-
-        // we fill it
-        dataset.write(my_array);
-
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
     }
 
-    return 0;  // successfully terminated
+    // We create a new HDF5 file
+    File file("boost_multiarray_example.h5", File::Truncate);
+
+    // let's create our dataset of the size of the boost::multi_array
+    file.createDataSet("dset", array);
+
+    return 0;
 }

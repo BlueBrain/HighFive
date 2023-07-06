@@ -25,32 +25,27 @@ const std::string DATASET_NAME("dset");
 //
 int main(void) {
     using namespace HighFive;
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Define the size of our dataset: 4x6
-        std::vector<size_t> dims{4, 6};
+    // Create a new file using the default property lists.
+    File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
 
-        // Create the dataset
-        DataSet dataset = file.createDataSet<float16_t>(DATASET_NAME, DataSpace(dims));
+    // Define the size of our dataset: 4x6
+    std::vector<size_t> dims{4, 6};
 
-        std::vector<std::vector<float16_t>> data;
-        for (size_t i = 0; i < 4; ++i) {
-            data.emplace_back();
-            for (size_t j = 0; j < 6; ++j)
-                data[i].emplace_back((i + 1) * (j + 1));
-        }
+    // Create the dataset
+    DataSet dataset = file.createDataSet<float16_t>(DATASET_NAME, DataSpace(dims));
 
-        // write it
-        dataset.write(data);
-
-    } catch (Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    std::vector<std::vector<float16_t>> data;
+    for (size_t i = 0; i < 4; ++i) {
+        data.emplace_back();
+        for (size_t j = 0; j < 6; ++j)
+            data[i].emplace_back((i + 1) * (j + 1));
     }
 
-    return 0;  // successfully terminated
+    // write it
+    dataset.write(data);
+
+    return 0;
 }
 
 #endif

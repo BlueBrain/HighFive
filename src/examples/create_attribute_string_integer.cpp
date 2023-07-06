@@ -17,53 +17,41 @@
 
 using namespace HighFive;
 
-const std::string FILE_NAME("create_attribute.h5");
-const std::string DATASET_NAME("my_dataset");
-
-const std::string ATTRIBUTE_NAME_NOTE("note");
-const std::string ATTRIBUTE_NAME_VERSION("version_string");
-
 // create a dataset from a vector of string
 // read it back and print it
 int main(void) {
-    try {
-        // Create a new file using the default property lists.
-        File file(FILE_NAME, File::ReadWrite | File::Create | File::Truncate);
+    // Create a new file using the default property lists.
+    File file("create_attribute.h5", File::Truncate);
 
-        // Create a dummy dataset of one single integer
-        DataSet dataset = file.createDataSet(DATASET_NAME, DataSpace(1), create_datatype<int>());
+    // Create a dummy dataset of one single integer
+    DataSet dataset = file.createDataSet("dset", DataSpace(1), create_datatype<int>());
 
-        // Now let's add a attribute on this dataset
-        // This attribute will be named "note"
-        // and have the following content
-        std::string string_list("very important Dataset !");
+    // Now let's add a attribute on this dataset
+    // This attribute will be named "note"
+    // and have the following content
+    std::string note = "Very important Dataset!";
 
-        Attribute a = dataset.createAttribute<std::string>(ATTRIBUTE_NAME_NOTE,
-                                                           DataSpace::From(string_list));
-        a.write(string_list);
+    // Write in one line of code:
+    dataset.createAttribute<std::string>("note", note);
 
-        // We also add a "version" attribute
-        // that will be an array 1x2 of integer
-        std::vector<int> version;
-        version.push_back(1);
-        version.push_back(0);  // version 1.0
+    // We also add a "version" attribute
+    // that will be an array 1x2 of integer
+    std::vector<int> version{1, 0};
 
-        Attribute v = dataset.createAttribute<int>(ATTRIBUTE_NAME_VERSION,
-                                                   DataSpace::From(version));
-        v.write(version);
+    Attribute v = dataset.createAttribute("version", version);
 
-        // Ok all attributes are now written
+    // We can also create attributes on the file:
+    file.createAttribute("file_version", 1);
 
-        // let's list the keys of all attributes now
-        std::vector<std::string> all_attributes_keys = dataset.listAttributeNames();
-        for (const auto& attr: all_attributes_keys) {
-            std::cout << "attribute: " << attr << std::endl;
-        }
+    // and on groups in the file:
+    auto group = file.createGroup("group");
+    group.createAttribute("secret", 123);
 
-    } catch (const Exception& err) {
-        // catch and print any HDF5 error
-        std::cerr << err.what() << std::endl;
+    // let's now list the keys of all attributes
+    std::vector<std::string> all_attributes_keys = dataset.listAttributeNames();
+    for (const auto& attr: all_attributes_keys) {
+        std::cout << "attribute: " << attr << std::endl;
     }
 
-    return 0;  // successfully terminated
+    return 0;
 }

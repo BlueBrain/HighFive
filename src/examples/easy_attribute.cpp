@@ -34,6 +34,5 @@ int main() {
     H5Easy::dumpAttribute(file, "/path/to/measurement", "description", desc);
     H5Easy::dumpAttribute(file, "/path/to/measurement", "temperature", temperature);
 
-
     return 0;
 }
