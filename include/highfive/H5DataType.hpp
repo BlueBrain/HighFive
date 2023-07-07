@@ -47,6 +47,7 @@ inline DataTypeClass operator&(DataTypeClass lhs, DataTypeClass rhs) {
     return static_cast<DataTypeClass>(static_cast<T>(lhs) & static_cast<T>(rhs));
 }
 
+class StringType;
 
 ///
 /// \brief HDF5 Data Type
@@ -86,6 +87,11 @@ class DataType: public Object {
     bool isFixedLenStr() const;
 
     ///
+    /// \brief Returns this datatype as a `StringType`.
+    ///
+    StringType asStringType() const;
+
+    ///
     /// \brief Check the DataType was default constructed.
     /// Such value might represent auto-detection of the datatype from a buffer
     ///
@@ -107,6 +113,69 @@ class DataType: public Object {
     friend class DataSet;
     friend class CompoundType;
 };
+
+
+enum class StringPadding : std::underlying_type<H5T_str_t>::type {
+    NullTerminated = H5T_STR_NULLTERM,
+    NullPadded = H5T_STR_NULLPAD,
+    SpacePadded = H5T_STR_SPACEPAD
+};
+
+enum class CharacterSet : std::underlying_type<H5T_cset_t>::type {
+    Ascii = H5T_CSET_ASCII,
+    Utf8 = H5T_CSET_UTF8,
+};
+
+class StringType: public DataType {
+  public:
+    ///
+    /// \brief For stings return the character set.
+    ///
+    CharacterSet getCharacterSet() const;
+
+    ///
+    /// \brief For fixed length stings return the padding.
+    ///
+    StringPadding getPadding() const;
+
+  protected:
+    using DataType::DataType;
+    friend class DataType;
+};
+
+class FixedLengthStringType: public StringType {
+  public:
+    ///
+    /// \brief Create a fixed length string datatype.
+    ///
+    /// The string will be `size` bytes long, regardless whether it's ASCII or
+    /// UTF8. In particular, a string with `n` UFT8 characters in general
+    /// requires `4*n` bytes.
+    ///
+    /// The string padding is subtle, essentially it's just a hint. A
+    /// nullterminated string is guaranteed to have one `'\0'` which marks the
+    /// semantic end of the string. The length of the buffer must be at least
+    /// `size` bytes regardless. HDF5 will read or write `size` bytes,
+    /// irrespective of the when the `\0` occurs.
+    ///
+    /// Note that when writing passing `StringPadding::NullTerminated` is a
+    /// guarantee to the reader that it contains a `\0`. Therefore, make sure
+    /// that the string really is nullterminated. Otherwise prefer a
+    /// null-padded string which only means states that the buffer is filled up
+    /// with 0 or more `\0`.
+    FixedLengthStringType(size_t size,
+                          StringPadding padding,
+                          CharacterSet character_set = CharacterSet::Ascii);
+};
+
+class VariableLengthStringType: public StringType {
+  public:
+    ///
+    /// \brief Create a variable length string HDF5 datatype.
+    ///
+    VariableLengthStringType(CharacterSet character_set = CharacterSet::Ascii);
+};
+
 
 ///
 /// \brief create an HDF5 DataType from a C++ type
