@@ -129,6 +129,10 @@ class NodeTraits {
     /// \return the group object
     Group getGroup(const std::string& group_name) const;
 
+    ///
+    /// \brief open a commited datatype with the name type_name
+    /// \param type_name
+    /// \return the datatype object
     DataType getDataType(
         const std::string& type_name,
         const DataTypeAccessProps& accessProps = DataTypeAccessProps::Default()) const;

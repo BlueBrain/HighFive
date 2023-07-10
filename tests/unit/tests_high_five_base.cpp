@@ -2870,16 +2870,22 @@ TEST_CASE("HighFiveEnum") {
 TEST_CASE("HighFiveReadType") {
     const std::string file_name("readtype_test.h5");
     const std::string datatype_name1("my_type");
+    const std::string datatype_name2("position");
 
     File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
-    auto t3 = AtomicType<int>();
     CompoundType t1 = create_compound_csl1();
     t1.commit(file, datatype_name1);
 
     CompoundType t2 = file.getDataType(datatype_name1);
 
+    auto t3 = create_enum_position();
+    t3.commit(file, datatype_name2);
+
+    DataType t4 = file.getDataType(datatype_name2);
+
     CHECK(t2 == t1);
+    CHECK(t4 == t3);
 }
 
 TEST_CASE("HighFiveFixedString") {
