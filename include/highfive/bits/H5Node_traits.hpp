@@ -129,6 +129,10 @@ class NodeTraits {
     /// \return the group object
     Group getGroup(const std::string& group_name) const;
 
+    DataType getDataType(
+        const std::string& type_name,
+        const DataTypeAccessProps& accessProps = DataTypeAccessProps::Default()) const;
+
     ///
     /// \brief return the number of leaf objects of the node / group
     /// \return number of leaf objects
