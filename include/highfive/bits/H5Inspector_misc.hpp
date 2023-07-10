@@ -14,6 +14,9 @@
 #include <numeric>
 
 #include "../H5Reference.hpp"
+
+#include "string_padding.hpp"
+
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
 // starting Boost 1.64, serialization header must come before ublas
