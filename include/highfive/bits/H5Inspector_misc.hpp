@@ -395,7 +395,8 @@ struct inspector<std::vector<T>> {
         return inspector<value_type>::data(val[0]);
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    template <class It>
+    static void serialize(const type& val, It m) {
         size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         for (auto&& e: val) {
             inspector<value_type>::serialize(e, m);
@@ -403,9 +404,8 @@ struct inspector<std::vector<T>> {
         }
     }
 
-    static void unserialize(const hdf5_type* vec_align,
-                            const std::vector<size_t>& dims,
-                            type& val) {
+    template <class It>
+    static void unserialize(const It& vec_align, const std::vector<size_t>& dims, type& val) {
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
         size_t next_size = compute_total_size(next_dims);
         for (size_t i = 0; i < dims[0]; ++i) {
@@ -516,7 +516,8 @@ struct inspector<std::array<T, N>> {
         return inspector<value_type>::data(val[0]);
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    template <class It>
+    static void serialize(const type& val, It m) {
         size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         for (auto& e: val) {
             inspector<value_type>::serialize(e, m);
@@ -524,9 +525,8 @@ struct inspector<std::array<T, N>> {
         }
     }
 
-    static void unserialize(const hdf5_type* vec_align,
-                            const std::vector<size_t>& dims,
-                            type& val) {
+    template <class It>
+    static void unserialize(const It& vec_align, const std::vector<size_t>& dims, type& val) {
         if (dims[0] != N) {
             std::ostringstream os;
             os << "Impossible to pair DataSet with " << dims[0] << " elements into an array with "
@@ -751,7 +751,8 @@ struct inspector<boost::multi_array<T, Dims>> {
         return inspector<value_type>::data(*val.data());
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    template <class It>
+    static void serialize(const type& val, It m) {
         size_t size = val.num_elements();
         size_t subsize = inspector<value_type>::getSizeVal(*val.origin());
         for (size_t i = 0; i < size; ++i) {
@@ -759,9 +760,8 @@ struct inspector<boost::multi_array<T, Dims>> {
         }
     }
 
-    static void unserialize(const hdf5_type* vec_align,
-                            const std::vector<size_t>& dims,
-                            type& val) {
+    template <class It>
+    static void unserialize(It vec_align, const std::vector<size_t>& dims, type& val) {
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         for (size_t i = 0; i < val.num_elements(); ++i) {
