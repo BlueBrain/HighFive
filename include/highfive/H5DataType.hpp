@@ -349,15 +349,20 @@ DataType create_and_check_datatype();
 /// Although fixed-len arrays can be created 'raw' without the need for
 /// this structure, to retrieve results efficiently it must be used.
 ///
+/// \tparam N Size of the string in bytes, including the null character. Note,
+///           that all string must be null-terminated.
+///
 template <std::size_t N>
 class FixedLenStringArray {
   public:
     FixedLenStringArray() = default;
 
     ///
-    /// \brief Create a FixedStringArray from a raw contiguous buffer
+    /// \brief Create a FixedStringArray from a raw contiguous buffer.
     ///
-    FixedLenStringArray(const char array[][N], std::size_t length);
+    /// The argument `n_strings` specifies the number of strings.
+    ///
+    FixedLenStringArray(const char array[][N], std::size_t n_strings);
 
     ///
     /// \brief Create a FixedStringArray from a sequence of strings.
