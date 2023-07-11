@@ -1061,6 +1061,34 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteAttributeVector", "[template]", dataset_test_t
     readWriteAttributeVectorTest<TestType>();
 }
 
+TEST_CASE("WriteLargeAttribute") {
+    std::vector<double> large_attr(16000, 0.0);
+
+    auto fapl = HighFive::FileAccessProps::Default();
+    fapl.add(HighFive::FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+    HighFive::File file("create_large_attribute.h5", HighFive::File::Truncate, fapl);
+    auto gcpl = HighFive::GroupCreateProps::Default();
+    gcpl.add(HighFive::AttributePhaseChange(0, 0));
+
+    auto group = file.createGroup("grp", gcpl);
+    CHECK_NOTHROW(group.createAttribute("attr", large_attr));
+}
+
+TEST_CASE("AttributePhaseChange") {
+    auto fapl = HighFive::FileAccessProps::Default();
+    fapl.add(HighFive::FileVersionBounds(H5F_LIBVER_LATEST, H5F_LIBVER_LATEST));
+    HighFive::File file("attribute_phase_change.h5", HighFive::File::Truncate, fapl);
+
+    auto gcpl = HighFive::GroupCreateProps::Default();
+    gcpl.add(HighFive::AttributePhaseChange(42, 24));
+
+    auto group = file.createGroup("grp", gcpl);
+
+    auto actual = AttributePhaseChange(group.getCreatePropertyList());
+    CHECK(actual.min_dense() == 24);
+    CHECK(actual.max_compact() == 42);
+}
+
 TEST_CASE("datasetOffset") {
     std::string filename = "datasetOffset.h5";
     std::string dsetname = "dset";
@@ -2615,6 +2643,10 @@ TEST_CASE("HighFiveCompounds") {
 
     CompoundType t2_from_hid(t2);
     CHECK(t2 == t2_from_hid);
+
+    // Back from a DataType
+    CHECK_NOTHROW(CompoundType(DataType(t1_from_hid)));
+    CHECK_THROWS(CompoundType(AtomicType<uint32_t>{}));
 }
 
 struct GrandChild {

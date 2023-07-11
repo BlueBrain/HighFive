@@ -660,6 +660,41 @@ class LinkCreationOrder {
     unsigned _flags;
 };
 
+
+///
+/// \brief Set threshold for attribute storage.
+///
+/// HDF5 can store Attributes in the object header (compact) or in the B-tree
+/// (dense). This property sets the threshold when attributes are moved to one
+/// or the other storage format.
+///
+/// Please refer to the upstream documentation of `H5Pset_attr_phase_change` or
+/// Section 8 (Attributes) in the User Guide, in particular Subsection 8.5.
+///
+class AttributePhaseChange {
+  public:
+    ///
+    /// \brief Create the property from the threshold values.
+    ///
+    /// When the number of attributes hits `max_compact` the attributes are
+    /// moved to dense storage, once the number drops to below `min_dense` the
+    /// attributes are moved to compact storage.
+    AttributePhaseChange(unsigned max_compact, unsigned min_dense);
+
+    /// \brief Extract threshold values from property list.
+    explicit AttributePhaseChange(const GroupCreateProps& gcpl);
+
+    unsigned max_compact() const;
+    unsigned min_dense() const;
+
+  private:
+    friend GroupCreateProps;
+    void apply(hid_t hid) const;
+
+    unsigned _max_compact;
+    unsigned _min_dense;
+};
+
 /// @}
 
 }  // namespace HighFive

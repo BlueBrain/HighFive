@@ -14,6 +14,7 @@
 #include "H5Object.hpp"
 #include "bits/H5Utils.hpp"
 
+#include "bits/string_padding.hpp"
 #include "H5PropertyList.hpp"
 
 namespace HighFive {
@@ -116,12 +117,6 @@ class DataType: public Object {
     friend class NodeTraits;
 };
 
-
-enum class StringPadding : std::underlying_type<H5T_str_t>::type {
-    NullTerminated = H5T_STR_NULLTERM,
-    NullPadded = H5T_STR_NULLPAD,
-    SpacePadded = H5T_STR_SPACEPAD
-};
 
 enum class CharacterSet : std::underlying_type<H5T_cset_t>::type {
     Ascii = H5T_CSET_ASCII,
@@ -246,11 +241,14 @@ class CompoundType: public DataType {
         size_t n_members = static_cast<size_t>(result);
         members.reserve(n_members);
         for (unsigned i = 0; i < n_members; i++) {
-            const char* name = H5Tget_member_name(_hid, i);
+            char* name = H5Tget_member_name(_hid, i);
             size_t offset = H5Tget_member_offset(_hid, i);
             hid_t member_hid = H5Tget_member_type(_hid, i);
             DataType member_type{member_hid};
-            members.emplace_back(name, member_type, offset);
+            members.emplace_back(std::string(name), member_type, offset);
+            if (H5free_memory(name) < 0) {
+                throw DataTypeException("Could not free names from the compound datatype");
+            }
         }
     }
 
@@ -351,15 +349,20 @@ DataType create_and_check_datatype();
 /// Although fixed-len arrays can be created 'raw' without the need for
 /// this structure, to retrieve results efficiently it must be used.
 ///
+/// \tparam N Size of the string in bytes, including the null character. Note,
+///           that all string must be null-terminated.
+///
 template <std::size_t N>
 class FixedLenStringArray {
   public:
     FixedLenStringArray() = default;
 
     ///
-    /// \brief Create a FixedStringArray from a raw contiguous buffer
+    /// \brief Create a FixedStringArray from a raw contiguous buffer.
     ///
-    FixedLenStringArray(const char array[][N], std::size_t length);
+    /// The argument `n_strings` specifies the number of strings.
+    ///
+    FixedLenStringArray(const char array[][N], std::size_t n_strings);
 
     ///
     /// \brief Create a FixedStringArray from a sequence of strings.
