@@ -244,7 +244,9 @@ class CompoundType: public DataType {
             hid_t member_hid = H5Tget_member_type(_hid, i);
             DataType member_type{member_hid};
             members.emplace_back(std::string(name), member_type, offset);
-            H5free_memory(name);
+            if (H5free_memory(name) < 0) {
+                throw DataTypeException("Could not free names from the compound datatype");
+            }
         }
     }
 
