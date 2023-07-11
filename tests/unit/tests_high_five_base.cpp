@@ -774,9 +774,11 @@ TEST_CASE("DataSpaceTest") {
 
     DataSpace space = dataset.getSpace();
     DataSpace space2 = dataset.getSpace();
+    auto space3 = space.clone();
 
     // verify space id are different
     CHECK(space.getId() != space2.getId());
+    CHECK(space.getId() != space3.getId());
 
     // verify space id are consistent
     CHECK(space.getDimensions().size() == 2);
