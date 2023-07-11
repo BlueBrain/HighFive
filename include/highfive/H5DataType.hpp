@@ -113,6 +113,8 @@ class DataType: public Object {
     friend class File;
     friend class DataSet;
     friend class CompoundType;
+    template <typename Derivate>
+    friend class NodeTraits;
 };
 
 

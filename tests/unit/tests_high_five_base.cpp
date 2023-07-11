@@ -2907,6 +2907,27 @@ TEST_CASE("HighFiveEnum") {
     }
 }
 
+TEST_CASE("HighFiveReadType") {
+    const std::string file_name("readtype_test.h5");
+    const std::string datatype_name1("my_type");
+    const std::string datatype_name2("position");
+
+    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
+
+    CompoundType t1 = create_compound_csl1();
+    t1.commit(file, datatype_name1);
+
+    CompoundType t2 = file.getDataType(datatype_name1);
+
+    auto t3 = create_enum_position();
+    t3.commit(file, datatype_name2);
+
+    DataType t4 = file.getDataType(datatype_name2);
+
+    CHECK(t2 == t1);
+    CHECK(t4 == t3);
+}
+
 TEST_CASE("HighFiveFixedString") {
     const std::string file_name("array_atomic_types.h5");
     const std::string group_1("group1");
@@ -2955,8 +2976,6 @@ TEST_CASE("HighFiveFixedString") {
 
     {  // Dedicated FixedLenStringArray
         FixedLenStringArray<10> arr{"0000000", "1111111"};
-        // For completeness, test also the other constructor
-        FixedLenStringArray<10> arrx(std::vector<std::string>{"0000", "1111"});
 
         // More API: test inserting something
         arr.push_back("2222");
@@ -3042,6 +3061,16 @@ TEST_CASE("HighFiveFixedString") {
     }
 }
 
+template <size_t N>
+static void check_fixed_len_string_array_contents(const FixedLenStringArray<N>& array,
+                                                  const std::vector<std::string>& expected) {
+    REQUIRE(array.size() == expected.size());
+
+    for (size_t i = 0; i < array.size(); ++i) {
+        CHECK(array[i] == expected[i]);
+    }
+}
+
 TEST_CASE("HighFiveFixedLenStringArrayStructure") {
     using fixed_array_t = FixedLenStringArray<10>;
     // increment the characters of a string written in a std::array
@@ -3056,16 +3085,52 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         return output;
     };
 
+    SECTION("create from std::vector (onpoint)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<4>(expected);
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
+    SECTION("create from std::vector (oversized)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<8>(expected);
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
+    SECTION("create from pointers (onpoint)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<4>(expected.data(), expected.data() + expected.size());
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
+    SECTION("create from pointers (oversized)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<8>(expected.data(), expected.data() + expected.size());
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
+
+    SECTION("create from std::initializer_list (onpoint)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<4>{"000", "111"};
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
+    SECTION("create from std::initializer_list (oversized)") {
+        auto expected = std::vector<std::string>{"000", "111"};
+        auto actual = FixedLenStringArray<8>{"000", "111"};
+        check_fixed_len_string_array_contents(actual, expected);
+    }
+
     // manipulate FixedLenStringArray with std::copy
-    {
+    SECTION("compatible with std::copy") {
         const fixed_array_t arr1{"0000000", "1111111"};
         fixed_array_t arr2{"0000000", "1111111"};
         std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
         CHECK(arr2.size() == 4);
     }
 
-    // manipulate FixedLenStringArray with std::transform
-    {
+    SECTION("compatible with std::transform") {
         fixed_array_t arr;
         {
             const fixed_array_t arr1{"0000000", "1111111"};
@@ -3076,8 +3141,7 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         CHECK(arr[1] == std::string("2222222"));
     }
 
-    // manipulate FixedLenStringArray with std::transform and reverse iterator
-    {
+    SECTION("compatible with std::transform (reverse iterator)") {
         fixed_array_t arr;
         {
             const fixed_array_t arr1{"0000000", "1111111"};
@@ -3088,8 +3152,7 @@ TEST_CASE("HighFiveFixedLenStringArrayStructure") {
         CHECK(arr[1] == std::string("0000000"));
     }
 
-    // manipulate FixedLenStringArray with std::remove_copy_if
-    {
+    SECTION("compatible with std::remove_copy_if") {
         fixed_array_t arr2;
         {
             const fixed_array_t arr1{"0000000", "1111111"};
