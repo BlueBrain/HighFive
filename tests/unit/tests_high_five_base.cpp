@@ -809,6 +809,12 @@ TEST_CASE("DataSpace::getElementCount") {
         auto space = DataSpace(2, 3);
         CHECK(space.getElementCount() == 6);
     }
+
+    SECTION("FromCharArrayStrings") {
+        char string_array[2][10] = {"123456789", "abcdefghi"};
+        auto space = DataSpace::FromCharArrayStrings(string_array);
+        CHECK(space.getElementCount() == 2);
+    }
 }
 
 TEST_CASE("DataSpaceVectorTest") {
