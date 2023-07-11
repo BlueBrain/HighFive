@@ -330,18 +330,15 @@ inline FixedLenStringArray<N>::FixedLenStringArray(const char array[][N], std::s
 template <std::size_t N>
 inline FixedLenStringArray<N>::FixedLenStringArray(const std::string* iter_begin,
                                                    const std::string* iter_end) {
-    datavec.resize(static_cast<std::size_t>(iter_end - iter_begin));
-    for (auto& dst_array: datavec) {
-        const char* src = (iter_begin++)->c_str();
-        const size_t length = std::min(N - 1, std::strlen(src));
-        std::memcpy(dst_array.data(), src, length);
-        dst_array[length] = 0;
+    datavec.reserve(static_cast<std::size_t>(iter_end - iter_begin));
+    for (std::string const* it = iter_begin; it != iter_end; ++it) {
+        push_back(*it);
     }
 }
 
 template <std::size_t N>
 inline FixedLenStringArray<N>::FixedLenStringArray(const std::vector<std::string>& vec)
-    : FixedLenStringArray(&vec.front(), &vec.back()) {}
+    : FixedLenStringArray(vec.data(), vec.data() + vec.size()) {}
 
 template <std::size_t N>
 inline FixedLenStringArray<N>::FixedLenStringArray(
