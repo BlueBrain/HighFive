@@ -239,11 +239,14 @@ class CompoundType: public DataType {
         size_t n_members = static_cast<size_t>(result);
         members.reserve(n_members);
         for (unsigned i = 0; i < n_members; i++) {
-            const char* name = H5Tget_member_name(_hid, i);
+            char* name = H5Tget_member_name(_hid, i);
             size_t offset = H5Tget_member_offset(_hid, i);
             hid_t member_hid = H5Tget_member_type(_hid, i);
             DataType member_type{member_hid};
-            members.emplace_back(name, member_type, offset);
+            members.emplace_back(std::string(name), member_type, offset);
+            if (H5free_memory(name) < 0) {
+                throw DataTypeException("Could not free names from the compound datatype");
+            }
         }
     }
 

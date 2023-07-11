@@ -2643,6 +2643,10 @@ TEST_CASE("HighFiveCompounds") {
 
     CompoundType t2_from_hid(t2);
     CHECK(t2 == t2_from_hid);
+
+    // Back from a DataType
+    CHECK_NOTHROW(CompoundType(DataType(t1_from_hid)));
+    CHECK_THROWS(CompoundType(AtomicType<uint32_t>{}));
 }
 
 struct GrandChild {
