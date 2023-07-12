@@ -145,7 +145,7 @@ class DataSpace: public Object {
     /// \since 1.3
     explicit DataSpace(DataspaceType space_type);
 
-    /// \brief Create a copy of the DataSpace with will have different id.
+    /// \brief Create a copy of the DataSpace which will have different id.
     ///
     /// \code{.cpp}
     /// DataSpace dspace1(1, 3);
