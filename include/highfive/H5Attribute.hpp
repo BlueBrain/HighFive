@@ -41,64 +41,102 @@ Attribute make_attribute(hid_t hid);
 }  // namespace detail
 
 ///
-/// \brief Class representing an attribute of a dataset or group
+/// \brief Class representing an Attribute of a DataSet or Group
+///
+/// Create Attribute with AnnotateTraits::createAttribute
+///
+/// Access Attribute with AnnotateTraits::getAttribute
+///
+/// Delete Attribute with AnnotateTraits::deleteAttribute
 ///
 class Attribute: public Object, public PathTraits<Attribute> {
   public:
     const static ObjectType type = ObjectType::Attribute;
 
-    ///
-    /// \brief return the name of the current attribute
+    /// \brief Get the name of the current Attribute.
     /// \return the name of the attribute
+    /// \since 2.2.2
+    /// \code{.cpp}
+    /// auto attr = dset.createAttribute<std::string>("my_attribute", DataSpace::From(string_list));
+    /// std::cout << attr.getName() << std::endl; // Will print "my_attribute"
+    /// \endcode
     std::string getName() const;
 
+    /// \brief Get the amount of storage that is required for the current Attribute.
+    /// \return The amount of the storage.
+    /// \since 1.0
+    /// \code{.cpp}
+    /// size_t size = dset.createAttribute<int>("foo", DataSpace(1, 2));
+    /// \endcode
     size_t getStorageSize() const;
 
-    ///
-    /// \brief getDataType
-    /// \return return the datatype associated with this dataset
-    ///
+    /// \brief Get the DataType of the Attribute.
+    /// \return return the datatype associated with this Attribute.
+    /// \since 1.0
+    /// \code{.cpp}
+    /// \endcode
     DataType getDataType() const;
 
-    ///
-    /// \brief getSpace
-    /// \return return the dataspace associated with this dataset
-    ///
+    /// \brief Get the DataSpace of the current Attribute.
+    /// \return return the DataSpace associated with this Attribute.
+    /// \since 1.0
+    /// \code{.cpp}
+    /// \endcode
     DataSpace getSpace() const;
 
-    ///
-    /// \brief getMemSpace
-    /// \return same than getSpace for DataSet, compatibility with Selection
-    /// class
-    ///
+    /// \brief Get the DataSpace of the current Attribute.
+    /// \return return the DataSpace associated with this Attribute.
+    /// \note This is an alias of getSpace().
+    /// \since 1.0
+    /// \code{.cpp}
+    /// \endcode
     DataSpace getMemSpace() const;
 
-    /// \brief Return the attribute
+    /// \brief Get the value of the Attribute.
+    /// \return The value.
+    /// \since 2.5.0
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     T read() const;
 
-    ///
+    /// \brief Get the value of the Attribute in a buffer.
+    /// 
     /// Read the attribute into a buffer
     /// An exception is raised if the numbers of dimension of the buffer and of
     /// the attribute are different
-    ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
     /// dimensional array )
+    ///
+    /// \param array A already allocated value of the right dimension.
+    /// \since 1.0
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     void read(T& array) const;
 
     /// \brief Read the attribute into a buffer.
+    /// \param array The already allocated array.
+    /// \param mem_datatype The DataType of the array.
     ///
-    /// Note, this is the shallowest wrapper around `H5Aread`.
+    /// \note This is the shallowest wrapper around `H5Aread`.
+    /// \since 2.2.2
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     void read(T* array, const DataType& mem_datatype) const;
 
-    /// \brief Read the attribute into a buffer
+    /// \brief Read the attribute into a buffer.
+    /// \param array An already allocated array.
     ///
     /// This overload deduces the memory datatype from `T`.
+    /// \since 2.2.2
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     void read(T* array) const;
 
+    /// \brief Write the value into the Attribute.
     ///
     /// Write the integrality N-dimension buffer to this attribute
     /// An exception is raised if the numbers of dimension of the buffer and of
@@ -106,24 +144,40 @@ class Attribute: public Object, public PathTraits<Attribute> {
     ///
     /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
     /// dimensional array )
+    /// \since 1.0
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     void write(const T& buffer);
 
     /// \brief Write to this attribute from `buffer`.
+    /// \param buffer the buffer to write into the Attribute.
+    /// \param mem_datatype The DataType of the buffer.
     ///
     /// Note that this is the shallowest wrapper around `H5Awrite`. It's useful
     /// if you need full control. If possible prefer `Attribute::write`.
+    /// \since 2.2.2
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
-    void write_raw(const T* buffer, const DataType& mem_dtype);
+    void write_raw(const T* buffer, const DataType& mem_datatype);
 
     /// \brief Write to this attribute from `buffer`.
+    /// \param buffer The buffer to write into the attribute.
     ///
     /// This version attempts to automatically deduce the datatype
     /// of the buffer. Note, that the file datatype is already set.
+    /// \since 2.2.2
+    /// \code{.cpp}
+    /// \endcode
     template <typename T>
     void write_raw(const T* buffer);
 
     /// \brief Get the list of properties for creation of this attribute
+    /// \return Properties for creation of this Attribute.
+    /// since 2.5.0
+    /// \code{.cpp}
+    /// \endcode
     AttributeCreateProps getCreatePropertyList() const {
         return details::get_plist<AttributeCreateProps>(*this, H5Aget_create_plist);
     }
