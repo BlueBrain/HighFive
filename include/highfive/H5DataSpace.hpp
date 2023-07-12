@@ -78,8 +78,8 @@ class DataSpace: public Object {
     /// \code{.cpp}
     /// // Create a DataSpace with 2 dimensions: 1 and 3
     /// DataSpace{1, 3};
-    /// \since 2.1
     /// \endcode
+    /// \since 2.1
     DataSpace(const std::initializer_list<size_t>& dims);
 
     /// \brief Create a DataSpace of N-dimensions from direct values.
@@ -193,7 +193,7 @@ class DataSpace: public Object {
     /// different from the current size of the dataset.
     ///
     /// \code{.cpp}
-    /// DataSpace dspace(std::vector<size_t>{1, 3}, std::vector<size_t>{UNLIMITED, 10};
+    /// DataSpace dspace(std::vector<size_t>{1, 3}, std::vector<size_t>{UNLIMITED, 10});
     /// dspace.getMaxDimensions(); // Return {UNLIMITED, 10}
     /// \endcode
     ///
