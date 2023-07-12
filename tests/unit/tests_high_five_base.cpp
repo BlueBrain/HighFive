@@ -774,9 +774,11 @@ TEST_CASE("DataSpaceTest") {
 
     DataSpace space = dataset.getSpace();
     DataSpace space2 = dataset.getSpace();
+    auto space3 = space.clone();
 
     // verify space id are different
     CHECK(space.getId() != space2.getId());
+    CHECK(space.getId() != space3.getId());
 
     // verify space id are consistent
     CHECK(space.getDimensions().size() == 2);
@@ -808,6 +810,12 @@ TEST_CASE("DataSpace::getElementCount") {
     SECTION("simple, non-empty (2D)") {
         auto space = DataSpace(2, 3);
         CHECK(space.getElementCount() == 6);
+    }
+
+    SECTION("FromCharArrayStrings") {
+        char string_array[2][10] = {"123456789", "abcdefghi"};
+        auto space = DataSpace::FromCharArrayStrings(string_array);
+        CHECK(space.getElementCount() == 2);
     }
 }
 

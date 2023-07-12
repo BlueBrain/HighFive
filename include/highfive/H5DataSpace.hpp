@@ -19,90 +19,215 @@
 
 namespace HighFive {
 
+/// \brief Class representing the space (dimensions) of a DataSet
 ///
-/// \brief Class representing the space (dimensions) of a dataset
-///
+/// \code{.cpp}
+/// // Create a DataSpace of dimension 1 x 2 x 3
+/// DataSpace dspace(1, 2, 3);
+/// std::cout << dspace.getElementCount() << std::endl; // Print 1 * 2 * 3 = 6
+/// std::cout << dspace.getNumberDimensions() << std::endl; // Print 3
+/// std::vector<size_t> dims = dspace.getDimensions(); // dims is {1, 2, 3}
+/// \endcode
 class DataSpace: public Object {
   public:
     const static ObjectType type = ObjectType::DataSpace;
 
+    /// \brief Magic value to specify that a DataSpace can grow without limit.
+    ///
+    /// This value should be used with DataSpace::DataSpace(const std::vector<size_t>& dims, const
+    /// std::vector<size_t>& maxdims);
+    ///
+    /// \since 2.0
     static const size_t UNLIMITED = SIZE_MAX;
 
-    /// dataspace type
+    /// \brief An enum to create scalar and null DataSpace with DataSpace::DataSpace(DataspaceType dtype).
+    ///
+    /// This enum is needed otherwise we will not be able to distringuish between both with normal
+    /// constructors. Both have a dimension of 0.
+    /// \since 1.3
     enum DataspaceType {
-        dataspace_scalar,
-        dataspace_null
+        dataspace_scalar,  ///< Value to create scalar DataSpace
+        dataspace_null,    ///< Value to create null DataSpace
         // simple dataspace are handle directly from their dimensions
     };
 
-    /// create a dataspace of N-dimensions
-    /// Each dimension is configured this way
-    ///  size(dim1) = vec[0]
-    ///  size(dim2) = vec[1]
-    ///  etc...
+    /// \brief Create a DataSpace of N-dimensions from a std::vector<size_t>.
+    /// \param dims Dimensions of the new DataSpace
+    ///
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3
+    /// DataSpace(std::vector<size_t>{1, 3});
+    /// \endcode
+    /// \since 1.0
     explicit DataSpace(const std::vector<size_t>& dims);
 
-    // create a dataspace of N-dimensions
+    /// \brief Create a DataSpace of N-dimensions from a std::array<size_t, N>.
+    /// \param dims Dimensions of the new DataSpace
+    ///
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3
+    /// DataSpace(std::array<size_t, 2>{1, 3});
+    /// \endcode
+    /// \since 2.3
     template <size_t N>
     explicit DataSpace(const std::array<size_t, N>& dims);
 
-    /// Make sure that DataSpace({1,2,3}) works on GCC. This is
-    /// the shortcut form of the vector initializer, but one some compilers (gcc)
-    /// this does not resolve correctly without this constructor.
-    DataSpace(const std::initializer_list<size_t>& items);
+    /// \brief Create a DataSpace of N-dimensions from an initializer list.
+    /// \param dims Dimensions of the new DataSpace
+    ///
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3
+    /// DataSpace{1, 3};
+    /// \since 2.1
+    /// \endcode
+    DataSpace(const std::initializer_list<size_t>& dims);
 
-    /// Allow directly listing 1 or more dimensions to initialize,
-    /// that is, DataSpace(1,2) means DataSpace(std::vector<size_t>{1,2}).
+    /// \brief Create a DataSpace of N-dimensions from direct values.
+    /// \param dim1 The first dimension
+    /// \param dims The following dimensions
+    ///
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3
+    /// DataSpace(1, 3);
+    /// \endcode
+    /// \since 2.1
     template <typename... Args>
     explicit DataSpace(size_t dim1, Args... dims);
 
-    /// Create a dataspace from an iterator pair
+    /// \brief Create a DataSpace from a pair of iterators.
+    /// \param begin The beginning of the container
+    /// \param end The end of the container
     ///
-    /// Explicitly disable DataSpace(int_like, int_like) from trying to use this constructor
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3
+    /// std::vector<int> v{1, 3};
+    /// DataSpace(v.begin(), v.end());
+    /// \endcode
+    ///
+    /// \since 2.0
+    // Attention: Explicitly disable DataSpace(int_like, int_like) from trying
+    //            to use this constructor
     template <typename IT,
               typename = typename std::enable_if<!std::is_integral<IT>::value, IT>::type>
     DataSpace(const IT begin, const IT end);
 
-    /// \brief Create a resizable N-dimensional dataspace
+    /// \brief Create a resizable N-dimensional DataSpace.
     /// \param dims Initial size of dataspace
     /// \param maxdims Maximum size of the dataspace
+    ///
+    /// \code{.cpp}
+    /// // Create a DataSpace with 2 dimensions: 1 and 3.
+    /// // It can later be resized up to a maximum of 10 x 10
+    /// DataSpace(std::vector<size_t>{1, 3}, std::vector<size_t>{10, 10});
+    /// \endcode
+    ///
+    /// \see UNLIMITED for a DataSpace that can be resize without limit.
+    /// \since 2.0
     explicit DataSpace(const std::vector<size_t>& dims, const std::vector<size_t>& maxdims);
 
+    /// \brief Create a scalar or a null DataSpace.
     ///
-    /// \brief DataSpace create a scalar dataspace or a null dataset
+    /// This overload enables creating scalar or null data spaces, both have
+    /// dimension 0.
     ///
-    explicit DataSpace(DataspaceType dtype);
+    /// \param space_type The value from the enum
+    ///
+    /// \code{.cpp}
+    /// DataSpace(DataspaceType::dataspace_scalar);
+    /// \endcode
+    ///
+    /// \attention Avoid braced intialization in these cases, i.e.
+    /// \code{.cpp}
+    /// // This is not a scalar dataset:
+    /// DataSpace{DataspaceType::dataspace_scalar};
+    /// \endcode
+    ///
+    /// \since 1.3
+    explicit DataSpace(DataspaceType space_type);
 
-    /// Create a new DataSpace
-    ///  with a different id available for modifications
+    /// \brief Create a copy of the DataSpace with will have different id.
+    ///
+    /// \code{.cpp}
+    /// DataSpace dspace1(1, 3);
+    /// auto dspace2 = dspace.clone();
+    /// \endcode
+    ///
+    /// \since 1.0
     DataSpace clone() const;
 
-    ///
-    /// \brief getNumberDimensions
-    /// \return the number of dimensions in the current dataspace
-    ///
+    /// \brief Returns the number of dimensions of a DataSpace.
+    /// \code{.cpp}
+    /// DataSpace dspace(1, 3);
+    /// size_t number_of_dim = dspace.getNumberDimensions(); // returns 2
+    /// \endcode
+    /// \since 1.0
     size_t getNumberDimensions() const;
 
-    /// \brief getDimensions
-    /// \return return a vector of N-element, each element is the size of the
-    /// associated dataset dimension
+    /// \brief Returns the size of the dataset in each dimension.
+    ///
+    /// For zero-dimensional datasets (e.g. scalar or null datasets) an empty
+    /// vector is returned.
+    ///
+    /// \code{.cpp}
+    /// DataSpace dspace(1, 3);
+    /// auto dims = dspace.getDimensions(); // returns {1, 3}
+    /// \endcode
+    ///
+    /// \sa DataSpace::getMaxDimensions
+    ///
+    /// \since 1.0
     std::vector<size_t> getDimensions() const;
 
-    /// \brief getElementCount
-    /// \return the total number of elements in the dataspace
+    /// \brief Return the number of elements in this DataSpace.
+    ///
+    /// \code{.cpp}
+    /// DataSpace dspace(1, 3);
+    /// size_t elementcount = dspace.getElementCount(); // return 1 x 3 = 3
+    /// \endcode
+    /// \since 2.1
     size_t getElementCount() const;
 
-    /// \brief getMaxDimensions
-    /// \return return a vector of N-element, each element is the size of the
-    /// associated dataset maximum dimension
+    /// \brief Returns the maximum size of the dataset in each dimension.
+    ///
+    /// This is the maximum size a dataset can be extended to, which may be
+    /// different from the current size of the dataset.
+    ///
+    /// \code{.cpp}
+    /// DataSpace dspace(std::vector<size_t>{1, 3}, std::vector<size_t>{UNLIMITED, 10};
+    /// dspace.getMaxDimensions(); // Return {UNLIMITED, 10}
+    /// \endcode
+    ///
+    /// \sa DataSpace::getDimensions
+    /// \since 2.0
     std::vector<size_t> getMaxDimensions() const;
 
-    /// Create a dataspace matching a type accepted by details::inspector
+    /// \brief Automatically deduce the DataSpace from a container/value.
+    ///
+    /// Certain containers and scalar values are fully supported by HighFive.
+    /// For these containers, HighFive can deduce the dimensions from `value`.
+    ///
+    /// \code{.cpp}
+    /// double d = 42.0;
+    /// std::vector<std::vector<int>> v = {{4, 5, 6}, {7, 8, 9}};
+    /// DataSpace::From(v); // A DataSpace of dimensions 2, 3.
+    /// DataSpace::From(d); // A scalar dataspace.
+    /// \endcode
+    ///
+    /// \since 1.0
     template <typename T>
     static DataSpace From(const T& value);
 
+    /// \brief Create a DataSpace from a value of type string array.
+    /// \param string_array An C-array of C-string (null-terminated).
+    ///
+    /// \code{.cpp}
+    /// char string_array[2][10] = {"123456789", "abcdefghi"};
+    /// auto dspace = DataSpace::FromCharArrayStrings(string_array); // dspace is a DataSpace of
+    /// dimensions 2
+    /// \endcode
+    /// \since 2.2
     template <std::size_t N, std::size_t Width>
-    static DataSpace FromCharArrayStrings(const char (&)[N][Width]);
+    static DataSpace FromCharArrayStrings(const char (&string_array)[N][Width]);
 
   protected:
     DataSpace() = default;
