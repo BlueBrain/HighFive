@@ -196,7 +196,7 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     auto r = details::data_converter::get_reader<T>(dims, array);
     read(r.get_pointer(), buffer_info.data_type, xfer_props);
     // re-arrange results
-    r.unserialize();
+    r.unserialize(array);
     auto t = create_datatype<typename details::inspector<T>::base_type>();
     auto c = t.getClass();
     if (c == DataTypeClass::VarLen || t.isVariableStr()) {
