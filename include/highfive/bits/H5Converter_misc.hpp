@@ -100,7 +100,7 @@ template <typename T, typename Enable = void>
 struct Reader;
 
 template <typename T>
-struct Reader<T, typename enable_shallow_copy<T>::type>: ShallowCopyBuffer<T, false> {
+struct Reader<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffer<T, false> {
   private:
     using super = ShallowCopyBuffer<T, false>;
     using type = typename super::type;
