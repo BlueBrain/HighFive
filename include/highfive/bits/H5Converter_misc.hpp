@@ -22,6 +22,7 @@ struct enable_shallow_copy: public std::enable_if<inspector<T>::is_trivially_cop
 template <class T, class V = void>
 struct enable_deep_copy: public std::enable_if<!inspector<T>::is_trivially_copyable, V> {};
 
+
 template <typename T, bool IsReadOnly>
 struct ShallowCopyBuffer {
     using type = unqualified_t<T>;
@@ -83,18 +84,17 @@ struct Writer<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using super = ShallowCopyBuffer<T, true>;
 
   public:
-    explicit Writer(const T& val)
+    explicit Writer(const T& val, const DataType& file_datatype)
         : super(val){};
 };
 
 template <typename T>
 struct Writer<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
-    explicit Writer(const T& val)
+    explicit Writer(const T& val, const DataType& file_datatype)
         : DeepCopyBuffer<T>(inspector<T>::getDimensions(val)) {
         inspector<T>::serialize(val, this->get_pointer());
     }
 };
-
 
 template <typename T, typename Enable = void>
 struct Reader;
@@ -106,7 +106,7 @@ struct Reader<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using type = typename super::type;
 
   public:
-    Reader(const std::vector<size_t>&, type& val)
+    Reader(const std::vector<size_t>&, type& val, const DataType&)
         : super(val) {}
 };
 
@@ -117,23 +117,26 @@ struct Reader<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
     using type = typename super::type;
 
   public:
-    Reader(const std::vector<size_t>& _dims, type&)
+    Reader(const std::vector<size_t>& _dims, type&, const DataType&)
         : super(_dims) {}
 };
 
 
 struct data_converter {
     template <typename T>
-    static Writer<T> serialize(const typename inspector<T>::type& val) {
-        return Writer<T>(val);
+    static Writer<T> serialize(const typename inspector<T>::type& val,
+                               const DataType& file_datatype) {
+        return Writer<T>(val, file_datatype);
     }
 
     template <typename T>
-    static Reader<T> get_reader(const std::vector<size_t>& dims, T& val) {
+    static Reader<T> get_reader(const std::vector<size_t>& dims,
+                                T& val,
+                                const DataType& file_datatype) {
         // TODO Use bufferinfo for recursive_ndim
         auto effective_dims = details::squeezeDimensions(dims, inspector<T>::recursive_ndim);
         inspector<T>::prepare(val, effective_dims);
-        return Reader<T>(effective_dims, val);
+        return Reader<T>(effective_dims, val, file_datatype);
     }
 };
 

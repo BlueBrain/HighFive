@@ -61,8 +61,9 @@ inline T Attribute::read() const {
 template <typename T>
 inline void Attribute::read(T& array) const {
     const DataSpace& mem_space = getMemSpace();
+    auto file_datatype = getDataType();
     const details::BufferInfo<T> buffer_info(
-        getDataType(),
+        file_datatype,
         [this]() -> std::string { return this->getName(); },
         details::BufferInfo<T>::read);
 
@@ -82,7 +83,7 @@ inline void Attribute::read(T& array) const {
         return;
     }
 
-    auto r = details::data_converter::get_reader<T>(dims, array);
+    auto r = details::data_converter::get_reader<T>(dims, array, file_datatype);
     read(r.get_pointer(), buffer_info.data_type);
     // re-arrange results
     r.unserialize(array);
@@ -125,8 +126,10 @@ inline void Attribute::write(const T& buffer) {
         return;
     }
 
+    auto file_datatype = getDataType();
+
     const details::BufferInfo<T> buffer_info(
-        getDataType(),
+        file_datatype,
         [this]() -> std::string { return this->getName(); },
         details::BufferInfo<T>::write);
 
@@ -136,7 +139,7 @@ inline void Attribute::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-    auto w = details::data_converter::serialize<T>(buffer);
+    auto w = details::data_converter::serialize<T>(buffer, file_datatype);
     write_raw(w.get_pointer(), buffer_info.data_type);
 }
 
