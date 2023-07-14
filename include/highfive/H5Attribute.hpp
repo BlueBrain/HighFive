@@ -40,19 +40,9 @@ namespace detail {
 Attribute make_attribute(hid_t hid);
 }  // namespace detail
 
-///
 /// \brief Class representing an Attribute of a DataSet or Group
 ///
-/// Create Attribute with AnnotateTraits::createAttribute
-///
-/// Access Attribute with AnnotateTraits::getAttribute
-///
-/// List all Attribute with AnnotateTraits::listAttributeNames
-///
-/// Check if an Attribute exists with AnnotateTraits::hasAttribute
-///
-/// Delete Attribute with AnnotateTraits::deleteAttribute
-///
+/// \sa AnnotateTraits::createAttribute, AnnotateTraits::getAttribute, AnnotateTraits::listAttributeNames, AnnotateTraits::hasAttribute, AnnotateTraits::deleteAttribute for create, get, list, check or delete Attribute
 class Attribute: public Object, public PathTraits<Attribute> {
   public:
     const static ObjectType type = ObjectType::Attribute;
