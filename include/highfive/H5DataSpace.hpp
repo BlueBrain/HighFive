@@ -121,7 +121,7 @@ class DataSpace: public Object {
     /// DataSpace(std::vector<size_t>{1, 3}, std::vector<size_t>{10, 10});
     /// \endcode
     ///
-    /// \see UNLIMITED for a DataSpace that can be resize without limit.
+    /// \see UNLIMITED for a DataSpace that can be resized without limit.
     /// \since 2.0
     explicit DataSpace(const std::vector<size_t>& dims, const std::vector<size_t>& maxdims);
 
