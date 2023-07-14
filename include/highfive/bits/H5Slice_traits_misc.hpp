@@ -172,8 +172,10 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
 
+    auto file_datatype = slice.getDataType();
+
     const details::BufferInfo<T> buffer_info(
-        slice.getDataType(),
+        file_datatype,
         [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::read);
 
@@ -193,7 +195,7 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
         return;
     }
 
-    auto r = details::data_converter::get_reader<T>(dims, array);
+    auto r = details::data_converter::get_reader<T>(dims, array, file_datatype);
     read(r.get_pointer(), buffer_info.data_type, xfer_props);
     // re-arrange results
     r.unserialize(array);
@@ -251,8 +253,10 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
         return;
     }
 
+    auto file_datatype = slice.getDataType();
+
     const details::BufferInfo<T> buffer_info(
-        slice.getDataType(),
+        file_datatype,
         [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::write);
 
@@ -263,7 +267,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
            << " into dataset with n = " << buffer_info.n_dimensions << " dimensions.";
         throw DataSpaceException(ss.str());
     }
-    auto w = details::data_converter::serialize<T>(buffer);
+    auto w = details::data_converter::serialize<T>(buffer, file_datatype);
     write_raw(w.get_pointer(), buffer_info.data_type, xfer_props);
 }
 
