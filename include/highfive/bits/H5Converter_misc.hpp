@@ -13,6 +13,14 @@
 #include "H5Inspector_misc.hpp"
 #include "../H5DataType.hpp"
 
+#ifndef __unused
+#ifdef _MSC_VER
+#define __highfive_unused 
+#else
+#define __highfive_unused __attribute__((__unused__))
+#endif
+#endif
+
 namespace HighFive {
 namespace details {
 
@@ -40,7 +48,7 @@ struct ShallowCopyBuffer {
         return ptr;
     }
 
-    void unserialize(T& val) const {
+    void unserialize(__highfive_unused T& val) const {
         /* nothing to do. */
     }
 
@@ -84,13 +92,13 @@ struct Writer<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using super = ShallowCopyBuffer<T, true>;
 
   public:
-    explicit Writer(const T& val, const DataType& file_datatype)
+    explicit Writer(const T& val, __highfive_unused const DataType& file_datatype)
         : super(val){};
 };
 
 template <typename T>
 struct Writer<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
-    explicit Writer(const T& val, const DataType& file_datatype)
+    explicit Writer(const T& val, __highfive_unused const DataType& file_datatype)
         : DeepCopyBuffer<T>(inspector<T>::getDimensions(val)) {
         inspector<T>::serialize(val, this->get_pointer());
     }
