@@ -40,7 +40,7 @@ struct ShallowCopyBuffer {
         return ptr;
     }
 
-    void unserialize(T& val) const {
+    void unserialize(T& /* val */) const {
         /* nothing to do. */
     }
 
@@ -84,13 +84,13 @@ struct Writer<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using super = ShallowCopyBuffer<T, true>;
 
   public:
-    explicit Writer(const T& val, const DataType& file_datatype)
+    explicit Writer(const T& val, const DataType& /* file_datatype */)
         : super(val){};
 };
 
 template <typename T>
 struct Writer<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
-    explicit Writer(const T& val, const DataType& file_datatype)
+    explicit Writer(const T& val, const DataType& /* file_datatype */)
         : DeepCopyBuffer<T>(inspector<T>::getDimensions(val)) {
         inspector<T>::serialize(val, this->get_pointer());
     }
@@ -106,7 +106,7 @@ struct Reader<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using type = typename super::type;
 
   public:
-    Reader(const std::vector<size_t>&, type& val, const DataType&)
+    Reader(const std::vector<size_t>&, type& val, const DataType& /* file_datatype */)
         : super(val) {}
 };
 
@@ -117,7 +117,7 @@ struct Reader<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
     using type = typename super::type;
 
   public:
-    Reader(const std::vector<size_t>& _dims, type&, const DataType&)
+    Reader(const std::vector<size_t>& _dims, type&, const DataType& /* file_datatype */)
         : super(_dims) {}
 };
 
