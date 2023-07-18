@@ -48,7 +48,6 @@ class Attribute: public Object, public PathTraits<Attribute> {
     const static ObjectType type = ObjectType::Attribute;
 
     /// \brief Get the name of the current Attribute.
-    /// \return the name of the attribute
     /// \code{.cpp}
     /// auto attr = dset.createAttribute<std::string>("my_attribute", DataSpace::From(string_list));
     /// std::cout << attr.getName() << std::endl; // Will print "my_attribute"
@@ -56,8 +55,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \since 2.2.2
     std::string getName() const;
 
-    /// \brief Get the amount of storage that is required for the current Attribute.
-    /// \return The amount of the storage.
+    /// \brief The number of bytes required to store the attribute in the HDF5 file.
     /// \code{.cpp}
     /// size_t size = dset.createAttribute<int>("foo", DataSpace(1, 2)).getStorageSize();
     /// \endcode
@@ -65,7 +63,6 @@ class Attribute: public Object, public PathTraits<Attribute> {
     size_t getStorageSize() const;
 
     /// \brief Get the DataType of the Attribute.
-    /// \return return the datatype associated with this Attribute.
     /// \code{.cpp}
     /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
     /// auto dtype = attr.getDataType(); // Will be an hdf5 type deduced from int
@@ -74,7 +71,6 @@ class Attribute: public Object, public PathTraits<Attribute> {
     DataType getDataType() const;
 
     /// \brief Get the DataSpace of the current Attribute.
-    /// \return return the DataSpace associated with this Attribute.
     /// \code{.cpp}
     /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
     /// auto dspace = attr.getSpace(); // This will be a DataSpace of dimension 1 * 2
@@ -83,18 +79,11 @@ class Attribute: public Object, public PathTraits<Attribute> {
     DataSpace getSpace() const;
 
     /// \brief Get the DataSpace of the current Attribute.
-    /// \return return the DataSpace associated with this Attribute.
     /// \note This is an alias of getSpace().
-    ///
-    /// \code{.cpp}
-    /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
-    /// auto dspace = attr.getMemSpace(); // This will be a DataSpace of dimension 1 * 2
-    /// \endcode
     /// \since 1.0
     DataSpace getMemSpace() const;
 
     /// \brief Get the value of the Attribute.
-    /// \return The value.
     /// \code{.cpp}
     /// Attribute attr = dset.getAttribute("foo");
     /// // The value will contains what have been written in the attribute
@@ -106,46 +95,62 @@ class Attribute: public Object, public PathTraits<Attribute> {
 
     /// \brief Get the value of the Attribute in a buffer.
     ///
-    /// Read the attribute into a buffer
-    /// An exception is raised if the numbers of dimension of the buffer and of
-    /// the attribute are different
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
-    /// dimensional array )
+    /// Read the attribute into an existing object. Only available for
+    /// supported types `T`. If `array` has preallocated the correct amount of
+    /// memory, then this routine should not trigger reallocation. Otherwise,
+    /// if supported, the object will be resized.
     ///
-    /// \param array A already allocated value of the right dimension.
+    /// An exception is raised if the numbers of dimension of the buffer and of
+    /// the attribute are different.
     ///
     /// \code{.cpp}
-    /// Attribute attr = dset.getAttribute("foo");
-    /// std::vector<int> value;
-    /// attr.read(value);
+    /// // Will read into `value` avoiding memory allocation if the dimensions
+    /// // match, i.e. if the attribute `"foo"` has three element.
+    /// std::vector<int> value(3);
+    /// file.getAttribute("foo").read(value);
     /// \endcode
     /// \since 1.0
     template <typename T>
     void read(T& array) const;
 
-    /// \brief Read the attribute into a buffer explicitly defining its type.
-    /// \param array The already allocated array.
+    /// \brief Read the attribute into a pre-allocated buffer.
+    /// \param array A pointer to the first byte of sufficient pre-allocated memory.
     /// \param mem_datatype The DataType of the array.
     ///
-    /// \note This is the shallowest wrapper around `H5Aread`.
+    /// \note This is the shallowest wrapper around `H5Aread`. If possible
+    /// prefer either Attribute::read() const or Attribute::read(T&) const.
     ///
     /// \code{.cpp}
-    /// Attribute attr = dset.getAttribute("foo");
-    /// std::vector<int> value(2); // You should allocate vector yourself before
-    /// attr.read(value.data(), dtype);
+    /// auto attr = file.getAttribute("foo");
+    ///
+    /// // Simulate custom allocation by the application.
+    /// size_t n_elements = attr.getSpace().getElementCount();
+    /// int * ptr = (int*) malloc(n_elements*sizeof(int));
+    ///
+    /// // Read into the pre-allocated memory.
+    /// attr.read(ptr, mem_datatype);
     /// \endcode
     /// \since 2.2.2
     template <typename T>
     void read(T* array, const DataType& mem_datatype) const;
 
     /// \brief Read the attribute into a buffer.
-    /// \param array An already allocated array.
+    /// Behaves like Attribute::read(T*, const DataType&) const but
+    /// additionally this overload deduces the memory datatype from `T`.
     ///
-    /// This overload deduces the memory datatype from `T`.
+    /// \param array Pointer to the first byte of pre-allocated memory.
+    ///
+    /// \note If possible prefer either Attribute::read() const or Attribute::read(T&) const.
+    ///
     /// \code{.cpp}
-    /// Attribute attr = dset.getAttribute("foo");
-    /// std::vector<int> value(2); // You should allocate vector yourself before
-    /// attr.read(value.data());
+    /// auto attr = file.getAttribute("foo");
+    ///
+    /// // Simulate custom allocation by the application.
+    /// size_t n_elements = attr.getSpace().getElementCount();
+    /// int * ptr = (int*) malloc(n_elements*sizeof(int));
+    ///
+    /// // Read into the pre-allocated memory.
+    /// attr.read(ptr);
     /// \endcode
     /// \since 2.2.2
     template <typename T>
@@ -153,56 +158,84 @@ class Attribute: public Object, public PathTraits<Attribute> {
 
     /// \brief Write the value into the Attribute.
     ///
-    /// Write the integrality N-dimension buffer to this attribute
-    /// An exception is raised if the numbers of dimension of the buffer and of
-    /// the attribute are different
+    /// Write the value to the attribute. For supported types `T`, this overload
+    /// will write the value to the attribute. The datatype and dataspace are
+    /// deduced automatically. However, since the attribute has already been
+    /// created, the dimensions of `value` must match those of the attribute.
     ///
-    /// The array type can be a N-pointer or a N-vector ( e.g int** integer two
-    /// dimensional array )
     /// \code{.cpp}
-    /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
-    /// std::vector<std::vector<int>> value{{1, 2}};
-    /// attr.write(value);
+    /// // Prefer the fused version if creating and writing the attribute
+    /// // at the same time.
+    /// dset.createAttribute("foo", std::vector<int>{1, 2, 3});
+    ///
+    /// // To overwrite the value:
+    /// std::vector<int> value{4, 5, 6};
+    /// dset.getAttribute<int>("foo").write(value);
     /// \endcode
     /// \since 1.0
     template <typename T>
-    void write(const T& buffer);
+    void write(const T& value);
 
-    /// \brief Write to this attribute from `buffer`.
-    /// \param buffer the buffer to write into the Attribute.
+    /// \brief Write from a raw pointer.
+    ///
+    /// Values that have been correctly arranged memory, can be written directly
+    /// by passing a raw pointer.
+    ///
+    /// \param buffer Pointer to the first byte of the value.
     /// \param mem_datatype The DataType of the buffer.
     ///
     /// \note This is the shallowest wrapper around `H5Awrite`. It's useful
     /// if you need full control. If possible prefer Attribute::write.
     ///
     /// \code{.cpp}
-    /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
-    /// std::vector<std::vector<int>> value{{1, 2}};
-    /// attr.write(value.data(), AtomicType<int>());
+    /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(2, 3));
+    ///
+    /// // Simulate the application creating `value` and only exposing access
+    /// // to the raw pointer `ptr`.
+    /// std::vector<std::array<int, 3>> value{{1, 2, 3}, {4, 5, 6}};
+    /// int * ptr = (int*) value.data();
+    ///
+    /// // Simply write the bytes to disk.
+    /// attr.write(ptr, AtomicType<int>());
     /// \endcode
     /// \since 2.2.2
     template <typename T>
     void write_raw(const T* buffer, const DataType& mem_datatype);
 
-    /// \brief Write to this attribute from `buffer`.
-    /// \param buffer The buffer to write into the attribute.
+    /// \brief Write from a raw pointer.
     ///
-    /// This version attempts to automatically deduce the datatype
-    /// of the buffer. Note, that the file datatype is already set.
+    /// Much like Attribute::write_raw(const T*, const DataType&).
+    /// Additionally, this overload attempts to automatically deduce the
+    /// datatype of the buffer. Note, that the file datatype is already set.
+    ///
+    /// \param buffer Pointer to the first byte.
+    ///
+    /// \note If possible prefer Attribute::write.
+    ///
     /// \code{.cpp}
-    /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
-    /// std::vector<std::vector<int>> value{{1, 2}};
-    /// attr.write(value.data());
+    /// // Simulate the application creating `value` and only exposing access
+    /// // to the raw pointer `ptr`.
+    /// std::vector<std::array<int, 3>> value{{1, 2, 3}, {4, 5, 6}};
+    /// int * ptr = (int*) value.data();
+    ///
+    /// // Simply write the bytes to disk.
+    /// attr.write(ptr);
     /// \endcode
     /// \since 2.2.2
     template <typename T>
     void write_raw(const T* buffer);
 
-    /// \brief Get the list of properties for creation of this attribute.
-    /// \return Properties for creation of this Attribute.
+    /// \brief The create property list used for this attribute.
+    ///
+    /// Some of HDF5 properties/setting of an attribute are defined by a
+    /// create property list. This method returns a copy of the create
+    /// property list used during creation of the attribute.
+    ///
     /// \code{.cpp}
-    /// Attribute attr = dset.getAttribute("foo");
-    /// auto props = attr.getCreatePropertyList();
+    /// auto acpl = attr.getCreatePropertyList();
+    ///
+    /// // For example to create another attribute with the same properties.
+    /// file.createAttribute("foo", 42, acpl);
     /// \endcode
     /// \since 2.5.0
     AttributeCreateProps getCreatePropertyList() const {
