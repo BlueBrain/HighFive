@@ -36,6 +36,7 @@ option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
 option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
+option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" ON)
 
 # Controls if HighFive classes are friends of each other.
 #
@@ -91,6 +92,10 @@ if(HIGHFIVE_USE_XTENSOR AND CMAKE_CXX_STANDARD LESS 14)
 endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
+
+if(HIGHFIVE_USE_CONCEPTS AND CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+  add_compile_definitions(HIGHFIVE_HAS_CONCEPTS)
+endif()
 
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)

@@ -142,7 +142,7 @@ class PropertyListBase: public Object {
 /// \sa Instructions to document C++20 concepts with Doxygen: https://github.com/doxygen/doxygen/issues/2732#issuecomment-509629967
 ///
 /// \cond
-#if __cplusplus >= 202002L
+#if HIGHFIVE_HAS_CONCEPTS && __cplusplus >= 202002L
 template <typename P>
 concept PropertyInterface = requires(P p, const hid_t hid) {
     {p.apply(hid)};
