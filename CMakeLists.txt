@@ -93,10 +93,6 @@ endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
 
-if(HIGHFIVE_USE_CONCEPTS AND CMAKE_CXX_STANDARD GREATER_EQUAL 20)
-  add_compile_definitions(HIGHFIVE_HAS_CONCEPTS)
-endif()
-
 # Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
 include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
 
