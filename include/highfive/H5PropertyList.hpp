@@ -133,6 +133,26 @@ class PropertyListBase: public Object {
     friend T details::get_plist(const U&, hid_t (*f)(hid_t));
 };
 
+/// \interface PropertyInterface
+/// \brief HDF5 file property object
+///
+/// A property is an object which is expected to have a method with the
+/// following signature `void apply(hid_t hid) const`
+///
+/// \sa Instructions to document C++20 concepts with Doxygen: https://github.com/doxygen/doxygen/issues/2732#issuecomment-509629967
+///
+/// \cond
+#if HIGHFIVE_HAS_CONCEPTS && __cplusplus >= 202002L
+template <typename P>
+concept PropertyInterface = requires(P p, const hid_t hid) {
+    {p.apply(hid)};
+};
+
+#else
+#define PropertyInterface typename
+#endif
+/// \endcond
+
 ///
 /// \brief HDF5 property Lists
 ///
@@ -149,8 +169,8 @@ class PropertyList: public PropertyListBase {
     /// Add a property to this property list.
     /// A property is an object which is expected to have a method with the
     /// following signature void apply(hid_t hid) const
-    ///
-    template <typename P>
+    /// \tparam PropertyInterface
+    template <PropertyInterface P>
     void add(const P& property);
 
     ///
@@ -438,6 +458,7 @@ class PageBufferSize {
 #endif
 
 /// \brief Set hints as to how many links to expect and their average length
+/// \implements PropertyInterface
 ///
 class EstimatedLinkInfo {
   public:
@@ -463,6 +484,7 @@ class EstimatedLinkInfo {
 };
 
 
+/// \implements PropertyInterface
 class Chunking {
   public:
     explicit Chunking(const std::vector<hsize_t>& dims);
@@ -481,6 +503,7 @@ class Chunking {
     std::vector<hsize_t> _dims;
 };
 
+/// \implements PropertyInterface
 class Deflate {
   public:
     explicit Deflate(unsigned level);
@@ -492,6 +515,7 @@ class Deflate {
     const unsigned _level;
 };
 
+/// \implements PropertyInterface
 class Szip {
   public:
     explicit Szip(unsigned options_mask = H5_SZIP_EC_OPTION_MASK,
@@ -507,6 +531,7 @@ class Szip {
     const unsigned _pixels_per_block;
 };
 
+/// \implements PropertyInterface
 class Shuffle {
   public:
     Shuffle() = default;
@@ -521,6 +546,7 @@ class Shuffle {
 /// The precise time of when HDF5 requests space to store the dataset
 /// can be configured. Please, consider the upstream documentation for
 /// `H5Pset_alloc_time`.
+/// \implements PropertyInterface
 class AllocationTime {
   public:
     explicit AllocationTime(H5D_alloc_time_t alloc_time);
@@ -537,6 +563,7 @@ class AllocationTime {
 
 /// Dataset access property to control chunk cache configuration.
 /// Do not confuse with the similar file access property for H5Pset_cache
+/// \implements PropertyInterface
 class Caching {
   public:
     /// https://support.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_chunk_cache.html for
@@ -559,6 +586,7 @@ class Caching {
     double _w0;
 };
 
+/// \implements PropertyInterface
 class CreateIntermediateGroup {
   public:
     explicit CreateIntermediateGroup(bool create = true);
@@ -579,6 +607,7 @@ class CreateIntermediateGroup {
 };
 
 #ifdef H5_HAVE_PARALLEL
+/// \implements PropertyInterface
 class UseCollectiveIO {
   public:
     explicit UseCollectiveIO(bool enable = true);
@@ -601,6 +630,7 @@ class UseCollectiveIO {
 /// creation of this object. This object will not update automatically for later data transfers,
 /// i.e. `H5Pget_mpio_no_collective_cause` is called in the constructor, and not when fetching
 /// a value, such as `wasCollective`.
+/// \implements PropertyInterface
 class MpioNoCollectiveCause {
   public:
     explicit MpioNoCollectiveCause(const DataTransferProps& dxpl);
@@ -636,6 +666,7 @@ struct CreationOrder {
 ///
 /// Let user retrieve objects by creation order time instead of name.
 ///
+/// \implements PropertyInterface
 class LinkCreationOrder {
   public:
     ///
@@ -671,6 +702,7 @@ class LinkCreationOrder {
 /// Please refer to the upstream documentation of `H5Pset_attr_phase_change` or
 /// Section 8 (Attributes) in the User Guide, in particular Subsection 8.5.
 ///
+/// \implements PropertyInterface
 class AttributePhaseChange {
   public:
     ///
