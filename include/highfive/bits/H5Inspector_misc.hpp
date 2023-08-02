@@ -11,6 +11,7 @@
 
 #include <type_traits>
 #include <cstring>
+#include <cassert>
 #include <numeric>
 
 #include "../H5Reference.hpp"
@@ -369,7 +370,10 @@ struct inspector<std::vector<T>> {
         sizes[0] = val.size();
         if (!val.empty()) {
             auto s = inspector<value_type>::getDimensions(val[0]);
-            std::copy(s.begin(), s.end(), sizes.begin() + 1);
+            assert(s.size() + ndim == sizes.size());
+            for (size_t i = 0; i < s.size(); ++i) {
+                sizes[i + ndim] = s[i];
+            }
         }
         return sizes;
     }
