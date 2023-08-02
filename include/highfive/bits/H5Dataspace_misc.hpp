@@ -62,9 +62,9 @@ inline DataSpace::DataSpace(const std::vector<size_t>& dims, const std::vector<s
     }
 }  // namespace HighFive
 
-inline DataSpace::DataSpace(DataSpace::DataspaceType dtype) {
+inline DataSpace::DataSpace(DataSpace::DataspaceType space_type) {
     H5S_class_t h5_dataspace_type;
-    switch (dtype) {
+    switch (space_type) {
     case DataSpace::dataspace_scalar:
         h5_dataspace_type = H5S_SCALAR;
         break;
