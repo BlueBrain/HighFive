@@ -36,6 +36,8 @@ if(NOT TARGET libdeps)
   target_include_directories(libdeps SYSTEM INTERFACE ${HDF5_INCLUDE_DIRS})
   target_link_libraries(libdeps INTERFACE ${HDF5_LIBRARIES})
   target_compile_definitions(libdeps INTERFACE ${HDF5_DEFINITIONS})
+  target_compile_definitions(libdeps INTERFACE HIGHFIVE_HAS_CONCEPTS=$<BOOL:${HIGHFIVE_HAS_CONCEPTS}>)
+
 
   # Boost
   if(HIGHFIVE_USE_BOOST)

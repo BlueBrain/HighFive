@@ -54,6 +54,9 @@ jobs:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
               flags: '-DCMAKE_CXX_STANDARD=17'
+          - config:
+              os: ubuntu-22.04
+              flags: '-DHIGHFIVE_USE_BOOST=Off -DCMAKE_CXX_STANDARD=20'
 
     steps:
     - uses: actions/checkout@v3
@@ -262,7 +265,11 @@ jobs:
   # Job testing in OSX
   # ==================
   OSX:
-    runs-on: macOS-12
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ "macOS-12" ]
+        cxxstd: ["14", "17", "20"]
 
     steps:
     - uses: actions/checkout@v3
@@ -282,6 +289,7 @@ jobs:
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
           -DCMAKE_CXX_FLAGS="-coverage -O0"
+          -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
         )
         source $GITHUB_WORKSPACE/.github/build.sh
 
@@ -302,7 +310,7 @@ jobs:
       matrix:
         os: [ "windows-2022"]
         vs-toolset: [ "v141", "v143" ]
-        cxxstd: ["14", "17"]
+        cxxstd: ["14", "17", "20"]
 
         include:
           - os: "windows-2019"

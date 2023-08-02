@@ -36,6 +36,7 @@ option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
 option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
 option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
+option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" ON)
 
 # Controls if HighFive classes are friends of each other.
 #
