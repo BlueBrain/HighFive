@@ -1,8 +1,8 @@
-include_directories(${HDF5_INCLUDE_DIRS})
+include(HighFiveWarnings)
 
-function(compile_example exemple_source)
+function(compile_example example_source)
 
-    get_filename_component(example_filename ${exemple_source} NAME)
+    get_filename_component(example_filename ${example_source} NAME)
     string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
     if(${example_filename} MATCHES ".*eigen.*")
@@ -32,13 +32,15 @@ function(compile_example exemple_source)
     if(${example_name} MATCHES ".*hl_hdf5.*")
         find_package(HDF5 QUIET COMPONENTS HL NAMES HDF5_HL)
         if(${HDF5_HL_FOUND})
-            add_executable(${example_name} ${exemple_source})
-            target_link_libraries(${example_name} HighFive ${HDF5_HL_LIBRARIES})
+            message("HDF5 HL: ${HDF5_HL_LIBRARIES}")
+            add_executable(${example_name} ${example_source})
+            target_link_libraries(${example_name} HighFive HighFiveWarnings ${HDF5_HL_LIBRARIES})
         endif()
-    else()
-        add_executable(${example_name} ${exemple_source})
-        target_link_libraries(${example_name} HighFive)
+        return()
     endif()
+
+    add_executable(${example_name} ${example_source})
+    target_link_libraries(${example_name} HighFive HighFiveWarnings)
 
 endfunction()
 

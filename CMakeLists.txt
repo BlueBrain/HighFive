@@ -11,9 +11,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/highfive/H5Version.hpp)
 # INCLUDES
 list(APPEND CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/CMake
-  ${PROJECT_SOURCE_DIR}/CMake/portability
-  ${PROJECT_SOURCE_DIR}/CMake/config)
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMake/config)
 
 # OPTIONS
 # Compatibility within Highfive 2.x series
@@ -134,15 +133,6 @@ if(HIGHFIVE_UNIT_TESTS)
     endif()
   endif()
 endif()
-
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-  # ICC gets mad if we shorten "int"s
-  add_definitions("-wd1682")
-endif()
-
-# Set compile time flags _after_ including required dependencies
-include(ReleaseDebugAutoFlags)
 
 if(HIGHFIVE_EXAMPLES)
   add_subdirectory(src/examples)

@@ -1,5 +1,6 @@
 include(CTest)
 include(Catch)
+include(HighFiveWarnings)
 
 if(MSVC)
   add_definitions(/bigobj)
@@ -8,7 +9,7 @@ endif()
 ## Base tests
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy test_all_types)
   add_executable(${test_name} "${test_name}.cpp")
-  target_link_libraries(${test_name} HighFive Catch2::Catch2WithMain)
+  target_link_libraries(${test_name} HighFive HighFiveWarnings Catch2::Catch2WithMain)
   catch_discover_tests(${test_name})
 endforeach()
 
@@ -18,7 +19,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
 
   ## parallel MPI tests
   add_executable(tests_parallel_bin ${tests_parallel_src})
-  target_link_libraries(tests_parallel_bin HighFive Catch2::Catch2)
+  target_link_libraries(tests_parallel_bin HighFive HighFiveWarnings Catch2::Catch2)
 
   # We need to patch in a call to `mpirun` or equivalent when using
   # parallel tests. Somehow, this is not foreseen in Catch2, modify the
@@ -48,6 +49,6 @@ if(HIGHFIVE_TEST_SINGLE_INCLUDES)
         get_filename_component(CLASS_NAME ${PUBLIC_HEADER} NAME_WE)
         configure_file(tests_import_public_headers.cpp "tests_${CLASS_NAME}.cpp" @ONLY)
         add_executable("tests_include_${CLASS_NAME}" "${CMAKE_CURRENT_BINARY_DIR}/tests_${CLASS_NAME}.cpp")
-        target_link_libraries("tests_include_${CLASS_NAME}" HighFive)
+        target_link_libraries("tests_include_${CLASS_NAME}" HighFive HighFiveWarnings)
     endforeach()
 endif()
