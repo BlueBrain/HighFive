@@ -1,4 +1,4 @@
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 
 typedef struct {

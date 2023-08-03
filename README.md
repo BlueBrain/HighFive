@@ -53,7 +53,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 #### Write a std::vector<int> to 1D HDF5 dataset and read it back
 
 ```c++
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 using namespace HighFive;
 

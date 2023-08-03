@@ -10,10 +10,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
-#include <highfive/H5Reference.hpp>
+#include <highfive/highfive.hpp>
 
 // create a dataset 1D from a vector of int
 void write_dataset() {

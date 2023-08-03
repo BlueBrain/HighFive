@@ -10,9 +10,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 const std::string FILE_NAME("create_extensible_dataset_example.h5");
 const std::string DATASET_NAME("dset");

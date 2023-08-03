@@ -1,11 +1,9 @@
 #include <complex>
 
 #define H5_USE_BOOST 1
+#include <highfive/highfive.hpp>
 
 #include <boost/multi_array.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
 
 using complex_t = std::complex<double>;
 

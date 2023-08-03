@@ -1,7 +1,6 @@
 #include <iostream>
 
-#include <highfive/H5File.hpp>
-#include <highfive/H5DataType.hpp>
+#include <highfive/highfive.hpp>
 
 using namespace HighFive;
 

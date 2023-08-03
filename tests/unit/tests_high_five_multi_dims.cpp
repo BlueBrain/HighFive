@@ -10,8 +10,7 @@
 #include <string>
 #include <iostream>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 
 #ifdef H5_USE_BOOST

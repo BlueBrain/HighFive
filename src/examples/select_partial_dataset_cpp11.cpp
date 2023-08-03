@@ -11,9 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5File.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
+#include <highfive/highfive.hpp>
 
 const std::string file_name("select_partial_example.h5");
 const std::string dataset_name("dset");

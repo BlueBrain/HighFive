@@ -13,15 +13,11 @@
 #include <typeinfo>
 #include <vector>
 
-#include <highfive/H5File.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5Group.hpp>
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_session.hpp>
 
+#include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
 
 using namespace HighFive;
