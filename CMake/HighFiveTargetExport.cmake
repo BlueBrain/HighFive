@@ -4,7 +4,6 @@ add_library(libheaders INTERFACE)
 
 target_include_directories(libheaders INTERFACE
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-  "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
   "$<INSTALL_INTERFACE:include>")
 
 # Combined HighFive

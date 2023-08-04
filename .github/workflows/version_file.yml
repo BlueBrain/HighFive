@@ -1,0 +1,36 @@
+name: HighFive Check Version File
+
+on:
+  push:
+    branches:
+      - ci_test
+      - release/**
+  pull_request:
+    branches:
+      - master
+      - release/**
+
+jobs:
+  CheckVersion:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Install libraries"
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get -qq install libhdf5-dev ninja-build
+
+    - name: Build
+      run: |
+        # Will trigger `configure_file` for H5Version.hpp.
+        cmake -DHIGHFIVE_USE_BOOST=Off -B build .
+
+    - name: Test
+      run: |
+        # Check that the file hasn't changed, i.e. was updated
+        # after changing the version number.
+        ! git status | grep include/highfive/H5Version.hpp
