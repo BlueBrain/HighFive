@@ -1,5 +1,7 @@
 #pragma once
 
+#include <H5Tpublic.h>
+
 namespace HighFive {
 
 enum class StringPadding : std::underlying_type<H5T_str_t>::type {
