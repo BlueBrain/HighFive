@@ -27,18 +27,7 @@ if(NOT TARGET libdeps)
   if(NOT DEFINED HDF5_C_LIBRARIES)
     set(HDF5_PREFER_PARALLEL ${HIGHFIVE_PARALLEL_HDF5})
     set(HDF5_USE_STATIC_LIBRARIES ${HIGHFIVE_STATIC_HDF5})
-    
-    if (HIGHFIVE_FETCH_CONTENT_HDF5)
-      include(FetchContent)
-      FetchContent_Declare(
-        hdf5
-        GIT_REPOSITORY https://github.com/HDFGroup/hdf5.git
-        GIT_TAG hdf5-1_14_2
-      )
-      FetchContent_MakeAvailable(hdf5)
-    else()
-      find_package(HDF5 REQUIRED)
-    endif()
+    find_package(HDF5 REQUIRED)
   endif()
 
   if(HIGHFIVE_PARALLEL_HDF5 AND NOT HDF5_IS_PARALLEL)
