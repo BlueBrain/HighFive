@@ -318,7 +318,7 @@ TEST_CASE("Test allocation time") {
 }
 
 TEST_CASE("Test default constructors") {
-    const std::string file_name("h5_group_test.h5");
+    const std::string file_name("h5_default_ctors.h5");
     const std::string dataset_name("dset");
     File file(file_name, File::Truncate);
     auto ds = file.createDataSet(dataset_name, std::vector<int>{1, 2, 3, 4, 5});
@@ -2439,7 +2439,7 @@ TEST_CASE("HighFiveHardLinks Group") {
 }
 
 TEST_CASE("HighFiveRename") {
-    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+    File file("h5_rename.h5", File::ReadWrite | File::Create | File::Truncate);
 
     int number = 100;
 
@@ -2464,7 +2464,7 @@ TEST_CASE("HighFiveRename") {
 }
 
 TEST_CASE("HighFiveRenameRelative") {
-    File file("move.h5", File::ReadWrite | File::Create | File::Truncate);
+    File file("h5_rename_relative.h5", File::ReadWrite | File::Create | File::Truncate);
     Group group = file.createGroup("group");
 
     int number = 100;
