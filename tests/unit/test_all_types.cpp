@@ -22,7 +22,7 @@
 using namespace HighFive;
 
 TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
-    const std::string FILE_NAME("rw_dataset" + typeNameHelper<TestType>() + ".h5");
+    const std::string FILE_NAME("rw_dataset_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     TestType t1{};
 
@@ -52,7 +52,7 @@ TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
 }
 
 TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector", "[Types]", std::vector, (bool, std::string)) {
-    const std::string FILE_NAME("rw_dataset" + typeNameHelper<TestType>() + ".h5");
+    const std::string FILE_NAME("rw_dataset_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     TestType t1(5);
 
