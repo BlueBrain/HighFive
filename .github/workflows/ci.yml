@@ -80,7 +80,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
 
 
   # Job testing several versions of hdf5
@@ -118,7 +118,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
 
 
     - name: Examples
@@ -156,7 +156,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -199,7 +199,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -295,7 +295,7 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -348,4 +348,4 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       shell: bash -l {0}
-      run: ctest --output-on-failure -C $BUILD_TYPE
+      run: ctest -j2 --output-on-failure -C $BUILD_TYPE

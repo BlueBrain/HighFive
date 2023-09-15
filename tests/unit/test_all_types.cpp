@@ -22,7 +22,7 @@
 using namespace HighFive;
 
 TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
-    const std::string FILE_NAME("Test_type.h5");
+    const std::string FILE_NAME("rw_dataset_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     TestType t1{};
 
@@ -52,7 +52,7 @@ TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
 }
 
 TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector", "[Types]", std::vector, (bool, std::string)) {
-    const std::string FILE_NAME("Test_vector.h5");
+    const std::string FILE_NAME("rw_dataset_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     TestType t1(5);
 
@@ -84,7 +84,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
                            "[Types]",
                            std::vector,
                            (bool, std::string)) {
-    const std::string FILE_NAME("Test_vector_vector.h5");
+    const std::string FILE_NAME("rw_dataset_vector_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     std::vector<TestType> t1(5);
     for (auto&& e: t1) {
@@ -118,7 +118,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
 }
 
 TEMPLATE_TEST_CASE("Scalar in std::array", "[Types]", bool, std::string) {
-    const std::string FILE_NAME("Test_array.h5");
+    const std::string FILE_NAME("rw_dataset_array_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     std::array<TestType, 5> t1{};
 
@@ -149,7 +149,7 @@ TEMPLATE_TEST_CASE("Scalar in std::array", "[Types]", bool, std::string) {
 }
 
 TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>", "[Types]", bool, std::string) {
-    const std::string FILE_NAME("Test_vector_array.h5");
+    const std::string FILE_NAME("rw_dataset_vector_array_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     std::vector<std::array<TestType, 6>> t1(5);
 
@@ -182,7 +182,7 @@ TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>", "[Types]", bool, std::st
 
 #if HIGHFIVE_CXX_STD >= 17
 TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::byte>", "[Types]", std::vector, std::byte) {
-    const std::string FILE_NAME("Test_vector_byte.h5");
+    const std::string FILE_NAME("rw_dataset_vector_" + typeNameHelper<TestType>() + ".h5");
     const std::string DATASET_NAME("dset");
     TestType t1(5, std::byte(0xCD));
 

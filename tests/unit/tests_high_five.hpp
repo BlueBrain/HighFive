@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <sstream>
+#include <functional>
+#include <iomanip>
 
 // We don't need windows specific functionality. However, to better detect defects caused by macros,
 // we include this header.
@@ -162,15 +165,21 @@ struct ContentGenerate<std::string> {
 template <typename T>
 inline std::string typeNameHelper() {
     std::string name = typeid(T).name();
-#if defined(WIN32)
-    // Replace illegal windows file path characters
     std::replace(std::begin(name), std::end(name), ' ', '_');
     std::replace(std::begin(name), std::end(name), '<', '_');
     std::replace(std::begin(name), std::end(name), '>', '_');
     std::replace(std::begin(name), std::end(name), ':', '_');
-#endif
-    return name;
+
+    if (name.size() > 64) {
+        std::stringstream hash;
+        hash << std::hex << std::hash<std::string>{}(name);
+
+        return hash.str();
+    } else {
+        return name;
+    }
 }
+
 
 template <typename ElemT, typename DataT>
 inline HighFive::DataSet readWriteDataset(const DataT& ndvec,
