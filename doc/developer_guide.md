@@ -42,7 +42,7 @@ the git repository. Conveniently, `clang-format` is available via `pip`:
 python -m venv venv
 source venv/bin/activate
 
-pip install clang-format=12.0.1
+pip install clang-format==12.0.1
 ```
 
 The changed lines can be formatted with `git-clang-format`, e.g. to format all lines changed compared to master:
