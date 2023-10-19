@@ -317,13 +317,21 @@ TEST_CASE("Test allocation time") {
     CHECK(alloc_size == data.size() * sizeof(decltype(data)::value_type));
 }
 
+/*
+ * Test to ensure legacy support: DataSet used to have a default constructor.
+ * However, it is not useful to have a DataSet object that does not actually
+ * refer to a dataset in a file. Hence, the the default constructor was
+ * deprecated.
+ * This test is to ensure that the constructor is not accidentally removed and
+ * thereby break users' code.
+ */
 TEST_CASE("Test default constructors") {
     const std::string file_name("h5_default_ctors.h5");
     const std::string dataset_name("dset");
     File file(file_name, File::Truncate);
     auto ds = file.createDataSet(dataset_name, std::vector<int>{1, 2, 3, 4, 5});
 
-    DataSet d2;  // deprecated as it constructs unsafe objects
+    DataSet d2;  // expect deprecation warning, as it constructs unsafe object
     // d2.getFile();  // runtime error
     CHECK(!d2.isValid());
     d2 = ds;  // copy
