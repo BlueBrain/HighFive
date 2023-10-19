@@ -61,31 +61,57 @@ TEST_CASE("H5Easy_scalar") {
     double a = 1.2345;
     int b = 12345;
     std::string c = "12345";
+    std::complex<double> d = std::complex<double>(1.2345, -5.4321);
+    std::complex<int32_t> e = std::complex<int32_t>(12345, -54321);
 
     H5Easy::dump(file, "/path/to/a", a);
     H5Easy::dump(file, "/path/to/b", b);
     H5Easy::dump(file, "/path/to/c", c);
     H5Easy::dump(file, "/path/to/c", c, H5Easy::DumpMode::Overwrite);
+    H5Easy::dump(file, "/path/to/d", d);
+    H5Easy::dump(file, "/path/to/e", e);
 
     double a_r = H5Easy::load<double>(file, "/path/to/a");
     int b_r = H5Easy::load<int>(file, "/path/to/b");
     std::string c_r = H5Easy::load<std::string>(file, "/path/to/c");
+    std::complex<double> d_r = H5Easy::load<std::complex<double>>(file, "/path/to/d");
+    std::complex<int32_t> e_r = H5Easy::load<std::complex<int32_t>>(file, "/path/to/e");
 
     CHECK(a == a_r);
     CHECK(b == b_r);
     CHECK(c == c_r);
+    CHECK(d == d_r);
+    CHECK(e == e_r);
 }
 
 TEST_CASE("H5Easy_vector1d") {
     H5Easy::File file("h5easy_vector1d.h5", H5Easy::File::Overwrite);
 
     std::vector<size_t> a = {1, 2, 3, 4, 5};
+    std::vector<std::complex<double>> b = {std::complex<double>(1, .1),
+                                           std::complex<double>(2, -.4),
+                                           std::complex<double>(3, .9),
+                                           std::complex<double>(4, -.16),
+                                           std::complex<double>(5, .25)};
+    std::vector<std::complex<int32_t>> c = {std::complex<int32_t>(1, -5),
+                                            std::complex<int32_t>(2, -4),
+                                            std::complex<int32_t>(3, -3),
+                                            std::complex<int32_t>(4, -2),
+                                            std::complex<int32_t>(5, -1)};
 
     H5Easy::dump(file, "/path/to/a", a);
+    H5Easy::dump(file, "/path/to/b", b);
+    H5Easy::dump(file, "/path/to/c", c);
 
     std::vector<size_t> a_r = H5Easy::load<std::vector<size_t>>(file, "/path/to/a");
+    std::vector<std::complex<double>> b_r =
+        H5Easy::load<std::vector<std::complex<double>>>(file, "/path/to/b");
+    std::vector<std::complex<int32_t>> c_r =
+        H5Easy::load<std::vector<std::complex<int32_t>>>(file, "/path/to/c");
 
     CHECK(a == a_r);
+    CHECK(b == b_r);
+    CHECK(c == c_r);
 }
 
 TEST_CASE("H5Easy_vector2d") {
