@@ -488,6 +488,7 @@ struct inspector<std::array<T, N>> {
     static constexpr size_t ndim = 1;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  sizeof(type) == N * sizeof(T) &&
                                                   inspector<value_type>::is_trivially_copyable;
 
     static std::vector<size_t> getDimensions(const type& val) {
