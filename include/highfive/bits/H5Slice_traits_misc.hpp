@@ -199,7 +199,8 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     read(r.getPointer(), buffer_info.data_type, xfer_props);
     // re-arrange results
     r.unserialize(array);
-    auto t = create_datatype<typename details::inspector<T>::base_type>();
+
+    auto t = buffer_info.data_type;
     auto c = t.getClass();
     if (c == DataTypeClass::VarLen || t.isVariableStr()) {
 #if H5_VERSION_GE(1, 12, 0)

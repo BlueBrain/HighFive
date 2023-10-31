@@ -12,6 +12,9 @@
 #include <type_traits>
 #include <cstring>
 #include <cassert>
+#include <vector>
+#include <array>
+#include <string>
 #include <numeric>
 
 #include "../H5Reference.hpp"
@@ -28,7 +31,9 @@
 #include <Eigen/Eigen>
 #endif
 
+
 namespace HighFive {
+
 namespace details {
 
 inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_requested) {
@@ -260,14 +265,15 @@ struct inspector<std::string>: type_helper<std::string> {
         throw DataSpaceException("A std::string cannot be written directly.");
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
-        *m = val.c_str();
+    template <class It>
+    static void serialize(const type& val, It m) {
+        (*m).assign(val.data(), val.size(), StringPadding::NullTerminated);
     }
 
-    static void unserialize(const hdf5_type* vec,
-                            const std::vector<size_t>& /* dims */,
-                            type& val) {
-        val = vec[0];
+    template <class It>
+    static void unserialize(const It& vec, const std::vector<size_t>& /* dims */, type& val) {
+        const auto& view = *vec;
+        val.assign(view.data(), view.length());
     }
 };
 
