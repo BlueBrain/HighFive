@@ -1,13 +1,27 @@
 # Changes
 ## Version 2.8.0 - 2023-MM-DD
+### Removed feature
+    - `Eigen::Matrix` have always been buggy, the support have been removed. (#731)
+
 ### New Features
     - Implement creation of hard links (#765). Thanks to @Quark-X10.
     - Get the size of file and amound of tracked unused space (#764). Thanks to @Quark-X10.
+    - `class DataType` has a new ctor to open a commited `DataType` (#796). Thanks to @Quark-X10.
+    - Allow user-specified `mem_space` for hyperslabs. (#740)
+    - New properties: `AttributePhaseChange`. (#785)
+    - New options to link against hdf5 statically (#823). Thanks @HunterBelanger.
+    - Add support for `std::complex<integral_type>` valid with C++23 (#828). Thanks @unbtorsten.
 
 ### Improvements
+    - Add concept checks to `Property` if C++20 for better errors (#811). Thanks @antonysigma.
     - Add parallel HDF5 test in CI (#760).
     - Simplify github workflow (#761).
     - Move inspectors in their own file to be able to better implements strings (#759).
+
+### Bug Fix
+    - Fix vector constructor ambiguity in H5DataType.hpp (#775). Thanks to @hn-sl.
+    - `getElementCount()` fixed. (#787)
+    - Remove leak when calling dtor of `CompoundType`. (#798)
 
 ## Version 2.7.1 - 2023-04-04
 ### Bug Fix

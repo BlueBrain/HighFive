@@ -2,6 +2,7 @@ Adrien Devresse
 Alexandru Săvulescu
 Ali Can Demiralp
 Angelos Plastropoulos
+@antonysigma
 Chris Byrohl
 Chris De Grendele
 @contre
@@ -12,6 +13,8 @@ Fernando L. Pereira
 @guoxy
 Haoran Ni
 Henry Schreiner
+@hn-sl
+Hunter Belanger
 @JaWSnl
 Jia Li
 John W. Peterson
@@ -49,6 +52,7 @@ Tino Wagner
 Tobias Klauser
 Tom de Geus
 Tom Vander Aa
+Torsten Reuschel
 Tristan Carel
 Wolf Vollprecht
 Y. Yang
