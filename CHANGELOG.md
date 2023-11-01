@@ -1,5 +1,5 @@
 # Changes
-## Version 2.8.0 - 2023-MM-DD
+## Version 2.8.0 - 2023-11-01
 ### Important Change
     - `Eigen::Matrix` is (by default) stored with column-major index ordering. Under
       certain conditions `Eigen::Matrix` was written and read as row-major.
