@@ -1,8 +1,7 @@
-#include <H5Fpublic.h>
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
 #include <numeric>
 #include <vector>
+
+#include <highfive/highfive.hpp>
 
 int main() {
     std::vector<double> large_attr(16000, 0.0);

@@ -12,10 +12,9 @@
 #undef H5_USE_BOOST
 #define H5_USE_BOOST
 
+#include <highfive/highfive.hpp>
+
 #include <boost/multi_array.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
 
 typedef std::complex<double> complex_t;
 

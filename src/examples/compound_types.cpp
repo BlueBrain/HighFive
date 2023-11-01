@@ -10,7 +10,7 @@
 // Compound datatype test :: May 2021
 // //////////////////////////////////
 
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 
 typedef struct {

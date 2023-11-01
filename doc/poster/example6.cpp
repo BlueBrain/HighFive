@@ -2,9 +2,7 @@
 
 #include <mpi.h>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 
 int main(int argc, char** argv) {

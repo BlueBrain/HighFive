@@ -9,8 +9,8 @@
 #include <iostream>
 #include <vector>
 
+#include <highfive/highfive.hpp>
 
-#include <highfive/H5File.hpp>
 #include <hdf5_hl.h>
 
 using namespace HighFive;

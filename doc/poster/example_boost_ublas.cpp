@@ -1,6 +1,7 @@
 #include <iostream>
 
 #define H5_USE_BOOST 1
+#include <highfive/highfive.hpp>
 
 // In some versions of Boost (starting with 1.64), you have to
 // include the serialization header before ublas
@@ -8,7 +9,6 @@
 
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <highfive/H5File.hpp>
 
 using namespace HighFive;
 
