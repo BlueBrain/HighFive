@@ -218,7 +218,7 @@ Okay, on to configure, compile and install. The CMake commands are
 ### Confirming It Works
 We again need a dummy file called `dummy.cpp` with the following contents
 
-    #include <highfive/H5File.hpp>
+    #include <highfive/highfive.hpp>
 
     int main() {
       auto file = HighFive::File("foo.h5", HighFive::File::Create);

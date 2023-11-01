@@ -10,9 +10,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 // Create a dataset name "dset" of double 4x6
 int main(void) {

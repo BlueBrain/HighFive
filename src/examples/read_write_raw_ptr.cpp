@@ -11,9 +11,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5File.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
+#include <highfive/highfive.hpp>
 
 const std::string file_name("read_write_raw_ptr.h5");
 const std::string dataset_name("array");

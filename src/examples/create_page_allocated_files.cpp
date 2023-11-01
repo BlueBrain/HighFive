@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 
 // This example requires HDF5 version 1.10.1 or newer.
 #if H5_VERSION_GE(1, 10, 1)

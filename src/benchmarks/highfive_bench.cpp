@@ -1,4 +1,4 @@
-#include <highfive/H5File.hpp>
+#include <highfive/highfive.hpp>
 #include <vector>
 
 const std::vector<std::vector<int>> data(1000000, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
