@@ -1,15 +1,20 @@
 # Changes
 ## Version 2.8.0 - 2023-MM-DD
-### Removed feature
-    - `Eigen::Matrix` have always been buggy, the support have been removed. (#731)
+### Important Change
+    - `Eigen::Matrix` is (by default) stored with column-major index ordering. Under
+      certain conditions `Eigen::Matrix` was written and read as row-major.
+      Due to code duplication H5Easy isn't affected by this bug. Starting
+      `2.8.0` HighFive will now throw an exception whenever prior versions would
+      have read with incorrect assumptions about the index ordering. (#731)
 
 ### New Features
+    - Improve reading and writing `std::string` as fixed and variable length HDF5 strings (#744).
     - Implement creation of hard links (#765). Thanks to @Quark-X10.
     - Get the size of file and amound of tracked unused space (#764). Thanks to @Quark-X10.
     - `class DataType` has a new ctor to open a commited `DataType` (#796). Thanks to @Quark-X10.
     - Allow user-specified `mem_space` for hyperslabs. (#740)
     - New properties: `AttributePhaseChange`. (#785)
-    - New options to link against hdf5 statically (#823). Thanks @HunterBelanger.
+    - New options to link against HDF5 statically (#823). Thanks @HunterBelanger.
     - Add support for `std::complex<integral_type>` valid with C++23 (#828). Thanks @unbtorsten.
     - Add a top-level header to include all compononents (#818).
 
@@ -18,7 +23,6 @@
     - Add parallel HDF5 test in CI (#760).
     - Simplify github workflow (#761).
     - Move inspectors in their own file to be able to better implements strings (#759).
-    - Support of strings have been improved. `std::string` can be used for variable or not (#744).
 
 ### Bug Fix
     - Fix vector constructor ambiguity in H5DataType.hpp (#775). Thanks to @hn-sl.
