@@ -11,12 +11,14 @@
     - New properties: `AttributePhaseChange`. (#785)
     - New options to link against hdf5 statically (#823). Thanks @HunterBelanger.
     - Add support for `std::complex<integral_type>` valid with C++23 (#828). Thanks @unbtorsten.
+    - Add a top-level header to include all compononents (#818).
 
 ### Improvements
     - Add concept checks to `Property` if C++20 for better errors (#811). Thanks @antonysigma.
     - Add parallel HDF5 test in CI (#760).
     - Simplify github workflow (#761).
     - Move inspectors in their own file to be able to better implements strings (#759).
+    - Support of strings have been improved. `std::string` can be used for variable or not (#744).
 
 ### Bug Fix
     - Fix vector constructor ambiguity in H5DataType.hpp (#775). Thanks to @hn-sl.
