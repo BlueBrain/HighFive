@@ -57,6 +57,7 @@ your changes.)
 Before releasing a new version perform the following:
 
 * Update `CHANGELOG.md` and `AUTHORS.txt` as required.
+* Update `CMakeLists.txt` and `include/highfive/H5Version.hpp`.
 * Follow semantic versioning when deciding the next version number.
 * Check that
   [HighFive-testing](https://github.com/BlueBrain/HighFive-testing/actions) ran

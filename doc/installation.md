@@ -202,7 +202,7 @@ install. The detailed instructions would be
 
     git clone --recursive https://github.com/BlueBrain/HighFive.git
     cd HighFive
-    git checkout v2.7.1
+    git checkout v2.8.0
 
 If it complains that Catch is missing, you forgot the `--recursive`. To fix
 this you type
