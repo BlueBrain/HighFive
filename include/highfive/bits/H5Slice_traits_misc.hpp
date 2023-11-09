@@ -63,6 +63,153 @@ inline ElementSet::ElementSet(const std::vector<std::vector<std::size_t>>& eleme
     }
 }
 
+namespace detail {
+class HyperCube {
+  public:
+    HyperCube(size_t rank)
+        : offset(rank)
+        , count(rank) {}
+
+    void cross(const std::array<size_t, 2>& range, size_t axis) {
+        offset[axis] = range[0];
+        count[axis] = range[1] - range[0];
+    }
+
+    RegularHyperSlab asSlab() {
+        return RegularHyperSlab(offset, count);
+    }
+
+  private:
+    std::vector<size_t> offset;
+    std::vector<size_t> count;
+};
+
+inline void build_hyper_slab(HyperSlab& slab, size_t /* axis */, HyperCube& cube) {
+    slab |= cube.asSlab();
+}
+
+template <class... Slices>
+inline void build_hyper_slab(HyperSlab& slab,
+                             size_t axis,
+                             HyperCube& cube,
+                             const std::array<size_t, 2>& slice,
+                             const Slices&... higher_slices) {
+    cube.cross(slice, axis);
+    build_hyper_slab(slab, axis + 1, cube, higher_slices...);
+}
+
+template <class... Slices>
+inline void build_hyper_slab(HyperSlab& slab,
+                             size_t axis,
+                             HyperCube& cube,
+                             const std::vector<std::array<size_t, 2>>& slices,
+                             const Slices&... higher_slices) {
+    for (const auto& slice: slices) {
+        build_hyper_slab(slab, axis, cube, slice, higher_slices...);
+    }
+}
+
+template <class... Slices>
+inline void build_hyper_slab(HyperSlab& slab,
+                             size_t axis,
+                             HyperCube& cube,
+                             const std::vector<size_t>& ids,
+                             const Slices&... higher_slices) {
+    for (const auto& id: ids) {
+        auto slice = std::array<size_t, 2>{id, id + 1};
+        build_hyper_slab(slab, axis, cube, slice, higher_slices...);
+    }
+}
+
+template <class... Slices>
+inline void build_hyper_slab(HyperSlab& slab,
+                             size_t axis,
+                             HyperCube& cube,
+                             size_t id,
+                             const Slices&... higher_slices) {
+    auto slice = std::array<size_t, 2>{id, id + 1};
+    build_hyper_slab(slab, axis, cube, slice, higher_slices...);
+}
+
+inline void compute_squashed_shape(size_t /* axis */, std::vector<size_t>& /* shape */) {
+    // assert(axis == shape.size());
+}
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::array<size_t, 2>& slice,
+                                   const Slices&... higher_slices);
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::vector<size_t>& points,
+                                   const Slices&... higher_slices);
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   size_t point,
+                                   const Slices&... higher_slices);
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::vector<std::array<size_t, 2>>& slices,
+                                   const Slices&... higher_slices);
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::array<size_t, 2>& slice,
+                                   const Slices&... higher_slices) {
+    shape[axis] = slice[1] - slice[0];
+    compute_squashed_shape(axis + 1, shape, higher_slices...);
+}
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::vector<size_t>& points,
+                                   const Slices&... higher_slices) {
+    shape[axis] = points.size();
+    compute_squashed_shape(axis + 1, shape, higher_slices...);
+}
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   const std::vector<std::array<size_t, 2>>& slices,
+                                   const Slices&... higher_slices) {
+    shape[axis] = 0;
+    for (const auto& slice: slices) {
+        shape[axis] += slice[1] - slice[0];
+    }
+    compute_squashed_shape(axis + 1, shape, higher_slices...);
+}
+
+template <class... Slices>
+inline void compute_squashed_shape(size_t axis,
+                                   std::vector<size_t>& shape,
+                                   size_t /* point */,
+                                   const Slices&... higher_slices) {
+    shape[axis] = 1;
+    compute_squashed_shape(axis + 1, shape, higher_slices...);
+}
+}  // namespace detail
+
+template <class... Slices>
+inline ProductSet::ProductSet(const Slices&... slices) {
+    auto rank = sizeof...(slices);
+    detail::HyperCube cube(rank);
+    detail::build_hyper_slab(slab, 0, cube, slices...);
+
+    shape = std::vector<size_t>(rank, size_t(0));
+    detail::compute_squashed_shape(0, shape, slices...);
+}
+
+
 template <typename Derivate>
 inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyperslab,
                                                const DataSpace& memspace) const {
@@ -154,6 +301,11 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
     }
 
     return detail::make_selection(DataSpace(num_elements), space, details::get_dataset(slice));
+}
+
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::select(const ProductSet& product_set) const {
+    return this->select(product_set.slab, DataSpace(product_set.shape));
 }
 
 

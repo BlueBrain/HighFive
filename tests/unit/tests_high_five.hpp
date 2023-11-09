@@ -151,7 +151,7 @@ struct ContentGenerate<std::string> {
         ContentGenerate<char> gen;
         std::string random_string;
         std::mt19937_64 rgen;
-        rgen.seed(88);
+        rgen.seed(42);
         std::uniform_int_distribution<unsigned> int_dist(0, 1000);
         const size_t size_string = int_dist(rgen);
 
