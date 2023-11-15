@@ -239,8 +239,7 @@ class NodeTraits {
     bool _exist(const std::string& node_name, bool raise_errors = true) const;
 
     // Opens an arbitrary object to obtain info
-    Object _open(const std::string& node_name,
-                 const DataSetAccessProps& accessProps = DataSetAccessProps::Default()) const;
+    Object _open(const std::string& node_name) const;
 };
 
 
