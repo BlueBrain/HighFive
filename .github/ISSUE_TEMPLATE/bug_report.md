@@ -8,24 +8,31 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+Please give a clear and concise description of the bug. For us to be able to
+fix the bug we need to be able to reproduce it. As a result, if you provide a
+reproducer, i.e. code exhibits the bug (incl. build instructions) but is
+stripped of all unessential complexity, the chance of getting the issue fixed
+is much higher.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Version Information**
+  - HighFive:
+  - Compiler:
+  - [optional] OS:
+  - [optional] CMake:
+  - [optional] HDF5:
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Style Guide**
+1. Please paste text as text and not as a screen shot.
+2. If in doubt paste too much output rather than to little, i.e. don't be too
+   scared of a large wall of text. Especially, if it's a compiler error.
+   (Anything past the first error is largely uninformative and can be safely
+   stripped.)
+3. Please strip all boilerplate.
 
-**Stacktrace**
-If applicable, add a stacktrace and error messages to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. ubuntu 20.10, macos 10.15]
- - Version [e.g. master branch]
-
-**Additional context**
-Add any other context about the problem here.
+Markdown summary:
+````
+Some include `code` and a block:
+```
+void foo();
+```
+````
