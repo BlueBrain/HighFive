@@ -29,10 +29,9 @@ is much higher.
    stripped.)
 3. Please strip all boilerplate.
 
-Markdown summary:
-````
+**Markdown summary**
 Some include `code` and a block:
 ```
 void foo();
 ```
-````
+
