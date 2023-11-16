@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 Please give a clear and concise description of the bug. For us to be able to
 fix the bug we need to be able to reproduce it. As a result, if you provide a
-reproducer, i.e. code exhibits the bug (incl. build instructions) but is
+reproducer, i.e. code that exhibits the bug (incl. build instructions) but is
 stripped of all unessential complexity, the chance of getting the issue fixed
 is much higher.
 
