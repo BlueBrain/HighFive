@@ -211,9 +211,12 @@ this you type
 
 Okay, on to configure, compile and install. The CMake commands are
 
-    cmake -DCMAKE_INSTALL_PREFIX=../highfive-v2.7.1 -DHIGHFIVE_USE_BOOST=Off -B build .
+    cmake -DCMAKE_INSTALL_PREFIX=build/install -DHIGHFIVE_USE_BOOST=Off -B build .
     cmake --build build --parallel
     cmake --install build
+
+Later you'd pass the installation directory, i.e. `${PWD}/build/install`, to
+`CMAKE_PREFIX_PATH`.
 
 ### Confirming It Works
 We again need a dummy file called `dummy.cpp` with the following contents
