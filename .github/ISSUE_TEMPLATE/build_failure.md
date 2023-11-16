@@ -36,7 +36,7 @@ than less output.)
 
 **Style Guide**
 1. Please paste text as text and not as a screen shot.
-2. If in doubt paste too much output rather than to little, i.e. don't be too
+2. If in doubt paste too much output rather than too little, i.e. don't be too
    scared of a large wall of text. Especially, if it's a compiler error.
    (Anything past the first error is largely uninformative and can be safely
    stripped.)
