@@ -3143,12 +3143,12 @@ TEST_CASE("HighFiveSTDString (attribute, multiple, short)") {
 }
 
 TEST_CASE("HighFiveSTDString (dataset, multiple, long)") {
-    File file("std_string_dataset_multiple_short.h5", File::Truncate);
+    File file("std_string_dataset_multiple_long.h5", File::Truncate);
     check_multiple_string(ForwardToDataSet(file), 256);
 }
 
 TEST_CASE("HighFiveSTDString (attribute, multiple, long)") {
-    File file("std_string_attribute_multiple_short.h5", File::Truncate);
+    File file("std_string_attribute_multiple_long.h5", File::Truncate);
     check_multiple_string(ForwardToAttribute(file), 256);
 }
 
