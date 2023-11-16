@@ -16,7 +16,7 @@ https://github.com/BlueBrain/HighFive/blob/master/doc/installation.md#manually-i
 from there you can work upwards by adding complexity until you reproduce the
 issue.
 
-Once you have a reproducer, please paste the exact `cmake` command used to
+Once you have a reproducer, please paste it and the exact `cmake` command used to
 configure the build and include the output. For the compilation phase please
 ensure that the actual compiler invocation is visible, e.g.,
 ```
