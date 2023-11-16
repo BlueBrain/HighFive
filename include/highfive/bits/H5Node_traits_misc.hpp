@@ -396,11 +396,9 @@ inline void NodeTraits<Derivate>::createHardLink(const std::string& link_name,
 
 
 template <typename Derivate>
-inline Object NodeTraits<Derivate>::_open(const std::string& node_name,
-                                          const DataSetAccessProps& accessProps) const {
-    const auto id = H5Oopen(static_cast<const Derivate*>(this)->getId(),
-                            node_name.c_str(),
-                            accessProps.getId());
+inline Object NodeTraits<Derivate>::_open(const std::string& node_name) const {
+    const auto id =
+        H5Oopen(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
     if (id < 0) {
         HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open \"") + node_name +
                                                    "\":");
