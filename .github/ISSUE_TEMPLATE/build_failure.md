@@ -44,7 +44,7 @@ than less output.)
 
 Markdown summary:
 ````
-Some include `code` and a block:
+Some inline `code` and a block:
 ```
 void foo();
 ```
