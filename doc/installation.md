@@ -215,7 +215,7 @@ Okay, on to configure, compile and install. The CMake commands are
     cmake --build build --parallel
     cmake --install build
 
-Later you'd the installation directory, i.e. `${PWD}/build/install`, to
+Later you'd pass the installation directory, i.e. `${PWD}/build/install`, to
 `CMAKE_PREFIX_PATH`.
 
 ### Confirming It Works
