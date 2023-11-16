@@ -42,13 +42,3 @@ than less output.)
    stripped.)
 3. Please strip all boilerplate.
 
-Markdown summary:
-````
-Some inline `code` and a block:
-```
-void foo();
-```
-
-Links can simply be pasted:
-https://github.com/BlueBrain/HighFive
-````
