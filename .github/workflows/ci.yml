@@ -80,7 +80,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
   # Job testing several versions of hdf5
@@ -118,7 +120,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
     - name: Examples
@@ -156,7 +160,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -199,7 +205,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -295,7 +303,9 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
@@ -348,4 +358,6 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       shell: bash -l {0}
-      run: ctest -j2 --output-on-failure -C $BUILD_TYPE
+      run: |
+        ctest -j2 --output-on-failure -C $BUILD_TYPE
+        ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG

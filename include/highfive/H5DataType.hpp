@@ -70,7 +70,7 @@ class DataType: public Object {
     /// \brief Returns the length (in bytes) of this type elements
     ///
     /// Notice that the size of variable length sequences may have limited applicability
-    ///   given that it refers to the size of the control structure. For info see
+    /// given that it refers to the size of the control structure. For info see
     ///   https://support.hdfgroup.org/HDF5/doc/RM/RM_H5T.html#Datatype-GetSize
     size_t getSize() const;
 
