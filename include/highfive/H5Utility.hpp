@@ -119,7 +119,7 @@ inline void default_logging_callback(LogSeverity severity,
                                      const std::string& message,
                                      const std::string& file,
                                      int line) {
-    std::clog << file << ": " << line << " :: " << to_string(severity) << message << std::endl;
+    std::clog << "[" << to_string(severity) << "] " << file << ": " << line << message << std::endl;
 }
 
 /// \brief Obtain a reference to the logger used by HighFive.
