@@ -2508,6 +2508,23 @@ TEST_CASE("HighFivePropertyObjects") {
     CHECK(plist_g2.isValid());
 }
 
+TEST_CASE("HighFivePropertyObjectsQuirks") {
+    auto pl1 = LinkCreateProps::Default();
+    auto pl2 = pl1;
+    // As usual shallow copying semantics apply:
+    CHECK(pl1.getId() == pl2.getId());
+
+    // Then one adds something and the link is broken:
+    pl2.add(CreateIntermediateGroup(true));
+    CHECK(pl1.getId() == H5P_DEFAULT);
+
+    // but once it's not a "special" value, regular shallow copy semantic
+    // return:
+    auto pl3 = pl2;
+    pl3.add(CreateIntermediateGroup(false));
+    CHECK(pl3.getId() == pl2.getId());
+}
+
 TEST_CASE("HighFiveLinkCreationOrderProperty") {
     {  // For file
         const std::string file_name("h5_keep_creation_order_file.h5");
