@@ -29,7 +29,7 @@ inline Object::Object(hid_t hid)
 
 inline Object::Object(const Object& other)
     : _hid(other._hid) {
-    if (other.isValid() && H5Iinc_ref(_hid) < 0) {
+    if (_hid > 0 && H5Iinc_ref(_hid) < 0) {
         throw ObjectException("Reference counter increase failure");
     }
 }
@@ -41,11 +41,12 @@ inline Object::Object(Object&& other) noexcept
 
 inline Object& Object::operator=(const Object& other) {
     if (this != &other) {
-        if (isValid())
+        if (_hid > 0) {
             H5Idec_ref(_hid);
+        }
 
         _hid = other._hid;
-        if (other.isValid() && H5Iinc_ref(_hid) < 0) {
+        if (_hid > 0 && H5Iinc_ref(_hid) < 0) {
             throw ObjectException("Reference counter increase failure");
         }
     }
@@ -53,13 +54,13 @@ inline Object& Object::operator=(const Object& other) {
 }
 
 inline Object::~Object() {
-    if (isValid() && H5Idec_ref(_hid) < 0) {
+    if (_hid > 0 && H5Idec_ref(_hid) < 0) {
         HIGHFIVE_LOG_ERROR("HighFive::~Object: reference counter decrease failure");
     }
 }
 
 inline bool Object::isValid() const noexcept {
-    return (_hid != H5I_INVALID_HID) && (H5Iis_valid(_hid) != false);
+    return (_hid > 0) && (H5Iis_valid(_hid) != false);
 }
 
 inline hid_t Object::getId() const noexcept {

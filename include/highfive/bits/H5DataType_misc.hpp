@@ -131,7 +131,7 @@ inline StringType DataType::asStringType() const {
         throw DataTypeException("Invalid conversion to StringType.");
     }
 
-    if (isValid() && H5Iinc_ref(_hid) < 0) {
+    if (_hid > 0 && H5Iinc_ref(_hid) < 0) {
         throw ObjectException("Reference counter increase failure");
     }
 
