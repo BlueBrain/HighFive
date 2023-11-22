@@ -77,12 +77,12 @@ inline void enforce_ascii_hack(const DataType& dst, const DataType& src) {
     // converter issues on HDF5 <=v1.12.0 when loading ASCII strings first.
     // See https://github.com/HDFGroup/hdf5/issues/544 for further information.
 
-    bool is_dst_string = H5Tget_class(dst.getId()) == H5T_STRING;
-    bool is_src_string = H5Tget_class(src.getId()) == H5T_STRING;
+    bool is_dst_string = detail::h5t_get_class(dst.getId()) == H5T_STRING;
+    bool is_src_string = detail::h5t_get_class(src.getId()) == H5T_STRING;
 
     if (is_dst_string && is_src_string) {
-        if (H5Tget_cset(src.getId()) == H5T_CSET_ASCII) {
-            H5Tset_cset(dst.getId(), H5T_CSET_ASCII);
+        if (detail::h5t_get_cset(src.getId()) == H5T_CSET_ASCII) {
+            detail::h5t_set_cset(dst.getId(), H5T_CSET_ASCII);
         }
     }
 }
@@ -90,7 +90,7 @@ inline void enforce_ascii_hack(const DataType& dst, const DataType& src) {
 template <>
 struct string_type_checker<void> {
     inline static DataType getDataType(const DataType& element_type, const DataType& dtype) {
-        if (H5Tget_class(element_type.getId()) == H5T_STRING) {
+        if (detail::h5t_get_class(element_type.getId()) == H5T_STRING) {
             enforce_ascii_hack(element_type, dtype);
         }
         return element_type;
