@@ -59,5 +59,14 @@ inline void h5t_set_strpad(hid_t hid, H5T_str_t strpad) {
     }
 }
 
+inline H5T_class_t h5t_get_class(hid_t type_id) {
+    H5T_class_t class_id = H5Tget_class(type_id);
+    if (class_id == H5T_NO_CLASS) {
+        throw DataTypeException("Failed to get class of type");
+    }
+
+    return class_id;
+}
+
 }  // namespace detail
 }  // namespace HighFive
