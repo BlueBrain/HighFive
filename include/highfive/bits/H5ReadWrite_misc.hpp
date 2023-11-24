@@ -76,8 +76,14 @@ inline void enforce_ascii_hack(const DataType& dst, const DataType& src) {
     // TEMP. CHANGE: Ensure that the character set is properly configured to prevent
     // converter issues on HDF5 <=v1.12.0 when loading ASCII strings first.
     // See https://github.com/HDFGroup/hdf5/issues/544 for further information.
-    if (H5Tget_cset(src.getId()) == H5T_CSET_ASCII) {
-        H5Tset_cset(dst.getId(), H5T_CSET_ASCII);
+
+    bool is_dst_string = H5Tget_class(dst.getId()) == H5T_STRING;
+    bool is_src_string = H5Tget_class(src.getId()) == H5T_STRING;
+
+    if (is_dst_string && is_src_string) {
+        if (H5Tget_cset(src.getId()) == H5T_CSET_ASCII) {
+            H5Tset_cset(dst.getId(), H5T_CSET_ASCII);
+        }
     }
 }
 
