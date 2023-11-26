@@ -16,6 +16,7 @@
 #include <random>
 #include <string>
 #include <typeinfo>
+#include <type_traits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -2945,6 +2946,53 @@ TEST_CASE("HighFiveReadType") {
     CHECK(t2 == t1);
     CHECK(t4 == t3);
 }
+
+
+TEST_CASE("DirectWriteBool") {
+    SECTION("Basic compatibility") {
+        using IntType = typename std::underlying_type<details::Boolean>::type;
+        CHECK(sizeof(bool) == sizeof(details::Boolean));
+        CHECK(true == static_cast<IntType>(details::Boolean::HighFiveTrue));
+        CHECK(false == static_cast<IntType>(details::Boolean::HighFiveFalse));
+    }
+
+    auto file = File("rw_bool_from_ptr.h5", File::Truncate);
+
+    size_t n = 4;
+    bool* expected = new bool[n];
+    bool* actual = new bool[n];
+
+    for (size_t i = 0; i < 4; ++i) {
+        expected[i] = i % 2 == 0;
+    }
+
+    auto dataspace = DataSpace{n};
+    auto datatype = create_datatype<bool>();
+
+    SECTION("WriteReadCycleAttribute") {
+        auto attr = file.createAttribute("attr", dataspace, datatype);
+        attr.write_raw(expected);
+        attr.read(actual);
+
+        for (size_t i = 0; i < n; ++i) {
+            REQUIRE(expected[i] == actual[i]);
+        }
+    }
+
+    SECTION("WriteReadCycleDataSet") {
+        auto dset = file.createAttribute("dset", dataspace, datatype);
+        dset.write_raw(expected);
+        dset.read(actual);
+
+        for (size_t i = 0; i < n; ++i) {
+            REQUIRE(expected[i] == actual[i]);
+        }
+    }
+
+    delete[] expected;
+    delete[] actual;
+}
+
 
 class ForwardToAttribute {
   public:

@@ -541,3 +541,12 @@ inline DataType create_and_check_datatype() {
 
 }  // namespace HighFive
 HIGHFIVE_REGISTER_TYPE(HighFive::details::Boolean, HighFive::create_enum_boolean)
+
+namespace HighFive {
+
+template <>
+inline DataType create_datatype<bool>() {
+    return create_datatype<HighFive::details::Boolean>();
+}
+
+}  // namespace HighFive
