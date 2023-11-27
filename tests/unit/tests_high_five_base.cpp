@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <iostream>
 #include <map>
@@ -2439,10 +2440,24 @@ TEST_CASE("HighFiveReadType") {
 
 TEST_CASE("DirectWriteBool") {
     SECTION("Basic compatibility") {
-        using IntType = typename std::underlying_type<details::Boolean>::type;
         CHECK(sizeof(bool) == sizeof(details::Boolean));
-        CHECK(true == static_cast<IntType>(details::Boolean::HighFiveTrue));
-        CHECK(false == static_cast<IntType>(details::Boolean::HighFiveFalse));
+
+        auto n_bytes = 2 * sizeof(details::Boolean);
+
+        auto* const enum_ptr = (details::Boolean*) malloc(n_bytes);
+        memset(enum_ptr, 187, n_bytes);
+        enum_ptr[0] = details::Boolean::HighFiveTrue;
+        enum_ptr[1] = details::Boolean::HighFiveFalse;
+
+        auto* const bool_ptr = (bool*) malloc(n_bytes);
+        memset(bool_ptr, 68, n_bytes);
+        bool_ptr[0] = true;
+        bool_ptr[1] = false;
+
+        CHECK(std::memcmp(bool_ptr, enum_ptr, n_bytes) == 0);
+
+        free(enum_ptr);
+        free(bool_ptr);
     }
 
     auto file = File("rw_bool_from_ptr.h5", File::Truncate);
