@@ -2962,7 +2962,7 @@ TEST_CASE("DirectWriteBool") {
     bool* expected = new bool[n];
     bool* actual = new bool[n];
 
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         expected[i] = i % 2 == 0;
     }
 
