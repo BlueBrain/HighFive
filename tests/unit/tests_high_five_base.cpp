@@ -2856,12 +2856,6 @@ enum class Direction : signed char {
     Right = 2,
 };
 
-// This is only for boost test
-std::ostream& operator<<(std::ostream& ost, const Direction& dir) {
-    ost << static_cast<int>(dir);
-    return ost;
-}
-
 EnumType<Position> create_enum_position() {
     return {{"highfive_first", Position::highfive_first},
             {"highfive_second", Position::highfive_second},
