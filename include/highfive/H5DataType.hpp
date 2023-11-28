@@ -96,7 +96,6 @@ class DataType: public Object {
 
     ///
     /// \brief Check the DataType was default constructed.
-    /// Such value might represent auto-detection of the datatype from a buffer
     ///
     bool empty() const noexcept;
 
@@ -152,7 +151,7 @@ class FixedLengthStringType: public StringType {
     /// requires `4*n` bytes.
     ///
     /// The string padding is subtle, essentially it's just a hint. A
-    /// nullterminated string is guaranteed to have one `'\0'` which marks the
+    /// null-terminated string is guaranteed to have one `'\0'` which marks the
     /// semantic end of the string. The length of the buffer must be at least
     /// `size` bytes regardless. HDF5 will read or write `size` bytes,
     /// irrespective of the when the `\0` occurs.
