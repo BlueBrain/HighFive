@@ -37,6 +37,7 @@ option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
 option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
 option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" ON)
+option(HIGHFIVE_HAS_WERROR "Convert warnings to errors." OFF)
 
 # Controls if HighFive classes are friends of each other.
 #
