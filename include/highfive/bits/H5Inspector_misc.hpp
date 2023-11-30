@@ -514,11 +514,16 @@ struct inspector<std::array<T, N>> {
         return compute_total_size(dims);
     }
 
-    static void prepare(type& /* val */, const std::vector<size_t>& dims) {
+    static void prepare(type& val, const std::vector<size_t>& dims) {
         if (dims[0] > N) {
             std::ostringstream os;
             os << "Size of std::array (" << N << ") is too small for dims (" << dims[0] << ").";
             throw DataSpaceException(os.str());
+        }
+
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        for (auto&& e: val) {
+            inspector<value_type>::prepare(e, next_dims);
         }
     }
 
