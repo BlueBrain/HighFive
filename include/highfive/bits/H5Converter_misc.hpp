@@ -179,9 +179,9 @@ struct StringBuffer {
         /// internal buffer as needed.
         ///
         /// The `length` is the length of the string in bytes.
-        void assign(char const* data, size_t length, StringPadding padding) {
+        void assign(char const* data, size_t length, StringPadding pad) {
             if (buffer.isVariableLengthString()) {
-                if (padding == StringPadding::NullTerminated) {
+                if (pad == StringPadding::NullTerminated) {
                     buffer.variable_length_pointers[i] = data;
                 } else {
                     buffer.variable_length_buffer[i] = std::string(data, length);
