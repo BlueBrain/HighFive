@@ -22,7 +22,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
             -Wformat=2
             -Wconversion
             -Wsign-conversion
-            -Wno-error=deprecated-declarations
     )
 
     if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Intel")
@@ -31,6 +30,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
                 -Wpedantic
                 -Wcast-align
                 -Wdouble-promotion
+        )
+    endif()
+
+    if(HIGHFIVE_HAS_WERROR)
+        target_compile_options(HighFiveWarnings
+            INTERFACE
+                -Werror
+                -Wno-error=deprecated-declarations
         )
     endif()
 endif()
