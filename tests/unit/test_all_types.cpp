@@ -174,6 +174,41 @@ TEMPLATE_TEST_CASE("Scalar in std::vector<std::array>", "[Types]", bool, std::st
     }
 }
 
+TEMPLATE_TEST_CASE("Scalar in std::array<std::vector>", "[Types]", bool, std::string) {
+    const std::string file_name("rw_dataset_array_vector" + typeNameHelper<TestType>() + ".h5");
+    const std::string dataset_name("dset");
+    std::array<std::vector<TestType>, 6> t1;
+    for (auto& tt: t1) {
+        tt = std::vector<TestType>(5);
+    }
+
+    {
+        // Create a new file using the default property lists.
+        File file(file_name, File::ReadWrite | File::Create | File::Truncate);
+
+        // Create the dataset
+        DataSet dataset = file.createDataSet(
+            dataset_name,
+            {6, 5},
+            create_datatype<
+                typename details::inspector<std::vector<std::array<TestType, 5>>>::base_type>());
+
+        // Write into the initial part of the dataset
+        dataset.write(t1);
+    }
+
+    // read it back
+    {
+        File file(file_name, File::ReadOnly);
+
+        std::array<std::vector<TestType>, 6> value;
+        DataSet dataset = file.getDataSet("/" + dataset_name);
+        dataset.read(value);
+        CHECK(t1 == value);
+        CHECK(value.size() == 6);
+    }
+}
+
 #if HIGHFIVE_CXX_STD >= 17
 TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::byte>", "[Types]", std::vector, std::byte) {
     const std::string file_name("rw_dataset_vector_" + typeNameHelper<TestType>() + ".h5");
