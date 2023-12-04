@@ -177,14 +177,9 @@ inline Group NodeTraits<Derivate>::getGroup(const std::string& group_name) const
 template <typename Derivate>
 inline DataType NodeTraits<Derivate>::getDataType(const std::string& type_name,
                                                   const DataTypeAccessProps& accessProps) const {
-    const auto hid = H5Topen2(static_cast<const Derivate*>(this)->getId(),
-                              type_name.c_str(),
-                              accessProps.getId());
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>(
-            std::string("Unable to open the datatype \"") + type_name + "\":");
-    }
-    return DataType(hid);
+    return DataType(detail::h5t_open2(static_cast<const Derivate*>(this)->getId(),
+                                      type_name.c_str(),
+                                      accessProps.getId()));
 }
 
 template <typename Derivate>

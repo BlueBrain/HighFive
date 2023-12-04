@@ -19,6 +19,9 @@
 #include "bits/string_padding.hpp"
 #include "H5PropertyList.hpp"
 
+#include "bits/h5_wrapper.hpp"
+#include "bits/h5t_wrapper.hpp"
+
 namespace HighFive {
 
 
@@ -235,21 +238,16 @@ class CompoundType: public DataType {
             ss << "hid " << _hid << " does not refer to a compound data type";
             throw DataTypeException(ss.str());
         }
-        int result = H5Tget_nmembers(_hid);
-        if (result < 0) {
-            throw DataTypeException("Could not get members of compound datatype");
-        }
-        size_t n_members = static_cast<size_t>(result);
+        size_t n_members = static_cast<size_t>(detail::h5t_get_nmembers(_hid));
         members.reserve(n_members);
         for (unsigned i = 0; i < n_members; i++) {
-            char* name = H5Tget_member_name(_hid, i);
-            size_t offset = H5Tget_member_offset(_hid, i);
-            hid_t member_hid = H5Tget_member_type(_hid, i);
+            char* name = detail::h5t_get_member_name(_hid, i);
+            size_t offset = detail::h5t_get_member_offset(_hid, i);
+            hid_t member_hid = detail::h5t_get_member_type(_hid, i);
             DataType member_type{member_hid};
             members.emplace_back(std::string(name), member_type, offset);
-            if (H5free_memory(name) < 0) {
-                throw DataTypeException("Could not free names from the compound datatype");
-            }
+
+            detail::h5_free_memory(name);
         }
     }
 
