@@ -94,7 +94,7 @@ inline void Attribute::read(T& array) const {
     if (c == DataTypeClass::VarLen || t.isVariableStr()) {
 #if H5_VERSION_GE(1, 12, 0)
         // This one have been created in 1.12.0
-        (void) H5Treclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
+        (void) detail::h5t_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
 #else
         // This one is deprecated since 1.12.0
         (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());

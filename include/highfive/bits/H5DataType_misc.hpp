@@ -16,7 +16,6 @@
 #endif
 
 #include <H5Ppublic.h>
-#include <H5Tpublic.h>
 
 #ifdef H5_USE_HALF_FLOAT
 #include <half.hpp>
@@ -38,7 +37,7 @@ inline bool DataType::empty() const noexcept {
 }
 
 inline DataTypeClass DataType::getClass() const {
-    return convert_type_class(H5Tget_class(_hid));
+    return convert_type_class(detail::h5t_get_class(_hid));
 }
 
 inline size_t DataType::getSize() const {
@@ -46,7 +45,7 @@ inline size_t DataType::getSize() const {
 }
 
 inline bool DataType::operator==(const DataType& other) const {
-    return (H5Tequal(_hid, other._hid) > 0);
+    return detail::h5t_equal(_hid, other._hid) > 0;
 }
 
 inline bool DataType::operator!=(const DataType& other) const {
@@ -54,11 +53,7 @@ inline bool DataType::operator!=(const DataType& other) const {
 }
 
 inline bool DataType::isVariableStr() const {
-    auto var_value = H5Tis_variable_str(_hid);
-    if (var_value < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>("Unable to define datatype size to variable");
-    }
-    return static_cast<bool>(var_value);
+    return detail::h5t_is_variable_str(_hid) > 0;
 }
 
 inline bool DataType::isFixedLenStr() const {
@@ -66,7 +61,7 @@ inline bool DataType::isFixedLenStr() const {
 }
 
 inline bool DataType::isReference() const {
-    return H5Tequal(_hid, H5T_STD_REF_OBJ) > 0;
+    return detail::h5t_equal(_hid, H5T_STD_REF_OBJ) > 0;
 }
 
 inline StringType DataType::asStringType() const {
@@ -183,11 +178,11 @@ template <>
 inline AtomicType<float16_t>::AtomicType() {
     _hid = detail::h5t_copy(H5T_NATIVE_FLOAT);
     // Sign position, exponent position, exponent size, mantissa position, mantissa size
-    H5Tset_fields(_hid, 15, 10, 5, 0, 10);
+    detail::h5t_set_fields(_hid, 15, 10, 5, 0, 10);
     // Total datatype size (in bytes)
     detail::h5t_set_size(_hid, 2);
     // Floating point exponent bias
-    H5Tset_ebias(_hid, 15);
+    detail::h5t_set_ebias(_hid, 15);
 }
 #endif
 
@@ -316,8 +311,8 @@ inline AtomicType<Reference>::AtomicType() {
 
 inline size_t find_first_atomic_member_size(hid_t hid) {
     // Recursive exit condition
-    if (H5Tget_class(hid) == H5T_COMPOUND) {
-        auto number_of_members = H5Tget_nmembers(hid);
+    if (detail::h5t_get_class(hid) == H5T_COMPOUND) {
+        auto number_of_members = detail::h5t_get_nmembers(hid);
         if (number_of_members == -1) {
             throw DataTypeException("Cannot get members of CompoundType with hid: " +
                                     std::to_string(hid));
@@ -327,11 +322,11 @@ inline size_t find_first_atomic_member_size(hid_t hid) {
                                     std::to_string(hid));
         }
 
-        auto member_type = H5Tget_member_type(hid, 0);
+        auto member_type = detail::h5t_get_member_type(hid, 0);
         auto size = find_first_atomic_member_size(member_type);
-        H5Tclose(member_type);
+        detail::h5t_close(member_type);
         return size;
-    } else if (H5Tget_class(hid) == H5T_STRING) {
+    } else if (detail::h5t_get_class(hid) == H5T_STRING) {
         return 1;
     }
     return detail::h5t_get_size(hid);
@@ -391,43 +386,36 @@ inline void CompoundType::create(size_t size) {
     }
 
     // Create the HDF5 type
-    if ((_hid = H5Tcreate(H5T_COMPOUND, size)) < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>("Could not create new compound datatype");
-    }
+    _hid = detail::h5t_create(H5T_COMPOUND, size);
 
     // Loop over all the members and insert them into the datatype
     for (const auto& member: members) {
-        if (H5Tinsert(_hid, member.name.c_str(), member.offset, member.base_type.getId()) < 0) {
-            HDF5ErrMapper::ToException<DataTypeException>("Could not add new member to datatype");
-        }
+        detail::h5t_insert(_hid, member.name.c_str(), member.offset, member.base_type.getId());
     }
 }
 
 #undef _H5_STRUCT_PADDING
 
 inline void CompoundType::commit(const Object& object, const std::string& name) const {
-    H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    detail::h5t_commit2(
+        object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 }
 
 template <typename T>
 inline void EnumType<T>::create() {
     // Create the HDF5 type
-    if ((_hid = H5Tenum_create(AtomicType<typename std::underlying_type<T>::type>{}.getId())) < 0) {
-        HDF5ErrMapper::ToException<DataTypeException>("Could not create new enum datatype");
-    }
+    _hid = detail::h5t_enum_create(AtomicType<typename std::underlying_type<T>::type>{}.getId());
 
     // Loop over all the members and insert them into the datatype
     for (const auto& member: members) {
-        if (H5Tenum_insert(_hid, member.name.c_str(), &(member.value)) < 0) {
-            HDF5ErrMapper::ToException<DataTypeException>(
-                "Could not add new member to this enum datatype");
-        }
+        detail::h5t_enum_insert(_hid, member.name.c_str(), &(member.value));
     }
 }
 
 template <typename T>
 inline void EnumType<T>::commit(const Object& object, const std::string& name) const {
-    H5Tcommit2(object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    detail::h5t_commit2(
+        object.getId(), name.c_str(), getId(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 }
 
 namespace {
