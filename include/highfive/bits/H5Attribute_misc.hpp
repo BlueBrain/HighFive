@@ -14,36 +14,34 @@
 #include <sstream>
 #include <string>
 
-#include <H5Apublic.h>
 #include <H5Ppublic.h>
 
 #include "../H5DataSpace.hpp"
 #include "H5Converter_misc.hpp"
 #include "H5ReadWrite_misc.hpp"
 #include "H5Utils.hpp"
+#include "h5a_wrapper.hpp"
 
 namespace HighFive {
 
 inline std::string Attribute::getName() const {
     return details::get_name(
-        [&](char* buffer, size_t length) { return H5Aget_name(_hid, length, buffer); });
+        [&](char* buffer, size_t length) { return detail::h5a_get_name(_hid, length, buffer); });
 }
 
 inline size_t Attribute::getStorageSize() const {
-    return static_cast<size_t>(H5Aget_storage_size(_hid));
+    return static_cast<size_t>(detail::h5a_get_storage_size(_hid));
 }
 
 inline DataType Attribute::getDataType() const {
     DataType res;
-    res._hid = H5Aget_type(_hid);
+    res._hid = detail::h5a_get_type(_hid);
     return res;
 }
 
 inline DataSpace Attribute::getSpace() const {
     DataSpace space;
-    if ((space._hid = H5Aget_space(_hid)) < 0) {
-        HDF5ErrMapper::ToException<AttributeException>("Unable to get DataSpace out of Attribute");
-    }
+    space._hid = detail::h5a_get_space(_hid);
     return space;
 }
 
@@ -107,9 +105,7 @@ inline void Attribute::read(T* array, const DataType& mem_datatype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
 
-    if (H5Aread(getId(), mem_datatype.getId(), static_cast<void*>(array)) < 0) {
-        HDF5ErrMapper::ToException<AttributeException>("Error during HDF5 Read: ");
-    }
+    detail::h5a_read(getId(), mem_datatype.getId(), static_cast<void*>(array));
 }
 
 template <typename T>
@@ -147,9 +143,7 @@ inline void Attribute::write(const T& buffer) {
 
 template <typename T>
 inline void Attribute::write_raw(const T* buffer, const DataType& mem_datatype) {
-    if (H5Awrite(getId(), mem_datatype.getId(), buffer) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
-    }
+    detail::h5a_write(getId(), mem_datatype.getId(), buffer);
 }
 
 template <typename T>

@@ -16,6 +16,7 @@
 
 #include "H5Attribute_misc.hpp"
 #include "H5Iterables_misc.hpp"
+#include "h5a_wrapper.hpp"
 
 namespace HighFive {
 
@@ -23,16 +24,12 @@ template <typename Derivate>
 inline Attribute AnnotateTraits<Derivate>::createAttribute(const std::string& attribute_name,
                                                            const DataSpace& space,
                                                            const DataType& dtype) {
-    auto attr_id = H5Acreate2(static_cast<Derivate*>(this)->getId(),
-                              attribute_name.c_str(),
-                              dtype.getId(),
-                              space.getId(),
-                              H5P_DEFAULT,
-                              H5P_DEFAULT);
-    if (attr_id < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to create the attribute \"") + attribute_name + "\":");
-    }
+    auto attr_id = detail::h5a_create2(static_cast<Derivate*>(this)->getId(),
+                                       attribute_name.c_str(),
+                                       dtype.getId(),
+                                       space.getId(),
+                                       H5P_DEFAULT,
+                                       H5P_DEFAULT);
     return detail::make_attribute(attr_id);
 }
 
@@ -57,30 +54,20 @@ inline Attribute AnnotateTraits<Derivate>::createAttribute(const std::string& at
 
 template <typename Derivate>
 inline void AnnotateTraits<Derivate>::deleteAttribute(const std::string& attribute_name) {
-    if (H5Adelete(static_cast<const Derivate*>(this)->getId(), attribute_name.c_str()) < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to delete attribute \"") + attribute_name + "\":");
-    }
+    detail::h5a_delete(static_cast<const Derivate*>(this)->getId(), attribute_name.c_str());
 }
 
 template <typename Derivate>
 inline Attribute AnnotateTraits<Derivate>::getAttribute(const std::string& attribute_name) const {
-    const auto attr_id =
-        H5Aopen(static_cast<const Derivate*>(this)->getId(), attribute_name.c_str(), H5P_DEFAULT);
-    if (attr_id < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to open the attribute \"") + attribute_name + "\":");
-    }
+    const auto attr_id = detail::h5a_open(static_cast<const Derivate*>(this)->getId(),
+                                          attribute_name.c_str(),
+                                          H5P_DEFAULT);
     return detail::make_attribute(attr_id);
 }
 
 template <typename Derivate>
 inline size_t AnnotateTraits<Derivate>::getNumberAttributes() const {
-    int res = H5Aget_num_attrs(static_cast<const Derivate*>(this)->getId());
-    if (res < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to count attributes in existing group or file"));
-    }
+    int res = detail::h5a_get_num_attrs(static_cast<const Derivate*>(this)->getId());
     return static_cast<size_t>(res);
 }
 
@@ -92,27 +79,19 @@ inline std::vector<std::string> AnnotateTraits<Derivate>::listAttributeNames() c
     size_t num_objs = getNumberAttributes();
     names.reserve(num_objs);
 
-    if (H5Aiterate2(static_cast<const Derivate*>(this)->getId(),
-                    H5_INDEX_NAME,
-                    H5_ITER_INC,
-                    NULL,
-                    &details::internal_high_five_iterate<H5A_info_t>,
-                    static_cast<void*>(&iterateData)) < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to list attributes in group"));
-    }
+    detail::h5a_iterate2(static_cast<const Derivate*>(this)->getId(),
+                         H5_INDEX_NAME,
+                         H5_ITER_INC,
+                         nullptr,
+                         &details::internal_high_five_iterate<H5A_info_t>,
+                         static_cast<void*>(&iterateData));
 
     return names;
 }
 
 template <typename Derivate>
 inline bool AnnotateTraits<Derivate>::hasAttribute(const std::string& attr_name) const {
-    int res = H5Aexists(static_cast<const Derivate*>(this)->getId(), attr_name.c_str());
-    if (res < 0) {
-        HDF5ErrMapper::ToException<AttributeException>(
-            std::string("Unable to check for attribute in group"));
-    }
-    return res;
+    return detail::h5a_exists(static_cast<const Derivate*>(this)->getId(), attr_name.c_str()) > 0;
 }
 
 }  // namespace HighFive
