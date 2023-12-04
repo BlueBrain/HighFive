@@ -14,26 +14,24 @@
 #include <sstream>
 #include <string>
 
-#include <H5Dpublic.h>
 #include <H5Ppublic.h>
 
+#include "h5d_wrapper.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive {
 
 inline uint64_t DataSet::getStorageSize() const {
-    return H5Dget_storage_size(_hid);
+    return detail::h5d_get_storage_size(_hid);
 }
 
 inline DataType DataSet::getDataType() const {
-    return DataType(H5Dget_type(_hid));
+    return DataType(detail::h5d_get_type(_hid));
 }
 
 inline DataSpace DataSet::getSpace() const {
     DataSpace space;
-    if ((space._hid = H5Dget_space(_hid)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Unable to get DataSpace out of DataSet");
-    }
+    space._hid = detail::h5d_get_space(_hid);
     return space;
 }
 
@@ -42,11 +40,7 @@ inline DataSpace DataSet::getMemSpace() const {
 }
 
 inline uint64_t DataSet::getOffset() const {
-    uint64_t addr = H5Dget_offset(_hid);
-    if (addr == HADDR_UNDEF) {
-        HDF5ErrMapper::ToException<DataSetException>("Cannot get offset of DataSet.");
-    }
-    return addr;
+    return static_cast<uint64_t>(detail::h5d_get_offset(_hid));
 }
 
 inline void DataSet::resize(const std::vector<size_t>& dims) {
@@ -58,10 +52,7 @@ inline void DataSet::resize(const std::vector<size_t>& dims) {
     }
 
     std::vector<hsize_t> real_dims(dims.begin(), dims.end());
-
-    if (H5Dset_extent(getId(), real_dims.data()) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Could not resize dataset.");
-    }
+    detail::h5d_set_extent(getId(), real_dims.data());
 }
 
 }  // namespace HighFive

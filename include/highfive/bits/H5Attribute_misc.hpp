@@ -21,6 +21,7 @@
 #include "H5ReadWrite_misc.hpp"
 #include "H5Utils.hpp"
 #include "h5a_wrapper.hpp"
+#include "h5d_wrapper.hpp"
 
 namespace HighFive {
 
@@ -95,7 +96,7 @@ inline void Attribute::read(T& array) const {
         (void) detail::h5t_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
 #else
         // This one is deprecated since 1.12.0
-        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
+        (void) detail::h5d_vlen_reclaim(t.getId(), mem_space.getId(), H5P_DEFAULT, r.getPointer());
 #endif
     }
 }

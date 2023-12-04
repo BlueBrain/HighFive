@@ -15,7 +15,7 @@
 #include <sstream>
 #include <string>
 
-#include <H5Dpublic.h>
+#include "h5d_wrapper.hpp"
 #include <H5Ppublic.h>
 
 #include "H5ReadWrite_misc.hpp"
@@ -209,7 +209,10 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
             detail::h5t_reclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.getPointer());
 #else
         // This one is deprecated since 1.12.0
-        (void) H5Dvlen_reclaim(t.getId(), mem_space.getId(), xfer_props.getId(), r.getPointer());
+        (void) detail::h5d_vlen_reclaim(t.getId(),
+                                        mem_space.getId(),
+                                        xfer_props.getId(),
+                                        r.getPointer());
 #endif
     }
 }
@@ -225,14 +228,12 @@ inline void SliceTraits<Derivate>::read(T* array,
 
     const auto& slice = static_cast<const Derivate&>(*this);
 
-    if (H5Dread(details::get_dataset(slice).getId(),
-                mem_datatype.getId(),
-                details::get_memspace_id(slice),
-                slice.getSpace().getId(),
-                xfer_props.getId(),
-                static_cast<void*>(array)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Read.");
-    }
+    detail::h5d_read(details::get_dataset(slice).getId(),
+                     mem_datatype.getId(),
+                     details::get_memspace_id(slice),
+                     slice.getSpace().getId(),
+                     xfer_props.getId(),
+                     static_cast<void*>(array));
 }
 
 template <typename Derivate>
@@ -281,14 +282,12 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer,
                                              const DataTransferProps& xfer_props) {
     const auto& slice = static_cast<const Derivate&>(*this);
 
-    if (H5Dwrite(details::get_dataset(slice).getId(),
-                 mem_datatype.getId(),
-                 details::get_memspace_id(slice),
-                 slice.getSpace().getId(),
-                 xfer_props.getId(),
-                 static_cast<const void*>(buffer)) < 0) {
-        HDF5ErrMapper::ToException<DataSetException>("Error during HDF5 Write: ");
-    }
+    detail::h5d_write(details::get_dataset(slice).getId(),
+                      mem_datatype.getId(),
+                      details::get_memspace_id(slice),
+                      slice.getSpace().getId(),
+                      xfer_props.getId(),
+                      static_cast<const void*>(buffer));
 }
 
 template <typename Derivate>
