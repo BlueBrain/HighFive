@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <H5Apublic.h>
-#include <H5Dpublic.h>
 #include <H5Fpublic.h>
 #include <H5Gpublic.h>
 #include <H5Ppublic.h>
@@ -39,18 +38,13 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
                                                    bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
-    const auto hid = H5Dcreate2(static_cast<Derivate*>(this)->getId(),
-                                dataset_name.c_str(),
-                                dtype.getId(),
-                                space.getId(),
-                                lcpl.getId(),
-                                createProps.getId(),
-                                accessProps.getId());
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(
-            std::string("Unable to create the dataset \"") + dataset_name + "\":");
-    }
-    return DataSet(hid);
+    return DataSet(detail::h5d_create2(static_cast<Derivate*>(this)->getId(),
+                                       dataset_name.c_str(),
+                                       dtype.getId(),
+                                       space.getId(),
+                                       lcpl.getId(),
+                                       createProps.getId(),
+                                       accessProps.getId()));
 }
 
 template <typename Derivate>
@@ -119,14 +113,9 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                                 const DataSetAccessProps& accessProps) const {
-    const auto hid = H5Dopen2(static_cast<const Derivate*>(this)->getId(),
-                              dataset_name.c_str(),
-                              accessProps.getId());
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<DataSetException>(std::string("Unable to open the dataset \"") +
-                                                     dataset_name + "\":");
-    }
-    return DataSet(hid);
+    return DataSet(detail::h5d_open2(static_cast<const Derivate*>(this)->getId(),
+                                     dataset_name.c_str(),
+                                     accessProps.getId()));
 }
 
 template <typename Derivate>
