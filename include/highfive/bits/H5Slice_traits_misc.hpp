@@ -16,7 +16,7 @@
 #include <string>
 
 #include "h5d_wrapper.hpp"
-#include <H5Ppublic.h>
+#include "h5s_wrapper.hpp"
 
 #include "H5ReadWrite_misc.hpp"
 #include "H5Converter_misc.hpp"
@@ -84,7 +84,7 @@ inline Selection SliceTraits<Derivate>::select(const HyperSlab& hyper_slab) cons
     auto filespace = slice.getSpace();
     filespace = hyper_slab.apply(filespace);
 
-    auto n_elements = H5Sget_select_npoints(filespace.getId());
+    auto n_elements = detail::h5s_get_select_npoints(filespace.getId());
     auto memspace = DataSpace(std::array<size_t, 1>{size_t(n_elements)});
 
     return detail::make_selection(memspace, filespace, details::get_dataset(slice));
@@ -149,9 +149,7 @@ inline Selection SliceTraits<Derivate>::select(const ElementSet& elements) const
         data = raw_elements.data();
     }
 
-    if (H5Sselect_elements(space.getId(), H5S_SELECT_SET, num_elements, data) < 0) {
-        HDF5ErrMapper::ToException<DataSpaceException>("Unable to select elements");
-    }
+    detail::h5s_select_elements(space.getId(), H5S_SELECT_SET, num_elements, data);
 
     return detail::make_selection(DataSpace(num_elements), space, details::get_dataset(slice));
 }
