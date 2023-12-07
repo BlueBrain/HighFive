@@ -15,6 +15,7 @@
 #include "H5Utils.hpp"
 
 #include "../H5PropertyList.hpp"
+#include "h5s_wrapper.hpp"
 
 namespace HighFive {
 
@@ -174,19 +175,14 @@ class HyperSlab {
         auto space = space_.clone();
         for (const auto& sel: selects) {
             if (sel.op == Op::None) {
-                H5Sselect_none(space.getId());
+                detail::h5s_select_none(space.getId());
             } else {
-                auto error_code =
-                    H5Sselect_hyperslab(space.getId(),
-                                        convert(sel.op),
-                                        sel.offset.empty() ? nullptr : sel.offset.data(),
-                                        sel.stride.empty() ? nullptr : sel.stride.data(),
-                                        sel.count.empty() ? nullptr : sel.count.data(),
-                                        sel.block.empty() ? nullptr : sel.block.data());
-
-                if (error_code < 0) {
-                    HDF5ErrMapper::ToException<DataSpaceException>("Unable to select hyperslab");
-                }
+                detail::h5s_select_hyperslab(space.getId(),
+                                             convert(sel.op),
+                                             sel.offset.empty() ? nullptr : sel.offset.data(),
+                                             sel.stride.empty() ? nullptr : sel.stride.data(),
+                                             sel.count.empty() ? nullptr : sel.count.data(),
+                                             sel.block.empty() ? nullptr : sel.block.data());
             }
         }
         return space;
