@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <H5Ppublic.h>
+#include "h5p_wrapper.hpp"
 
 namespace HighFive {
 
@@ -64,9 +64,7 @@ inline void PropertyList<T>::_initializeIfNeeded() {
     if (_hid != H5P_DEFAULT) {
         return;
     }
-    if ((_hid = H5Pcreate(convert_plist_type(T))) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to create property list");
-    }
+    _hid = detail::h5p_create(convert_plist_type(T));
 }
 
 template <PropertyType T>
@@ -95,15 +93,11 @@ inline FileSpaceStrategy::FileSpaceStrategy(H5F_fspace_strategy_t strategy,
     , _threshold(threshold) {}
 
 inline FileSpaceStrategy::FileSpaceStrategy(const FileCreateProps& fcpl) {
-    if (H5Pget_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to get file space strategy");
-    }
+    detail::h5p_get_file_space_strategy(fcpl.getId(), &_strategy, &_persist, &_threshold);
 }
 
 inline void FileSpaceStrategy::apply(const hid_t list) const {
-    if (H5Pset_file_space_strategy(list, _strategy, _persist, _threshold) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting file space strategy.");
-    }
+    detail::h5p_set_file_space_strategy(list, _strategy, _persist, _threshold);
 }
 
 inline H5F_fspace_strategy_t FileSpaceStrategy::getStrategy() const {
@@ -122,15 +116,11 @@ inline FileSpacePageSize::FileSpacePageSize(hsize_t page_size)
     : _page_size(page_size) {}
 
 inline void FileSpacePageSize::apply(const hid_t list) const {
-    if (H5Pset_file_space_page_size(list, _page_size) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting file space page size.");
-    }
+    detail::h5p_set_file_space_page_size(list, _page_size);
 }
 
 inline FileSpacePageSize::FileSpacePageSize(const FileCreateProps& fcpl) {
-    if (H5Pget_file_space_page_size(fcpl.getId(), &_page_size) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to get file space page size");
-    }
+    detail::h5p_get_file_space_page_size(fcpl.getId(), &_page_size);
 }
 
 inline hsize_t FileSpacePageSize::getPageSize() const {
@@ -146,15 +136,11 @@ inline PageBufferSize::PageBufferSize(size_t page_buffer_size,
     , _min_raw(min_raw_percent) {}
 
 inline PageBufferSize::PageBufferSize(const FileAccessProps& plist) {
-    if (H5Pget_page_buffer_size(plist.getId(), &_page_buffer_size, &_min_meta, &_min_raw) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting page buffer size.");
-    }
+    detail::h5p_get_page_buffer_size(plist.getId(), &_page_buffer_size, &_min_meta, &_min_raw);
 }
 
 inline void PageBufferSize::apply(const hid_t list) const {
-    if (H5Pset_page_buffer_size(list, _page_buffer_size, _min_meta, _min_raw) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting page buffer size.");
-    }
+    detail::h5p_set_page_buffer_size(list, _page_buffer_size, _min_meta, _min_raw);
 }
 
 inline size_t PageBufferSize::getPageBufferSize() const {
@@ -178,9 +164,7 @@ inline MPIOFileAccess::MPIOFileAccess(MPI_Comm comm, MPI_Info info)
     , _info(info) {}
 
 inline void MPIOFileAccess::apply(const hid_t list) const {
-    if (H5Pset_fapl_mpio(list, _comm, _info) < 0) {
-        HDF5ErrMapper::ToException<FileException>("Unable to set-up MPIO Driver configuration");
-    }
+    detail::h5p_set_fapl_mpio(list, _comm, _info);
 }
 
 inline void MPIOCollectiveMetadata::apply(const hid_t plist) const {
@@ -210,9 +194,7 @@ inline bool MPIOCollectiveMetadata::isCollectiveWrite() const {
 
 
 inline void MPIOCollectiveMetadataRead::apply(const hid_t plist) const {
-    if (H5Pset_all_coll_metadata_ops(plist, collective_) < 0) {
-        HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata reads");
-    }
+    detail::h5p_set_all_coll_metadata_ops(plist, collective_);
 }
 
 inline bool MPIOCollectiveMetadataRead::isCollective() const {
@@ -220,18 +202,14 @@ inline bool MPIOCollectiveMetadataRead::isCollective() const {
 }
 
 inline MPIOCollectiveMetadataRead::MPIOCollectiveMetadataRead(const FileAccessProps& plist) {
-    if (H5Pget_all_coll_metadata_ops(plist.getId(), &collective_) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error loading MPI metadata read.");
-    }
+    detail::h5p_get_all_coll_metadata_ops(plist.getId(), &collective_);
 }
 
 inline MPIOCollectiveMetadataRead::MPIOCollectiveMetadataRead(bool collective)
     : collective_(collective) {}
 
 inline void MPIOCollectiveMetadataWrite::apply(const hid_t plist) const {
-    if (H5Pset_coll_metadata_write(plist, collective_) < 0) {
-        HDF5ErrMapper::ToException<FileException>("Unable to request collective metadata writes");
-    }
+    detail::h5p_set_coll_metadata_write(plist, collective_);
 }
 
 inline bool MPIOCollectiveMetadataWrite::isCollective() const {
@@ -239,9 +217,7 @@ inline bool MPIOCollectiveMetadataWrite::isCollective() const {
 }
 
 inline MPIOCollectiveMetadataWrite::MPIOCollectiveMetadataWrite(const FileAccessProps& plist) {
-    if (H5Pget_coll_metadata_write(plist.getId(), &collective_) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error loading MPI metadata write.");
-    }
+    detail::h5p_get_coll_metadata_write(plist.getId(), &collective_);
 }
 
 inline MPIOCollectiveMetadataWrite::MPIOCollectiveMetadataWrite(bool collective)
@@ -254,9 +230,7 @@ inline FileVersionBounds::FileVersionBounds(H5F_libver_t low, H5F_libver_t high)
     , _high(high) {}
 
 inline FileVersionBounds::FileVersionBounds(const FileAccessProps& fapl) {
-    if (H5Pget_libver_bounds(fapl.getId(), &_low, &_high) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to access file version bounds");
-    }
+    detail::h5p_get_libver_bounds(fapl.getId(), &_low, &_high);
 }
 
 inline std::pair<H5F_libver_t, H5F_libver_t> FileVersionBounds::getVersion() const {
@@ -264,24 +238,18 @@ inline std::pair<H5F_libver_t, H5F_libver_t> FileVersionBounds::getVersion() con
 }
 
 inline void FileVersionBounds::apply(const hid_t list) const {
-    if (H5Pset_libver_bounds(list, _low, _high) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting file version bounds");
-    }
+    detail::h5p_set_libver_bounds(list, _low, _high);
 }
 
 inline MetadataBlockSize::MetadataBlockSize(hsize_t size)
     : _size(size) {}
 
 inline MetadataBlockSize::MetadataBlockSize(const FileAccessProps& fapl) {
-    if (H5Pget_meta_block_size(fapl.getId(), &_size) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to access file metadata block size");
-    }
+    detail::h5p_get_meta_block_size(fapl.getId(), &_size);
 }
 
 inline void MetadataBlockSize::apply(const hid_t list) const {
-    if (H5Pset_meta_block_size(list, _size) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting metadata block size");
-    }
+    detail::h5p_set_meta_block_size(list, _size);
 }
 
 inline hsize_t MetadataBlockSize::getSize() const {
@@ -289,9 +257,7 @@ inline hsize_t MetadataBlockSize::getSize() const {
 }
 
 inline void EstimatedLinkInfo::apply(const hid_t hid) const {
-    if (H5Pset_est_link_info(hid, _entries, _length) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting estimated link info");
-    }
+    detail::h5p_set_est_link_info(hid, _entries, _length);
 }
 
 inline EstimatedLinkInfo::EstimatedLinkInfo(unsigned entries, unsigned length)
@@ -299,9 +265,7 @@ inline EstimatedLinkInfo::EstimatedLinkInfo(unsigned entries, unsigned length)
     , _length(length) {}
 
 inline EstimatedLinkInfo::EstimatedLinkInfo(const GroupCreateProps& gcpl) {
-    if (H5Pget_est_link_info(gcpl.getId(), &_entries, &_length) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Unable to access group link size property");
-    }
+    detail::h5p_get_est_link_info(gcpl.getId(), &_entries, &_length);
 }
 
 inline unsigned EstimatedLinkInfo::getEntries() const {
@@ -313,9 +277,7 @@ inline unsigned EstimatedLinkInfo::getNameLength() const {
 }
 
 inline void Chunking::apply(const hid_t hid) const {
-    if (H5Pset_chunk(hid, static_cast<int>(_dims.size()), _dims.data()) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting chunk property");
-    }
+    detail::h5p_set_chunk(hid, static_cast<int>(_dims.size()), _dims.data());
 }
 
 inline Chunking::Chunking(const std::vector<hsize_t>& dims)
@@ -326,10 +288,8 @@ inline Chunking::Chunking(const std::initializer_list<hsize_t>& items)
 
 inline Chunking::Chunking(DataSetCreateProps& plist, size_t max_dims)
     : _dims(max_dims + 1) {
-    auto n_loaded = H5Pget_chunk(plist.getId(), static_cast<int>(_dims.size()), _dims.data());
-    if (n_loaded < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error getting chunk size");
-    }
+    auto n_loaded =
+        detail::h5p_get_chunk(plist.getId(), static_cast<int>(_dims.size()), _dims.data());
 
     if (n_loaded >= static_cast<int>(_dims.size())) {
         *this = Chunking(plist, 8 * max_dims);
@@ -347,22 +307,22 @@ inline Chunking::Chunking(hsize_t item, Args... args)
     : Chunking(std::vector<hsize_t>{item, static_cast<hsize_t>(args)...}) {}
 
 inline void Deflate::apply(const hid_t hid) const {
-    if (!H5Zfilter_avail(H5Z_FILTER_DEFLATE) || H5Pset_deflate(hid, _level) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting deflate property");
+    if (detail::h5z_filter_avail(H5Z_FILTER_DEFLATE) == 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Deflate filter unavailable.");
     }
+
+    detail::h5p_set_deflate(hid, _level);
 }
 
 inline Deflate::Deflate(unsigned int level)
     : _level(level) {}
 
 inline void Szip::apply(const hid_t hid) const {
-    if (!H5Zfilter_avail(H5Z_FILTER_SZIP)) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting szip property");
+    if (detail::h5z_filter_avail(H5Z_FILTER_SZIP) == 0) {
+        HDF5ErrMapper::ToException<PropertyException>("SZIP filter unavailable.");
     }
 
-    if (H5Pset_szip(hid, _options_mask, _pixels_per_block) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting szip property");
-    }
+    detail::h5p_set_szip(hid, _options_mask, _pixels_per_block);
 }
 
 inline Szip::Szip(unsigned int options_mask, unsigned int pixels_per_block)
@@ -378,28 +338,22 @@ inline unsigned Szip::getPixelsPerBlock() const {
 }
 
 inline void Shuffle::apply(const hid_t hid) const {
-    if (!H5Zfilter_avail(H5Z_FILTER_SHUFFLE)) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting shuffle property");
+    if (detail::h5z_filter_avail(H5Z_FILTER_SHUFFLE) == 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Shuffle filter unavailable.");
     }
 
-    if (H5Pset_shuffle(hid) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting shuffle property");
-    }
+    detail::h5p_set_shuffle(hid);
 }
 
 inline AllocationTime::AllocationTime(H5D_alloc_time_t alloc_time)
     : _alloc_time(alloc_time) {}
 
 inline AllocationTime::AllocationTime(const DataSetCreateProps& dcpl) {
-    if (H5Pget_alloc_time(dcpl.getId(), &_alloc_time) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error getting allocation time");
-    }
+    detail::h5p_get_alloc_time(dcpl.getId(), &_alloc_time);
 }
 
 inline void AllocationTime::apply(hid_t dcpl) const {
-    if (H5Pset_alloc_time(dcpl, _alloc_time) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting allocation time");
-    }
+    detail::h5p_set_alloc_time(dcpl, _alloc_time);
 }
 
 inline H5D_alloc_time_t AllocationTime::getAllocationTime() {
@@ -407,15 +361,11 @@ inline H5D_alloc_time_t AllocationTime::getAllocationTime() {
 }
 
 inline Caching::Caching(const DataSetCreateProps& dcpl) {
-    if (H5Pget_chunk_cache(dcpl.getId(), &_numSlots, &_cacheSize, &_w0) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error getting dataset cache parameters");
-    }
+    detail::h5p_get_chunk_cache(dcpl.getId(), &_numSlots, &_cacheSize, &_w0);
 }
 
 inline void Caching::apply(const hid_t hid) const {
-    if (H5Pset_chunk_cache(hid, _numSlots, _cacheSize, _w0) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting dataset cache parameters");
-    }
+    detail::h5p_set_chunk_cache(hid, _numSlots, _cacheSize, _w0);
 }
 
 inline Caching::Caching(const size_t numSlots, const size_t cacheSize, const double w0)
@@ -444,10 +394,7 @@ inline CreateIntermediateGroup::CreateIntermediateGroup(const ObjectCreateProps&
 
 
 inline void CreateIntermediateGroup::apply(const hid_t hid) const {
-    if (H5Pset_create_intermediate_group(hid, _create ? 1 : 0) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error setting property for create intermediate groups");
-    }
+    detail::h5p_set_create_intermediate_group(hid, _create ? 1 : 0);
 }
 
 inline CreateIntermediateGroup::CreateIntermediateGroup(const LinkCreateProps& lcpl) {
@@ -456,12 +403,7 @@ inline CreateIntermediateGroup::CreateIntermediateGroup(const LinkCreateProps& l
 
 inline void CreateIntermediateGroup::fromPropertyList(hid_t hid) {
     unsigned c_bool = 0;
-    if (H5Pget_create_intermediate_group(hid, &c_bool) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error getting property for create intermediate groups");
-    }
-
-    _create = bool(c_bool);
+    _create = bool(detail::h5p_get_create_intermediate_group(hid, &c_bool));
 }
 
 inline bool CreateIntermediateGroup::isSet() const {
@@ -473,17 +415,13 @@ inline UseCollectiveIO::UseCollectiveIO(bool enable)
     : _enable(enable) {}
 
 inline void UseCollectiveIO::apply(const hid_t hid) const {
-    if (H5Pset_dxpl_mpio(hid, _enable ? H5FD_MPIO_COLLECTIVE : H5FD_MPIO_INDEPENDENT) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting H5Pset_dxpl_mpio.");
-    }
+    detail::h5p_set_dxpl_mpio(hid, _enable ? H5FD_MPIO_COLLECTIVE : H5FD_MPIO_INDEPENDENT);
 }
 
 inline UseCollectiveIO::UseCollectiveIO(const DataTransferProps& dxpl) {
     H5FD_mpio_xfer_t collective;
 
-    if (H5Pget_dxpl_mpio(dxpl.getId(), &collective) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error getting H5Pset_dxpl_mpio.");
-    }
+    detail::h5p_get_dxpl_mpio(dxpl.getId(), &collective);
 
     if (collective != H5FD_MPIO_COLLECTIVE && collective != H5FD_MPIO_INDEPENDENT) {
         throw std::logic_error("H5Pget_dxpl_mpio returned something strange.");
@@ -497,9 +435,7 @@ inline bool UseCollectiveIO::isCollective() const {
 }
 
 inline MpioNoCollectiveCause::MpioNoCollectiveCause(const DataTransferProps& dxpl) {
-    if (H5Pget_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Failed to check mpio_no_collective_cause.");
-    }
+    detail::h5p_get_mpio_no_collective_cause(dxpl.getId(), &_local_cause, &_global_cause);
 }
 
 inline bool MpioNoCollectiveCause::wasCollective() const {
@@ -532,16 +468,11 @@ inline unsigned LinkCreationOrder::getFlags() const {
 }
 
 inline void LinkCreationOrder::apply(const hid_t hid) const {
-    if (H5Pset_link_creation_order(hid, _flags) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("Error setting LinkCreationOrder.");
-    }
+    detail::h5p_set_link_creation_order(hid, _flags);
 }
 
 inline void LinkCreationOrder::fromPropertyList(hid_t hid) {
-    if (H5Pget_link_creation_order(hid, &_flags) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error getting property for link creation order");
-    }
+    detail::h5p_get_link_creation_order(hid, &_flags);
 }
 
 inline AttributePhaseChange::AttributePhaseChange(unsigned max_compact, unsigned min_dense)
@@ -549,10 +480,7 @@ inline AttributePhaseChange::AttributePhaseChange(unsigned max_compact, unsigned
     , _min_dense(min_dense) {}
 
 inline AttributePhaseChange::AttributePhaseChange(const GroupCreateProps& gcpl) {
-    if (H5Pget_attr_phase_change(gcpl.getId(), &_max_compact, &_min_dense) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error getting property for attribute phase change");
-    }
+    detail::h5p_get_attr_phase_change(gcpl.getId(), &_max_compact, &_min_dense);
 }
 
 inline unsigned AttributePhaseChange::max_compact() const {
@@ -564,10 +492,7 @@ inline unsigned AttributePhaseChange::min_dense() const {
 }
 
 inline void AttributePhaseChange::apply(hid_t hid) const {
-    if (H5Pset_attr_phase_change(hid, _max_compact, _min_dense) < 0) {
-        HDF5ErrMapper::ToException<PropertyException>(
-            "Error getting property for attribute phase change");
-    }
+    detail::h5p_set_attr_phase_change(hid, _max_compact, _min_dense);
 }
 
 
