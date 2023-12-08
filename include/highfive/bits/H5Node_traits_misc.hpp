@@ -27,6 +27,7 @@
 
 #include "h5l_wrapper.hpp"
 #include "h5g_wrapper.hpp"
+#include "h5o_wrapper.hpp"
 
 
 namespace HighFive {
@@ -349,12 +350,9 @@ inline void NodeTraits<Derivate>::createHardLink(const std::string& link_name,
 
 template <typename Derivate>
 inline Object NodeTraits<Derivate>::_open(const std::string& node_name) const {
-    const auto id =
-        H5Oopen(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
-    if (id < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open \"") + node_name +
-                                                   "\":");
-    }
+    const auto id = detail::h5o_open(static_cast<const Derivate*>(this)->getId(),
+                                     node_name.c_str(),
+                                     H5P_DEFAULT);
     return detail::make_object(id);
 }
 
