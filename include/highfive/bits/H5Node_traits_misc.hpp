@@ -13,7 +13,6 @@
 
 #include <H5Apublic.h>
 #include <H5Fpublic.h>
-#include <H5Gpublic.h>
 #include <H5Ppublic.h>
 #include <H5Tpublic.h>
 
@@ -25,6 +24,10 @@
 #include "H5Iterables_misc.hpp"
 #include "H5Selection_misc.hpp"
 #include "H5Slice_traits_misc.hpp"
+
+#include "h5l_wrapper.hpp"
+#include "h5g_wrapper.hpp"
+
 
 namespace HighFive {
 
@@ -122,16 +125,11 @@ template <typename Derivate>
 inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name, bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
-    const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                                group_name.c_str(),
-                                lcpl.getId(),
-                                H5P_DEFAULT,
-                                H5P_DEFAULT);
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create the group \"") +
-                                                   group_name + "\":");
-    }
-    return detail::make_group(hid);
+    return detail::make_group(detail::h5g_create2(static_cast<Derivate*>(this)->getId(),
+                                                  group_name.c_str(),
+                                                  lcpl.getId(),
+                                                  H5P_DEFAULT,
+                                                  H5P_DEFAULT));
 }
 
 template <typename Derivate>
@@ -140,27 +138,18 @@ inline Group NodeTraits<Derivate>::createGroup(const std::string& group_name,
                                                bool parents) {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
-    const auto hid = H5Gcreate2(static_cast<Derivate*>(this)->getId(),
-                                group_name.c_str(),
-                                lcpl.getId(),
-                                createProps.getId(),
-                                H5P_DEFAULT);
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create the group \"") +
-                                                   group_name + "\":");
-    }
-    return detail::make_group(hid);
+    return detail::make_group(detail::h5g_create2(static_cast<Derivate*>(this)->getId(),
+                                                  group_name.c_str(),
+                                                  lcpl.getId(),
+                                                  createProps.getId(),
+                                                  H5P_DEFAULT));
 }
 
 template <typename Derivate>
 inline Group NodeTraits<Derivate>::getGroup(const std::string& group_name) const {
-    const auto hid =
-        H5Gopen2(static_cast<const Derivate*>(this)->getId(), group_name.c_str(), H5P_DEFAULT);
-    if (hid < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to open the group \"") +
-                                                   group_name + "\":");
-    }
-    return detail::make_group(hid);
+    return detail::make_group(detail::h5g_open2(static_cast<const Derivate*>(this)->getId(),
+                                                group_name.c_str(),
+                                                H5P_DEFAULT));
 }
 
 template <typename Derivate>
@@ -174,24 +163,21 @@ inline DataType NodeTraits<Derivate>::getDataType(const std::string& type_name,
 template <typename Derivate>
 inline size_t NodeTraits<Derivate>::getNumberObjects() const {
     hsize_t res;
-    if (H5Gget_num_objs(static_cast<const Derivate*>(this)->getId(), &res) < 0) {
-        HDF5ErrMapper::ToException<GroupException>(
-            std::string("Unable to count objects in existing group or file"));
-    }
+    detail::h5g_get_num_objs(static_cast<const Derivate*>(this)->getId(), &res);
     return static_cast<size_t>(res);
 }
 
 template <typename Derivate>
 inline std::string NodeTraits<Derivate>::getObjectName(size_t index) const {
     return details::get_name([&](char* buffer, size_t length) {
-        return H5Lget_name_by_idx(static_cast<const Derivate*>(this)->getId(),
-                                  ".",
-                                  H5_INDEX_NAME,
-                                  H5_ITER_INC,
-                                  index,
-                                  buffer,
-                                  length,
-                                  H5P_DEFAULT);
+        return detail::h5l_get_name_by_idx(static_cast<const Derivate*>(this)->getId(),
+                                           ".",
+                                           H5_INDEX_NAME,
+                                           H5_ITER_INC,
+                                           index,
+                                           buffer,
+                                           length,
+                                           H5P_DEFAULT);
     });
 }
 
@@ -201,18 +187,14 @@ inline bool NodeTraits<Derivate>::rename(const std::string& src_path,
                                          bool parents) const {
     LinkCreateProps lcpl;
     lcpl.add(CreateIntermediateGroup(parents));
-    herr_t status = H5Lmove(static_cast<const Derivate*>(this)->getId(),
-                            src_path.c_str(),
-                            static_cast<const Derivate*>(this)->getId(),
-                            dst_path.c_str(),
-                            lcpl.getId(),
-                            H5P_DEFAULT);
-    if (status < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to move link to \"") +
-                                                   dst_path + "\":");
-        return false;
-    }
-    return true;
+    herr_t err = detail::h5l_move(static_cast<const Derivate*>(this)->getId(),
+                                  src_path.c_str(),
+                                  static_cast<const Derivate*>(this)->getId(),
+                                  dst_path.c_str(),
+                                  lcpl.getId(),
+                                  H5P_DEFAULT);
+
+    return err >= 0;
 }
 
 template <typename Derivate>
@@ -223,23 +205,21 @@ inline std::vector<std::string> NodeTraits<Derivate>::listObjectNames(IndexType 
     size_t num_objs = getNumberObjects();
     names.reserve(num_objs);
 
-    if (H5Literate(static_cast<const Derivate*>(this)->getId(),
-                   static_cast<H5_index_t>(idx_type),
-                   H5_ITER_INC,
-                   NULL,
-                   &details::internal_high_five_iterate<H5L_info_t>,
-                   static_cast<void*>(&iterateData)) < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to list objects in group"));
-    }
-
+    detail::h5l_iterate(static_cast<const Derivate*>(this)->getId(),
+                        static_cast<H5_index_t>(idx_type),
+                        H5_ITER_INC,
+                        NULL,
+                        &details::internal_high_five_iterate<H5L_info_t>,
+                        static_cast<void*>(&iterateData));
     return names;
 }
 
 template <typename Derivate>
 inline bool NodeTraits<Derivate>::_exist(const std::string& node_name, bool raise_errors) const {
     SilenceHDF5 silencer{};
-    const auto val =
-        H5Lexists(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
+    const auto val = detail::nothrow::h5l_exists(static_cast<const Derivate*>(this)->getId(),
+                                                 node_name.c_str(),
+                                                 H5P_DEFAULT);
     if (val < 0) {
         if (raise_errors) {
             HDF5ErrMapper::ToException<GroupException>("Invalid link for exist()");
@@ -269,11 +249,7 @@ inline bool NodeTraits<Derivate>::exist(const std::string& group_path) const {
 
 template <typename Derivate>
 inline void NodeTraits<Derivate>::unlink(const std::string& node_name) const {
-    const herr_t val =
-        H5Ldelete(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
-    if (val < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Invalid name for unlink() "));
-    }
+    detail::h5l_delete(static_cast<const Derivate*>(this)->getId(), node_name.c_str(), H5P_DEFAULT);
 }
 
 
@@ -297,13 +273,14 @@ static inline LinkType _convert_link_type(const H5L_type_t& ltype) noexcept {
 template <typename Derivate>
 inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) const {
     H5L_info_t linkinfo;
-    if (H5Lget_info(static_cast<const Derivate*>(this)->getId(),
-                    node_name.c_str(),
-                    &linkinfo,
-                    H5P_DEFAULT) < 0 ||
-        linkinfo.type == H5L_TYPE_ERROR) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to obtain info for link ") +
-                                                   node_name);
+    detail::h5l_get_info(static_cast<const Derivate*>(this)->getId(),
+                         node_name.c_str(),
+                         &linkinfo,
+                         H5P_DEFAULT);
+
+    if (linkinfo.type == H5L_TYPE_ERROR) {
+        HDF5ErrMapper::ToException<GroupException>(std::string("Link type of \"") + node_name +
+                                                   "\" is H5L_TYPE_ERROR");
     }
     return _convert_link_type(linkinfo.type);
 }
@@ -323,14 +300,11 @@ inline void NodeTraits<Derivate>::createSoftLink(const std::string& link_name,
     if (parents) {
         linkCreateProps.add(CreateIntermediateGroup{});
     }
-    auto status = H5Lcreate_soft(obj_path.c_str(),
-                                 static_cast<const Derivate*>(this)->getId(),
-                                 link_name.c_str(),
-                                 linkCreateProps.getId(),
-                                 linkAccessProps.getId());
-    if (status < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create soft link: "));
-    }
+    detail::h5l_create_soft(obj_path.c_str(),
+                            static_cast<const Derivate*>(this)->getId(),
+                            link_name.c_str(),
+                            linkCreateProps.getId(),
+                            linkAccessProps.getId());
 }
 
 
@@ -344,15 +318,12 @@ inline void NodeTraits<Derivate>::createExternalLink(const std::string& link_nam
     if (parents) {
         linkCreateProps.add(CreateIntermediateGroup{});
     }
-    auto status = H5Lcreate_external(h5_file.c_str(),
-                                     obj_path.c_str(),
-                                     static_cast<const Derivate*>(this)->getId(),
-                                     link_name.c_str(),
-                                     linkCreateProps.getId(),
-                                     linkAccessProps.getId());
-    if (status < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create external link: "));
-    }
+    detail::h5l_create_external(h5_file.c_str(),
+                                obj_path.c_str(),
+                                static_cast<const Derivate*>(this)->getId(),
+                                link_name.c_str(),
+                                linkCreateProps.getId(),
+                                linkAccessProps.getId());
 }
 
 template <typename Derivate>
@@ -367,15 +338,12 @@ inline void NodeTraits<Derivate>::createHardLink(const std::string& link_name,
     if (parents) {
         linkCreateProps.add(CreateIntermediateGroup{});
     }
-    auto status = H5Lcreate_hard(target_obj.getId(),
-                                 ".",
-                                 static_cast<const Derivate*>(this)->getId(),
-                                 link_name.c_str(),
-                                 linkCreateProps.getId(),
-                                 linkAccessProps.getId());
-    if (status < 0) {
-        HDF5ErrMapper::ToException<GroupException>(std::string("Unable to create hard link: "));
-    }
+    detail::h5l_create_hard(target_obj.getId(),
+                            ".",
+                            static_cast<const Derivate*>(this)->getId(),
+                            link_name.c_str(),
+                            linkCreateProps.getId(),
+                            linkAccessProps.getId());
 }
 
 
