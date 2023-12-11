@@ -8,5 +8,12 @@ inline void h5_free_memory(void* mem) {
         throw DataTypeException("Could not free memory allocated by HDF5");
     }
 }
+
+namespace nothrow {
+inline herr_t h5_free_memory(void* mem) {
+    return H5free_memory(mem);
+}
+}  // namespace nothrow
+
 }  // namespace detail
 }  // namespace HighFive
