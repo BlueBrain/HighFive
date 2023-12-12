@@ -23,6 +23,7 @@
 
 #include "H5Inspector_misc.hpp"
 #include "h5t_wrapper.hpp"
+#include "h5i_wrapper.hpp"
 
 namespace HighFive {
 
@@ -69,8 +70,8 @@ inline StringType DataType::asStringType() const {
         throw DataTypeException("Invalid conversion to StringType.");
     }
 
-    if (isValid() && H5Iinc_ref(_hid) < 0) {
-        throw ObjectException("Reference counter increase failure");
+    if (isValid()) {
+        detail::h5i_inc_ref(_hid);
     }
 
     return StringType(_hid);
