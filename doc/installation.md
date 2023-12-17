@@ -211,7 +211,7 @@ this you type
 
 Okay, on to configure, compile and install. The CMake commands are
 
-    cmake -DCMAKE_INSTALL_PREFIX=build/install -DHIGHFIVE_USE_BOOST=Off -B build .
+    cmake -DCMAKE_INSTALL_PREFIX=build/install -B build .
     cmake --build build --parallel
     cmake --install build
 

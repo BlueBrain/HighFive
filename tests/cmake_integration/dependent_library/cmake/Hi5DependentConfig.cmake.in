@@ -1,0 +1,24 @@
+include(CMakeFindDependencyMacro)
+
+find_dependency(HighFive)
+
+set(Hi5Dependent_INTEGRATION_STRATEGY @INTEGRATION_STRATEGY@)
+if(   ${Hi5Dependent_INTEGRATION_STRATEGY} STREQUAL "Include"
+   OR ${Hi5Dependent_INTEGRATION_STRATEGY} STREQUAL "bailout")
+  # Remember to 'find' any dependencies you introduce, including HDF5 if you
+  # use additional COMPONENTS; or MPI if you unconditionally use it.
+  find_dependency(MPI)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/Hi5DependentTargets.cmake")
+
+if(boost IN_LIST Hi5Dependent_FIND_COMPONENTS)
+  set(Hi5Dependent_USE_BOOST @USE_BOOST@)
+
+  if(NOT Hi5Dependent_USE_BOOST)
+    message(FATAL_ERROR "Library was built without the component: boost")
+  endif()
+
+  find_dependency(Boost)
+  include("${CMAKE_CURRENT_LIST_DIR}/Hi5DependentBoostTargets.cmake")
+endif()

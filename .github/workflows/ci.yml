@@ -41,22 +41,22 @@ jobs:
           - config:
               os: ubuntu-20.04
               pkgs: ''
-              flags: '-DHIGHFIVE_USE_BOOST:Bool=OFF'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=OFF'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev libopencv-dev'
-              flags: '-DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-latest
               pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
-              flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
               flags: '-DCMAKE_CXX_STANDARD=17'
           - config:
               os: ubuntu-22.04
-              flags: '-DHIGHFIVE_USE_BOOST=Off -DCMAKE_CXX_STANDARD=20'
+              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20'
 
     steps:
     - uses: actions/checkout@v3
@@ -195,8 +195,8 @@ jobs:
       run: |
         CMAKE_OPTIONS=(
           -GNinja
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_GLIBCXX_ASSERTIONS=${HIGHFIVE_GLIBCXX_ASSERTIONS:-OFF}
           -DHIGHFIVE_SANITIZER=${HIGHFIVE_SANITIZER:-OFF}
@@ -246,7 +246,7 @@ jobs:
         sudo apt-get -qq install libhdf5-openmpi-dev
 
     - name: "CMake Project Integration"
-      run: bash tests/test_project_integration.sh
+      run: bash tests/cmake_integration/test_cmake_integration.sh
 
 
   # Job checking the benchmarks work
@@ -291,9 +291,9 @@ jobs:
       run: |
         CMAKE_OPTIONS=(
           -GNinja
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
           -DCMAKE_CXX_FLAGS="-coverage -O0"
@@ -348,9 +348,9 @@ jobs:
           -T ${{matrix.vs-toolset}}
           -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
           -DHIGHFIVE_UNIT_TESTS=ON
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
         )
         source $GITHUB_WORKSPACE/.github/build.sh

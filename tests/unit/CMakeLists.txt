@@ -1,6 +1,5 @@
 include(CTest)
 include(Catch)
-include(HighFiveWarnings)
 
 if(MSVC)
   add_definitions(/bigobj)
@@ -14,7 +13,6 @@ foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_fiv
 endforeach()
 
 if(HIGHFIVE_PARALLEL_HDF5)
-  include(TestHelpers)
   set(tests_parallel_src "tests_high_five_parallel.cpp")
 
   ## parallel MPI tests
@@ -29,7 +27,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
   file(READ "${original_catch_script}" original_catch_script_contents)
   string(REGEX REPLACE
          "(add_command\\(add_test.*TEST_EXECUTOR})"
-         "\\1 ${TEST_MPI_EXEC_PREFIX_DEFAULT} -n 2"
+         "\\1 ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2"
          modified_catch_script_contents
          "${original_catch_script_contents}")
   if(original_catch_script_contents STREQUAL modified_catch_script_contents)
@@ -44,17 +42,17 @@ endif()
 option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
 
 if(HIGHFIVE_TEST_SINGLE_INCLUDES)
-    file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
+  file(GLOB CONFIGURE_DEPENDS public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
     foreach(PUBLIC_HEADER ${public_headers})
-        if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_USE_BOOST)
+        if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_TEST_BOOST)
           continue()
         endif()
 
-        if(PUBLIC_HEADER STREQUAL "highfive/half_float.hpp" AND NOT HIGHFIVE_USE_HALF_FLOAT)
+        if(PUBLIC_HEADER STREQUAL "highfive/half_float.hpp" AND NOT HIGHFIVE_TEST_HALF_FLOAT)
           continue()
         endif()
 
-        if(PUBLIC_HEADER STREQUAL "highfive/eigen.hpp" AND NOT HIGHFIVE_USE_EIGEN)
+        if(PUBLIC_HEADER STREQUAL "highfive/eigen.hpp" AND NOT HIGHFIVE_TEST_EIGEN)
           continue()
         endif()
 

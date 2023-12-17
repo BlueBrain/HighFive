@@ -1,1 +1,0 @@
-../../src/examples/read_write_vector_dataset.cpp
