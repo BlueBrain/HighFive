@@ -9,12 +9,9 @@
 #include <algorithm>
 #include <complex>
 
-#undef H5_USE_BOOST
-#define H5_USE_BOOST
-
 #include <highfive/highfive.hpp>
 
-#include <boost/multi_array.hpp>
+#include <highfive/boost.hpp>
 
 typedef std::complex<double> complex_t;
 

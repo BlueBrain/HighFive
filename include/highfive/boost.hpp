@@ -1,5 +1,4 @@
 #pragma once
-#ifdef H5_USE_BOOST
 
 #include "bits/H5Inspector_decl.hpp"
 #include "H5Exception.hpp"
@@ -160,5 +159,3 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif

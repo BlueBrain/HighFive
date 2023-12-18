@@ -640,11 +640,3 @@ struct inspector<T[N]> {
 
 }  // namespace details
 }  // namespace HighFive
-
-#ifdef H5_USE_BOOST
-#include <highfive/boost.hpp>
-#endif
-
-#ifdef H5_USE_EIGEN
-#include <highfive/eigen.hpp>
-#endif
