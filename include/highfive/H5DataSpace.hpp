@@ -145,6 +145,24 @@ class DataSpace: public Object {
     /// \since 1.3
     explicit DataSpace(DataspaceType space_type);
 
+    /// \brief Create a scalar DataSpace.
+    ///
+    /// \code{.cpp}
+    /// auto dataspace = DataSpace::Scalar();
+    /// \endcode
+    ///
+    /// \since 2.9
+    static DataSpace Scalar();
+
+    /// \brief Create a null DataSpace.
+    ///
+    /// \code{.cpp}
+    /// auto dataspace = DataSpace::Null();
+    /// \endcode
+    ///
+    /// \since 2.9
+    static DataSpace Null();
+
     /// \brief Create a copy of the DataSpace which will have different id.
     ///
     /// \code{.cpp}

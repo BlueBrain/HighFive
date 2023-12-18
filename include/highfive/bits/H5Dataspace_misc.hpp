@@ -42,6 +42,14 @@ inline DataSpace::DataSpace(const IT begin, const IT end) {
     _hid = detail::h5s_create_simple(int(real_dims.size()), real_dims.data(), nullptr);
 }
 
+inline DataSpace DataSpace::Scalar() {
+    return DataSpace(DataSpace::dataspace_scalar);
+}
+
+inline DataSpace DataSpace::Null() {
+    return DataSpace(DataSpace::dataspace_null);
+}
+
 inline DataSpace::DataSpace(const std::vector<size_t>& dims, const std::vector<size_t>& maxdims) {
     if (dims.size() != maxdims.size()) {
         throw DataSpaceException("dims and maxdims must be the same length.");

@@ -101,6 +101,15 @@ inline hssize_t h5s_get_simple_extent_npoints(hid_t space_id) {
     return nelements;
 }
 
+inline H5S_class_t h5s_get_simple_extent_type(hid_t space_id) {
+    H5S_class_t cls = H5Sget_simple_extent_type(space_id);
+    if (cls == H5S_NO_CLASS) {
+        HDF5ErrMapper::ToException<DataSpaceException>("Unable to get class of simple dataspace.");
+    }
+
+    return cls;
+}
+
 
 }  // namespace detail
 }  // namespace HighFive
