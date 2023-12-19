@@ -5,8 +5,6 @@
 #include "H5Exception.hpp"
 
 #include <boost/multi_array.hpp>
-// starting Boost 1.64, serialization header must come before ublas
-#include <boost/serialization/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace HighFive {
