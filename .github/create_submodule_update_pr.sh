@@ -21,7 +21,7 @@
 #         the version is different. However, it doesn't have to be a `x.y.z` it
 #         could be a Git SHA, or something else.
 
-set -e
+set -eu
 
 PACKAGE_NAME=$1
 VERSION=$2
