@@ -167,6 +167,7 @@ inline void MPIOFileAccess::apply(const hid_t list) const {
     detail::h5p_set_fapl_mpio(list, _comm, _info);
 }
 
+#if H5_VERSION_GE(1, 10, 0)
 inline void MPIOCollectiveMetadata::apply(const hid_t plist) const {
     auto read = MPIOCollectiveMetadataRead{collective_read_};
     auto write = MPIOCollectiveMetadataWrite{collective_write_};
@@ -223,6 +224,7 @@ inline MPIOCollectiveMetadataWrite::MPIOCollectiveMetadataWrite(const FileAccess
 inline MPIOCollectiveMetadataWrite::MPIOCollectiveMetadataWrite(bool collective)
     : collective_(collective) {}
 
+#endif
 #endif
 
 inline FileVersionBounds::FileVersionBounds(H5F_libver_t low, H5F_libver_t high)

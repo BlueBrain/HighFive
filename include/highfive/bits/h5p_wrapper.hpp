@@ -95,6 +95,7 @@ inline herr_t h5p_set_fapl_mpio(hid_t fapl_id, MPI_Comm comm, MPI_Info info) {
     return err;
 }
 
+#if H5_VERSION_GE(1, 10, 0)
 inline herr_t h5p_set_all_coll_metadata_ops(hid_t plist_id, hbool_t is_collective) {
     herr_t err = H5Pset_all_coll_metadata_ops(plist_id, is_collective);
     if (err < 0) {
@@ -132,7 +133,7 @@ inline herr_t h5p_get_coll_metadata_write(hid_t plist_id, hbool_t* is_collective
 
     return err;
 }
-
+#endif
 #endif
 
 inline herr_t h5p_get_libver_bounds(hid_t plist_id, H5F_libver_t* low, H5F_libver_t* high) {
