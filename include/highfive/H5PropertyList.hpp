@@ -229,6 +229,8 @@ class MPIOFileAccess {
     MPI_Info _info;
 };
 
+
+#if H5_VERSION_GE(1, 10, 0)
 ///
 /// \brief Use collective MPI-IO for metadata read and write.
 ///
@@ -306,6 +308,7 @@ class MPIOCollectiveMetadataWrite {
     bool collective_;
 };
 
+#endif
 #endif
 
 ///
