@@ -68,7 +68,7 @@ inline void Attribute::read(T& array) const {
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
-        ss << "Impossible to read DataSet of dimensions " << mem_space.getNumberDimensions()
+        ss << "Impossible to read Attribute of dimensions " << mem_space.getNumberDimensions()
            << " into arrays of dimensions " << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
