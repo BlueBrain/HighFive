@@ -409,9 +409,7 @@ class DataGenerator {
 
     template <class F>
     static container_type create(const std::vector<size_t>& dims, F f) {
-        std::cout << "allocate " << std::endl;
         auto array = allocate(dims);
-        std::cout << "initialize " << std::endl;
         initialize(array, dims, f);
 
         return array;
