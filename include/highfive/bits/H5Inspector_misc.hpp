@@ -385,19 +385,21 @@ struct inspector<std::vector<T>> {
     }
 
     static hdf5_type* data(type& val) {
-        return inspector<value_type>::data(val[0]);
+        return val.empty() ? nullptr : inspector<value_type>::data(val[0]);
     }
 
     static const hdf5_type* data(const type& val) {
-        return inspector<value_type>::data(val[0]);
+        return val.empty() ? nullptr : inspector<value_type>::data(val[0]);
     }
 
     template <class It>
     static void serialize(const type& val, It m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
-        for (auto&& e: val) {
-            inspector<value_type>::serialize(e, m);
-            m += subsize;
+        if (!val.empty()) {
+            size_t subsize = inspector<value_type>::getSizeVal(val[0]);
+            for (auto&& e: val) {
+                inspector<value_type>::serialize(e, m);
+                m += subsize;
+            }
         }
     }
 
