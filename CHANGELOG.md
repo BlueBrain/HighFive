@@ -1,4 +1,24 @@
 # Changes
+## Version 2.9.0 - 2024-01-25
+### New Features
+    - Add named ctors for scalar and null dataspaces. (#899)
+    - Named ctor for empty property lists. (#904)
+
+### Improvements
+    - Enable running tests in parallel. (#849)
+    - Wrap all used HDF5 function calls and always check status codes. (#863)
+    - Utilities for writing tests in a container independent manner. (#871)
+    - Improve test rigour.
+
+### Bug Fix
+    - Log messages were slightly misformatted. (#854)
+    - Fix bug in `enforce_ascii_hack`. (#856)
+    - Fix `create_datatype<bool>()`. (#869)
+    - Guard functionality introduced in 1.10.0. (#905)
+    - `inspector` guard for empty containers. (#913)
+    - Avoid non-collective behaviour. (#912)
+
+
 ## Version 2.8.0 - 2023-11-02
 ### Important Change
     - `Eigen::Matrix` is (by default) stored with column-major index ordering. Under
