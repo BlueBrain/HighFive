@@ -591,6 +591,21 @@ struct inspector<T[N]> {
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        if (dims.size() < 1) {
+            throw DataSpaceException("Invalid 'dims', must be at least 1 dimensional.");
+        }
+
+        if (dims[0] != N) {
+            throw DataSpaceException("Dimensions mismatch.");
+        }
+
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        for (size_t i = 0; i < dims[0]; ++i) {
+            inspector<value_type>::prepare(val[i], next_dims);
+        }
+    }
+
     static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
     }
@@ -605,6 +620,10 @@ struct inspector<T[N]> {
     }
 
     static const hdf5_type* data(const type& val) {
+        return inspector<value_type>::data(val[0]);
+    }
+
+    static hdf5_type* data(type& val) {
         return inspector<value_type>::data(val[0]);
     }
 
