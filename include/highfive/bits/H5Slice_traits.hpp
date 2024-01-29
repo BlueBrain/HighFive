@@ -292,6 +292,7 @@ class SliceTraits {
 
     ///
     /// Read the entire dataset into a buffer
+    ///
     /// An exception is raised is if the numbers of dimension of the buffer and
     /// of the dataset are different.
     ///
@@ -305,6 +306,38 @@ class SliceTraits {
     ///
     /// Read the entire dataset into a raw buffer
     ///
+    /// \deprecated Use `read_raw` instead.
+    ///
+    /// No dimensionality checks will be performed, it is the user's
+    /// responsibility to ensure that the right amount of space has been
+    /// allocated.
+    /// \param array: A buffer containing enough space for the data
+    /// \param dtype: The datatype of elements of the in memory buffer.
+    /// \param xfer_props: Data Transfer properties
+    template <typename T>
+    H5_DEPRECATED("Use 'read_raw' instead.")
+    void read(T* array,
+              const DataType& dtype,
+              const DataTransferProps& xfer_props = DataTransferProps()) const;
+
+    ///
+    /// Read the entire dataset into a raw buffer
+    ///
+    /// \deprecated Use `read_raw` instead.
+    ///
+    /// Same as `read(T*, const DataType&, const DataTransferProps&)`. However,
+    /// this overload deduces the HDF5 datatype of the element of `array` from
+    /// `T`. Note, that the file datatype is already fixed.
+    ///
+    /// \param array: A buffer containing enough space for the data
+    /// \param xfer_props: Data Transfer properties
+    template <typename T>
+    H5_DEPRECATED("Use 'read_raw' instead.")
+    void read(T* array, const DataTransferProps& xfer_props = DataTransferProps()) const;
+
+    ///
+    /// Read the entire dataset into a raw buffer
+    ///
     /// No dimensionality checks will be performed, it is the user's
     /// responsibility to ensure that the right amount of space has been
     /// allocated.
@@ -312,9 +345,9 @@ class SliceTraits {
     /// \param dtype: The type of the data, in case it cannot be automatically guessed
     /// \param xfer_props: Data Transfer properties
     template <typename T>
-    void read(T* array,
-              const DataType& dtype,
-              const DataTransferProps& xfer_props = DataTransferProps()) const;
+    void read_raw(T* array,
+                  const DataType& dtype,
+                  const DataTransferProps& xfer_props = DataTransferProps()) const;
 
     ///
     /// Read the entire dataset into a raw buffer
@@ -326,7 +359,8 @@ class SliceTraits {
     /// \param array: A buffer containing enough space for the data
     /// \param xfer_props: Data Transfer properties
     template <typename T>
-    void read(T* array, const DataTransferProps& xfer_props = DataTransferProps()) const;
+    void read_raw(T* array, const DataTransferProps& xfer_props = DataTransferProps()) const;
+
 
     ///
     /// Write the integrality N-dimension buffer to this dataset
