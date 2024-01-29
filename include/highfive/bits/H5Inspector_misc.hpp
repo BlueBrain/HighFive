@@ -289,10 +289,10 @@ struct inspector<Reference>: type_helper<Reference> {
 };
 
 template <size_t N>
-struct inspector<FixedLenStringArray<N>> {
-    using type = FixedLenStringArray<N>;
+struct inspector<deprecated::FixedLenStringArray<N>> {
+    using type = deprecated::FixedLenStringArray<N>;
     using value_type = char*;
-    using base_type = FixedLenStringArray<N>;
+    using base_type = deprecated::FixedLenStringArray<N>;
     using hdf5_type = char;
 
     static constexpr size_t ndim = 1;

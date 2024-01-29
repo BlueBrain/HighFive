@@ -342,6 +342,7 @@ template <typename T>
 DataType create_and_check_datatype();
 
 
+namespace deprecated {
 ///
 /// \brief A structure representing a set of fixed-length strings
 ///
@@ -352,7 +353,8 @@ DataType create_and_check_datatype();
 ///           that all string must be null-terminated.
 ///
 template <std::size_t N>
-class FixedLenStringArray {
+class
+FixedLenStringArray {
   public:
     FixedLenStringArray() = default;
 
@@ -460,6 +462,9 @@ class FixedLenStringArray {
   private:
     vector_t datavec;
 };
+}
+
+template<size_t N> using FixedLenStringArray H5_DEPRECATED("Use 'std::vector<string>'.") = deprecated::FixedLenStringArray<N>;
 
 }  // namespace HighFive
 

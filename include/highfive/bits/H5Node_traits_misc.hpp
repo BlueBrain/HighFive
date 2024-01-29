@@ -83,7 +83,7 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 template <typename Derivate>
 template <std::size_t N>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                                   const FixedLenStringArray<N>& data,
+                                                   const deprecated::FixedLenStringArray<N>& data,
                                                    const DataSetCreateProps& createProps,
                                                    const DataSetAccessProps& accessProps,
                                                    bool parents) {

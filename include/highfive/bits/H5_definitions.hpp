@@ -38,8 +38,10 @@ class AtomicType;
 template <typename Derivate>
 class AnnotateTraits;
 
+namespace deprecated {
 template <std::size_t N>
 class FixedLenStringArray;
+}
 
 template <typename Derivate>
 class NodeTraits;
