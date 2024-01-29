@@ -2452,7 +2452,7 @@ TEST_CASE("HighFiveFixedString") {
             // Due to missing non-const overload of `data()` until C++17 we'll
             // read into something else instead (don't forget the '\0').
             auto expected = std::vector<char>(n_chars, '!');
-            ds.read(expected.data(), datatype);
+            ds.read_raw(expected.data(), datatype);
 
             CHECK(expected.size() == value.size() + 1);
             for (size_t i = 0; i < value.size(); ++i) {
@@ -2483,7 +2483,7 @@ TEST_CASE("HighFiveFixedString") {
         ds.write_raw(value.data(), datatype);
 
         auto expected = std::vector<char>(value.size(), '-');
-        ds.read(expected.data(), datatype);
+        ds.read_raw(expected.data(), datatype);
 
         CHECK(expected.size() == value.size());
         for (size_t i = 0; i < value.size(); ++i) {
