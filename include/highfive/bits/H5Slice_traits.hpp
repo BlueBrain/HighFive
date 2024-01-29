@@ -315,7 +315,6 @@ class SliceTraits {
     /// \param dtype: The datatype of elements of the in memory buffer.
     /// \param xfer_props: Data Transfer properties
     template <typename T>
-    H5_DEPRECATED("Use 'read_raw' instead.")
     void read(T* array,
               const DataType& dtype,
               const DataTransferProps& xfer_props = DataTransferProps()) const;
@@ -332,7 +331,6 @@ class SliceTraits {
     /// \param array: A buffer containing enough space for the data
     /// \param xfer_props: Data Transfer properties
     template <typename T>
-    H5_DEPRECATED("Use 'read_raw' instead.")
     void read(T* array, const DataTransferProps& xfer_props = DataTransferProps()) const;
 
     ///
