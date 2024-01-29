@@ -52,7 +52,7 @@ void readWrite2DArrayTest() {
     dataset.write(array);
 
     T result[x_size][y_size];
-    dataset.read_raw(result);
+    dataset.read(result);
 
     for (size_t i = 0; i < x_size; ++i) {
         for (size_t j = 0; j < y_size; ++j) {

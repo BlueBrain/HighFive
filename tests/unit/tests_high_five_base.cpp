@@ -538,7 +538,7 @@ TEST_CASE("Test extensible datasets") {
         DataSet dataset_absolute = file.getDataSet("/" + dataset_name);
         const auto dims = dataset_absolute.getSpace().getDimensions();
         long double values[4][6];
-        dataset_absolute.read_raw(values);
+        dataset_absolute.read(values);
         CHECK(4 == dims[0]);
         CHECK(6 == dims[1]);
 
@@ -595,7 +595,7 @@ TEST_CASE("Test reference count") {
         d1_ptr.reset();
 
         double values[10][10];
-        d2.read_raw(values);
+        d2.read(values);
 
         for (std::size_t i = 0; i < 10; ++i) {
             for (std::size_t j = 0; j < 10; ++j) {
@@ -950,7 +950,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
         DataSet ds_int2 = file.createDataSet("/TmpCArrayInt", int_c_array);
 
         decltype(int_c_array) int_c_array_out;
-        ds_int2.read_raw(int_c_array_out);
+        ds_int2.read(int_c_array_out);
         for (size_t i = 0; i < 10; ++i) {
             REQUIRE(int_c_array[i] == int_c_array_out[i]);
         }
@@ -962,7 +962,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
         DataSet ds_char2 = file.createDataSet("/TmpCArray2dchar", char_c_2darray);
 
         decltype(char_c_2darray) char_c_2darray_out;
-        ds_char2.read_raw(char_c_2darray_out);
+        ds_char2.read(char_c_2darray_out);
         for (size_t i = 0; i < 4; ++i) {
             for (size_t j = 0; j < 3; ++j) {
                 REQUIRE(char_c_2darray[i][j] == char_c_2darray_out[i][j]);
@@ -1231,7 +1231,7 @@ void readWriteShuffleDeflateTest() {
 
         T result[x_size][y_size];
 
-        dataset_read.read_raw(result);
+        dataset_read.read(result);
 
         for (size_t i = 0; i < x_size; ++i) {
             for (size_t j = 0; i < y_size; ++i) {
@@ -1294,7 +1294,7 @@ void readWriteSzipTest() {
 
         T result[x_size][y_size];
 
-        dataset_read.read_raw(result);
+        dataset_read.read(result);
 
         for (size_t i = 0; i < x_size; ++i) {
             for (size_t j = 0; i < y_size; ++i) {
@@ -1477,7 +1477,7 @@ TEST_CASE("ReadInBroadcastDims") {
 
         {
             char read_back[2];
-            dataset.read_raw(read_back);
+            dataset.read(read_back);
 
             CHECK(read_back[0] == 'a');
             CHECK(read_back[1] == '\0');

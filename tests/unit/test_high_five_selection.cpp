@@ -124,14 +124,14 @@ TEST_CASE("selectionByElementMultiDim") {
 
     {
         int value[2];
-        set.select(ElementSet{0, 0, 2, 2}).read_raw(value);
+        set.select(ElementSet{0, 0, 2, 2}).read(value);
         CHECK(value[0] == 1);
         CHECK(value[1] == 9);
     }
 
     {
         int value[2];
-        set.select(ElementSet{{0, 1}, {1, 2}}).read_raw(value);
+        set.select(ElementSet{{0, 1}, {1, 2}}).read(value);
         CHECK(value[0] == 2);
         CHECK(value[1] == 6);
     }
@@ -175,7 +175,7 @@ void columnSelectionTest() {
 
     Selection slice = dataset.select(columns);
     T result[x_size][3];
-    slice.read_raw(result);
+    slice.read(result);
 
     CHECK(slice.getSpace().getDimensions()[0] == x_size);
     CHECK(slice.getMemSpace().getDimensions()[0] == x_size);
@@ -508,7 +508,7 @@ void irregularHyperSlabSelectionWriteTest() {
             file.getDataSet(dataset_name).select(test_case.slab).write(changed_values);
 
             T overwritten_values[x_size][y_size];
-            file.getDataSet(dataset_name).read_raw(overwritten_values);
+            file.getDataSet(dataset_name).read(overwritten_values);
 
             T expected_values[x_size][y_size];
             for (size_t i = 0; i < x_size; ++i) {
