@@ -82,7 +82,8 @@ std::string filename = "/tmp/new_file.h5";
 }
 ```
 
-**Note:** `H5File.hpp` is the top-level header of HighFive core which should be always included.
+**Note:** As of 2.8.0, one can use `highfive/highfive.hpp` to include
+everything HighFive. Prior to 2.8.0 one would include `highfive/H5File.hpp`.
 
 **Note:** For advanced usecases the dataset can be created without immediately
 writing to it. This is common in MPI-IO related patterns, or when growing a
