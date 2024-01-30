@@ -342,6 +342,7 @@ template <typename T>
 DataType create_and_check_datatype();
 
 
+namespace deprecated {
 ///
 /// \brief A structure representing a set of fixed-length strings
 ///
@@ -460,6 +461,11 @@ class FixedLenStringArray {
   private:
     vector_t datavec;
 };
+}  // namespace deprecated
+
+template <size_t N>
+using FixedLenStringArray H5_DEPRECATED_USING("Use 'std::vector<std::string>'.") =
+    deprecated::FixedLenStringArray<N>;
 
 }  // namespace HighFive
 

@@ -52,3 +52,5 @@ if(HIGHFIVE_TEST_SINGLE_INCLUDES)
         target_link_libraries("tests_include_${CLASS_NAME}" HighFive HighFiveWarnings)
     endforeach()
 endif()
+
+add_subdirectory(deprecated)

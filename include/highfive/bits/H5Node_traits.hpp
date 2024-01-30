@@ -79,8 +79,9 @@ class NodeTraits {
 
 
     template <std::size_t N>
+    H5_DEPRECATED("Use 'std::vector<std::string>'.")
     DataSet createDataSet(const std::string& dataset_name,
-                          const FixedLenStringArray<N>& data,
+                          const deprecated::FixedLenStringArray<N>& data,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
                           const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                           bool parents = true);

@@ -207,7 +207,7 @@ class AtomicType<char[StrLen]>: public DataType {
 };
 
 template <size_t StrLen>
-class AtomicType<FixedLenStringArray<StrLen>>: public DataType {
+class AtomicType<deprecated::FixedLenStringArray<StrLen>>: public DataType {
   public:
     inline AtomicType()
         : DataType(create_string(StrLen)) {}
@@ -239,8 +239,7 @@ AtomicType<T>::AtomicType() {
 }
 
 
-// class FixedLenStringArray<N>
-
+namespace deprecated {
 template <std::size_t N>
 inline FixedLenStringArray<N>::FixedLenStringArray(const char array[][N], std::size_t length) {
     datavec.resize(length);
@@ -283,6 +282,7 @@ template <std::size_t N>
 inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
     return std::string(datavec[i].data());
 }
+}  // namespace deprecated
 
 // Internal
 // Reference mapping
