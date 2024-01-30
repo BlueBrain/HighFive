@@ -11,7 +11,7 @@ TEST_CASE("HighFiveFixedLenStringArray") {
     // Create a new file using the default property lists.
     File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
-    {   // Dedicated FixedLenStringArray (now deprecated).
+    {  // Dedicated FixedLenStringArray (now deprecated).
         FixedLenStringArray<10> arr{"0000000", "1111111"};
 
         // More API: test inserting something
@@ -169,4 +169,4 @@ TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
     }
 }
 
-}
+}  // namespace HighFive

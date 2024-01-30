@@ -353,8 +353,7 @@ namespace deprecated {
 ///           that all string must be null-terminated.
 ///
 template <std::size_t N>
-class
-FixedLenStringArray {
+class FixedLenStringArray {
   public:
     FixedLenStringArray() = default;
 
@@ -462,9 +461,11 @@ FixedLenStringArray {
   private:
     vector_t datavec;
 };
-}
+}  // namespace deprecated
 
-template<size_t N> using FixedLenStringArray H5_DEPRECATED("Use 'std::vector<string>'.") = deprecated::FixedLenStringArray<N>;
+template <size_t N>
+using FixedLenStringArray H5_DEPRECATED("Use 'std::vector<string>'.") =
+    deprecated::FixedLenStringArray<N>;
 
 }  // namespace HighFive
 

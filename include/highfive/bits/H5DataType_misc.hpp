@@ -282,7 +282,7 @@ template <std::size_t N>
 inline std::string FixedLenStringArray<N>::getString(std::size_t i) const {
     return std::string(datavec[i].data());
 }
-}
+}  // namespace deprecated
 
 // Internal
 // Reference mapping
