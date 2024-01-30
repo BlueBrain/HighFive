@@ -120,6 +120,7 @@ inline void Attribute::read_raw(T* array) const {
 template <typename T>
 inline void Attribute::write(const T& buffer) {
     const DataSpace& mem_space = getMemSpace();
+    auto dims = mem_space.getDimensions();
 
     if (mem_space.getElementCount() == 0) {
         return;
@@ -138,7 +139,7 @@ inline void Attribute::write(const T& buffer) {
            << " into dataset of dimensions " << mem_space.getNumberDimensions();
         throw DataSpaceException(ss.str());
     }
-    auto w = details::data_converter::serialize<T>(buffer, file_datatype);
+    auto w = details::data_converter::serialize<T>(buffer, dims, file_datatype);
     write_raw(w.getPointer(), buffer_info.data_type);
 }
 

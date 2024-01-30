@@ -242,6 +242,7 @@ template <typename T>
 inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProps& xfer_props) {
     const auto& slice = static_cast<const Derivate&>(*this);
     const DataSpace& mem_space = slice.getMemSpace();
+    auto dims = mem_space.getDimensions();
 
     auto file_datatype = slice.getDataType();
 
@@ -257,7 +258,7 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
            << " into dataset with n = " << buffer_info.n_dimensions << " dimensions.";
         throw DataSpaceException(ss.str());
     }
-    auto w = details::data_converter::serialize<T>(buffer, file_datatype);
+    auto w = details::data_converter::serialize<T>(buffer, dims, file_datatype);
     write_raw(w.getPointer(), buffer_info.data_type, xfer_props);
 }
 
