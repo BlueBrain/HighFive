@@ -464,7 +464,7 @@ class FixedLenStringArray {
 }  // namespace deprecated
 
 template <size_t N>
-using FixedLenStringArray H5_DEPRECATED("Use 'std::vector<string>'.") =
+using FixedLenStringArray H5_DEPRECATED_USING("Use 'std::vector<std::string>'.") =
     deprecated::FixedLenStringArray<N>;
 
 }  // namespace HighFive
