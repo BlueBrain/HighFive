@@ -51,7 +51,7 @@ struct BufferInfo {
     using char_array_t = typename details::type_char_array<type_no_const>::type;
     static constexpr bool is_char_array = details::type_char_array<type_no_const>::is_char_array;
 
-    enum Operation { read, write };
+    enum class Operation { read, write };
     const Operation op;
 
     template <class F>
@@ -145,12 +145,12 @@ BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
                           data_type.string() + " -> " + dtype.string());
     } else if ((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) {
         HIGHFIVE_LOG_WARN_IF(
-            (op == read) && (dtype.getSize() > data_type.getSize()),
+            (op == Operation::read) && (dtype.getSize() > data_type.getSize()),
             getName() + "\": hdf5 dataset has higher floating point precision than data on read: " +
                 dtype.string() + " -> " + data_type.string());
 
         HIGHFIVE_LOG_WARN_IF(
-            (op == write) && (dtype.getSize() < data_type.getSize()),
+            (op == Operation::write) && (dtype.getSize() < data_type.getSize()),
             getName() +
                 "\": data has higher floating point precision than hdf5 dataset on write: " +
                 data_type.string() + " -> " + dtype.string());

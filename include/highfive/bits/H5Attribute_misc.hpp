@@ -64,7 +64,7 @@ inline void Attribute::read(T& array) const {
     const details::BufferInfo<T> buffer_info(
         file_datatype,
         [this]() -> std::string { return this->getName(); },
-        details::BufferInfo<T>::read);
+        details::BufferInfo<T>::Operation::read);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
@@ -130,7 +130,7 @@ inline void Attribute::write(const T& buffer) {
     const details::BufferInfo<T> buffer_info(
         file_datatype,
         [this]() -> std::string { return this->getName(); },
-        details::BufferInfo<T>::write);
+        details::BufferInfo<T>::Operation::write);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
