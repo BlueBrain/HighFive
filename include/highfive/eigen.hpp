@@ -16,6 +16,7 @@ struct eigen_inspector {
     using base_type = typename inspector<value_type>::base_type;
     using hdf5_type = base_type;
 
+
     static_assert(int(EigenType::ColsAtCompileTime) == int(EigenType::MaxColsAtCompileTime),
                   "Padding isn't supported.");
     static_assert(int(EigenType::RowsAtCompileTime) == int(EigenType::MaxRowsAtCompileTime),
@@ -26,12 +27,18 @@ struct eigen_inspector {
                EigenType::IsRowMajor;
     }
 
+
     static constexpr size_t ndim = 2;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
     static constexpr bool is_trivially_copyable = is_row_major() &&
                                                   std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_nestable;
     static constexpr bool is_trivially_nestable = false;
+
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val.data()[0]);
+    }
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};

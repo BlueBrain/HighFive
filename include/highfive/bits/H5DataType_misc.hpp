@@ -226,9 +226,9 @@ inline EnumType<details::Boolean> create_enum_boolean() {
 // Other cases not supported. Fail early with a user message
 template <typename T>
 AtomicType<T>::AtomicType() {
-    static_assert(details::inspector<T>::recursive_ndim == 0,
-                  "Atomic types cant be arrays, except for char[] (fixed-length strings)");
-    static_assert(details::inspector<T>::recursive_ndim > 0, "Type not supported");
+    static_assert(
+        true,
+        "Missing specialization of AtomicType<T>. Therefore, type T is not supported by HighFive.");
 }
 
 
