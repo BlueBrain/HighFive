@@ -36,4 +36,3 @@ TEST_CASE("HighFiveReadWriteConsts") {
         }
     }
 }
-
