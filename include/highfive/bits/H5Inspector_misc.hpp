@@ -77,7 +77,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
 
     if (n_dim_requested == 0) {
         if (!checkDimensions(dims, n_dim_requested)) {
-            throw std::invalid_argument(format_error_message());
+            throw std::invalid_argument("Failed dimensions check: " + format_error_message());
         }
 
         return {1ul};
@@ -85,7 +85,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
 
     auto n_dim = dims.size();
     if (n_dim < n_dim_requested) {
-        throw std::invalid_argument(format_error_message());
+        throw std::invalid_argument("Failed 'n_dim < n_dim_requested: " + format_error_message());
     }
 
     if (n_dim_requested == 1ul) {
@@ -95,7 +95,8 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
                 if (non_singleton_dim == size_t(-1)) {
                     non_singleton_dim = i;
                 } else {
-                    throw std::invalid_argument(format_error_message());
+                    throw std::invalid_argument("Failed one-dimensional: " +
+                                                format_error_message());
                 }
             }
         }
@@ -106,7 +107,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
     size_t n_dim_excess = dims.size() - n_dim_requested;
     for (size_t i = 1; i <= n_dim_excess; ++i) {
         if (dims[n_dim - i] != 1) {
-            throw std::invalid_argument(format_error_message());
+            throw std::invalid_argument("Failed stripping from back:" + format_error_message());
         }
     }
 

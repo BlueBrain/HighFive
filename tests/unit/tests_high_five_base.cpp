@@ -20,7 +20,6 @@
 #include <type_traits>
 #include <vector>
 
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -907,8 +906,9 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     const std::string dataset_name("dset");
     std::vector<unsigned> vec;
     vec.resize(x_size);
-    for (unsigned i = 0; i < x_size; i++)
+    for (unsigned i = 0; i < x_size; i++) {
         vec[i] = i * 2;
+    }
     std::string at_contents("Contents of string");
     int my_int = 3;
     std::vector<std::vector<int>> my_nested = {{1, 2}, {3, 4}};
@@ -945,7 +945,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     }
 
     // Plain c arrays. 1D
-    {
+    SECTION("int-c-array") {
         int int_c_array[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         DataSet ds_int2 = file.createDataSet("/TmpCArrayInt", int_c_array);
 
@@ -957,7 +957,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     }
 
     // Plain c arrays. 2D
-    {
+    SECTION("char-c-array") {
         char char_c_2darray[][3] = {"aa", "bb", "cc", "12"};
         DataSet ds_char2 = file.createDataSet("/TmpCArray2dchar", char_c_2darray);
 
