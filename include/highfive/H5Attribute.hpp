@@ -114,6 +114,16 @@ class Attribute: public Object, public PathTraits<Attribute> {
     void read(T& array) const;
 
     /// \brief Read the attribute into a pre-allocated buffer.
+    /// \deprecated use `read(T&` or `read_raw`.
+    template <typename T>
+    void read(T* array, const DataType& mem_datatype) const;
+
+    /// \brief Read the attribute into a buffer.
+    /// \deprecated use `read(T&` or `read_raw`.
+    template <typename T>
+    void read(T* array) const;
+
+    /// \brief Read the attribute into a pre-allocated buffer.
     /// \param array A pointer to the first byte of sufficient pre-allocated memory.
     /// \param mem_datatype The DataType of the array.
     ///
@@ -132,7 +142,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \endcode
     /// \since 2.2.2
     template <typename T>
-    void read(T* array, const DataType& mem_datatype) const;
+    void read_raw(T* array, const DataType& mem_datatype) const;
 
     /// \brief Read the attribute into a buffer.
     /// Behaves like Attribute::read(T*, const DataType&) const but
@@ -154,7 +164,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \endcode
     /// \since 2.2.2
     template <typename T>
-    void read(T* array) const;
+    void read_raw(T* array) const;
 
     /// \brief Write the value into the Attribute.
     ///

@@ -2113,7 +2113,7 @@ TEST_CASE("DirectWriteBool") {
     SECTION("WriteReadCycleAttribute") {
         auto attr = file.createAttribute("attr", dataspace, datatype);
         attr.write_raw(expected);
-        attr.read(actual);
+        attr.read_raw(actual);
 
         for (size_t i = 0; i < n; ++i) {
             REQUIRE(expected[i] == actual[i]);
@@ -2123,7 +2123,7 @@ TEST_CASE("DirectWriteBool") {
     SECTION("WriteReadCycleDataSet") {
         auto dset = file.createAttribute("dset", dataspace, datatype);
         dset.write_raw(expected);
-        dset.read(actual);
+        dset.read_raw(actual);
 
         for (size_t i = 0; i < n; ++i) {
             REQUIRE(expected[i] == actual[i]);
