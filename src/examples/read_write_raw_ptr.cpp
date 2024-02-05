@@ -66,7 +66,7 @@ int main(void) {
         auto nd_array = std::vector<double>(n_elements);
 
         // Finally, read into the memory by passing a raw pointer to the library.
-        dataset.read<double>(nd_array.data());
+        dataset.read_raw<double>(nd_array.data());
     }
 
     return 0;
