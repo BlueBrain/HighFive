@@ -9,6 +9,7 @@
 #pragma once
 
 #include <H5Tpublic.h>
+#include "H5Inspector_misc.hpp"
 #include "H5Utils.hpp"
 
 namespace HighFive {
@@ -57,10 +58,14 @@ struct BufferInfo {
     template <class F>
     BufferInfo(const DataType& dtype, F getName, Operation _op);
 
+    size_t getRank(const T& array) const;
+    size_t getMinRank() const;
+    size_t getMaxRank() const;
+
     // member data for info depending on the destination dataset type
     const bool is_fixed_len_string;
-    const size_t n_dimensions;
     const DataType data_type;
+    const size_t rank_correction;
 };
 
 // details implementation
@@ -135,10 +140,9 @@ BufferInfo<T>::BufferInfo(const DataType& file_data_type, F getName, Operation _
     : op(_op)
     , is_fixed_len_string(file_data_type.isFixedLenStr())
     // In case we are using Fixed-len strings we need to subtract one dimension
-    , n_dimensions(details::inspector<type_no_const>::recursive_ndim -
-                   ((is_fixed_len_string && is_char_array) ? 1 : 0))
     , data_type(string_type_checker<char_array_t>::getDataType(create_datatype<elem_type>(),
-                                                               file_data_type)) {
+                                                               file_data_type))
+    , rank_correction((is_fixed_len_string && is_char_array) ? 1 : 0) {
     // We warn. In case they are really not convertible an exception will rise on read/write
     if (file_data_type.getClass() != data_type.getClass()) {
         HIGHFIVE_LOG_WARN(getName() + "\": data and hdf5 dataset have different types: " +
@@ -155,6 +159,21 @@ BufferInfo<T>::BufferInfo(const DataType& file_data_type, F getName, Operation _
                 "\": data has higher floating point precision than hdf5 dataset on write: " +
                 data_type.string() + " -> " + file_data_type.string());
     }
+}
+
+template <typename T>
+size_t BufferInfo<T>::getRank(const T& array) const {
+    return details::inspector<type_no_const>::getRank(array) - rank_correction;
+}
+
+template <typename T>
+size_t BufferInfo<T>::getMinRank() const {
+    return details::inspector<T>::min_ndim - rank_correction;
+}
+
+template <typename T>
+size_t BufferInfo<T>::getMaxRank() const {
+    return details::inspector<T>::max_ndim - rank_correction;
 }
 
 }  // namespace details

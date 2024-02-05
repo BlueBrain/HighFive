@@ -27,11 +27,18 @@
 namespace HighFive {
 namespace details {
 
-inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_requested) {
+inline bool checkDimensions(const std::vector<size_t>& dims,
+                            size_t min_dim_requested,
+                            size_t max_dim_requested) {
     size_t n_dim_actual = dims.size();
 
+    // Empty, non-scalar is always good.
+    if (compute_total_size(dims) == 0ul) {
+        return (n_dim_actual == 0ul) == (max_dim_requested == 0ul);
+    }
+
     // We should allow reading scalar from shapes like `(1, 1, 1)`.
-    if (n_dim_requested == 0) {
+    if (max_dim_requested == 0) {
         if (n_dim_actual == 0ul) {
             return true;
         }
@@ -41,20 +48,20 @@ inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_reques
 
     // For non-scalar datasets, we can squeeze away singleton dimension, but
     // we never add any.
-    if (n_dim_actual < n_dim_requested) {
+    if (n_dim_actual < min_dim_requested) {
         return false;
     }
 
     // Special case for 1-dimensional arrays, which can squeeze `1`s from either
     // side simultaneously if needed.
-    if (n_dim_requested == 1ul) {
+    if (min_dim_requested <= 1ul && 1ul <= max_dim_requested) {
         return n_dim_actual >= 1ul &&
                size_t(std::count(dims.begin(), dims.end(), 1ul)) >= n_dim_actual - 1ul;
     }
 
     // All other cases strip front only. This avoid unstable behaviour when
     // squeezing singleton dimensions.
-    size_t n_dim_excess = n_dim_actual - n_dim_requested;
+    size_t n_dim_excess = n_dim_actual - std::min(max_dim_requested, n_dim_actual);
 
     bool squeeze_back = true;
     for (size_t i = 1; i <= n_dim_excess; ++i) {
@@ -65,6 +72,10 @@ inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_reques
     }
 
     return squeeze_back;
+}
+
+inline bool checkDimensions(const std::vector<size_t>& dims, size_t n_dim_requested) {
+    return checkDimensions(dims, n_dim_requested, n_dim_requested);
 }
 
 
@@ -164,8 +175,14 @@ struct type_helper {
     using hdf5_type = base_type;
 
     static constexpr size_t ndim = 0;
-    static constexpr size_t recursive_ndim = ndim;
+    static constexpr size_t min_ndim = ndim;
+    static constexpr size_t max_ndim = ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<type>::value;
+
+    static size_t getRank(const type& /* val */) {
+        return ndim;
+    }
 
     static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
@@ -297,8 +314,14 @@ struct inspector<deprecated::FixedLenStringArray<N>> {
     using hdf5_type = char;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim;
+    static constexpr size_t min_ndim = ndim;
+    static constexpr size_t max_ndim = ndim;
+
     static constexpr bool is_trivially_copyable = false;
+
+    static size_t getRank(const type& /* val */) {
+        return ndim;
+    }
 
     static std::vector<size_t> getDimensions(const type& val) {
         return std::vector<size_t>{val.size()};
@@ -352,16 +375,25 @@ struct inspector<std::vector<T>> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
+    static size_t getRank(const type& val) {
+        if (!val.empty()) {
+            return ndim + inspector<value_type>::getRank(val[0]);
+        } else {
+            return ndim;
+        }
+    }
+
     static std::vector<size_t> getDimensions(const type& val) {
-        std::vector<size_t> sizes(recursive_ndim, 1ul);
+        std::vector<size_t> sizes(min_ndim, 1ul);
         sizes[0] = val.size();
         if (!val.empty()) {
             auto s = inspector<value_type>::getDimensions(val[0]);
-            assert(s.size() + ndim == sizes.size());
             for (size_t i = 0; i < s.size(); ++i) {
                 sizes[i + ndim] = s[i];
             }
@@ -422,8 +454,14 @@ struct inspector<std::vector<bool>> {
     using hdf5_type = uint8_t;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim;
+    static constexpr size_t min_ndim = ndim;
+    static constexpr size_t max_ndim = ndim;
+
     static constexpr bool is_trivially_copyable = false;
+
+    static size_t getRank(const type& /* val */) {
+        return ndim;
+    }
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size()};
@@ -479,10 +517,16 @@ struct inspector<std::array<T, N>> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   sizeof(type) == N * sizeof(T) &&
                                                   inspector<value_type>::is_trivially_copyable;
+
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val[0]);
+    }
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{N};
@@ -556,9 +600,19 @@ struct inspector<T*> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
+
+    static size_t getRank(const type& val) {
+        if (val != nullptr) {
+            return ndim + inspector<value_type>::getRank(val[0]);
+        } else {
+            return ndim;
+        }
+    }
 
     static size_t getSizeVal(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
@@ -588,7 +642,9 @@ struct inspector<T[N]> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
@@ -605,6 +661,10 @@ struct inspector<T[N]> {
         for (size_t i = 0; i < dims[0]; ++i) {
             inspector<value_type>::prepare(val[i], next_dims);
         }
+    }
+
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val[0]);
     }
 
     static size_t getSizeVal(const type& val) {
@@ -637,6 +697,7 @@ struct inspector<T[N]> {
         }
     }
 };
+
 
 }  // namespace details
 }  // namespace HighFive

@@ -20,17 +20,28 @@ struct inspector<boost::multi_array<T, Dims>> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = Dims;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val.data()[0]);
+    }
+
     static std::vector<size_t> getDimensions(const type& val) {
-        std::vector<size_t> sizes;
+        std::vector<size_t> sizes(min_ndim, 1ul);
         for (size_t i = 0; i < ndim; ++i) {
-            sizes.push_back(val.shape()[i]);
+            sizes[i] = val.shape()[i];
         }
-        auto s = inspector<value_type>::getDimensions(val.data()[0]);
-        sizes.insert(sizes.end(), s.begin(), s.end());
+        if (val.size() != 0) {
+            auto s = inspector<value_type>::getDimensions(val.data()[0]);
+            sizes.resize(ndim + s.size());
+            for (size_t i = 0; i < s.size(); ++i) {
+                sizes[ndim + i] = s[i];
+            }
+        }
         return sizes;
     }
 
@@ -99,9 +110,15 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 2;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
+
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val(0, 0));
+    }
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size1(), val.size2()};

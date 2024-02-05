@@ -69,6 +69,8 @@ struct ScalarContainerTraits {
     using container_type = T;
     using base_type = T;
 
+    static constexpr size_t rank = 0;
+
     static void set(container_type& array, std::vector<size_t> /* indices */, base_type value) {
         array = value;
     }
@@ -106,6 +108,8 @@ struct ContainerTraits<std::vector<bool>> {
     using value_type = bool;
     using base_type = bool;
 
+    static constexpr size_t rank = 1;
+
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
                     const base_type& value) {
@@ -135,6 +139,8 @@ struct STLLikeContainerTraits {
     using container_type = Container;
     using value_type = ValueType;
     using base_type = typename ContainerTraits<value_type>::base_type;
+
+    static constexpr size_t rank = 1 + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -207,6 +213,8 @@ struct ContainerTraits<boost::multi_array<T, n>> {
     using value_type = T;
     using base_type = typename ContainerTraits<value_type>::base_type;
 
+    static constexpr size_t rank = n + ContainerTraits<value_type>::rank;
+
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
                     const base_type& value) {
@@ -248,6 +256,8 @@ struct ContainerTraits<boost::numeric::ublas::matrix<T>> {
     using container_type = typename boost::numeric::ublas::matrix<T>;
     using value_type = T;
     using base_type = typename ContainerTraits<value_type>::base_type;
+
+    static constexpr size_t rank = 2 + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -397,10 +407,11 @@ struct MultiDimVector<T, 0> {
 template <class Container>
 class DataGenerator {
   public:
-    constexpr static size_t rank = details::inspector<Container>::recursive_ndim;
     using traits = ContainerTraits<Container>;
     using base_type = typename traits::base_type;
     using container_type = Container;
+
+    constexpr static size_t rank = traits::rank;
 
   public:
     static container_type allocate(const std::vector<size_t>& dims) {

@@ -177,10 +177,11 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
         [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::read);
 
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
+    if (!details::checkDimensions(mem_space, buffer_info.getMinRank(), buffer_info.getMaxRank())) {
         std::ostringstream ss;
         ss << "Impossible to read DataSet of dimensions " << mem_space.getNumberDimensions()
-           << " into arrays of dimensions " << buffer_info.n_dimensions;
+           << " into arrays of dimensions: " << buffer_info.getMinRank() << "(min) to "
+           << buffer_info.getMaxRank() << "(max)";
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
@@ -264,11 +265,11 @@ inline void SliceTraits<Derivate>::write(const T& buffer, const DataTransferProp
         [&slice]() -> std::string { return details::get_dataset(slice).getPath(); },
         details::BufferInfo<T>::Operation::write);
 
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
+    if (!details::checkDimensions(mem_space, buffer_info.getRank(buffer))) {
         std::ostringstream ss;
         ss << "Impossible to write buffer of dimensions "
            << details::format_vector(mem_space.getDimensions())
-           << " into dataset with n = " << buffer_info.n_dimensions << " dimensions.";
+           << " into dataset with n = " << buffer_info.getRank(buffer) << " dimensions.";
         throw DataSpaceException(ss.str());
     }
     auto w = details::data_converter::serialize<T>(buffer, file_datatype);

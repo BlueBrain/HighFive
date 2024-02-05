@@ -18,6 +18,7 @@
 
 #include "../H5DataSpace.hpp"
 #include "H5Converter_misc.hpp"
+#include "H5Inspector_misc.hpp"
 #include "H5ReadWrite_misc.hpp"
 #include "H5Utils.hpp"
 #include "h5a_wrapper.hpp"
@@ -66,17 +67,17 @@ inline void Attribute::read(T& array) const {
         [this]() -> std::string { return this->getName(); },
         details::BufferInfo<T>::Operation::read);
 
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
+    if (!details::checkDimensions(mem_space, buffer_info.getMinRank(), buffer_info.getMaxRank())) {
         std::ostringstream ss;
-        ss << "Impossible to read Attribute of dimensions " << mem_space.getNumberDimensions()
-           << " into arrays of dimensions " << buffer_info.n_dimensions;
+        ss << "Impossible to read attribute of dimensions " << mem_space.getNumberDimensions()
+           << " into arrays of dimensions: " << buffer_info.getMinRank() << "(min) to "
+           << buffer_info.getMaxRank() << "(max)";
         throw DataSpaceException(ss.str());
     }
     auto dims = mem_space.getDimensions();
 
     if (mem_space.getElementCount() == 0) {
-        auto effective_dims = details::squeezeDimensions(dims,
-                                                         details::inspector<T>::recursive_ndim);
+        auto effective_dims = details::squeezeDimensions(dims, details::inspector<T>::max_ndim);
 
         details::inspector<T>::prepare(array, effective_dims);
         return;
@@ -132,10 +133,11 @@ inline void Attribute::write(const T& buffer) {
         [this]() -> std::string { return this->getName(); },
         details::BufferInfo<T>::Operation::write);
 
-    if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
+    if (!details::checkDimensions(mem_space, buffer_info.getMinRank(), buffer_info.getMaxRank())) {
         std::ostringstream ss;
-        ss << "Impossible to write buffer of dimensions " << buffer_info.n_dimensions
-           << " into dataset of dimensions " << mem_space.getNumberDimensions();
+        ss << "Impossible to write attribute of dimensions " << mem_space.getNumberDimensions()
+           << " into arrays of dimensions: " << buffer_info.getMinRank() << "(min) to "
+           << buffer_info.getMaxRank() << "(max)";
         throw DataSpaceException(ss.str());
     }
     auto w = details::data_converter::serialize<T>(buffer, file_datatype);

@@ -18,10 +18,10 @@ struct inspector<Eigen::Matrix<T, M, N>> {
     using hdf5_type = base_type;
 
     static constexpr size_t ndim = 2;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
-
 
     static void assert_not_buggy(Eigen::Index nrows, Eigen::Index ncols) {
         if (nrows > 1 && ncols > 1) {
@@ -29,6 +29,10 @@ struct inspector<Eigen::Matrix<T, M, N>> {
                 "HighFive has been broken for Eigen::Matrix. Please check "
                 "https://github.com/BlueBrain/HighFive/issues/532.");
         }
+    }
+
+    static size_t getRank(const type& val) {
+        return ndim + inspector<value_type>::getRank(val.data()[0]);
     }
 
     static std::vector<size_t> getDimensions(const type& val) {

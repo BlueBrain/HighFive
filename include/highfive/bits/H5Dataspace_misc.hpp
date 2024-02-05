@@ -136,5 +136,11 @@ inline bool checkDimensions(const DataSpace& mem_space, size_t n_dim_requested) 
     return checkDimensions(mem_space.getDimensions(), n_dim_requested);
 }
 
+inline bool checkDimensions(const DataSpace& mem_space,
+                            size_t min_dim_requested,
+                            size_t max_dim_requested) {
+    return checkDimensions(mem_space.getDimensions(), min_dim_requested, max_dim_requested);
+}
+
 }  // namespace details
 }  // namespace HighFive
