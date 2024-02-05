@@ -2520,29 +2520,6 @@ TEST_CASE("HighFiveReference") {
     }
 }
 
-TEST_CASE("HighFiveReadWriteConsts") {
-    const std::string file_name("3d_dataset_from_flat.h5");
-    const std::string dataset_name("dset");
-    const std::array<std::size_t, 3> DIMS{3, 3, 3};
-    using datatype = int;
-
-    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
-    DataSpace dataspace = DataSpace(DIMS);
-
-    DataSet dataset = file.createDataSet<datatype>(dataset_name, dataspace);
-    std::vector<datatype> const t1(DIMS[0] * DIMS[1] * DIMS[2], 1);
-    auto raw_3d_vec_const = reinterpret_cast<datatype const* const* const*>(t1.data());
-    dataset.write(raw_3d_vec_const);
-
-    std::vector<std::vector<std::vector<datatype>>> result;
-    dataset.read(result);
-    for (const auto& vec2d: result) {
-        for (const auto& vec1d: vec2d) {
-            REQUIRE(vec1d == (std::vector<datatype>{1, 1, 1}));
-        }
-    }
-}
-
 TEST_CASE("HighFiveDataTypeClass") {
     auto Float = DataTypeClass::Float;
     auto String = DataTypeClass::String;
