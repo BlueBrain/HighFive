@@ -103,7 +103,7 @@ inline void Attribute::read(T& array) const {
 
 template <typename T>
 inline void Attribute::read(T* array, const DataType& mem_datatype) const {
-  read_raw(array, mem_datatype);
+    read_raw(array, mem_datatype);
 }
 
 template <typename T>
