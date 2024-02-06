@@ -44,7 +44,7 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         T data = T::from_shape(dims);
-        dataset.read(data.data());
+        dataset.read_raw(data.data());
         return data;
     }
 
@@ -73,7 +73,7 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         DataSpace dataspace = attribute.getSpace();
         std::vector<size_t> dims = dataspace.getDimensions();
         T data = T::from_shape(dims);
-        attribute.read(data.data());
+        attribute.read_raw(data.data());
         return data;
     }
 };
