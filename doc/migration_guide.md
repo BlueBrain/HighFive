@@ -64,3 +64,47 @@ double x = malloc(2*3 * sizeof(double));
 dset.read_raw(x);
 ```
 is correct in `v3`.
+
+## Reworked CMake
+In `v3` we completely rewrote the CMake code of HighFive. Since HighFive is a
+header only library, it needs to perform two tasks:
+
+1. Copy the sources during installation.
+2. Export a target that sets `-I ${HIGHFIVE_DIR}` and links with HDF5.
+
+We've removed all flags for optional dependencies, such as
+`-DHIGHFIVE_USE_BOOST`. Instead user that want to read/write into/from
+optionally supported containers, include a header with the corresponding name
+and make sure to adjust their CMake code to link with the dependency.
+
+The C++ code should have:
+```
+#include <highfive/boost.hpp>
+
+// Code the reads or write `boost::multi_array`.
+```
+and the CMake code would have
+```
+add_executable(app)
+
+# These lines might work, but depend on how exactly the user intends to use
+# Boost. They are not specific to HighFive, but previously added automatically
+# (and sometimes correctly) by HighFive.
+find_package(Boost)
+target_link_libraries(add PUBLIC boost::boost)
+
+# For HighFive there's two options for adding `-I ${HIGHFIVE_DIR}` and the
+# flags for HDF5.
+#
+# Option 1: HighFive is install (systemwide) as a regular library:
+find_package(HighFive)
+target_link_libraries(app PUBLIC HighFive::HighFive)
+
+# Option 2: HighFive is vendored as part of the project:
+add_subdirectory(third_party/HighFive)
+target_link_libraries(app PUBLIC HighFive::HighFive)
+```
+
+There's extensive examples of project integration in `tests/cmake_integration`,
+including how those project in turn can be included in other projects. If those
+don't help, please feel free to open an Issue.
