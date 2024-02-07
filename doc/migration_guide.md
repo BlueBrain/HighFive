@@ -105,6 +105,6 @@ add_subdirectory(third_party/HighFive)
 target_link_libraries(app PUBLIC HighFive::HighFive)
 ```
 
-There's extensive examples of project integration in `tests/cmake_integration`,
-including how those project in turn can be included in other projects. If those
-don't help, please feel free to open an Issue.
+There are extensive examples of project integration in `tests/cmake_integration`,
+including how those projects in turn can be included in other projects. If these
+examples don't help, please feel free to open an Issue.
