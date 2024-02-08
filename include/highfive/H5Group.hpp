@@ -47,9 +47,7 @@ class Group: public Object,
   public:
     const static ObjectType type = ObjectType::Group;
 
-    /// \deprecated Default constructor creates unsafe uninitialized objects
-    H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
-    Group() = default;
+    Group() = delete;
 
     std::pair<unsigned int, unsigned int> getEstimatedLinkInfo() const;
 
