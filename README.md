@@ -1,3 +1,8 @@
+*Note:* In preparation of `v3` of HighFive, we've started merging breaking
+changes into the main branch. More information and opportunity to comment can
+be found at:
+https://github.com/BlueBrain/HighFive/issues/864
+
 # HighFive - HDF5 header-only C++ Library
 
 [![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg?branch=master)](https://BlueBrain.github.io/HighFive/actions/workflows/gh-pages.yml?query=branch%3Amaster)
