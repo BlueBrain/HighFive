@@ -52,28 +52,7 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 }
 
 template <typename Derivate>
-template <typename T,
-          typename std::enable_if<
-              std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-              int>::type*>
-inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                                   const DataSpace& space,
-                                                   const DataSetCreateProps& createProps,
-                                                   const DataSetAccessProps& accessProps,
-                                                   bool parents) {
-    return createDataSet(dataset_name,
-                         space,
-                         create_and_check_datatype<typename details::inspector<T>::base_type>(),
-                         createProps,
-                         accessProps,
-                         parents);
-}
-
-template <typename Derivate>
-template <typename T,
-          typename std::enable_if<
-              !std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-              int>::type*>
+template <typename T>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
                                                    const DataSpace& space,
                                                    const DataSetCreateProps& createProps,
@@ -104,7 +83,7 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 template <typename Derivate>
 template <std::size_t N>
 inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                                   const FixedLenStringArray<N>& data,
+                                                   const deprecated::FixedLenStringArray<N>& data,
                                                    const DataSetCreateProps& createProps,
                                                    const DataSetAccessProps& accessProps,
                                                    bool parents) {

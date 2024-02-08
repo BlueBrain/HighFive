@@ -77,7 +77,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
 
     if (n_dim_requested == 0) {
         if (!checkDimensions(dims, n_dim_requested)) {
-            throw std::invalid_argument(format_error_message());
+            throw std::invalid_argument("Failed dimensions check: " + format_error_message());
         }
 
         return {1ul};
@@ -85,7 +85,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
 
     auto n_dim = dims.size();
     if (n_dim < n_dim_requested) {
-        throw std::invalid_argument(format_error_message());
+        throw std::invalid_argument("Failed 'n_dim < n_dim_requested: " + format_error_message());
     }
 
     if (n_dim_requested == 1ul) {
@@ -95,7 +95,8 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
                 if (non_singleton_dim == size_t(-1)) {
                     non_singleton_dim = i;
                 } else {
-                    throw std::invalid_argument(format_error_message());
+                    throw std::invalid_argument("Failed one-dimensional: " +
+                                                format_error_message());
                 }
             }
         }
@@ -106,7 +107,7 @@ inline std::vector<size_t> squeezeDimensions(const std::vector<size_t>& dims,
     size_t n_dim_excess = dims.size() - n_dim_requested;
     for (size_t i = 1; i <= n_dim_excess; ++i) {
         if (dims[n_dim - i] != 1) {
-            throw std::invalid_argument(format_error_message());
+            throw std::invalid_argument("Failed stripping from back:" + format_error_message());
         }
     }
 
@@ -289,10 +290,10 @@ struct inspector<Reference>: type_helper<Reference> {
 };
 
 template <size_t N>
-struct inspector<FixedLenStringArray<N>> {
-    using type = FixedLenStringArray<N>;
+struct inspector<deprecated::FixedLenStringArray<N>> {
+    using type = deprecated::FixedLenStringArray<N>;
     using value_type = char*;
-    using base_type = FixedLenStringArray<N>;
+    using base_type = deprecated::FixedLenStringArray<N>;
     using hdf5_type = char;
 
     static constexpr size_t ndim = 1;
@@ -385,19 +386,21 @@ struct inspector<std::vector<T>> {
     }
 
     static hdf5_type* data(type& val) {
-        return inspector<value_type>::data(val[0]);
+        return val.empty() ? nullptr : inspector<value_type>::data(val[0]);
     }
 
     static const hdf5_type* data(const type& val) {
-        return inspector<value_type>::data(val[0]);
+        return val.empty() ? nullptr : inspector<value_type>::data(val[0]);
     }
 
     template <class It>
     static void serialize(const type& val, It m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
-        for (auto&& e: val) {
-            inspector<value_type>::serialize(e, m);
-            m += subsize;
+        if (!val.empty()) {
+            size_t subsize = inspector<value_type>::getSizeVal(val[0]);
+            for (auto&& e: val) {
+                inspector<value_type>::serialize(e, m);
+                m += subsize;
+            }
         }
     }
 
@@ -589,6 +592,21 @@ struct inspector<T[N]> {
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        if (dims.size() < 1) {
+            throw DataSpaceException("Invalid 'dims', must be at least 1 dimensional.");
+        }
+
+        if (dims[0] != N) {
+            throw DataSpaceException("Dimensions mismatch.");
+        }
+
+        std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
+        for (size_t i = 0; i < dims[0]; ++i) {
+            inspector<value_type>::prepare(val[i], next_dims);
+        }
+    }
+
     static size_t getSizeVal(const type& val) {
         return compute_total_size(getDimensions(val));
     }
@@ -603,6 +621,10 @@ struct inspector<T[N]> {
     }
 
     static const hdf5_type* data(const type& val) {
+        return inspector<value_type>::data(val[0]);
+    }
+
+    static hdf5_type* data(type& val) {
         return inspector<value_type>::data(val[0]);
     }
 

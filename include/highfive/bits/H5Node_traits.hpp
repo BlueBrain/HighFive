@@ -53,20 +53,7 @@ class NodeTraits {
     /// \param accessProps A property list with data set access properties
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
-    template <typename T,
-              typename std::enable_if<
-                  std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-                  int>::type* = nullptr>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space,
-                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                          bool parents = true);
-
-    template <typename T,
-              typename std::enable_if<
-                  !std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-                  int>::type* = nullptr>
+    template <typename T>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
@@ -92,8 +79,9 @@ class NodeTraits {
 
 
     template <std::size_t N>
+    H5_DEPRECATED("Use 'std::vector<std::string>'.")
     DataSet createDataSet(const std::string& dataset_name,
-                          const FixedLenStringArray<N>& data,
+                          const deprecated::FixedLenStringArray<N>& data,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
                           const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                           bool parents = true);

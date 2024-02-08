@@ -64,11 +64,11 @@ inline void Attribute::read(T& array) const {
     const details::BufferInfo<T> buffer_info(
         file_datatype,
         [this]() -> std::string { return this->getName(); },
-        details::BufferInfo<T>::read);
+        details::BufferInfo<T>::Operation::read);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;
-        ss << "Impossible to read DataSet of dimensions " << mem_space.getNumberDimensions()
+        ss << "Impossible to read Attribute of dimensions " << mem_space.getNumberDimensions()
            << " into arrays of dimensions " << buffer_info.n_dimensions;
         throw DataSpaceException(ss.str());
     }
@@ -83,7 +83,7 @@ inline void Attribute::read(T& array) const {
     }
 
     auto r = details::data_converter::get_reader<T>(dims, array, file_datatype);
-    read(r.getPointer(), buffer_info.data_type);
+    read_raw(r.getPointer(), buffer_info.data_type);
     // re-arrange results
     r.unserialize(array);
 
@@ -103,6 +103,11 @@ inline void Attribute::read(T& array) const {
 
 template <typename T>
 inline void Attribute::read(T* array, const DataType& mem_datatype) const {
+    read_raw(array, mem_datatype);
+}
+
+template <typename T>
+inline void Attribute::read_raw(T* array, const DataType& mem_datatype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
 
@@ -111,10 +116,15 @@ inline void Attribute::read(T* array, const DataType& mem_datatype) const {
 
 template <typename T>
 inline void Attribute::read(T* array) const {
+    read_raw(array);
+}
+
+template <typename T>
+inline void Attribute::read_raw(T* array) const {
     using element_type = typename details::inspector<T>::base_type;
     const DataType& mem_datatype = create_and_check_datatype<element_type>();
 
-    read(array, mem_datatype);
+    read_raw(array, mem_datatype);
 }
 
 template <typename T>
@@ -130,7 +140,7 @@ inline void Attribute::write(const T& buffer) {
     const details::BufferInfo<T> buffer_info(
         file_datatype,
         [this]() -> std::string { return this->getName(); },
-        details::BufferInfo<T>::write);
+        details::BufferInfo<T>::Operation::write);
 
     if (!details::checkDimensions(mem_space, buffer_info.n_dimensions)) {
         std::ostringstream ss;

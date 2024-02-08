@@ -866,6 +866,7 @@ WARN_LOGFILE           =
 
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../include \
                          @CMAKE_CURRENT_SOURCE_DIR@/installation.md \
+                         @CMAKE_CURRENT_SOURCE_DIR@/migration_guide.md \
                          @CMAKE_CURRENT_SOURCE_DIR@/developer_guide.md \
                          @CMAKE_CURRENT_SOURCE_DIR@/../CHANGELOG.md \
                          @CMAKE_CURRENT_SOURCE_DIR@/../README.md

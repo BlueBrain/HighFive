@@ -179,6 +179,18 @@ class PropertyList: public PropertyListBase {
         return static_cast<const PropertyList<T>&>(PropertyListBase::Default());
     }
 
+    /// Return a property list created via a call to `H5Pcreate`.
+    ///
+    /// An empty property is needed when one wants `getId()` to immediately
+    /// point at a valid HID. This is important when interfacing directly with
+    /// HDF5 to set properties that haven't been wrapped by HighFive.
+    static PropertyList<T> Empty() {
+        auto plist = PropertyList<T>();
+        plist._initializeIfNeeded();
+
+        return plist;
+    }
+
   protected:
     void _initializeIfNeeded();
 };
@@ -229,6 +241,8 @@ class MPIOFileAccess {
     MPI_Info _info;
 };
 
+
+#if H5_VERSION_GE(1, 10, 0)
 ///
 /// \brief Use collective MPI-IO for metadata read and write.
 ///
@@ -306,6 +320,7 @@ class MPIOCollectiveMetadataWrite {
     bool collective_;
 };
 
+#endif
 #endif
 
 ///

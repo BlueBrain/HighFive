@@ -91,3 +91,134 @@ release. Once this is done perform a final round of updates:
 * Update BlueBrain Spack recipe to use the archive and not the Git commit.
 * Update the upstream Spack recipe.
 
+## Writing Tests
+### Generate Multi-Dimensional Test Data
+Input array of any dimension and type can be generated using the template class
+`DataGenerator`. For example:
+```
+auto dims = std::vector<size_t>{4, 2};
+auto values = testing::DataGenerator<std::vector<std::array<double, 2>>::create(dims);
+```
+Generates an `std::vector<std::array<double, 2>>` initialized with suitable
+values.
+
+If "suitable" isn't specific enough, one can specify a callback:
+```
+auto callback = [](const std::vector<size_t>& indices) {
+    return 42.0;
+}
+
+auto values = testing::DataGenerator<std::vector<double>>::create(dims, callback);
+```
+
+The `dims` can be generated via `testing::DataGenerator::default_dims` or by
+using `testing::DataGenerator::sanitize_dims`. Remember, that certain
+containers are fixed size and that we often compute the number of elements by
+multiplying the dims.
+
+### Generate Scalar Test Data
+To generate a single "suitable" element use template class `DefaultValues`, e.g.
+```
+auto default_values = testing::DefaultValues<double>();
+auto x = testing::DefaultValues<double>(indices);
+```
+
+### Accessing Elements
+To access a particular element from an unknown container use the following trait:
+```
+using trait = testing::ContainerTraits<std::vector<std::array<int, 2>>;
+// auto x = values[1][0];
+auto x = trait::get(values, {1, 0});
+
+// values[1][0] = 42.0;
+trait::set(values, {1, 0}, 42.0);
+```
+
+### Utilities For Multi-Dimensional Arrays
+Use `testing::DataGenerator::allocate` to allocate an array (without filling
+it) and `testing::copy` to copy an array from one type to another. There's
+`testing::ravel`, `testing::unravel` and `testing::flat_size` to compute the
+position in a flat array from a multi-dimensional index, the reverse and the
+number of element in the multi-dimensional array.
+
+### Deduplicating DataSet and Attribute
+Due to how HighFive is written testing `DataSet` and `Attribute` often requires
+duplicating the entire test code because somewhere a `createDataSet` must be
+replaced with `createAttribute`. Use `testing::AttributeCreateTraits` and
+`testing::DataSetCreateTraits`. For example,
+```
+template<class CreateTraits>
+void check_write(...) {
+    // Same as one of:
+    //   file.createDataSet(name, values);
+    //   file.createAttribute(name, values);
+    CreateTraits::create(file, name, values);
+}
+```
+
+### Test Organization
+#### Multi-Dimensional Arrays
+All tests for reading/writing whole multi-dimensional arrays to datasets or
+attributes belong in `tests/unit/tests_high_five_multi_dimensional.cpp`. This
+includes write/read cycles; checking all the generic edges cases, e.g. empty
+arrays and mismatching sizes; and checking non-reallocation.
+
+Read/Write cycles are implemented in two distinct checks. One for writing and
+another for reading. When checking writing we read with a "trusted"
+multi-dimensional array (a nested `std::vector`), and vice-versa when checking
+reading. This matters because certain bugs, like writing a column major array
+as if it were row-major can't be caught if one reads it back into a
+column-major array.
+
+Remember, `std::vector<bool>` is very different from all other `std::vector`s.
+
+Every container `template<class T> C;` should at least be checked with all of
+the following `T`s that are supported by the container: `bool`, `double`,
+`std::string`, `std::vector`, `std::array`. The reason is `bool` and
+`std::string` are special, `double` is just a POD, `std::vector` requires
+dynamic memory allocation and `std::array` is statically allocated.
+
+Similarly, each container should be put inside an `std::vector` and an
+`std::array`.
+
+#### Scalar Data Set
+Write-read cycles for scalar values should be implemented in
+`tests/unit/tests_high_five_scalar.cpp`.
+
+#### Data Types
+Unit-tests related to checking that `DataType` API, go in
+`tests/unit/tests_high_data_type.cpp`.
+
+#### Selections
+Anything selection related goes in `tests/unit/test_high_five_selection.cpp`.
+This includes things like `ElementSet` and `HyperSlab`.
+
+#### Strings
+Regular write-read cycles for strings are performed along with the other types,
+see above. This should cover compatibility of `std::string` with all
+containers. However, additional testing is required, e.g. character set,
+padding, fixed vs. variable length. These all go in
+`tests/unit/test_high_five_string.cpp`.
+
+#### Specific Tests For Optional Containers
+If containers, e.g. `Eigen::Matrix` require special checks those go in files
+called `tests/unit/test_high_five_*.cpp` where `*` is `eigen` for Eigen.
+
+#### Memory Layout Assumptions
+In HighFive we make assumptions about the memory layout of certain types. For
+example, we assume that
+```
+auto array = std::vector<std::array<double, 2>>(n);
+doube * ptr = (double*) array.data();
+```
+is a sensible thing to do. We assume similar about `bool` and
+`details::Boolean`. These types of tests go into
+`tests/unit/tests_high_five_memory_layout.cpp`.
+
+#### H5Easy
+Anything `H5Easy` related goes in files with the appropriate name.
+
+#### Everything Else
+What's left goes in `tests/unit/test_high_five_base.cpp`. This covers opening
+files, groups, dataset or attributes; checking certain pathological edge cases;
+etc.

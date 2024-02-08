@@ -1,6 +1,11 @@
+*Note:* In preparation of `v3` of HighFive, we've started merging breaking
+changes into the main branch. More information and opportunity to comment can
+be found at:
+https://github.com/BlueBrain/HighFive/issues/864
+
 # HighFive - HDF5 header-only C++ Library
 
-[![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg)](https://BlueBrain.github.io/HighFive)
+[![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg?branch=master)](https://BlueBrain.github.io/HighFive/actions/workflows/gh-pages.yml?query=branch%3Amaster)
 [![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
 [![HighFive_Integration_tests](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml/badge.svg)](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml)
 
@@ -82,7 +87,8 @@ std::string filename = "/tmp/new_file.h5";
 }
 ```
 
-**Note:** `H5File.hpp` is the top-level header of HighFive core which should be always included.
+**Note:** As of 2.8.0, one can use `highfive/highfive.hpp` to include
+everything HighFive. Prior to 2.8.0 one would include `highfive/H5File.hpp`.
 
 **Note:** For advanced usecases the dataset can be created without immediately
 writing to it. This is common in MPI-IO related patterns, or when growing a

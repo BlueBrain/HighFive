@@ -20,7 +20,6 @@
 #include <type_traits>
 #include <vector>
 
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -907,8 +906,9 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     const std::string dataset_name("dset");
     std::vector<unsigned> vec;
     vec.resize(x_size);
-    for (unsigned i = 0; i < x_size; i++)
+    for (unsigned i = 0; i < x_size; i++) {
         vec[i] = i * 2;
+    }
     std::string at_contents("Contents of string");
     int my_int = 3;
     std::vector<std::vector<int>> my_nested = {{1, 2}, {3, 4}};
@@ -945,7 +945,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     }
 
     // Plain c arrays. 1D
-    {
+    SECTION("int-c-array") {
         int int_c_array[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         DataSet ds_int2 = file.createDataSet("/TmpCArrayInt", int_c_array);
 
@@ -957,7 +957,7 @@ TEST_CASE("HighFiveReadWriteShortcut") {
     }
 
     // Plain c arrays. 2D
-    {
+    SECTION("char-c-array") {
         char char_c_2darray[][3] = {"aa", "bb", "cc", "12"};
         DataSet ds_char2 = file.createDataSet("/TmpCArray2dchar", char_c_2darray);
 
@@ -2113,7 +2113,7 @@ TEST_CASE("DirectWriteBool") {
     SECTION("WriteReadCycleAttribute") {
         auto attr = file.createAttribute("attr", dataspace, datatype);
         attr.write_raw(expected);
-        attr.read(actual);
+        attr.read_raw(actual);
 
         for (size_t i = 0; i < n; ++i) {
             REQUIRE(expected[i] == actual[i]);
@@ -2123,7 +2123,7 @@ TEST_CASE("DirectWriteBool") {
     SECTION("WriteReadCycleDataSet") {
         auto dset = file.createAttribute("dset", dataspace, datatype);
         dset.write_raw(expected);
-        dset.read(actual);
+        dset.read_raw(actual);
 
         for (size_t i = 0; i < n; ++i) {
             REQUIRE(expected[i] == actual[i]);
@@ -2405,36 +2405,6 @@ TEST_CASE("HighFiveFixedString") {
         file.createDataSet<char[10]>("ds6", DataSpace(1)).write(buffer);
     }
 
-    {  // Dedicated FixedLenStringArray
-        FixedLenStringArray<10> arr{"0000000", "1111111"};
-
-        // More API: test inserting something
-        arr.push_back("2222");
-        auto ds = file.createDataSet("ds7", arr);  // Short syntax ok
-
-        // Recover truncating
-        FixedLenStringArray<4> array_back;
-        ds.read(array_back);
-        CHECK(array_back.size() == 3);
-        CHECK(array_back[0] == std::string("000"));
-        CHECK(array_back[1] == std::string("111"));
-        CHECK(array_back[2] == std::string("222"));
-        CHECK(array_back.getString(1) == "111");
-        CHECK(array_back.front() == std::string("000"));
-        CHECK(array_back.back() == std::string("222"));
-        CHECK(array_back.data() == std::string("000"));
-        array_back.data()[0] = 'x';
-        CHECK(array_back.data() == std::string("x00"));
-
-        for (auto& raw_elem: array_back) {
-            raw_elem[1] = 'y';
-        }
-        CHECK(array_back.getString(1) == "1y1");
-        for (auto iter = array_back.cbegin(); iter != array_back.cend(); ++iter) {
-            CHECK((*iter)[1] == 'y');
-        }
-    }
-
     {
         // Direct way of writing `std::string` as a fixed length
         // HDF5 string.
@@ -2452,7 +2422,7 @@ TEST_CASE("HighFiveFixedString") {
             // Due to missing non-const overload of `data()` until C++17 we'll
             // read into something else instead (don't forget the '\0').
             auto expected = std::vector<char>(n_chars, '!');
-            ds.read(expected.data(), datatype);
+            ds.read_raw(expected.data(), datatype);
 
             CHECK(expected.size() == value.size() + 1);
             for (size_t i = 0; i < value.size(); ++i) {
@@ -2463,7 +2433,7 @@ TEST_CASE("HighFiveFixedString") {
 #if HIGHFIVE_CXX_STD >= 17
         {
             auto expected = std::string(value.size(), '-');
-            ds.read(expected.data(), datatype);
+            ds.read_raw(expected.data(), datatype);
 
             REQUIRE(expected == value);
         }
@@ -2483,138 +2453,12 @@ TEST_CASE("HighFiveFixedString") {
         ds.write_raw(value.data(), datatype);
 
         auto expected = std::vector<char>(value.size(), '-');
-        ds.read(expected.data(), datatype);
+        ds.read_raw(expected.data(), datatype);
 
         CHECK(expected.size() == value.size());
         for (size_t i = 0; i < value.size(); ++i) {
             REQUIRE(expected[i] == value[i]);
         }
-    }
-}
-
-template <size_t N>
-static void check_fixed_len_string_array_contents(const FixedLenStringArray<N>& array,
-                                                  const std::vector<std::string>& expected) {
-    REQUIRE(array.size() == expected.size());
-
-    for (size_t i = 0; i < array.size(); ++i) {
-        CHECK(array[i] == expected[i]);
-    }
-}
-
-TEST_CASE("HighFiveFixedLenStringArrayStructure") {
-    using fixed_array_t = FixedLenStringArray<10>;
-    // increment the characters of a string written in a std::array
-    auto increment_string = [](const fixed_array_t::value_type arr) {
-        fixed_array_t::value_type output(arr);
-        for (auto& c: output) {
-            if (c == 0) {
-                break;
-            }
-            ++c;
-        }
-        return output;
-    };
-
-    SECTION("create from std::vector (onpoint)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<4>(expected);
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-    SECTION("create from std::vector (oversized)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<8>(expected);
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-    SECTION("create from pointers (onpoint)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<4>(expected.data(), expected.data() + expected.size());
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-    SECTION("create from pointers (oversized)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<8>(expected.data(), expected.data() + expected.size());
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-
-    SECTION("create from std::initializer_list (onpoint)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<4>{"000", "111"};
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-    SECTION("create from std::initializer_list (oversized)") {
-        auto expected = std::vector<std::string>{"000", "111"};
-        auto actual = FixedLenStringArray<8>{"000", "111"};
-        check_fixed_len_string_array_contents(actual, expected);
-    }
-
-    // manipulate FixedLenStringArray with std::copy
-    SECTION("compatible with std::copy") {
-        const fixed_array_t arr1{"0000000", "1111111"};
-        fixed_array_t arr2{"0000000", "1111111"};
-        std::copy(arr1.begin(), arr1.end(), std::back_inserter(arr2));
-        CHECK(arr2.size() == 4);
-    }
-
-    SECTION("compatible with std::transform") {
-        fixed_array_t arr;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::transform(arr1.begin(), arr1.end(), std::back_inserter(arr), increment_string);
-        }
-        CHECK(arr.size() == 2);
-        CHECK(arr[0] == std::string("1111111"));
-        CHECK(arr[1] == std::string("2222222"));
-    }
-
-    SECTION("compatible with std::transform (reverse iterator)") {
-        fixed_array_t arr;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::copy(arr1.rbegin(), arr1.rend(), std::back_inserter(arr));
-        }
-        CHECK(arr.size() == 2);
-        CHECK(arr[0] == std::string("1111111"));
-        CHECK(arr[1] == std::string("0000000"));
-    }
-
-    SECTION("compatible with std::remove_copy_if") {
-        fixed_array_t arr2;
-        {
-            const fixed_array_t arr1{"0000000", "1111111"};
-            std::remove_copy_if(arr1.begin(),
-                                arr1.end(),
-                                std::back_inserter(arr2),
-                                [](const fixed_array_t::value_type& s) {
-                                    return std::strncmp(s.data(), "1111111", 7) == 0;
-                                });
-        }
-        CHECK(arr2.size() == 1);
-        CHECK(arr2[0] == std::string("0000000"));
-    }
-}
-
-TEST_CASE("HighFiveFixedLenStringArrayAttribute") {
-    const std::string file_name("fixed_array_attr.h5");
-    // Create a new file using the default property lists.
-    {
-        File file(file_name, File::ReadWrite | File::Create | File::Truncate);
-        FixedLenStringArray<10> arr{"Hello", "world"};
-        file.createAttribute("str", arr);
-    }
-    // Re-read it
-    {
-        File file(file_name);
-        FixedLenStringArray<8> arr;  // notice the output strings can be smaller
-        file.getAttribute("str").read(arr);
-        CHECK(arr.size() == 2);
-        CHECK(arr[0] == std::string("Hello"));
-        CHECK(arr[1] == std::string("world"));
     }
 }
 
@@ -2672,29 +2516,6 @@ TEST_CASE("HighFiveReference") {
         data_ds2.read(rdata2);
         for (size_t i = 0; i < rdata2.size(); ++i) {
             CHECK(rdata2[i] == vec2[i]);
-        }
-    }
-}
-
-TEST_CASE("HighFiveReadWriteConsts") {
-    const std::string file_name("3d_dataset_from_flat.h5");
-    const std::string dataset_name("dset");
-    const std::array<std::size_t, 3> DIMS{3, 3, 3};
-    using datatype = int;
-
-    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
-    DataSpace dataspace = DataSpace(DIMS);
-
-    DataSet dataset = file.createDataSet<datatype>(dataset_name, dataspace);
-    std::vector<datatype> const t1(DIMS[0] * DIMS[1] * DIMS[2], 1);
-    auto raw_3d_vec_const = reinterpret_cast<datatype const* const* const*>(t1.data());
-    dataset.write(raw_3d_vec_const);
-
-    std::vector<std::vector<std::vector<datatype>>> result;
-    dataset.read(result);
-    for (const auto& vec2d: result) {
-        for (const auto& vec1d: vec2d) {
-            REQUIRE(vec1d == (std::vector<datatype>{1, 1, 1}));
         }
     }
 }

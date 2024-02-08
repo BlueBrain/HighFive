@@ -51,7 +51,7 @@ struct BufferInfo {
     using char_array_t = typename details::type_char_array<type_no_const>::type;
     static constexpr bool is_char_array = details::type_char_array<type_no_const>::is_char_array;
 
-    enum Operation { read, write };
+    enum class Operation { read, write };
     const Operation op;
 
     template <class F>
@@ -131,29 +131,29 @@ struct string_type_checker<char*> {
 
 template <typename T>
 template <class F>
-BufferInfo<T>::BufferInfo(const DataType& dtype, F getName, Operation _op)
+BufferInfo<T>::BufferInfo(const DataType& file_data_type, F getName, Operation _op)
     : op(_op)
-    , is_fixed_len_string(dtype.isFixedLenStr())
+    , is_fixed_len_string(file_data_type.isFixedLenStr())
     // In case we are using Fixed-len strings we need to subtract one dimension
     , n_dimensions(details::inspector<type_no_const>::recursive_ndim -
                    ((is_fixed_len_string && is_char_array) ? 1 : 0))
-    , data_type(
-          string_type_checker<char_array_t>::getDataType(create_datatype<elem_type>(), dtype)) {
+    , data_type(string_type_checker<char_array_t>::getDataType(create_datatype<elem_type>(),
+                                                               file_data_type)) {
     // We warn. In case they are really not convertible an exception will rise on read/write
-    if (dtype.getClass() != data_type.getClass()) {
+    if (file_data_type.getClass() != data_type.getClass()) {
         HIGHFIVE_LOG_WARN(getName() + "\": data and hdf5 dataset have different types: " +
-                          data_type.string() + " -> " + dtype.string());
-    } else if ((dtype.getClass() & data_type.getClass()) == DataTypeClass::Float) {
+                          data_type.string() + " -> " + file_data_type.string());
+    } else if ((file_data_type.getClass() & data_type.getClass()) == DataTypeClass::Float) {
         HIGHFIVE_LOG_WARN_IF(
-            (op == read) && (dtype.getSize() > data_type.getSize()),
+            (op == Operation::read) && (file_data_type.getSize() > data_type.getSize()),
             getName() + "\": hdf5 dataset has higher floating point precision than data on read: " +
-                dtype.string() + " -> " + data_type.string());
+                file_data_type.string() + " -> " + data_type.string());
 
         HIGHFIVE_LOG_WARN_IF(
-            (op == write) && (dtype.getSize() < data_type.getSize()),
+            (op == Operation::write) && (file_data_type.getSize() < data_type.getSize()),
             getName() +
                 "\": data has higher floating point precision than hdf5 dataset on write: " +
-                data_type.string() + " -> " + dtype.string());
+                data_type.string() + " -> " + file_data_type.string());
     }
 }
 

@@ -80,10 +80,10 @@ void readWriteArrayTest() {
     typename std::array<T, 1> tooSmall;
     CHECK_THROWS_AS(dataset.read(tooSmall), DataSpaceException);
 }
+
 TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
     readWriteArrayTest<TestType>();
 }
-
 
 template <typename T, typename VectorSubT>
 void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec, const std::vector<size_t>& dims) {
