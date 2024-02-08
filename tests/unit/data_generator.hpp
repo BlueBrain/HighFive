@@ -8,7 +8,7 @@
 #include <array>
 
 #ifdef H5_USE_BOOST
-#include <boost/multi_array.hpp>
+#include <highfive/boost.hpp>
 #endif
 
 #include <highfive/bits/H5Inspector_misc.hpp>

@@ -46,6 +46,18 @@ option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
 if(HIGHFIVE_TEST_SINGLE_INCLUDES)
     file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
     foreach(PUBLIC_HEADER ${public_headers})
+        if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_USE_BOOST)
+          continue()
+        endif()
+
+        if(PUBLIC_HEADER STREQUAL "highfive/half_float.hpp" AND NOT HIGHFIVE_USE_HALF_FLOAT)
+          continue()
+        endif()
+
+        if(PUBLIC_HEADER STREQUAL "highfive/eigen.hpp" AND NOT HIGHFIVE_USE_EIGEN)
+          continue()
+        endif()
+
         get_filename_component(CLASS_NAME ${PUBLIC_HEADER} NAME_WE)
         configure_file(tests_import_public_headers.cpp "tests_${CLASS_NAME}.cpp" @ONLY)
         add_executable("tests_include_${CLASS_NAME}" "${CMAKE_CURRENT_BINARY_DIR}/tests_${CLASS_NAME}.cpp")
