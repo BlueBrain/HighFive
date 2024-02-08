@@ -61,7 +61,7 @@ struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
         DataSet dataset = file.getDataSet(path);
         std::vector<int> dims = shape(file, path, dataset.getDimensions());
         T data(dims[0], dims[1]);
-        dataset.read(reinterpret_cast<value_type*>(data.data));
+        dataset.read_raw(reinterpret_cast<value_type*>(data.data));
         return data;
     }
 
@@ -89,7 +89,7 @@ struct io_impl<T, typename std::enable_if<is_opencv<T>::value>::type> {
         DataSpace dataspace = attribute.getSpace();
         std::vector<int> dims = shape(file, path, dataspace.getDimensions());
         T data(dims[0], dims[1]);
-        attribute.read(reinterpret_cast<value_type*>(data.data));
+        attribute.read_raw(reinterpret_cast<value_type*>(data.data));
         return data;
     }
 };

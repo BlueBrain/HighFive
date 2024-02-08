@@ -2433,7 +2433,7 @@ TEST_CASE("HighFiveFixedString") {
 #if HIGHFIVE_CXX_STD >= 17
         {
             auto expected = std::string(value.size(), '-');
-            ds.read(expected.data(), datatype);
+            ds.read_raw(expected.data(), datatype);
 
             REQUIRE(expected == value);
         }
