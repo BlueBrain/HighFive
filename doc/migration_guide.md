@@ -15,6 +15,7 @@ replaced with an `std::vector<std::string>` (for example).
 If desired one can silence warnings by replacing `FixedLenStringArray` with
 `deprecated::FixedLenStringArray`.
 
+
 ## Deprecation of `read(T*, ...)`.
 A "raw read" is when the user allocates sufficient bytes and provides HighFive
 with the pointer to the first byte. "Regular reads" take a detour via the
@@ -108,3 +109,13 @@ target_link_libraries(app PUBLIC HighFive::HighFive)
 There are extensive examples of project integration in `tests/cmake_integration`,
 including how those projects in turn can be included in other projects. If these
 examples don't help, please feel free to open an Issue.
+
+## Type change `DataSpace::DataSpaceType`.
+We've converted the `enum` `DataSpace::DataSpaceType` to an `enum class`. We've
+added static `constexpr` members `dataspace_null` and `dataspace_scalar` to
+`DataSpace`. This minimizes the risk of breaking user code.
+
+Note that objects of type `DataSpace::DataSpaceType` will no longer silently
+convert to an integer. Including the two constants
+`DataSpace::dataspace_{scalar,null}`.
+
