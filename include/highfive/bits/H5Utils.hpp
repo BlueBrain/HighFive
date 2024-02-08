@@ -25,12 +25,6 @@
 
 namespace HighFive {
 
-namespace deprecated {
-// If ever used, recognize dimensions of FixedLenStringArray
-template <std::size_t N>
-class FixedLenStringArray;
-}  // namespace deprecated
-
 namespace details {
 // converter function for hsize_t -> size_t when hsize_t != size_t
 template <typename Size>
