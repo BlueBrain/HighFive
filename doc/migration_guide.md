@@ -61,7 +61,7 @@ When genuinely performing a "raw read", one must replace `read` with
 `read_raw`. For example:
 
 ```
-double x = malloc(2*3 * sizeof(double));
+double* x = malloc(2*3 * sizeof(double));
 dset.read_raw(x);
 ```
 is correct in `v3`.
