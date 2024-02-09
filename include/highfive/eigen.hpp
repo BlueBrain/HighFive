@@ -1,5 +1,4 @@
 #pragma once
-#ifdef H5_USE_EIGEN
 
 #include "bits/H5Inspector_decl.hpp"
 #include "H5Exception.hpp"
@@ -89,5 +88,3 @@ struct inspector<Eigen::Matrix<T, M, N>> {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif
