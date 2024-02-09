@@ -468,7 +468,3 @@ inline DataType create_datatype<bool>() {
 }
 
 }  // namespace HighFive
-
-#ifdef H5_USE_HALF_FLOAT
-#include <highfive/half_float.hpp>
-#endif

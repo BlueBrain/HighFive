@@ -27,6 +27,15 @@
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
 
+#ifdef H5_USE_BOOST
+#include <highfive/boost.hpp>
+#endif
+
+#ifdef H5_USE_EIGEN
+#include <highfive/eigen.hpp>
+#endif
+
+
 using namespace HighFive;
 using Catch::Matchers::Equals;
 

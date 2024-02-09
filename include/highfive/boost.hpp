@@ -1,12 +1,9 @@
 #pragma once
-#ifdef H5_USE_BOOST
 
 #include "bits/H5Inspector_decl.hpp"
 #include "H5Exception.hpp"
 
 #include <boost/multi_array.hpp>
-// starting Boost 1.64, serialization header must come before ublas
-#include <boost/serialization/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace HighFive {
@@ -160,5 +157,3 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif

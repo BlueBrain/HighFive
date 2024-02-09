@@ -1,5 +1,4 @@
 #pragma once
-#ifdef H5_USE_HALF_FLOAT
 
 #include <half.hpp>
 
@@ -16,6 +15,5 @@ inline AtomicType<float16_t>::AtomicType() {
     // Floating point exponent bias
     detail::h5t_set_ebias(_hid, 15);
 }
-}  // namespace HighFive
 
-#endif
+}  // namespace HighFive

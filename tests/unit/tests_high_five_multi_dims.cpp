@@ -15,6 +15,7 @@
 
 #ifdef H5_USE_BOOST
 #include <boost/multi_array.hpp>
+#include <highfive/boost.hpp>
 #endif
 
 #include <catch2/catch_test_macros.hpp>

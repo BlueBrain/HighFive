@@ -102,21 +102,11 @@ inline void Attribute::read(T& array) const {
 }
 
 template <typename T>
-inline void Attribute::read(T* array, const DataType& mem_datatype) const {
-    read_raw(array, mem_datatype);
-}
-
-template <typename T>
 inline void Attribute::read_raw(T* array, const DataType& mem_datatype) const {
     static_assert(!std::is_const<T>::value,
                   "read() requires a non-const structure to read data into");
 
     detail::h5a_read(getId(), mem_datatype.getId(), static_cast<void*>(array));
-}
-
-template <typename T>
-inline void Attribute::read(T* array) const {
-    read_raw(array);
 }
 
 template <typename T>

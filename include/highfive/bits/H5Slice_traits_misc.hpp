@@ -207,20 +207,6 @@ inline void SliceTraits<Derivate>::read(T& array, const DataTransferProps& xfer_
     }
 }
 
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::read(T* array,
-                                        const DataType& mem_datatype,
-                                        const DataTransferProps& xfer_props) const {
-    read_raw(array, mem_datatype, xfer_props);
-}
-
-template <typename Derivate>
-template <typename T>
-inline void SliceTraits<Derivate>::read(T* array, const DataTransferProps& xfer_props) const {
-    read_raw(array, xfer_props);
-}
-
 
 template <typename Derivate>
 template <typename T>
