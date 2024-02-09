@@ -289,61 +289,6 @@ struct inspector<Reference>: type_helper<Reference> {
     }
 };
 
-template <size_t N>
-struct inspector<deprecated::FixedLenStringArray<N>> {
-    using type = deprecated::FixedLenStringArray<N>;
-    using value_type = char*;
-    using base_type = deprecated::FixedLenStringArray<N>;
-    using hdf5_type = char;
-
-    static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim;
-    static constexpr bool is_trivially_copyable = false;
-
-    static std::vector<size_t> getDimensions(const type& val) {
-        return std::vector<size_t>{val.size()};
-    }
-
-    static size_t getSizeVal(const type& val) {
-        return N * compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return N * compute_total_size(dims);
-    }
-
-    static void prepare(type& /* val */, const std::vector<size_t>& dims) {
-        if (dims[0] > N) {
-            std::ostringstream os;
-            os << "Size of FixedlenStringArray (" << N << ") is too small for dims (" << dims[0]
-               << ").";
-            throw DataSpaceException(os.str());
-        }
-    }
-
-    static hdf5_type* data(type& val) {
-        return val.data();
-    }
-
-    static const hdf5_type* data(const type& val) {
-        return val.data();
-    }
-
-    static void serialize(const type& val, hdf5_type* m) {
-        for (size_t i = 0; i < val.size(); ++i) {
-            std::memcpy(m + i * N, val[i], N);
-        }
-    }
-
-    static void unserialize(const hdf5_type* vec, const std::vector<size_t>& dims, type& val) {
-        for (size_t i = 0; i < dims[0]; ++i) {
-            std::array<char, N> s;
-            std::memcpy(s.data(), vec + (i * N), N);
-            val.push_back(s);
-        }
-    }
-};
-
 template <typename T>
 struct inspector<std::vector<T>> {
     using type = std::vector<T>;

@@ -78,14 +78,6 @@ class NodeTraits {
                           bool parents = true);
 
 
-    template <std::size_t N>
-    H5_DEPRECATED("Use 'std::vector<std::string>'.")
-    DataSet createDataSet(const std::string& dataset_name,
-                          const deprecated::FixedLenStringArray<N>& data,
-                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                          bool parents = true);
-
     ///
     /// \brief get an existing dataset in the current file
     /// \param dataset_name
