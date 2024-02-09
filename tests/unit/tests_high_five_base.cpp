@@ -786,6 +786,12 @@ TEST_CASE("DataSpace::getElementCount") {
         CHECK(detail::h5s_get_simple_extent_type(space.getId()) == H5S_NULL);
     }
 
+    SECTION("null initializer_list") {
+        auto space = DataSpace{DataSpace::dataspace_null};
+        CHECK(space.getElementCount() == 0);
+        CHECK(detail::h5s_get_simple_extent_type(space.getId()) == H5S_NULL);
+    }
+
     SECTION("null named ctor") {
         auto space = DataSpace::Null();
         CHECK(space.getElementCount() == 0);
@@ -794,6 +800,12 @@ TEST_CASE("DataSpace::getElementCount") {
 
     SECTION("scalar") {
         auto space = DataSpace(DataSpace::dataspace_scalar);
+        CHECK(space.getElementCount() == 1);
+        CHECK(detail::h5s_get_simple_extent_type(space.getId()) == H5S_SCALAR);
+    }
+
+    SECTION("scalar initializer_list") {
+        auto space = DataSpace{DataSpace::dataspace_scalar};
         CHECK(space.getElementCount() == 1);
         CHECK(detail::h5s_get_simple_extent_type(space.getId()) == H5S_SCALAR);
     }
