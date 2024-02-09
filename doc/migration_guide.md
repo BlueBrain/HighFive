@@ -119,3 +119,16 @@ Note that objects of type `DataSpace::DataSpaceType` will no longer silently
 convert to an integer. Including the two constants
 `DataSpace::dataspace_{scalar,null}`.
 
+## Deprecation `FileDriver` and `MPIOFileDriver`.
+These have been deprecated to stick more closely with familiar HDF5 concepts.
+The `FileDriver` is synonymous to `FileAccessProps`; and `MPIOFileDriver` is
+the same as:
+```
+auto fapl = FileAccessProps{};
+fapl.add(MPIOFileAccess(mpi_comm, mpi_info));
+```
+
+We felt that the savings in typing effort weren't worth introducing the concept
+of a "file driver". Removing the concept hopefully makes it easier to add a
+better abstraction for the handling of the property lists, when we discover
+such an abstraction.
