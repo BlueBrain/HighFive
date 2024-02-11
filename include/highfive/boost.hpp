@@ -31,10 +31,6 @@ struct inspector<boost::multi_array<T, Dims>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static size_t getSize(const std::vector<size_t>& dims) {
         return compute_total_size(dims);
     }
@@ -70,8 +66,8 @@ struct inspector<boost::multi_array<T, Dims>> {
     template <class It>
     static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
         size_t size = val.num_elements();
-        size_t subsize = inspector<value_type>::getSizeVal(*val.origin());
         auto subdims = std::vector<size_t>(dims.begin() + ndim, dims.end());
+        size_t subsize = inspector<value_type>::getSize(subdims);
         for (size_t i = 0; i < size; ++i) {
             inspector<value_type>::serialize(*(val.origin() + i), subdims, m + i * subsize);
         }
@@ -108,10 +104,6 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static size_t getSize(const std::vector<size_t>& dims) {
         return compute_total_size(dims);
     }
@@ -136,8 +128,8 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
     static void serialize(const type& val, const std::vector<size_t>& dims, hdf5_type* m) {
         size_t size = val.size1() * val.size2();
-        size_t subsize = inspector<value_type>::getSizeVal(val(0, 0));
         auto subdims = std::vector<size_t>(dims.begin() + ndim, dims.end());
+        size_t subsize = inspector<value_type>::getSize(subdims);
         for (size_t i = 0; i < size; ++i) {
             inspector<value_type>::serialize(*(&val(0, 0) + i), subdims, m + i * subsize);
         }

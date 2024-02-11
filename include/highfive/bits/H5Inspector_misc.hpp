@@ -129,7 +129,7 @@ inspector<T> {
     static constexpr size_t recursive_ndim
     // Is the inner type trivially copyable for optimisation
     // If this value is true: data() is mandatory
-    // If this value is false: getSizeVal, getSize, serialize, unserialize are mandatory
+    // If this value is false: getSize, serialize, unserialize are mandatory
     static constexpr bool is_trivially_copyable
 
     // Reading:
@@ -144,8 +144,6 @@ inspector<T> {
 
 
     // Writing:
-    // Return the size of the vector pass to/from hdf5 from a value
-    static size_t getSizeVal(const type& val)
     // Return a point of the first value of val
     static const hdf5_type* data(const type& val)
     // Take a val and serialize it inside 'out'
@@ -169,10 +167,6 @@ struct type_helper {
 
     static std::vector<size_t> getDimensions(const type& /* val */) {
         return {};
-    }
-
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
     }
 
     static size_t getSize(const std::vector<size_t>& dims) {
@@ -314,10 +308,6 @@ struct inspector<std::vector<T>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static size_t getSize(const std::vector<size_t>& dims) {
         return compute_total_size(dims);
     }
@@ -341,8 +331,8 @@ struct inspector<std::vector<T>> {
     template <class It>
     static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
         if (!val.empty()) {
-            size_t subsize = inspector<value_type>::getSizeVal(val[0]);
             auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+            size_t subsize = inspector<value_type>::getSize(subdims);
             for (auto&& e: val) {
                 inspector<value_type>::serialize(e, subdims, m);
                 m += subsize;
@@ -374,10 +364,6 @@ struct inspector<std::vector<bool>> {
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size()};
         return sizes;
-    }
-
-    static size_t getSizeVal(const type& val) {
-        return val.size();
     }
 
     static size_t getSize(const std::vector<size_t>& dims) {
@@ -439,10 +425,6 @@ struct inspector<std::array<T, N>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static size_t getSize(const std::vector<size_t>& dims) {
         return compute_total_size(dims);
     }
@@ -470,8 +452,8 @@ struct inspector<std::array<T, N>> {
 
     template <class It>
     static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+        size_t subsize = inspector<value_type>::getSize(subdims);
         for (auto& e: val) {
             inspector<value_type>::serialize(e, subdims, m);
             m += subsize;
@@ -506,10 +488,6 @@ struct inspector<T*> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
-
-    static size_t getSizeVal(const type& /* val */) {
-        throw DataSpaceException("Not possible to have size of a T*");
-    }
 
     static std::vector<size_t> getDimensions(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
@@ -556,10 +534,6 @@ struct inspector<T[N]> {
         }
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{N};
         if (N > 0) {
@@ -580,8 +554,8 @@ struct inspector<T[N]> {
     /* it works because there is only T[][][] currently
        we will fix it one day */
     static void serialize(const type& val, const std::vector<size_t>& dims, hdf5_type* m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
         auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+        size_t subsize = inspector<value_type>::getSize(subdims);
         for (size_t i = 0; i < N; ++i) {
             inspector<value_type>::serialize(val[i], subdims, m + i * subsize);
         }
