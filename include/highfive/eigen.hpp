@@ -39,10 +39,6 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return sizes;
     }
 
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
-    }
-
     static void prepare(type& val, const std::vector<size_t>& dims) {
         if (dims[0] != static_cast<size_t>(val.rows()) ||
             dims[1] != static_cast<size_t>(val.cols())) {
