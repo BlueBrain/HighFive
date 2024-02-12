@@ -70,21 +70,13 @@ mark_as_advanced(HIGHFIVE_SANITIZER)
 # -----------------------------------
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    if(HIGHFIVE_TEST_XTENSOR)
-        set(CMAKE_CXX_STANDARD 14)
-    else()
-        set(CMAKE_CXX_STANDARD 11)
-    endif()
+    set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-if(CMAKE_CXX_STANDARD EQUAL 98)
-    message(FATAL_ERROR "HighFive needs to be compiled with at least C++11")
-endif()
-
-if(HIGHFIVE_TEST_XTENSOR AND CMAKE_CXX_STANDARD LESS 14)
-  message(FATAL_ERROR "XTensor requires C++14 or newer.")
+if(CMAKE_CXX_STANDARD EQUAL 98 OR CMAKE_CXX_STANDARD LESS 14)
+    message(FATAL_ERROR "HighFive needs to be compiled with at least C++14")
 endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
