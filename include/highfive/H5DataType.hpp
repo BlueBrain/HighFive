@@ -348,12 +348,15 @@ DataType create_and_check_datatype();
 /// This macro has to be called outside of any namespace.
 ///
 /// \code{.cpp}
+/// namespace app {
 /// enum FooBar { FOO = 1, BAR = 2 };
 /// EnumType create_enum_foobar() {
 ///    return EnumType<FooBar>({{"FOO", FooBar::FOO},
 ///                             {"BAR", FooBar::BAR}});
 /// }
-/// HIGHFIVE_REGISTER_TYPE(FooBar, create_enum_foobar)
+/// }
+///
+/// HIGHFIVE_REGISTER_TYPE(FooBar, ::app::create_enum_foobar)
 /// \endcode
 #define HIGHFIVE_REGISTER_TYPE(type, function)                    \
     template <>                                                   \
