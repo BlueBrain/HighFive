@@ -492,6 +492,87 @@ struct inspector<std::array<T, N>> {
     }
 };
 
+template <typename T, class Extents>
+struct inspector<std::mdspan<T, Extents>> {
+    using type = std::mdspan<T, Extents>;
+    using value_type = unqualified_t<T>;
+    using base_type = typename inspector<value_type>::base_type;
+    using hdf5_type = typename inspector<value_type>::hdf5_type;
+
+    static_assert(std::declvar<Extents>.dynamic_rank() == 0, "dynamic ranks in std::mdspan are not yet supported");
+    static constexpr size_t ndim = std:details<Extents>.rank();
+    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
+                                                  inspector<value_type>::is_trivially_copyable;
+
+    static std::vector<size_t> getDimensions(const type& val) {
+        std::vector<size_t> sizes(recursive_ndim);
+        for (size_t i = 0; i < ndim; ++i) {
+            sizes[i] = val.extents.extent(i);
+        }
+        // TODO: add inner types
+        return sizes;
+    }
+
+    static size_t getSizeVal(const type& val) {
+        return compute_total_size(getDimensions(val));
+    }
+
+    static size_t getSize(const std::vector<size_t>& dims) {
+        return compute_total_size(dims);
+    }
+
+    static void prepare(type& val, const std::vector<size_t>& dims) {
+        const auto dims_ = getDimensions(val);
+        // TODO: check number of dims
+        for (size_t i = 0; i < ndim; ++i) {
+            if (dims[i] != dims_[i]) {
+                os << "Size of std::mdspan(" << dims_[i] << ") is not fitting dims (" << dims[i] << ").";
+                throw DataSpaceException(os.str());
+            }
+        }
+
+        std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
+        for (auto&& e: val) {
+            inspector<value_type>::prepare(e, next_dims);
+        }
+    }
+
+    static hdf5_type* data(type& val) {
+        return inspector<value_type>::data(val.data_handle());
+    }
+
+    static const hdf5_type* data(const type& val) {
+        return inspector<value_type>::data(val.data_handle());
+    }
+
+    template <class It>
+    static void serialize(const type& val, It m) {
+        size_t subsize = inspector<value_type>::getSizeVal(val.data_handle());
+        for (auto& e: val) {
+            inspector<value_type>::serialize(e, m);
+            m += subsize;
+        }
+    }
+
+    template <class It>
+    static void unserialize(const It& vec_align, const std::vector<size_t>& dims, type& val) {
+        const auto dims_ = getDimensions(val);
+        for (size_t i = 0; i < ndim; ++i) {
+            if (dims[i] != dims_[i]) {
+                os << "Size of std::mdspan(" << dims_[i] << ") is not fitting dims (" << dims[i] << ").";
+                throw DataSpaceException(os.str());
+            }
+        }
+
+        std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
+        size_t next_size = compute_total_size(next_dims);
+        for (size_t i = 0; i < dims[0]; ++i) {
+            inspector<value_type>::unserialize(vec_align + i * next_size, next_dims, val.data_handle() + i);
+        }
+    }
+};
+
 // Cannot be use for reading
 template <typename T>
 struct inspector<T*> {
