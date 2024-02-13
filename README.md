@@ -207,11 +207,19 @@ To prevent HighFive from searching or "linking" to HDF5 the project's
 `CMakeLists.txt` should contain the following:
 
 ```cmake
+# Prevent HighFive CMake code from searching for HDF5:
 set(HIGHFIVE_FIND_HDF5 Off)
+
+# Then "find" HighFive as usual:
 find_package(HighFive REQUIRED)
-# Alternatively:
+# alternatively, when vendoring:
 # add_subdirectory(third_party/HighFive)
+
+# Finally, use the target `HighFive::Include` which
+# doesn't add a dependency on HDF5.
 target_link_libraries(foo HighFive::Include)
+
+# Proceed to find and link HDF5 as required.
 ```
 
 ### Optional Dependencies
