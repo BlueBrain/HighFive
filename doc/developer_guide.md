@@ -23,8 +23,8 @@ cmake --build build --parallel
 ctest --test-dir build
 ```
 
-You might want to turn off Boost `-DHIGHFIVE_USE_BOOST=Off` or turn on other
-optional dependencies.
+You might want to turn Boost `-DHIGHFIVE_TEST_BOOST=On` or optional
+dependencies on.
 
 ## Contributing
 There's numerous HDF5 features that haven't been wrapped yet. HighFive is a

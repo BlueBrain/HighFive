@@ -39,12 +39,11 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - etc... (see [ChangeLog](./CHANGELOG.md))
 
 ### Dependencies
-- hdf5 (dev)
-- hdf5-mpi (optional, opt-in with -D*HIGHFIVE_PARALLEL_HDF5*=ON)
-- boost >= 1.41 (recommended, opt-out with -D*HIGHFIVE_USE_BOOST*=OFF)
-- eigen3 (optional, opt-in with -D*HIGHFIVE_USE_EIGEN*=ON)
-- xtensor (optional, opt-in with -D*HIGHFIVE_USE_XTENSOR*=ON)
-- half (optional, opt-in with -D*HIGHFIVE_USE_HALF_FLOAT*=ON)
+- HDF5 or pHDF5, including headers
+- boost >= 1.41 (recommended)
+- eigen3 (optional)
+- xtensor (optional)
+- half (optional)
 
 ### Known flaws
 - HighFive is not thread-safe. At best it has the same limitations as the HDF5 library. However, HighFive objects modify their members without protecting these writes. Users have reported that HighFive is not thread-safe even when using the threadsafe HDF5 library, e.g., https://github.com/BlueBrain/HighFive/discussions/675.
@@ -124,11 +123,11 @@ For several 'standard' use cases the [highfive/H5Easy.hpp](include/highfive/H5Ea
     - scalars (to/from an extendible DataSet),
     - strings,
     - vectors (of standard types),
-    - [Eigen::Matrix](http://eigen.tuxfamily.org) (optional, enable CMake option `HIGHFIVE_USE_EIGEN`),
+    - [Eigen::Matrix](http://eigen.tuxfamily.org) (optional),
     - [xt::xarray](https://github.com/QuantStack/xtensor) and [xt::xtensor](https://github.com/QuantStack/xtensor)
-      (optional, enable CMake option `HIGHFIVE_USE_XTENSOR`).
+      (optional).
     - [cv::Mat_](https://docs.opencv.org/master/df/dfc/classcv_1_1Mat__.html)
-      (optional, enable CMake option `HIGHFIVE_USE_OPENCV`).
+      (optional).
 
 * Getting in a single line:
 
@@ -150,16 +149,29 @@ int main() {
 }
 ```
 
-whereby the `int` type of this example can be replaced by any of the above types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more details.
+whereby the `int` type of this example can be replaced by any of the above
+types. See [easy_load_dump.cpp](src/examples/easy_load_dump.cpp) for more
+details.
 
-**Note:** Classes such as `H5Easy::File` are just short for the regular `HighFive` classes (in this case `HighFive::File`). They can thus be used interchangeably.
+**Note:** Classes such as `H5Easy::File` are just short for the regular
+`HighFive` classes (in this case `HighFive::File`). They can thus be used
+interchangeably.
 
 
 ## CMake integration
 There's two common paths of integrating HighFive into a CMake based project.
 The first is to "vendor" HighFive, the second is to install HighFive as a
-normal C++ library. Due to how HighFive CMake code works, sometimes following
-the third Bailout Approach is needed.
+normal C++ library. Since HighFive makes choices about how to integrate HDF5,
+sometimes following the third Bailout Approach is needed.
+
+Regular HDF5 CMake variables can be used. Interesting variables include:
+
+* `HDF5_USE_STATIC_LIBRARIES` to link statically against the HDF5 library.
+* `HDF5_PREFER_PARALLEL` to prefer pHDF5.
+* `HDF5_IS_PARALLEL` to check if HDF5 is parallel.
+
+Please consult `tests/cmake_integration` for examples of how to write libraries
+or applications using HighFive.
 
 ### Vendoring HighFive
 
@@ -168,86 +180,63 @@ project (typically as a git submodule), for example in `third_party/HighFive`.
 
 The projects `CMakeLists.txt` add the following lines
 ```cmake
-add_executable(foo foo.cpp)
-
-# You might want to turn off Boost support:
-if(NOT DEFINED HIGHFIVE_USE_BOOST)
-  set(HIGHFIVE_USE_BOOST Off)
-endif()
-
-# Include the subdirectory and use the target HighFive.
 add_subdirectory(third_party/HighFive)
 target_link_libraries(foo HighFive)
 ```
 
 **Note:** `add_subdirectory(third_party/HighFive)` will search and "link" HDF5
-and optional dependencies such as Boost.
+but wont search or link any optional dependencies such as Boost.
 
 ### Regular Installation of HighFive
 
-Alternatively you can install HighFive once and use it in several projects via
-`find_package()`. First one should clone the sources:
-```bash
-git clone --recursive https://github.com/BlueBrain/HighFive.git HighFive-src
-```
-By default CMake will install systemwide, which is likely not appropriate. The
-instruction below allow users to select a custom path where HighFive will be
-installed, e.g. `HIGHFIVE_INSTALL_PREFIX=${HOME}/third_party/HighFive` or some
-other location. The CMake invocations would be
-```bash
-cmake -DHIGHFIVE_EXAMPLES=Off \
-      -DHIGHFIVE_USE_BOOST=Off \
-      -DHIGHFIVE_UNIT_TESTS=Off \
-      -DCMAKE_INSTALL_PREFIX=${HIGHFIVE_INSTALL_PREFIX} \
-      -B HighFive-src/build \
-      HighFive-src
+Alternatively, HighFive can be install and "found" like regular software.
 
-cmake --build HighFive-src/build
-cmake --install HighFive-src/build
-```
-This will install (i.e. copy) the headers to
-`${HIGHFIVE_INSTALL_PREFIX}/include` and some CMake files into an appropriate
-subfolder of `${HIGHFIVE_INSTALL_PREFIX}`.
-
-The projects `CMakeLists.txt` should add the following:
+The project's `CMakeLists.txt` should add the following:
 ```cmake
-# ...
-add_executable(foo foo.cpp)
-
 find_package(HighFive REQUIRED)
 target_link_libraries(foo HighFive)
 ```
 
-**Note:** If HighFive hasn't been installed in a default location, CMake needs
-to be told where to find it which can be done by adding
-`-DCMAKE_PREFIX_PATH=${HIGHFIVE_INSTALL_PREFIX}` to the CMake command for
-building the project using HighFive. The variable `CMAKE_PREFIX_PATH` is a
-semi-colon `;` separated list of directories.
+**Note:** `find_package(HighFive)` will search for HDF5. "Linking" to
+`HighFive` includes linking with HDF5. The two commands will not search for or
+"link" to optional dependencies such as Boost.
 
-**Note:** `find_package(HighFive)` will search and "link" HDF5 and optional
-dependencies such as Boost.
+### Bailout Approach
 
-### The Bailout Approach
-Since both `add_subdirectory` and `find_package` will trigger finding HDF5 and
-other optional dependencies of HighFive as well as the `target_link_libraries`
-code for "linking" with the dependencies, things can go wrong.
+To prevent HighFive from searching or "linking" to HDF5 the project's
+`CMakeLists.txt` should contain the following:
 
-Fortunately, HighFive is a header only library and all that's needed is the
-headers. Preferably, the version obtained by installing HighFive, since those
-include `H5Version.hpp`. Let's assume they've been copied to
-`third_party/HighFive`. Then one could create a target:
+```cmake
+# Prevent HighFive CMake code from searching for HDF5:
+set(HIGHFIVE_FIND_HDF5 Off)
 
-```bash
-add_library(HighFive INTERFACE)
-target_include_directory(HighFive INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/HighFive/include)
+# Then "find" HighFive as usual:
+find_package(HighFive REQUIRED)
+# alternatively, when vendoring:
+# add_subdirectory(third_party/HighFive)
 
+# Finally, use the target `HighFive::Include` which
+# doesn't add a dependency on HDF5.
+target_link_libraries(foo HighFive::Include)
 
-add_executable(foo foo.cpp)
-target_link_libraries(foo HighFive)
+# Proceed to find and link HDF5 as required.
 ```
 
-One known case where this is required is when vendoring the optional
-dependencies of HighFive.
+### Optional Dependencies
+
+HighFive does not attempt to find or "link" to any optional dependencies, such
+as Boost, Eigen, etc. Any project using HighFive with any of the optional
+dependencies must include the respective header:
+```
+#include <highfive/boost.hpp>
+#include <highfive/eigen.hpp>
+```
+and add the required CMake code to find and link against the dependencies. For
+Boost the required lines might be
+```
+find_package(Boost REQUIRED)
+target_link_libraries(foo PUBLIC Boost::headers)
+```
 
 # Questions?
 

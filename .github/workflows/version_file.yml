@@ -27,7 +27,7 @@ jobs:
     - name: Build
       run: |
         # Will trigger `configure_file` for H5Version.hpp.
-        cmake -DHIGHFIVE_USE_BOOST=Off -B build .
+        cmake -B build .
 
     - name: Test
       run: |
