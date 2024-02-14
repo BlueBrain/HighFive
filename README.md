@@ -13,7 +13,7 @@ Documentation: https://bluebrain.github.io/HighFive/
 
 ## Brief
 
-HighFive is a modern header-only C++11 friendly interface for libhdf5.
+HighFive is a modern header-only C++14 friendly interface for libhdf5.
 
 HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array and Xtensor. It handles C++ from/to HDF5 with automatic type mapping.
 HighFive does not require additional libraries (see dependencies).
@@ -24,7 +24,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
 - Zero overhead
-- Support C++11
+- Support C++14
 
 ### Feature support
 - create/read/write files, datasets, attributes, groups, dataspaces.
