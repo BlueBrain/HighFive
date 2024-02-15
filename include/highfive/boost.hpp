@@ -60,15 +60,24 @@ struct inspector<boost::multi_array<T, Dims>> {
     }
 
     static hdf5_type* data(type& val) {
+        if (!(val.storage_order() == boost::c_storage_order())) {
+            throw DataTypeException("Only C Storage Order is supported for boost::multi_array() now.");
+        }
         return inspector<value_type>::data(*val.data());
     }
 
     static const hdf5_type* data(const type& val) {
+        if (!(val.storage_order() == boost::c_storage_order())) {
+            throw DataTypeException("Only C Storage Order is supported for boost::multi_array() now.");
+        }
         return inspector<value_type>::data(*val.data());
     }
 
     template <class It>
     static void serialize(const type& val, It m) {
+        if (!(val.storage_order() == boost::c_storage_order())) {
+            throw DataTypeException("Only C Storage Order is supported for boost::multi_array() now.");
+        }
         size_t size = val.num_elements();
         size_t subsize = inspector<value_type>::getSizeVal(*val.origin());
         for (size_t i = 0; i < size; ++i) {
@@ -78,6 +87,9 @@ struct inspector<boost::multi_array<T, Dims>> {
 
     template <class It>
     static void unserialize(It vec_align, const std::vector<size_t>& dims, type& val) {
+        if (!(val.storage_order() == boost::c_storage_order())) {
+            throw DataTypeException("Only C Storage Order is supported for boost::multi_array() now.");
+        }
         std::vector<size_t> next_dims(dims.begin() + ndim, dims.end());
         size_t subsize = compute_total_size(next_dims);
         for (size_t i = 0; i < val.num_elements(); ++i) {
