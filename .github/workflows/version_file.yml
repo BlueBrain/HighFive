@@ -3,12 +3,14 @@ name: HighFive Check Version File
 on:
   push:
     branches:
-      - ci_test
-      - release/**
+      - master
+      - main
+      - v2.x
   pull_request:
     branches:
       - master
-      - release/**
+      - main
+      - v2.x
 
 jobs:
   CheckVersion:
