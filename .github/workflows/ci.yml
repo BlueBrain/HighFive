@@ -43,19 +43,18 @@ jobs:
           - config:
               os: ubuntu-20.04
               pkgs: ''
-              flags: '-DHIGHFIVE_TEST_BOOST:Bool=OFF'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev libopencv-dev'
-              flags: '-DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-latest
               pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
-              flags: '-DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
-              flags: '-DCMAKE_CXX_STANDARD=17'
+              flags: '-DCMAKE_CXX_STANDARD=17 -DHIGHFIVE_TEST_BOOST:Bool=ON'
           - config:
               os: ubuntu-22.04
               flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20'
@@ -157,7 +156,7 @@ jobs:
     - name: Build
       env: ${{matrix.env}}
       run: |
-        CMAKE_OPTIONS=(-GNinja)
+        CMAKE_OPTIONS=(-DHIGHFIVE_TEST_BOOST=ON -GNinja)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
