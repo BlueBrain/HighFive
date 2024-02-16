@@ -60,6 +60,7 @@ option(HIGHFIVE_TEST_HALF_FLOAT "Enable half-precision floats" OFF)
 # TODO remove entirely.
 option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" OFF)
 
+set(HIGHFIVE_MAX_ERROR 0 "Maximum number of compiler errors.")
 option(HIGHFIVE_HAS_WERROR "Convert warnings to errors." OFF)
 option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
 # TODO these some magic to get a drop down menu in ccmake
