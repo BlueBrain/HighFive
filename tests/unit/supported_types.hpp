@@ -10,6 +10,11 @@
 #include <boost/multi_array.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_EIGEN
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#endif
+
 namespace HighFive {
 namespace testing {
 
@@ -44,6 +49,38 @@ struct BoostUblasMatrix {
 };
 #endif
 
+#ifdef HIGHFIVE_TEST_EIGEN
+template <int n, int m, int Option, class C = type_identity>
+struct EigenMatrix {
+    template <class T>
+    using type = Eigen::Matrix<typename C::template type<T>, n, m, Option>;
+};
+
+template <int n, int m, int Option, class C = type_identity>
+struct EigenArray {
+    template <class T>
+    using type = Eigen::Array<typename C::template type<T>, n, m, Option>;
+};
+
+template <int n, int m, int Option, class C = type_identity>
+struct EigenMapArray {
+    template <class T>
+    using type = Eigen::Map<Eigen::Array<typename C::template type<T>, n, m, Option>>;
+};
+
+template <int n, int m, int Option, class C = type_identity>
+struct EigenMapMatrix {
+    template <class T>
+    using type = Eigen::Map<Eigen::Matrix<typename C::template type<T>, n, m, Option>>;
+};
+
+template <int n, class C = type_identity>
+struct EigenVector {
+    template <class T>
+    using type = Eigen::Vector<typename C::template type<T>, n>;
+};
+#endif
+
 template <class C, class Tuple>
 struct ContainerProduct;
 
@@ -66,7 +103,7 @@ struct ConcatenateTuples<std::tuple<Args1...>> {
 };
 
 // clang-format off
-using numeric_scalar_types = std::tuple<
+using all_numeric_scalar_types = std::tuple<
     int,
     unsigned int,
     long,
@@ -79,8 +116,17 @@ using numeric_scalar_types = std::tuple<
     unsigned long long
 >;
 
-using scalar_types = typename ConcatenateTuples<numeric_scalar_types, std::tuple<bool, std::string>>::type;
-using scalar_types_boost = typename ConcatenateTuples<numeric_scalar_types, std::tuple<bool>>::type;
+
+// To reduce the explosion of combinations, we don't always need
+// to test against every numeric scalar type. These three should
+// suffice.
+using some_numeric_scalar_types = std::tuple<char, int, double>;
+
+using all_scalar_types = typename ConcatenateTuples<all_numeric_scalar_types, std::tuple<bool, std::string>>::type;
+using some_scalar_types = typename ConcatenateTuples<some_numeric_scalar_types, std::tuple<bool, std::string>>::type;
+
+using scalar_types_boost = some_numeric_scalar_types;
+using scalar_types_eigen = some_numeric_scalar_types;
 
 using supported_array_types = typename ConcatenateTuples<
 #ifdef HIGHFIVE_TEST_BOOST
@@ -92,14 +138,35 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<STDVector<BoostUblasMatrix<>>, scalar_types_boost>::type,
   typename ContainerProduct<STDArray<5, BoostUblasMatrix<>>, scalar_types_boost>::type,
 #endif
-  typename ContainerProduct<STDVector<>, scalar_types>::type,
-  typename ContainerProduct<STDVector<STDVector<>>, scalar_types>::type,
-  typename ContainerProduct<STDVector<STDVector<STDVector<>>>, scalar_types>::type,
-  typename ContainerProduct<STDVector<STDVector<STDVector<STDVector<>>>>, scalar_types>::type,
-  typename ContainerProduct<STDArray<3>, scalar_types>::type,
-  typename ContainerProduct<STDArray<7, STDArray<5>>, scalar_types>::type,
-  typename ContainerProduct<STDVector<STDArray<5>>, scalar_types>::type,
-  typename ContainerProduct<STDArray<7, STDVector<>>, scalar_types>::type
+#ifdef HIGHFIVE_TEST_EIGEN
+  typename ContainerProduct<EigenMatrix<3, 5, Eigen::ColMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenMatrix<3, 5, Eigen::RowMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenMatrix<Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenMatrix<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenArray<3, 5, Eigen::ColMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenArray<3, 5, Eigen::RowMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenVector<3>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenVector<Eigen::Dynamic>, scalar_types_eigen>::type,
+  typename ContainerProduct<EigenMapMatrix<3, 5, Eigen::ColMajor>, scalar_types_eigen>::type,
+
+  typename ContainerProduct<STDVector<EigenMatrix<3, 5, Eigen::ColMajor>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDVector<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDVector<EigenVector<3>>, scalar_types_eigen>::type,
+
+  typename ContainerProduct<STDArray<7, EigenMatrix<3, 5, Eigen::RowMajor>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDArray<7, EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDArray<7, EigenVector<Eigen::Dynamic>>, scalar_types_eigen>::type,
+#endif
+  typename ContainerProduct<STDVector<>, all_scalar_types>::type,
+  typename ContainerProduct<STDVector<STDVector<>>, some_scalar_types>::type,
+  typename ContainerProduct<STDVector<STDVector<STDVector<>>>, some_scalar_types>::type,
+  typename ContainerProduct<STDVector<STDVector<STDVector<STDVector<>>>>, some_scalar_types>::type,
+  typename ContainerProduct<STDArray<3>, some_scalar_types>::type,
+  typename ContainerProduct<STDArray<7, STDArray<5>>, some_scalar_types>::type,
+  typename ContainerProduct<STDVector<STDArray<5>>, some_scalar_types>::type,
+  typename ContainerProduct<STDArray<7, STDVector<>>, some_scalar_types>::type
 >::type;
 
 // clang-format on

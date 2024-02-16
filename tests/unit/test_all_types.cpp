@@ -303,9 +303,14 @@ void compare_arrays(const Actual& actual,
 }
 
 template <class Container, class Expected, class Obj>
-void check_read_auto(const Expected& expected, const std::vector<size_t>& dims, const Obj& obj) {
+auto check_read_auto(const Expected& expected, const std::vector<size_t>& dims, const Obj& obj) ->
+    typename std::enable_if<!testing::ContainerTraits<Container>::is_view>::type {
     compare_arrays(obj.template read<Container>(), expected, dims);
 }
+
+template <class Container, class Expected, class Obj>
+auto check_read_auto(const Expected&, const std::vector<size_t>&, const Obj&) ->
+    typename std::enable_if<testing::ContainerTraits<Container>::is_view>::type {}
 
 template <class Container, class Expected, class Obj>
 void check_read_preallocated(const Expected& expected,
@@ -315,6 +320,8 @@ void check_read_preallocated(const Expected& expected,
     obj.read(actual);
 
     compare_arrays(actual, expected, dims);
+
+    testing::ContainerTraits<Container>::deallocate(actual, dims);
 }
 
 template <class Container>
@@ -349,6 +356,8 @@ void check_read_regular(const std::string& file_name, const std::vector<size_t>&
     SECTION("attr.read(values)") {
         check_read_preallocated<Container>(expected, dims, attr);
     }
+
+    testing::ContainerTraits<reference_type>::deallocate(expected, dims);
 }
 
 template <class Container>
@@ -378,16 +387,25 @@ void check_writing(const std::vector<size_t>& dims, Write write) {
     obj.read(actual);
 
     compare_arrays(actual, expected, dims);
+
+    testing::ContainerTraits<reference_type>::deallocate(actual, dims);
+    testing::ContainerTraits<Container>::deallocate(values, dims);
+    testing::ContainerTraits<reference_type>::deallocate(expected, dims);
 }
 
 template <class CreateTraits, class Container>
-void check_write_auto(File& file, const std::string& name, const std::vector<size_t>& dims) {
+auto check_write_auto(File& file, const std::string& name, const std::vector<size_t>& dims) ->
+    typename std::enable_if<!testing::ContainerTraits<Container>::is_view>::type {
     auto write_auto = [&](const Container& values) {
         return CreateTraits::create(file, "auto_" + name, values);
     };
 
     check_writing<Container>(dims, write_auto);
 }
+
+template <class CreateTraits, class Container>
+auto check_write_auto(File&, const std::string&, const std::vector<size_t>&) ->
+    typename std::enable_if<testing::ContainerTraits<Container>::is_view>::type {}
 
 template <class CreateTraits, class Container>
 void check_write_deduce_type(File& file, const std::string& name, const std::vector<size_t>& dims) {
