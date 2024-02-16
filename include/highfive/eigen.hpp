@@ -67,7 +67,7 @@ struct inspector<Eigen::Matrix<T, M, N>> {
         return inspector<value_type>::data(*val.data());
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims */, hdf5_type* m) {
         assert_not_buggy(val.rows(), val.cols());
         std::memcpy(m, val.data(), static_cast<size_t>(val.size()) * sizeof(hdf5_type));
     }
