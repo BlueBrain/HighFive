@@ -30,6 +30,9 @@
 #include <Eigen/Dense>
 #endif
 
+#ifdef HIGHFIVE_TEST_OPENCV
+#define H5_USE_OPENCV
+#endif
 
 #include <highfive/H5Easy.hpp>
 
