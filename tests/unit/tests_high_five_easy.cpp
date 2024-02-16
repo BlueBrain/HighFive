@@ -20,12 +20,18 @@
 
 #include <stdio.h>
 
-#include <highfive/H5Easy.hpp>
 
 #ifdef HIGHFIVE_TEST_XTENSOR
 #include <xtensor/xrandom.hpp>
 #include <xtensor/xview.hpp>
 #endif
+
+#ifdef HIGHFIVE_TEST_EIGEN
+#include <Eigen/Dense>
+#endif
+
+
+#include <highfive/H5Easy.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
