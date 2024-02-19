@@ -27,11 +27,11 @@
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <highfive/boost.hpp>
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 #include <highfive/eigen.hpp>
 #endif
 
@@ -1529,7 +1529,7 @@ struct CreateEmptyVector {
     }
 };
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 template <int n_dim>
 struct CreateEmptyBoostMultiArray {
     using container_type = boost::multi_array<int, static_cast<long unsigned>(n_dim)>;
@@ -1546,7 +1546,7 @@ struct CreateEmptyBoostMultiArray {
 #endif
 
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 struct CreateEmptyEigenVector {
     using container_type = Eigen::VectorXi;
 
@@ -1676,7 +1676,7 @@ void check_empty_everything(const std::vector<size_t>& dims) {
     }
 }
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 template <int ndim>
 void check_empty_eigen(const std::vector<size_t>&) {}
 
@@ -1703,13 +1703,13 @@ void check_empty(const std::vector<size_t>& dims) {
         check_empty_everything<CreateEmptyVector<ndim>>(dims);
     }
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
     SECTION("boost::multi_array") {
         check_empty_everything<CreateEmptyBoostMultiArray<ndim>>(dims);
     }
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
     check_empty_eigen<ndim>(dims);
 #endif
 }
@@ -2559,7 +2559,7 @@ TEST_CASE("HighFiveDataTypeClass") {
     CHECK(((Float | String) & String) == String);
 }
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 
 template <typename T>
 void test_eigen_vec(File& file, const std::string& test_flavor, const T& vec_input, T& vec_output) {
@@ -2636,7 +2636,7 @@ TEST_CASE("HighFiveEigen") {
         CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
     }
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
     // boost::multi_array<of EigenVector3f>
     {
         ds_name_flavor = "BMultiEigenVector3f";

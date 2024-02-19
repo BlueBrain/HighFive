@@ -7,7 +7,7 @@
 #include <vector>
 #include <array>
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <highfive/boost.hpp>
 #endif
 
@@ -200,7 +200,7 @@ struct ContainerTraits<std::array<T, N>>: public STLLikeContainerTraits<std::arr
 };
 
 // -- Boost  -------------------------------------------------------------------
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 template <class T, size_t n>
 struct ContainerTraits<boost::multi_array<T, n>> {
     using container_type = typename boost::multi_array<T, n>;

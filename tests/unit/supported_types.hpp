@@ -6,7 +6,7 @@
 #include <array>
 #include <tuple>
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <boost/multi_array.hpp>
 #endif
 
@@ -30,7 +30,7 @@ struct STDArray {
     using type = std::array<typename C::template type<T>, n>;
 };
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 template <size_t n, class C = type_identity>
 struct BoostMultiArray {
     template <class T>
@@ -83,7 +83,7 @@ using scalar_types = typename ConcatenateTuples<numeric_scalar_types, std::tuple
 using scalar_types_boost = typename ConcatenateTuples<numeric_scalar_types, std::tuple<bool>>::type;
 
 using supported_array_types = typename ConcatenateTuples<
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
   typename ContainerProduct<BoostMultiArray<3>, scalar_types_boost>::type,
   typename ContainerProduct<STDVector<BoostMultiArray<3>>, scalar_types_boost>::type,
   typename ContainerProduct<STDArray<5, BoostMultiArray<3>>, scalar_types_boost>::type,

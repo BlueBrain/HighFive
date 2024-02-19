@@ -9,6 +9,8 @@ endif()
 foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy test_all_types test_high_five_selection tests_high_five_data_type test_legacy)
   add_executable(${test_name} "${test_name}.cpp")
   target_link_libraries(${test_name} HighFive HighFiveWarnings Catch2::Catch2WithMain)
+  target_link_libraries(${test_name} HighFiveOptionalDependencies)
+
   catch_discover_tests(${test_name})
 endforeach()
 
@@ -18,6 +20,7 @@ if(HIGHFIVE_PARALLEL_HDF5)
   ## parallel MPI tests
   add_executable(tests_parallel_bin ${tests_parallel_src})
   target_link_libraries(tests_parallel_bin HighFive HighFiveWarnings Catch2::Catch2)
+  target_link_libraries(tests_parallel_bin HighFiveOptionalDependencies)
 
   # We need to patch in a call to `mpirun` or equivalent when using
   # parallel tests. Somehow, this is not foreseen in Catch2, modify the
