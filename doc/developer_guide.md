@@ -95,6 +95,7 @@ release. Once this is done perform a final round of updates:
 * Download the archive (`*.tar.gz`) and compute its SHA256.
 * Update BlueBrain Spack recipe to use the archive and not the Git commit.
 * Update the upstream Spack recipe.
+* A Zenodo record should be generated automatically, check if it's sensible.
 
 ## Writing Tests
 ### Generate Multi-Dimensional Test Data
