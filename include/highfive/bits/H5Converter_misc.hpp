@@ -69,7 +69,7 @@ struct DeepCopyBuffer {
     using hdf5_type = typename inspector<type>::hdf5_type;
 
     explicit DeepCopyBuffer(const std::vector<size_t>& _dims)
-        : buffer(inspector<T>::getSize(_dims))
+        : buffer(compute_total_size(_dims))
         , dims(_dims) {}
 
     hdf5_type* getPointer() {
