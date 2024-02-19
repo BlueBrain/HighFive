@@ -72,12 +72,6 @@ struct EigenMapMatrix {
     template <class T>
     using type = Eigen::Map<Eigen::Matrix<typename C::template type<T>, n, m, Option>>;
 };
-
-template <int n, class C = type_identity>
-struct EigenVector {
-    template <class T>
-    using type = Eigen::Vector<typename C::template type<T>, n>;
-};
 #endif
 
 template <class C, class Tuple>
@@ -146,17 +140,16 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<EigenArray<3, 5, Eigen::RowMajor>, scalar_types_eigen>::type,
   typename ContainerProduct<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>, scalar_types_eigen>::type,
   typename ContainerProduct<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>, scalar_types_eigen>::type,
-  typename ContainerProduct<EigenVector<3>, scalar_types_eigen>::type,
-  typename ContainerProduct<EigenVector<Eigen::Dynamic>, scalar_types_eigen>::type,
+  std::tuple<Eigen::Vector2d, Eigen::VectorXd>,
   typename ContainerProduct<EigenMapMatrix<3, 5, Eigen::ColMajor>, scalar_types_eigen>::type,
 
   typename ContainerProduct<STDVector<EigenMatrix<3, 5, Eigen::ColMajor>>, scalar_types_eigen>::type,
   typename ContainerProduct<STDVector<EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>, scalar_types_eigen>::type,
-  typename ContainerProduct<STDVector<EigenVector<3>>, scalar_types_eigen>::type,
+  std::tuple<std::vector<Eigen::Vector3d>, std::vector<Eigen::VectorXd>>,
 
   typename ContainerProduct<STDArray<7, EigenMatrix<3, 5, Eigen::RowMajor>>, scalar_types_eigen>::type,
   typename ContainerProduct<STDArray<7, EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>, scalar_types_eigen>::type,
-  typename ContainerProduct<STDArray<7, EigenVector<Eigen::Dynamic>>, scalar_types_eigen>::type,
+  std::tuple<std::array<Eigen::VectorXd, 7>>,
 #endif
   typename ContainerProduct<STDVector<>, all_scalar_types>::type,
   typename ContainerProduct<STDVector<STDVector<>>, some_scalar_types>::type,
