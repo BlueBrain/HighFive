@@ -23,8 +23,13 @@ cmake --build build --parallel
 ctest --test-dir build
 ```
 
-You might want to turn Boost `-DHIGHFIVE_TEST_BOOST=On` or optional
-dependencies on.
+You might want to add:
+* `-DHIGHFIVE_TEST_BOOST=On` or other optional dependencies on,
+* `-DHIGHFIVE_MAX_ERROR=3` to only show the first three errors.
+
+Generic CMake reminders:
+* `-DCMAKE_INSTALL_PREFIX` defines where HighFive will be installed,
+* `-DCMAKE_PREFIX_PATH` defines where `*Config.cmake` files are found.
 
 ## Contributing
 There's numerous HDF5 features that haven't been wrapped yet. HighFive is a
