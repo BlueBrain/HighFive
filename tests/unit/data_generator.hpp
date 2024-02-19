@@ -388,11 +388,11 @@ struct EigenContainerTraits {
 
     static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
         if (EigenType::RowsAtCompileTime != Eigen::Dynamic) {
-            dims[axis + 0] = EigenType::RowsAtCompileTime;
+            dims[axis + 0] = static_cast<size_t>(EigenType::RowsAtCompileTime);
         }
 
         if (EigenType::ColsAtCompileTime != Eigen::Dynamic) {
-            dims[axis + 1] = EigenType::ColsAtCompileTime;
+            dims[axis + 1] = static_cast<size_t>(EigenType::ColsAtCompileTime);
         }
         ContainerTraits<value_type>::sanitize_dims(dims, axis + 2);
     }

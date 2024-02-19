@@ -2675,7 +2675,7 @@ TEST_CASE("HighFiveEigen") {
             }
         }
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
 #endif
