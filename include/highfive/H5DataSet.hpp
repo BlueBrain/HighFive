@@ -98,7 +98,7 @@ class DataSet: public Object,
         return details::get_plist<DataSetAccessProps>(*this, H5Dget_access_plist);
     }
 
-    DataSet() = delete;
+    DataSet() = default;
 
   protected:
     using Object::Object;  // bring DataSet(hid_t)
