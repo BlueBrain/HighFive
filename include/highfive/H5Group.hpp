@@ -47,7 +47,7 @@ class Group: public Object,
   public:
     const static ObjectType type = ObjectType::Group;
 
-    Group() = delete;
+    Group() = default;
 
     std::pair<unsigned int, unsigned int> getEstimatedLinkInfo() const;
 
