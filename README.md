@@ -8,6 +8,7 @@ https://github.com/BlueBrain/HighFive/issues/864
 [![Doxygen -> gh-pages](https://github.com/BlueBrain/HighFive/workflows/gh-pages/badge.svg?branch=master)](https://BlueBrain.github.io/HighFive/actions/workflows/gh-pages.yml?query=branch%3Amaster)
 [![codecov](https://codecov.io/gh/BlueBrain/HighFive/branch/master/graph/badge.svg?token=UBKxHEn7RS)](https://codecov.io/gh/BlueBrain/HighFive)
 [![HighFive_Integration_tests](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml/badge.svg)](https://github.com/BlueBrain/HighFive-testing/actions/workflows/integration.yml)
+[![Zenodo](https://zenodo.org/badge/47755262.svg)](https://zenodo.org/doi/10.5281/zenodo.10679422)
 
 Documentation: https://bluebrain.github.io/HighFive/
 
@@ -249,6 +250,10 @@ For bugs and issues please use [Issues](https://github.com/BlueBrain/HighFive/is
 # Funding & Acknowledgment
  
 The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
+
+HighFive releases are uploaded to Zenodo. If you wish to cite HighFive in a
+scientific publication you can use the DOIs for the
+[Zenodo records](https://zenodo.org/doi/10.5281/zenodo.10679422).
  
 Copyright © 2015-2022 Blue Brain Project/EPFL
 
