@@ -2610,7 +2610,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in << 1, 2, 3, 4, 5, 6, 7, 8, 9;
         Eigen::Matrix<double, 3, 3> vec_out;
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
     // Eigen MatrixXd
@@ -2619,7 +2619,7 @@ TEST_CASE("HighFiveEigen") {
         Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
         Eigen::MatrixXd vec_out(20, 5);
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
     // std::vector<of EigenMatrixXd>
@@ -2633,7 +2633,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in.push_back(m2);
         std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20, 5));
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
 #ifdef HIGHFIVE_TEST_BOOST
@@ -2675,7 +2675,7 @@ TEST_CASE("HighFiveEigen") {
             }
         }
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
 #endif
