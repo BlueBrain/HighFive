@@ -83,6 +83,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -123,6 +127,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -163,6 +171,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -208,6 +220,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -306,6 +322,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -361,4 +381,9 @@ jobs:
       shell: bash -l {0}
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      shell: bash -l {0}
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
