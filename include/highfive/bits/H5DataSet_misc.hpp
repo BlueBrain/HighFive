@@ -22,6 +22,10 @@
 namespace HighFive {
 
 inline uint64_t DataSet::getStorageSize() const {
+    if (!this->isValid()) {
+        throw DataSetException("Invalid call to `DataSet::getStorageSize` for invalid object");
+    }
+
     return detail::h5d_get_storage_size(_hid);
 }
 

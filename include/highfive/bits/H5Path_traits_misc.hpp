@@ -35,7 +35,11 @@ inline std::string PathTraits<Derivate>::getPath() const {
 }
 
 template <typename Derivate>
-inline File& PathTraits<Derivate>::getFile() const noexcept {
+inline File& PathTraits<Derivate>::getFile() const {
+    const auto& obj = static_cast<const Derivate&>(*this);
+    if (!obj.isValid()) {
+        throw ObjectException("Invalid call to `PathTraits::getFile` for invalid object");
+    }
     return *_file_obj;
 }
 
