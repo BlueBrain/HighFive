@@ -13,8 +13,9 @@
 #include <highfive/highfive.hpp>
 
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <boost/multi_array.hpp>
+#include <highfive/boost.hpp>
 #endif
 
 #include <catch2/catch_test_macros.hpp>
@@ -127,7 +128,7 @@ TEMPLATE_LIST_TEST_CASE("vector of array", "[template]", numerical_test_types) {
 }
 
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 
 template <typename T>
 void MultiArray3DTest() {

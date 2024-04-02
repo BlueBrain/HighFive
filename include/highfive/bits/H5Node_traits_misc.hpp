@@ -81,19 +81,6 @@ inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_na
 }
 
 template <typename Derivate>
-template <std::size_t N>
-inline DataSet NodeTraits<Derivate>::createDataSet(const std::string& dataset_name,
-                                                   const deprecated::FixedLenStringArray<N>& data,
-                                                   const DataSetCreateProps& createProps,
-                                                   const DataSetAccessProps& accessProps,
-                                                   bool parents) {
-    DataSet ds = createDataSet<char[N]>(
-        dataset_name, DataSpace(data.size()), createProps, accessProps, parents);
-    ds.write(data);
-    return ds;
-}
-
-template <typename Derivate>
 inline DataSet NodeTraits<Derivate>::getDataSet(const std::string& dataset_name,
                                                 const DataSetAccessProps& accessProps) const {
     return DataSet(detail::h5d_open2(static_cast<const Derivate*>(this)->getId(),

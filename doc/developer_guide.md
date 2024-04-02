@@ -23,8 +23,13 @@ cmake --build build --parallel
 ctest --test-dir build
 ```
 
-You might want to turn off Boost `-DHIGHFIVE_USE_BOOST=Off` or turn on other
-optional dependencies.
+You might want to add:
+* `-DHIGHFIVE_TEST_BOOST=On` or other optional dependencies on,
+* `-DHIGHFIVE_MAX_ERROR=3` to only show the first three errors.
+
+Generic CMake reminders:
+* `-DCMAKE_INSTALL_PREFIX` defines where HighFive will be installed,
+* `-DCMAKE_PREFIX_PATH` defines where `*Config.cmake` files are found.
 
 ## Contributing
 There's numerous HDF5 features that haven't been wrapped yet. HighFive is a
@@ -90,6 +95,7 @@ release. Once this is done perform a final round of updates:
 * Download the archive (`*.tar.gz`) and compute its SHA256.
 * Update BlueBrain Spack recipe to use the archive and not the Git commit.
 * Update the upstream Spack recipe.
+* A Zenodo record should be generated automatically, check if it's sensible.
 
 ## Writing Tests
 ### Generate Multi-Dimensional Test Data

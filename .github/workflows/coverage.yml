@@ -8,12 +8,13 @@ on:
   push:
     branches:
       - master
-      - ci_test
-      - release/**
+      - main
+      - v2.x
   pull_request:
     branches:
       - master
-      - release/**
+      - main
+      - v2.x
     paths-ignore:
       - '**.md'
       - '**.rst'
@@ -45,10 +46,10 @@ jobs:
       run: |
         CMAKE_OPTIONS=(
           -GNinja
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_OPENCV:BOOL=ON
-          #-DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_OPENCV:BOOL=ON
+          #-DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DCMAKE_CXX_FLAGS="-coverage -O0"

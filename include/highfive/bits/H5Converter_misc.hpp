@@ -69,7 +69,7 @@ struct DeepCopyBuffer {
     using hdf5_type = typename inspector<type>::hdf5_type;
 
     explicit DeepCopyBuffer(const std::vector<size_t>& _dims)
-        : buffer(inspector<T>::getSize(_dims))
+        : buffer(compute_total_size(_dims))
         , dims(_dims) {}
 
     hdf5_type* getPointer() {
@@ -344,23 +344,27 @@ struct Writer<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     using super = ShallowCopyBuffer<T, true>;
 
   public:
-    explicit Writer(const T& val, const DataType& /* file_datatype */)
+    explicit Writer(const T& val,
+                    const std::vector<size_t>& /* dims */,
+                    const DataType& /* file_datatype */)
         : super(val){};
 };
 
 template <typename T>
 struct Writer<T, typename enable_deep_copy<T>::type>: public DeepCopyBuffer<T> {
-    explicit Writer(const T& val, const DataType& /* file_datatype */)
-        : DeepCopyBuffer<T>(inspector<T>::getDimensions(val)) {
-        inspector<T>::serialize(val, this->begin());
+    explicit Writer(const T& val,
+                    const std::vector<size_t>& _dims,
+                    const DataType& /* file_datatype */)
+        : DeepCopyBuffer<T>(_dims) {
+        inspector<T>::serialize(val, _dims, this->begin());
     }
 };
 
 template <typename T>
 struct Writer<T, typename enable_string_copy<T>::type>: public StringBuffer<T, BufferMode::Write> {
-    explicit Writer(const T& val, const DataType& _file_datatype)
-        : StringBuffer<T, BufferMode::Write>(inspector<T>::getDimensions(val), _file_datatype) {
-        inspector<T>::serialize(val, this->begin());
+    explicit Writer(const T& val, const std::vector<size_t>& _dims, const DataType& _file_datatype)
+        : StringBuffer<T, BufferMode::Write>(_dims, _file_datatype) {
+        inspector<T>::serialize(val, _dims, this->begin());
     }
 };
 
@@ -402,8 +406,9 @@ struct Reader<T, typename enable_string_copy<T>::type>: public StringBuffer<T, B
 struct data_converter {
     template <typename T>
     static Writer<T> serialize(const typename inspector<T>::type& val,
+                               const std::vector<size_t>& dims,
                                const DataType& file_datatype) {
-        return Writer<T>(val, file_datatype);
+        return Writer<T>(val, dims, file_datatype);
     }
 
     template <typename T>

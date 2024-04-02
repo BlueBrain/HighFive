@@ -45,11 +45,15 @@ class DataSpace: public Object {
     /// This enum is needed otherwise we will not be able to distringuish between both with normal
     /// constructors. Both have a dimension of 0.
     /// \since 1.3
-    enum DataspaceType {
+    enum class DataspaceType {
         dataspace_scalar,  ///< Value to create scalar DataSpace
         dataspace_null,    ///< Value to create null DataSpace
         // simple dataspace are handle directly from their dimensions
     };
+
+    // For backward compatibility: `DataSpace::dataspace_scalar`.
+    constexpr static DataspaceType dataspace_scalar = DataspaceType::dataspace_scalar;
+    constexpr static DataspaceType dataspace_null = DataspaceType::dataspace_null;
 
     /// \brief Create a DataSpace of N-dimensions from a std::vector<size_t>.
     /// \param dims Dimensions of the new DataSpace

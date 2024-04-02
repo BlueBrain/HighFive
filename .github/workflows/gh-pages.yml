@@ -3,10 +3,12 @@ name: gh-pages
 on:
   push:
     branches:
-      - master
+      - v2.x
   pull_request:
     branches:
+      - v2.x
       - master
+      - main
 
 jobs:
 
@@ -39,7 +41,7 @@ jobs:
         cp -r doc/poster build/doc/html/
 
     - name: Deploy to GitHub Pages
-      if: ${{ success() && github.ref == 'refs/heads/master' && github.event_name == 'push' }}
+      if: ${{ success() && github.ref == 'refs/heads/v2.x' && github.event_name == 'push' }}
       uses: crazy-max/ghaction-github-pages@v2
       with:
         target_branch: gh-pages

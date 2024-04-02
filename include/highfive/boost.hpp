@@ -1,12 +1,9 @@
 #pragma once
-#ifdef H5_USE_BOOST
 
 #include "bits/H5Inspector_decl.hpp"
 #include "H5Exception.hpp"
 
 #include <boost/multi_array.hpp>
-// starting Boost 1.64, serialization header must come before ublas
-#include <boost/serialization/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace HighFive {
@@ -32,14 +29,6 @@ struct inspector<boost::multi_array<T, Dims>> {
         auto s = inspector<value_type>::getDimensions(val.data()[0]);
         sizes.insert(sizes.end(), s.begin(), s.end());
         return sizes;
-    }
-
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
     }
 
     static void prepare(type& val, const std::vector<size_t>& dims) {
@@ -71,11 +60,12 @@ struct inspector<boost::multi_array<T, Dims>> {
     }
 
     template <class It>
-    static void serialize(const type& val, It m) {
+    static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
         size_t size = val.num_elements();
-        size_t subsize = inspector<value_type>::getSizeVal(*val.origin());
+        auto subdims = std::vector<size_t>(dims.begin() + ndim, dims.end());
+        size_t subsize = compute_total_size(subdims);
         for (size_t i = 0; i < size; ++i) {
-            inspector<value_type>::serialize(*(val.origin() + i), m + i * subsize);
+            inspector<value_type>::serialize(*(val.origin() + i), subdims, m + i * subsize);
         }
     }
 
@@ -110,14 +100,6 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
-    }
-
     static void prepare(type& val, const std::vector<size_t>& dims) {
         if (dims.size() < ndim) {
             std::ostringstream os;
@@ -136,11 +118,12 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
         return inspector<value_type>::data(val(0, 0));
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& dims, hdf5_type* m) {
         size_t size = val.size1() * val.size2();
-        size_t subsize = inspector<value_type>::getSizeVal(val(0, 0));
+        auto subdims = std::vector<size_t>(dims.begin() + ndim, dims.end());
+        size_t subsize = compute_total_size(subdims);
         for (size_t i = 0; i < size; ++i) {
-            inspector<value_type>::serialize(*(&val(0, 0) + i), m + i * subsize);
+            inspector<value_type>::serialize(*(&val(0, 0) + i), subdims, m + i * subsize);
         }
     }
 
@@ -160,5 +143,3 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
 
 }  // namespace details
 }  // namespace HighFive
-
-#endif
