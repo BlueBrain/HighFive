@@ -31,6 +31,10 @@ inline std::string Attribute::getName() const {
 }
 
 inline size_t Attribute::getStorageSize() const {
+    if (!this->isValid()) {
+        throw AttributeException("Invalid call to `DataSet::getFile` for invalid object");
+    }
+
     return static_cast<size_t>(detail::h5a_get_storage_size(_hid));
 }
 
