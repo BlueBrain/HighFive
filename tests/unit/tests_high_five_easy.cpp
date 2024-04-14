@@ -20,12 +20,21 @@
 
 #include <stdio.h>
 
-#include <highfive/H5Easy.hpp>
 
-#ifdef H5_USE_XTENSOR
+#ifdef HIGHFIVE_TEST_XTENSOR
 #include <xtensor/xrandom.hpp>
 #include <xtensor/xview.hpp>
 #endif
+
+#ifdef HIGHFIVE_TEST_EIGEN
+#include <Eigen/Dense>
+#endif
+
+#ifdef HIGHFIVE_TEST_OPENCV
+#define H5_USE_OPENCV
+#endif
+
+#include <highfive/H5Easy.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -179,7 +188,7 @@ TEST_CASE("H5Easy_Attribute_scalar") {
     CHECK(c == c_r);
 }
 
-#ifdef H5_USE_XTENSOR
+#ifdef HIGHFIVE_TEST_XTENSOR
 TEST_CASE("H5Easy_extend1d") {
     H5Easy::File file("h5easy_extend1d.h5", H5Easy::File::Overwrite);
 
@@ -304,7 +313,7 @@ TEST_CASE("H5Easy_Attribute_xtensor") {
 }
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 TEST_CASE("H5Easy_Eigen_MatrixX") {
     H5Easy::File file("h5easy_eigen_MatrixX.h5", H5Easy::File::Overwrite);
 
@@ -439,7 +448,7 @@ TEST_CASE("H5Easy_Attribute_Eigen_MatrixX") {
 }
 #endif
 
-#ifdef H5_USE_OPENCV
+#ifdef HIGHFIVE_TEST_OPENCV
 TEST_CASE("H5Easy_OpenCV_Mat_") {
     H5Easy::File file("h5easy_opencv_Mat_.h5", H5Easy::File::Overwrite);
 

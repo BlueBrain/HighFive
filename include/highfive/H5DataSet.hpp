@@ -98,8 +98,6 @@ class DataSet: public Object,
         return details::get_plist<DataSetAccessProps>(*this, H5Dget_access_plist);
     }
 
-    /// \deprecated Default constructor creates unsafe uninitialized objects
-    H5_DEPRECATED("Default constructor creates unsafe uninitialized objects")
     DataSet() = default;
 
   protected:

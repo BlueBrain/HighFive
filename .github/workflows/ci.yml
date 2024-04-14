@@ -7,12 +7,14 @@ concurrency:
 on:
   push:
     branches:
-      - ci_test
-      - release/**
+      - master
+      - main
+      - v2.x
   pull_request:
     branches:
       - master
-      - release/**
+      - main
+      - v2.x
     paths-ignore:
       - '**.md'
       - '**.rst'
@@ -41,22 +43,21 @@ jobs:
           - config:
               os: ubuntu-20.04
               pkgs: ''
-              flags: '-DHIGHFIVE_USE_BOOST:Bool=OFF'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev libopencv-dev'
-              flags: '-DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-latest
               pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
-              flags: '-DHIGHFIVE_USE_EIGEN:Bool=ON -DHIGHFIVE_USE_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
-              flags: '-DCMAKE_CXX_STANDARD=17'
+              flags: '-DCMAKE_CXX_STANDARD=17 -DHIGHFIVE_TEST_BOOST:Bool=ON'
           - config:
               os: ubuntu-22.04
-              flags: '-DHIGHFIVE_USE_BOOST=Off -DCMAKE_CXX_STANDARD=20'
+              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20'
 
     steps:
     - uses: actions/checkout@v3
@@ -82,6 +83,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -122,6 +127,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -155,13 +164,17 @@ jobs:
     - name: Build
       env: ${{matrix.env}}
       run: |
-        CMAKE_OPTIONS=(-GNinja)
+        CMAKE_OPTIONS=(-DHIGHFIVE_TEST_BOOST=ON -GNinja)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -195,8 +208,8 @@ jobs:
       run: |
         CMAKE_OPTIONS=(
           -GNinja
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_GLIBCXX_ASSERTIONS=${HIGHFIVE_GLIBCXX_ASSERTIONS:-OFF}
           -DHIGHFIVE_SANITIZER=${HIGHFIVE_SANITIZER:-OFF}
@@ -207,6 +220,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -246,7 +263,7 @@ jobs:
         sudo apt-get -qq install libhdf5-openmpi-dev
 
     - name: "CMake Project Integration"
-      run: bash tests/test_project_integration.sh
+      run: bash tests/cmake_integration/test_cmake_integration.sh
 
 
   # Job checking the benchmarks work
@@ -291,9 +308,9 @@ jobs:
       run: |
         CMAKE_OPTIONS=(
           -GNinja
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
           -DCMAKE_CXX_FLAGS="-coverage -O0"
@@ -305,6 +322,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -348,9 +369,9 @@ jobs:
           -T ${{matrix.vs-toolset}}
           -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
           -DHIGHFIVE_UNIT_TESTS=ON
-          -DHIGHFIVE_USE_BOOST:BOOL=ON
-          -DHIGHFIVE_USE_EIGEN:BOOL=ON
-          -DHIGHFIVE_USE_XTENSOR:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_EIGEN:BOOL=ON
+          -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
         )
         source $GITHUB_WORKSPACE/.github/build.sh
@@ -360,4 +381,9 @@ jobs:
       shell: bash -l {0}
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      shell: bash -l {0}
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG

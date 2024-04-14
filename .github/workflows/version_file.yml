@@ -3,12 +3,14 @@ name: HighFive Check Version File
 on:
   push:
     branches:
-      - ci_test
-      - release/**
+      - master
+      - main
+      - v2.x
   pull_request:
     branches:
       - master
-      - release/**
+      - main
+      - v2.x
 
 jobs:
   CheckVersion:
@@ -27,7 +29,7 @@ jobs:
     - name: Build
       run: |
         # Will trigger `configure_file` for H5Version.hpp.
-        cmake -DHIGHFIVE_USE_BOOST=Off -B build .
+        cmake -B build .
 
     - name: Test
       run: |

@@ -1,43 +1,11 @@
-cmake_minimum_required(VERSION 3.1)
-if(${CMAKE_VERSION} VERSION_LESS 3.13)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-  cmake_policy(VERSION 3.13)
-endif()
+cmake_minimum_required(VERSION 3.13)
+cmake_policy(VERSION 3.13)
 
-project(HighFive VERSION 2.9.0)
+project(HighFive VERSION 3.0.0)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp)
-# INCLUDES
-list(APPEND CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMake/config)
-
-# OPTIONS
-# Compatibility within Highfive 2.x series
-set(USE_BOOST ON CACHE BOOL "Enable Boost Support")
-set(USE_EIGEN OFF CACHE BOOL "Enable Eigen testing")
-set(USE_XTENSOR OFF CACHE BOOL "Enable xtensor testing")
-set(USE_OPENCV OFF CACHE BOOL "Enable OpenCV testing")
-mark_as_advanced(USE_BOOST USE_EIGEN USE_XTENSOR)
-
-set(HIGHFIVE_UNIT_TESTS AUTO CACHE STRING "Enable unit tests (requires Catch2 to be present)")
-set_property(CACHE HIGHFIVE_UNIT_TESTS PROPERTY STRINGS AUTO ON OFF)
-
-option(HIGHFIVE_USE_BOOST "Enable Boost Support" ${USE_BOOST})
-option(HIGHFIVE_USE_HALF_FLOAT "Enable half-precision floats" ${USE_HALF_FLOAT})
-option(HIGHFIVE_USE_EIGEN "Enable Eigen testing" ${USE_EIGEN})
-option(HIGHFIVE_USE_OPENCV "Enable OpenCV testing" ${USE_OPENCV})
-option(HIGHFIVE_USE_XTENSOR "Enable xtensor testing" ${USE_XTENSOR})
-option(HIGHFIVE_EXAMPLES "Compile examples" ON)
-option(HIGHFIVE_PARALLEL_HDF5 "Enable Parallel HDF5 support" OFF)
-option(HIGHFIVE_STATIC_HDF5 "Staticly link to HDF5 library" OFF)
-option(HIGHFIVE_BUILD_DOCS "Enable documentation building" ON)
+# Configure HighFive
+# ------------------
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
-option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
-option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" ON)
-option(HIGHFIVE_HAS_WERROR "Convert warnings to errors." OFF)
 
 # Controls if HighFive classes are friends of each other.
 #
@@ -66,69 +34,119 @@ option(HIGHFIVE_HAS_WERROR "Convert warnings to errors." OFF)
 option(HIGHFIVE_HAS_FRIEND_DECLARATIONS "Enable additional friend declarations. Certain compiler require this On, others Off." OFF)
 mark_as_advanced(HIGHFIVE_HAS_FRIEND_DECLARATIONS)
 
+option(HIGHFIVE_FIND_HDF5 "Find and link with HDF5." On)
+
+# Configure Tests & Examples
+# --------------------------
+
+# Internal variable that controls the default value for building
+# optional things like tests, examples and docs.
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(HIGHFIVE_EXTRAS_DEFAULT ON)
+else()
+  set(HIGHFIVE_EXTRAS_DEFAULT OFF)
+endif()
+
+option(HIGHFIVE_UNIT_TESTS "Compile unit-tests" ${HIGHFIVE_EXTRAS_DEFAULT})
+option(HIGHFIVE_EXAMPLES "Compile examples" ${HIGHFIVE_EXTRAS_DEFAULT})
+option(HIGHFIVE_BUILD_DOCS "Build documentation" ${HIGHFIVE_EXTRAS_DEFAULT})
+
+option(HIGHFIVE_TEST_BOOST "Enable Boost testing" OFF)
+option(HIGHFIVE_TEST_EIGEN "Enable Eigen testing" OFF)
+option(HIGHFIVE_TEST_OPENCV "Enable OpenCV testing" OFF)
+option(HIGHFIVE_TEST_XTENSOR "Enable xtensor testing" OFF)
+option(HIGHFIVE_TEST_HALF_FLOAT "Enable half-precision floats" OFF)
+
+# TODO remove entirely.
+option(HIGHFIVE_HAS_CONCEPTS "Print readable compiler errors w/ C++20 concepts" OFF)
+
+set(HIGHFIVE_MAX_ERROR 0 "Maximum number of compiler errors.")
+option(HIGHFIVE_HAS_WERROR "Convert warnings to errors." OFF)
+option(HIGHFIVE_GLIBCXX_ASSERTIONS "Enable bounds check for STL." OFF)
+# TODO these some magic to get a drop down menu in ccmake
 set(HIGHFIVE_SANITIZER OFF CACHE STRING "Enable a group of sanitizers, requires compiler support. Supported: 'address' and 'undefined'.")
 mark_as_advanced(HIGHFIVE_SANITIZER)
-
-# In deployments we probably don't want/cant have dynamic dependencies
-option(HIGHFIVE_USE_INSTALL_DEPS "End applications by default use detected dependencies here" OFF)
-mark_as_advanced(HIGHFIVE_USE_INSTALL_DEPS)
-
 
 # Check compiler cxx_std requirements
 # -----------------------------------
 
-if(CMAKE_CXX_STANDARD EQUAL 98)
-    message(FATAL_ERROR "HighFive needs to be compiled with at least C++11")
-endif()
-
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-if(HIGHFIVE_USE_XTENSOR AND CMAKE_CXX_STANDARD LESS 14)
-    set(CMAKE_CXX_STANDARD 14)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(CMAKE_CXX_STANDARD EQUAL 98 OR CMAKE_CXX_STANDARD LESS 14)
+    message(FATAL_ERROR "HighFive needs to be compiled with at least C++14")
 endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
 
-# Search dependencies (hdf5, boost, eigen, xtensor, mpi) and build target highfive_deps
-include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetDeps.cmake)
+# HighFive
+# --------
+add_library(HighFiveInclude INTERFACE)
+add_library(HighFive::Include ALIAS HighFiveInclude)
+set_target_properties(HighFiveInclude PROPERTIES EXPORT_NAME Include)
 
-# Set-up HighFive to be used in 3rd party project using exports. Create a HighFive target
-include(${PROJECT_SOURCE_DIR}/CMake/HighFiveTargetExport.cmake)
+target_include_directories(HighFiveInclude INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
-# Installation of headers (HighFive is only interface)
+add_library(HighFive INTERFACE)
+add_library(HighFive::HighFive ALIAS HighFive)
+
+target_link_libraries(HighFive INTERFACE HighFive::Include)
+
+if(HIGHFIVE_FIND_HDF5)
+  find_package(HDF5 REQUIRED)
+  target_link_libraries(HighFive INTERFACE HDF5::HDF5)
+endif()
+
+if(HDF5_IS_PARALLEL)
+  find_package(MPI REQUIRED)
+  target_link_libraries(HighFive
+    INTERFACE
+    $<BUILD_INTERFACE:MPI::MPI_C>
+    $<BUILD_INTERFACE:MPI::MPI_CXX>
+  )
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/include/highfive/H5Version.hpp)
+
+# Install
+# -------
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/HighFiveConfigVersion.cmake
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION "include"
   PATTERN "*.in" EXCLUDE)
 
+install(TARGETS HighFive HighFiveInclude EXPORT HighFiveTargets)
+install(EXPORT HighFiveTargets
+  FILE HighFiveTargets.cmake
+  NAMESPACE HighFive::
+  DESTINATION lib/cmake/HighFive
+)
+
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/HighFiveConfigVersion.cmake
+  DESTINATION lib/cmake/HighFive
+)
+
 # Preparing local building (tests, examples)
 # ------------------------------------------
 
-# Disable test if Boost was expressly disabled, or if HighFive is a sub-project
-if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  if(HIGHFIVE_UNIT_TESTS AND NOT HighFive_FIND_QUIETLY)
-    message(WARNING "Unit tests have been DISABLED.")
-  endif()
-  set(HIGHFIVE_UNIT_TESTS FALSE)
-endif()
-
-if(HIGHFIVE_UNIT_TESTS)
-  if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/deps/catch2/CMakeLists.txt)
-    add_subdirectory(deps/catch2 EXCLUDE_FROM_ALL)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/deps/catch2/contrib)
-  else()
-    find_package(Catch2)
-    if(NOT HIGHFIVE_UNIT_TESTS STREQUAL "AUTO" AND HIGHFIVE_UNIT_TESTS AND NOT Catch2_FOUND)
-      message(FATAL_ERROR "Please provide a Catch2 installation or clone the submodule")
-    elseif(NOT Catch2_FOUND)
-      message(WARNING "No Catch2 installation was found; Disabling unit tests.")
-      set(HIGHFIVE_UNIT_TESTS OFF)
-    endif()
-  endif()
+if(HIGHFIVE_EXAMPLES OR HIGHFIVE_UNIT_TESTS)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveWarnings.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveOptionalDependencies.cmake)
 endif()
 
 if(HIGHFIVE_EXAMPLES)
@@ -136,6 +154,8 @@ if(HIGHFIVE_EXAMPLES)
 endif()
 
 if(HIGHFIVE_UNIT_TESTS)
+  add_subdirectory(deps/catch2 EXCLUDE_FROM_ALL)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/deps/catch2/contrib)
   enable_testing()
   add_subdirectory(tests/unit)
 endif()

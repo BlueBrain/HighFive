@@ -129,14 +129,12 @@ inspector<T> {
     static constexpr size_t recursive_ndim
     // Is the inner type trivially copyable for optimisation
     // If this value is true: data() is mandatory
-    // If this value is false: getSizeVal, getSize, serialize, unserialize are mandatory
+    // If this value is false: serialize, unserialize are mandatory
     static constexpr bool is_trivially_copyable
 
     // Reading:
     // Allocate the value following dims (should be recursive)
     static void prepare(type& val, const std::vector<std::size_t> dims)
-    // Return the size of the vector pass to/from hdf5 from a vector of dims
-    static size_t getSize(const std::vector<size_t>& dims)
     // Return a pointer of the first value of val (for reading)
     static hdf5_type* data(type& val)
     // Take a serialized vector 'in', some dims and copy value to val (for reading)
@@ -144,12 +142,10 @@ inspector<T> {
 
 
     // Writing:
-    // Return the size of the vector pass to/from hdf5 from a value
-    static size_t getSizeVal(const type& val)
     // Return a point of the first value of val
     static const hdf5_type* data(const type& val)
     // Take a val and serialize it inside 'out'
-    static void serialize(const type& val, hdf5_type* out)
+    static void serialize(const type& val, const std::vector<size_t>& dims, hdf5_type* out)
     // Return an array of dimensions of the space needed for writing val
     static std::vector<size_t> getDimensions(const type& val)
 }
@@ -171,14 +167,6 @@ struct type_helper {
         return {};
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
-    }
-
     static void prepare(type& /* val */, const std::vector<size_t>& /* dims */) {}
 
     static hdf5_type* data(type& val) {
@@ -191,7 +179,7 @@ struct type_helper {
         return &val;
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims*/, hdf5_type* m) {
         static_assert(is_trivially_copyable, "The type is not trivially copyable");
         *m = val;
     }
@@ -233,7 +221,7 @@ struct inspector<bool>: type_helper<bool> {
         val = vec[0] != 0 ? true : false;
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims*/, hdf5_type* m) {
         *m = val ? 1 : 0;
     }
 };
@@ -251,7 +239,7 @@ struct inspector<std::string>: type_helper<std::string> {
     }
 
     template <class It>
-    static void serialize(const type& val, It m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims*/, It m) {
         (*m).assign(val.data(), val.size(), StringPadding::NullTerminated);
     }
 
@@ -276,7 +264,7 @@ struct inspector<Reference>: type_helper<Reference> {
         throw DataSpaceException("A Reference cannot be written directly.");
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims*/, hdf5_type* m) {
         hobj_ref_t ref;
         val.create_ref(&ref);
         *m = ref;
@@ -314,14 +302,6 @@ struct inspector<std::vector<T>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
-    }
-
     static void prepare(type& val, const std::vector<size_t>& dims) {
         val.resize(dims[0]);
         std::vector<size_t> next_dims(dims.begin() + 1, dims.end());
@@ -339,11 +319,12 @@ struct inspector<std::vector<T>> {
     }
 
     template <class It>
-    static void serialize(const type& val, It m) {
+    static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
         if (!val.empty()) {
-            size_t subsize = inspector<value_type>::getSizeVal(val[0]);
+            auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+            size_t subsize = compute_total_size(subdims);
             for (auto&& e: val) {
-                inspector<value_type>::serialize(e, m);
+                inspector<value_type>::serialize(e, subdims, m);
                 m += subsize;
             }
         }
@@ -375,17 +356,6 @@ struct inspector<std::vector<bool>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return val.size();
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        if (dims.size() > 1) {
-            throw DataSpaceException("std::vector<bool> is only 1 dimension.");
-        }
-        return dims[0];
-    }
-
     static void prepare(type& val, const std::vector<size_t>& dims) {
         if (dims.size() > 1) {
             throw DataSpaceException("std::vector<bool> is only 1 dimension.");
@@ -401,7 +371,7 @@ struct inspector<std::vector<bool>> {
         throw DataSpaceException("A std::vector<bool> cannot be written directly.");
     }
 
-    static void serialize(const type& val, hdf5_type* m) {
+    static void serialize(const type& val, const std::vector<size_t>& /* dims*/, hdf5_type* m) {
         for (size_t i = 0; i < val.size(); ++i) {
             m[i] = val[i] ? 1 : 0;
         }
@@ -438,14 +408,6 @@ struct inspector<std::array<T, N>> {
         return sizes;
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
-    static size_t getSize(const std::vector<size_t>& dims) {
-        return compute_total_size(dims);
-    }
-
     static void prepare(type& val, const std::vector<size_t>& dims) {
         if (dims[0] > N) {
             std::ostringstream os;
@@ -468,10 +430,11 @@ struct inspector<std::array<T, N>> {
     }
 
     template <class It>
-    static void serialize(const type& val, It m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
+    static void serialize(const type& val, const std::vector<size_t>& dims, It m) {
+        auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+        size_t subsize = compute_total_size(subdims);
         for (auto& e: val) {
-            inspector<value_type>::serialize(e, m);
+            inspector<value_type>::serialize(e, subdims, m);
             m += subsize;
         }
     }
@@ -505,10 +468,6 @@ struct inspector<T*> {
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
 
-    static size_t getSizeVal(const type& /* val */) {
-        throw DataSpaceException("Not possible to have size of a T*");
-    }
-
     static std::vector<size_t> getDimensions(const type& /* val */) {
         throw DataSpaceException("Not possible to have size of a T*");
     }
@@ -519,7 +478,9 @@ struct inspector<T*> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static void serialize(const type& /* val */, hdf5_type* /* m */) {
+    static void serialize(const type& /* val */,
+                          const std::vector<size_t>& /* dims*/,
+                          hdf5_type* /* m */) {
         throw DataSpaceException("Not possible to serialize a T*");
     }
 };
@@ -552,10 +513,6 @@ struct inspector<T[N]> {
         }
     }
 
-    static size_t getSizeVal(const type& val) {
-        return compute_total_size(getDimensions(val));
-    }
-
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{N};
         if (N > 0) {
@@ -575,10 +532,11 @@ struct inspector<T[N]> {
 
     /* it works because there is only T[][][] currently
        we will fix it one day */
-    static void serialize(const type& val, hdf5_type* m) {
-        size_t subsize = inspector<value_type>::getSizeVal(val[0]);
+    static void serialize(const type& val, const std::vector<size_t>& dims, hdf5_type* m) {
+        auto subdims = std::vector<size_t>(dims.begin() + 1, dims.end());
+        size_t subsize = compute_total_size(subdims);
         for (size_t i = 0; i < N; ++i) {
-            inspector<value_type>::serialize(val[i], m + i * subsize);
+            inspector<value_type>::serialize(val[i], subdims, m + i * subsize);
         }
     }
 };
