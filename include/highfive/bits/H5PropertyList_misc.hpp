@@ -347,6 +347,16 @@ inline void Shuffle::apply(const hid_t hid) const {
     detail::h5p_set_shuffle(hid);
 }
 
+inline Blosc::Blosc(unsigned int level, unsigned int shuffle, unsigned int compressor) {
+    _cd_values[4] = level;
+    _cd_values[5] = shuffle;
+    _cd_values[6] = compressor;
+}
+
+inline void Blosc::apply(const hid_t hid) const {
+    detail::h5p_set_blosc(hid, _cd_values);
+}
+
 inline AllocationTime::AllocationTime(H5D_alloc_time_t alloc_time)
     : _alloc_time(alloc_time) {}
 

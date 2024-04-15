@@ -556,6 +556,17 @@ class Shuffle {
     void apply(hid_t hid) const;
 };
 
+/// \implements PropertyInterface
+class Blosc {
+  public:
+    explicit Blosc(unsigned level, unsigned shuffle, unsigned compressor);
+
+  private:
+    friend DataSetCreateProps;
+    void apply(hid_t hid) const;
+    unsigned _cd_values[7];
+};
+
 /// \brief When are datasets allocated?
 ///
 /// The precise time of when HDF5 requests space to store the dataset

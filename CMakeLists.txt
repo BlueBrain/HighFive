@@ -101,6 +101,11 @@ target_link_libraries(HighFive INTERFACE HighFive::Include)
 if(HIGHFIVE_FIND_HDF5)
   find_package(HDF5 REQUIRED)
   target_link_libraries(HighFive INTERFACE HDF5::HDF5)
+  
+  # I install hdf5-blosc to the default path
+  set(blosc_filter_DIR /usr/local/lib/)
+  target_link_libraries(HighFive INTERFACE blosc_filter)
+  target_link_directories(HighFive INTERFACE /usr/local/include/)
 endif()
 
 if(HDF5_IS_PARALLEL)
