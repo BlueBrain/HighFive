@@ -173,9 +173,9 @@ TEST_CASE("Test boost::multi_array with fortran_storage_order") {
     const std::string file_name("h5_multi_array_fortran.h5");
     File file(file_name, File::ReadWrite | File::Create | File::Truncate);
 
-    boost::multi_array<int, 2> ma(boost::extents[2, 2], boost:fortran_storage_order());
-    auto dset = file.createDataSet("main_dset", DataSpace::From(ma));
-    CHECK_THROW_AS(dset.write(ma), DataTypeException);
+    boost::multi_array<int, 2> ma(boost::extents[2][2], boost::fortran_storage_order());
+    auto dset = file.createDataSet<int>("main_dset", DataSpace::From(ma));
+    CHECK_THROWS_AS(dset.write(ma), DataTypeException);
 }
 
 template <typename T>
