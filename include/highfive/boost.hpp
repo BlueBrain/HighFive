@@ -53,8 +53,7 @@ struct inspector<boost::multi_array<T, Dims>> {
 
     static void assert_c_order(type& val) {
         if (!(val.storage_order() == boost::c_storage_order())) {
-            throw DataTypeException(
-                "Only C storage order is supported for 'boost::multi_array'.");
+            throw DataTypeException("Only C storage order is supported for 'boost::multi_array'.");
         }
     }
 
