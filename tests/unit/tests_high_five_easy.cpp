@@ -243,6 +243,44 @@ TEST_CASE("H5Easy_xtensor") {
     CHECK(xt::all(xt::equal(B, B_r)));
 }
 
+TEST_CASE("H5Easy_xtensor_column_major") {
+    H5Easy::File file("h5easy_xtensor_colum_major.h5", H5Easy::File::Overwrite);
+
+    using column_major_t = xt::xtensor<double, 2, xt::layout_type::column_major>;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
+
+    H5Easy::dump(file, "/path/to/A", A);
+
+    SECTION("Write column major") {
+        column_major_t B = A;
+        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+    }
+
+    SECTION("Read column major") {
+        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+    }
+}
+
+TEST_CASE("H5Easy_xarray_column_major") {
+    H5Easy::File file("h5easy_xarray_colum_major.h5", H5Easy::File::Overwrite);
+
+    using column_major_t = xt::xarray<double, xt::layout_type::column_major>;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({20, 5});
+
+    H5Easy::dump(file, "/path/to/A", A);
+
+    SECTION("Write column major") {
+        column_major_t B = A;
+        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+    }
+
+    SECTION("Read column major") {
+        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+    }
+}
+
 TEST_CASE("H5Easy_xarray") {
     H5Easy::File file("h5easy_xarray.h5", H5Easy::File::Overwrite);
 
