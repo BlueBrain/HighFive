@@ -36,6 +36,9 @@
 #include <highfive/eigen.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_SPAN
+#include <highfive/span.hpp>
+#endif
 
 using namespace HighFive;
 using Catch::Matchers::Equals;
