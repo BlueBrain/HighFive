@@ -55,7 +55,7 @@ function(compile_example example_source)
   message("example_name: ${example_name}")
 
   add_executable(${example_name} ${example_source})
-  target_link_libraries(${example_name} PUBLIC HighFive HighFiveWarnings)
+  target_link_libraries(${example_name} PUBLIC HighFive HighFiveWarnings HighFiveFlags)
   if(${ARGC} EQUAL 2)
     target_link_libraries(${example_name} PUBLIC ${ARGV1})
   endif()
