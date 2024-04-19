@@ -296,6 +296,10 @@ jobs:
         os: [ "macOS-12" ]
         cxxstd: ["14", "17", "20"]
 
+        include:
+          - os: "macOS-13"
+            cxxstd: "20"
+
     steps:
     - uses: actions/checkout@v3
       with:
