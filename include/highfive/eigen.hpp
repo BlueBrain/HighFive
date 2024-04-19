@@ -30,7 +30,8 @@ struct eigen_inspector {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = is_row_major() &&
                                                   std::is_trivially_copyable<value_type>::value &&
-                                                  inspector<value_type>::is_trivially_copyable;
+                                                  inspector<value_type>::is_trivially_nestable;
+    static constexpr bool is_trivially_nestable = false;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{static_cast<size_t>(val.rows()), static_cast<size_t>(val.cols())};
