@@ -6,6 +6,7 @@
  *          http://www.boost.org/LICENSE_1_0.txt)
  *
  */
+#include <H5Ipublic.h>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -27,11 +28,11 @@
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <highfive/boost.hpp>
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 #include <highfive/eigen.hpp>
 #endif
 
@@ -321,26 +322,153 @@ TEST_CASE("Test allocation time") {
     CHECK(alloc_size == data.size() * sizeof(decltype(data)::value_type));
 }
 
-/*
- * Test to ensure legacy support: DataSet used to have a default constructor.
- * However, it is not useful to have a DataSet object that does not actually
- * refer to a dataset in a file. Hence, the the default constructor was
- * deprecated.
- * This test is to ensure that the constructor is not accidentally removed and
- * thereby break users' code.
- */
-TEST_CASE("Test default constructors") {
-    const std::string file_name("h5_default_ctors.h5");
-    const std::string dataset_name("dset");
-    File file(file_name, File::Truncate);
-    auto ds = file.createDataSet(dataset_name, std::vector<int>{1, 2, 3, 4, 5});
+template <class T>
+void check_invalid_hid_Object(T& obj) {
+    auto silence = SilenceHDF5();
 
-    DataSet d2;  // expect deprecation warning, as it constructs unsafe object
-    // d2.getFile();  // runtime error
-    CHECK(!d2.isValid());
-    d2 = ds;  // copy
-    CHECK(d2.isValid());
+    CHECK(!obj.isValid());
+    CHECK(obj.getId() == H5I_INVALID_HID);
+
+    CHECK_THROWS(obj.getInfo());
+    CHECK_THROWS(obj.getType());
 }
+
+template <class T, class U>
+void check_invalid_hid_NodeTraits(T& obj, const U& linkable) {
+    auto silence = SilenceHDF5();
+
+    auto data_space = DataSpace{2, 3};
+    auto data_type = HighFive::create_datatype<double>();
+    auto data = std::vector<double>{1.0, 2.0, 3.0};
+    auto gcpl = GroupCreateProps();
+
+    CHECK_THROWS(obj.createDataSet("foo", data_space, data_type));
+    CHECK_THROWS(obj.template createDataSet<double>("foo", data_space));
+    CHECK_THROWS(obj.createDataSet("foo", data));
+
+    CHECK_THROWS(obj.getDataSet("foo"));
+    CHECK_THROWS(obj.createGroup("foo"));
+    CHECK_THROWS(obj.createGroup("foo", gcpl));
+    CHECK_THROWS(obj.getGroup("foo"));
+    CHECK_THROWS(obj.getDataType("foo"));
+    CHECK_THROWS(obj.getNumberObjects());
+    CHECK_THROWS(obj.getObjectName(0));
+    CHECK_THROWS(obj.rename("foo", "bar"));
+    CHECK_THROWS(obj.listObjectNames());
+    CHECK_THROWS(obj.exist("foo"));
+    CHECK_THROWS(obj.unlink("foo"));
+    CHECK_THROWS(obj.getLinkType("foo"));
+    CHECK_THROWS(obj.getObjectType("foo"));
+    CHECK_THROWS(obj.createSoftLink("foo", linkable));
+    CHECK_THROWS(obj.createSoftLink("foo", "bar"));
+    CHECK_THROWS(obj.createExternalLink("foo", "bar", "baz"));
+    CHECK_THROWS(obj.createHardLink("foo", linkable));
+}
+
+template <class T>
+void check_invalid_hid_DataSet(T& obj) {
+    auto silence = SilenceHDF5();
+
+    CHECK_THROWS(obj.getStorageSize());
+    CHECK_THROWS(obj.getOffset());
+    CHECK_THROWS(obj.getMemSpace());
+    CHECK_THROWS(obj.resize({1, 2, 3}));
+    CHECK_THROWS(obj.getDimensions());
+    CHECK_THROWS(obj.getElementCount());
+    CHECK_THROWS(obj.getCreatePropertyList());
+    CHECK_THROWS(obj.getAccessPropertyList());
+}
+
+template <class T>
+void check_invalid_hid_SliceTraits(T& obj) {
+    auto silence = SilenceHDF5();
+
+    auto slab = HighFive::HyperSlab(RegularHyperSlab({0}));
+    auto space = DataSpace{3};
+    auto set = ElementSet{0, 1, 3};
+    auto data = std::vector<double>{1.0, 2.0, 3.0};
+    auto type = create_datatype<double>();
+    auto cols = std::vector<size_t>{0, 2, 3};
+
+    CHECK_THROWS(obj.select(slab));
+    CHECK_THROWS(obj.select(slab, space));
+    CHECK_THROWS(obj.select({0}, {3}));
+    CHECK_THROWS(obj.select(cols));
+    CHECK_THROWS(obj.select(set));
+
+    CHECK_THROWS(obj.template read<double>());
+    CHECK_THROWS(obj.read(data));
+    CHECK_THROWS(obj.read_raw(data.data(), type));
+    CHECK_THROWS(obj.template read_raw<double>(data.data()));
+
+    CHECK_THROWS(obj.write(data));
+    CHECK_THROWS(obj.write_raw(data.data(), type));
+    CHECK_THROWS(obj.template write_raw<double>(data.data()));
+}
+
+template <class T>
+void check_invalid_hid_PathTraits(T& obj) {
+    auto silence = SilenceHDF5();
+
+    CHECK_THROWS(obj.getPath());
+    CHECK_THROWS(obj.getFile());
+}
+
+template <class T>
+void check_invalid_hid_AnnotateTraits(T& obj) {
+    auto silence = SilenceHDF5();
+
+    auto space = DataSpace{3};
+    auto data = std::vector<double>{1.0, 2.0, 3.0};
+    auto type = create_datatype<double>();
+
+    CHECK_THROWS(obj.createAttribute("foo", space, type));
+    CHECK_THROWS(obj.template createAttribute<double>("foo", space));
+    CHECK_THROWS(obj.createAttribute("foo", data));
+
+    CHECK_THROWS(obj.deleteAttribute("foo"));
+    CHECK_THROWS(obj.getAttribute("foo"));
+    CHECK_THROWS(obj.getNumberAttributes());
+    CHECK_THROWS(obj.listAttributeNames());
+    CHECK_THROWS(obj.hasAttribute("foo"));
+}
+
+template <class T>
+void check_invalid_hid_Group(T& obj) {
+    auto silence = SilenceHDF5();
+
+    CHECK_THROWS(obj.getEstimatedLinkInfo());
+    CHECK_THROWS(obj.getCreatePropertyList());
+}
+
+TEST_CASE("Test default DataSet constructor") {
+    DataSet ds;
+    check_invalid_hid_Object(ds);
+    check_invalid_hid_DataSet(ds);
+    check_invalid_hid_SliceTraits(ds);
+    check_invalid_hid_AnnotateTraits(ds);
+    check_invalid_hid_PathTraits(ds);
+
+    File file("h5_default_dset_ctor.h5", File::Truncate);
+    ds = file.createDataSet("dset", std::vector<int>{1, 2, 3, 4, 5});
+    CHECK(ds.isValid());
+}
+
+TEST_CASE("Test default Group constructor") {
+    File file("h5_default_group_ctor.h5", File::Truncate);
+    Group linkable = file.createGroup("bar");
+
+    Group grp;
+    check_invalid_hid_Object(grp);
+    check_invalid_hid_NodeTraits(grp, linkable);
+    check_invalid_hid_AnnotateTraits(grp);
+    check_invalid_hid_PathTraits(grp);
+
+    grp = file.createGroup("grp");
+
+    CHECK(grp.isValid());
+}
+
 
 TEST_CASE("Test groups and datasets") {
     const std::string file_name("h5_group_test.h5");
@@ -1529,7 +1657,7 @@ struct CreateEmptyVector {
     }
 };
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 template <int n_dim>
 struct CreateEmptyBoostMultiArray {
     using container_type = boost::multi_array<int, static_cast<long unsigned>(n_dim)>;
@@ -1546,7 +1674,7 @@ struct CreateEmptyBoostMultiArray {
 #endif
 
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 struct CreateEmptyEigenVector {
     using container_type = Eigen::VectorXi;
 
@@ -1676,7 +1804,7 @@ void check_empty_everything(const std::vector<size_t>& dims) {
     }
 }
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 template <int ndim>
 void check_empty_eigen(const std::vector<size_t>&) {}
 
@@ -1703,13 +1831,13 @@ void check_empty(const std::vector<size_t>& dims) {
         check_empty_everything<CreateEmptyVector<ndim>>(dims);
     }
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
     SECTION("boost::multi_array") {
         check_empty_everything<CreateEmptyBoostMultiArray<ndim>>(dims);
     }
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
     check_empty_eigen<ndim>(dims);
 #endif
 }
@@ -2559,7 +2687,7 @@ TEST_CASE("HighFiveDataTypeClass") {
     CHECK(((Float | String) & String) == String);
 }
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 
 template <typename T>
 void test_eigen_vec(File& file, const std::string& test_flavor, const T& vec_input, T& vec_output) {
@@ -2610,7 +2738,7 @@ TEST_CASE("HighFiveEigen") {
         vec_in << 1, 2, 3, 4, 5, 6, 7, 8, 9;
         Eigen::Matrix<double, 3, 3> vec_out;
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
     // Eigen MatrixXd
@@ -2619,7 +2747,7 @@ TEST_CASE("HighFiveEigen") {
         Eigen::MatrixXd vec_in = 100. * Eigen::MatrixXd::Random(20, 5);
         Eigen::MatrixXd vec_out(20, 5);
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
     // std::vector<of EigenMatrixXd>
@@ -2633,10 +2761,10 @@ TEST_CASE("HighFiveEigen") {
         vec_in.push_back(m2);
         std::vector<Eigen::MatrixXd> vec_out(2, Eigen::MatrixXd::Zero(20, 5));
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
     // boost::multi_array<of EigenVector3f>
     {
         ds_name_flavor = "BMultiEigenVector3f";
@@ -2675,7 +2803,7 @@ TEST_CASE("HighFiveEigen") {
             }
         }
 
-        CHECK_THROWS(test_eigen_vec(file, ds_name_flavor, vec_in, vec_out));
+        test_eigen_vec(file, ds_name_flavor, vec_in, vec_out);
     }
 
 #endif

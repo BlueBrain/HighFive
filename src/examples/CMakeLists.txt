@@ -30,6 +30,12 @@ set(boost_examples
   ${CMAKE_CURRENT_SOURCE_DIR}/boost_ublas_double.cpp
 )
 
+set(eigen_examples
+  ${CMAKE_CURRENT_SOURCE_DIR}/eigen_matrix.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/eigen_vector.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/eigen_map.cpp
+)
+
 set(hl_hdf5_examples
   ${CMAKE_CURRENT_SOURCE_DIR}/hl_hdf5_inmemory_files.cpp
 )
@@ -67,6 +73,12 @@ endforeach()
 if(HIGHFIVE_TEST_BOOST)
   foreach(example_source ${boost_examples})
     compile_example(${example_source} HighFiveBoostDependency)
+  endforeach()
+endif()
+
+if(HIGHFIVE_TEST_EIGEN)
+  foreach(example_source ${eigen_examples})
+    compile_example(${example_source} HighFiveEigenDependency)
   endforeach()
 endif()
 

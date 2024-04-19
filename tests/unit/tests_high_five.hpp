@@ -42,7 +42,7 @@ using base_test_types = std::tuple<int,
                                    dcomplex,
                                    fcomplex>;
 
-#ifdef H5_USE_HALF_FLOAT
+#ifdef HIGHFIVE_TEST_HALF_FLOAT
 #include <highfive/half_float.hpp>
 
 using float16_t = half_float::half;

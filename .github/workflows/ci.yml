@@ -43,19 +43,18 @@ jobs:
           - config:
               os: ubuntu-20.04
               pkgs: ''
-              flags: '-DHIGHFIVE_TEST_BOOST:Bool=OFF'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev libopencv-dev'
-              flags: '-DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-latest
               pkgs: 'libboost-all-dev libeigen3-dev libopencv-dev'
-              flags: '-DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
+              flags: '-DHIGHFIVE_TEST_BOOST:Bool=ON -DHIGHFIVE_TEST_EIGEN:Bool=ON -DHIGHFIVE_TEST_OPENCV:Bool=ON -GNinja'
           - config:
               os: ubuntu-20.04
               pkgs: 'libboost-all-dev'
-              flags: '-DCMAKE_CXX_STANDARD=17'
+              flags: '-DCMAKE_CXX_STANDARD=17 -DHIGHFIVE_TEST_BOOST:Bool=ON'
           - config:
               os: ubuntu-22.04
               flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20'
@@ -84,6 +83,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -93,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5-1_14_3 ]
+        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5_1.14.4.1 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -124,6 +127,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
 
@@ -157,13 +164,17 @@ jobs:
     - name: Build
       env: ${{matrix.env}}
       run: |
-        CMAKE_OPTIONS=(-GNinja)
+        CMAKE_OPTIONS=(-DHIGHFIVE_TEST_BOOST=ON -GNinja)
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -209,6 +220,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -307,6 +322,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
     - name: Examples
@@ -362,4 +381,9 @@ jobs:
       shell: bash -l {0}
       run: |
         ctest -j2 --output-on-failure -C $BUILD_TYPE
+
+    - name: Test No HDF5 Diagnositics
+      working-directory: ${{github.workspace}}/build
+      shell: bash -l {0}
+      run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG

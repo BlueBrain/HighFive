@@ -31,13 +31,20 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
                 -Wcast-align
                 -Wdouble-promotion
         )
-    endif()
 
-    if(HIGHFIVE_HAS_WERROR)
-        target_compile_options(HighFiveWarnings
-            INTERFACE
-                -Werror
-                -Wno-error=deprecated-declarations
-        )
+      if(HIGHFIVE_MAX_ERRORS)
+          target_compile_options(HighFiveWarnings
+              INTERFACE
+              -fmax-errors=${HIGHFIVE_MAX_ERRORS}
+          )
+      endif()
+
+      if(HIGHFIVE_HAS_WERROR)
+          target_compile_options(HighFiveWarnings
+              INTERFACE
+                  -Werror
+                  -Wno-error=deprecated-declarations
+          )
+      endif()
     endif()
 endif()
