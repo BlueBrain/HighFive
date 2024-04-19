@@ -6,6 +6,7 @@ if(TARGET HighFiveWarnings)
 endif()
 
 add_library(HighFiveWarnings INTERFACE)
+add_library(HighFiveFlags INTERFACE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
    OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
@@ -32,8 +33,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
                 -Wdouble-promotion
         )
 
+        target_compile_options(HighFiveWarnings
+            INTERFACE
+                -ftemplate-backtrace-limit=0
+        )
+
       if(HIGHFIVE_MAX_ERRORS)
-          target_compile_options(HighFiveWarnings
+          target_compile_options(HighFiveFlags
               INTERFACE
               -fmax-errors=${HIGHFIVE_MAX_ERRORS}
           )
