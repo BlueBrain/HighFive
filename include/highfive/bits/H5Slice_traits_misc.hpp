@@ -20,6 +20,8 @@
 
 #include "H5ReadWrite_misc.hpp"
 #include "H5Converter_misc.hpp"
+#include "squeeze.hpp"
+#include "compute_total_size.hpp"
 
 namespace HighFive {
 
@@ -288,5 +290,41 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataTransfer
     write_raw(buffer, mem_datatype, xfer_props);
 }
 
+namespace detail {
+const DataSet& getDataSet(const Selection& selection) {
+    return selection.getDataset();
+}
+
+const DataSet& getDataSet(const DataSet& dataset) {
+    return dataset;
+}
+
+}  // namespace detail
+
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::squeezeMemSpace(const std::vector<size_t>& axes) const {
+    auto slice = static_cast<const Derivate&>(*this);
+    auto mem_dims = slice.getMemSpace().getDimensions();
+    auto squeezed_dims = detail::squeeze(mem_dims, axes);
+
+    return detail::make_selection(DataSpace(squeezed_dims),
+                                  slice.getSpace(),
+                                  detail::getDataSet(slice));
+}
+
+template <typename Derivate>
+inline Selection SliceTraits<Derivate>::reshapeMemSpace(const std::vector<size_t>& new_dims) const {
+    auto slice = static_cast<const Derivate&>(*this);
+
+    auto n_elements_old = slice.getMemSpace().getElementCount();
+    auto n_elements_new = compute_total_size(new_dims);
+    if (n_elements_old != n_elements_new) {
+        throw Exception("Invalid parameter `new_dims` number of elements differ: " +
+                        std::to_string(n_elements_old) + " (old) vs. " +
+                        std::to_string(n_elements_new) + " (new)");
+    }
+
+    return detail::make_selection(DataSpace(new_dims), slice.getSpace(), detail::getDataSet(slice));
+}
 
 }  // namespace HighFive

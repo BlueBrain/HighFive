@@ -1,5 +1,6 @@
 set(core_examples
   ${CMAKE_CURRENT_SOURCE_DIR}/compound_types.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/broadcasting_arrays.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/create_attribute_string_integer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/create_dataset_double.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/create_datatype.cpp
