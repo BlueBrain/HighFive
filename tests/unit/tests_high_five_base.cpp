@@ -27,6 +27,7 @@
 
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
+#include "create_traits.hpp"
 
 #ifdef HIGHFIVE_TEST_BOOST
 #include <highfive/boost.hpp>
@@ -1717,28 +1718,6 @@ void check_empty_dimensions(const std::vector<size_t>& dims) {
     check_empty_dimensions(input_data, dims);
 }
 
-struct ReadWriteAttribute {
-    template <class Container>
-    static void create(HighFive::File& file, const std::string& name, const Container& container) {
-        file.createAttribute(name, container);
-    }
-
-    static HighFive::Attribute get(HighFive::File& file, const std::string& name) {
-        return file.getAttribute(name);
-    }
-};
-
-struct ReadWriteDataSet {
-    template <class Container>
-    static void create(HighFive::File& file, const std::string& name, const Container& container) {
-        file.createDataSet(name, container);
-    }
-
-    static HighFive::DataSet get(HighFive::File& file, const std::string& name) {
-        return file.getDataSet(name);
-    }
-};
-
 template <class ReadWriteInterface, class CreateContainer>
 void check_empty_read_write_cycle(const std::vector<size_t>& dims) {
     using container_type = typename CreateContainer::container_type;
@@ -1781,12 +1760,12 @@ void check_empty_read_write_cycle(const std::vector<size_t>& dims) {
 
 template <class CreateContainer>
 void check_empty_dataset(const std::vector<size_t>& dims) {
-    check_empty_read_write_cycle<ReadWriteDataSet, CreateContainer>(dims);
+    check_empty_read_write_cycle<testing::DataSetCreateTraits, CreateContainer>(dims);
 }
 
 template <class CreateContainer>
 void check_empty_attribute(const std::vector<size_t>& dims) {
-    check_empty_read_write_cycle<ReadWriteAttribute, CreateContainer>(dims);
+    check_empty_read_write_cycle<testing::AttributeCreateTraits, CreateContainer>(dims);
 }
 
 template <class CreateContainer>
