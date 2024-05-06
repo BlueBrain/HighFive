@@ -2338,7 +2338,8 @@ void check_single_string(File file, size_t string_length) {
     }
 
     SECTION("overlength null-terminated") {
-        auto obj = CreateTraits::create(file, "overlength_nullterm", dataspace, overlength_nullterm);
+        auto obj =
+            CreateTraits::create(file, "overlength_nullterm", dataspace, overlength_nullterm);
         obj.template write(value);
         REQUIRE(obj.template read<std::string>() == value);
     }
@@ -2352,8 +2353,9 @@ void check_single_string(File file, size_t string_length) {
     }
 
     SECTION("overlength space-padded") {
-        auto obj = CreateTraits::create(file, "overlength_spacepad", dataspace, overlength_spacepad);
-        obj. template write(value);
+        auto obj =
+            CreateTraits::create(file, "overlength_spacepad", dataspace, overlength_spacepad);
+        obj.template write(value);
         auto expected = std::string(n_chars_overlength, ' ');
         expected.replace(0, value.size(), value.data());
         REQUIRE(obj.template read<std::string>() == expected);
@@ -2361,7 +2363,7 @@ void check_single_string(File file, size_t string_length) {
 
     SECTION("variable length") {
         auto obj = CreateTraits::create(file, "variable", dataspace, variable_length);
-        obj. template write(value);
+        obj.template write(value);
         REQUIRE(obj.template read<std::string>() == value);
     }
 }
@@ -2391,13 +2393,13 @@ void check_multiple_string(File file, size_t string_length) {
     };
 
     SECTION("automatic") {
-        auto obj = CreateTraits::create("auto", value);
+        auto obj = CreateTraits::create(file, "auto", value);
         check(obj.template read<value_t>(), value);
     }
 
     SECTION("variable length") {
-      auto obj = CreateTraits::create("variable", dataspace, variable_length);
-      obj.template write(value);
+        auto obj = CreateTraits::create(file, "variable", dataspace, variable_length);
+        obj.template write(value);
         check(obj.template read<value_t>(), value);
     }
 
@@ -2413,21 +2415,22 @@ void check_multiple_string(File file, size_t string_length) {
     auto check_fixed_length = [&](const std::string& label, size_t length) {
         SECTION(label + " null-terminated") {
             auto datatype = FixedLengthStringType(length + 1, StringPadding::NullTerminated);
-            auto obj = CreateTraits::create(label + "_nullterm", dataspace, datatype);
+            auto obj = CreateTraits::create(file, label + "_nullterm", dataspace, datatype);
             obj.template write(value);
             check(obj.template read<value_t>(), value);
         }
 
         SECTION(label + " null-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::NullPadded);
-            auto obj = CreateTraits::create(label + "_nullpad", dataspace, datatype).write(value);
+            auto obj = CreateTraits::create(file, label + "_nullpad", dataspace, datatype);
+            obj.template write(value);
             auto expected = make_padded_reference('\0', length);
             check(obj.template read<value_t>(), expected);
         }
 
         SECTION(label + " space-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::SpacePadded);
-            auto obj = CreateTraits::create(label + "_spacepad", dataspace, datatype);
+            auto obj = CreateTraits::create(file, label + "_spacepad", dataspace, datatype);
             obj.template write(value);
             auto expected = make_padded_reference(' ', length);
             check(obj.template read<value_t>(), expected);
@@ -2440,19 +2443,19 @@ void check_multiple_string(File file, size_t string_length) {
 
     SECTION("underlength null-terminated") {
         auto datatype = FixedLengthStringType(string_length, StringPadding::NullTerminated);
-        auto obj = CreateTraits::create("underlength_nullterm", dataspace, datatype);
+        auto obj = CreateTraits::create(file, "underlength_nullterm", dataspace, datatype);
         REQUIRE_THROWS(obj.template write(value));
     }
 
     SECTION("underlength nullpad") {
         auto datatype = FixedLengthStringType(string_length - 1, StringPadding::NullPadded);
-        auto obj = CreateTraits::create("underlength_nullpad", dataspace, datatype);
+        auto obj = CreateTraits::create(file, "underlength_nullpad", dataspace, datatype);
         REQUIRE_THROWS(obj.template write(value));
     }
 
     SECTION("underlength spacepad") {
         auto datatype = FixedLengthStringType(string_length - 1, StringPadding::NullTerminated);
-        auto obj = proxy.create("underlength_spacepad", dataspace, datatype);
+        auto obj = CreateTraits::create(file, "underlength_spacepad", dataspace, datatype);
         REQUIRE_THROWS(obj.write(value));
     }
 }
@@ -2484,17 +2487,17 @@ TEST_CASE("HighFiveSTDString (dataset, multiple, short)") {
 
 TEST_CASE("HighFiveSTDString (attribute, multiple, short)") {
     File file("std_string_attribute_multiple_short.h5", File::Truncate);
-    check_multiple_string(ForwardToAttribute(file), 3);
+    check_multiple_string<testing::AttributeCreateTraits>(file, 3);
 }
 
 TEST_CASE("HighFiveSTDString (dataset, multiple, long)") {
     File file("std_string_dataset_multiple_long.h5", File::Truncate);
-    check_multiple_string(ForwardToDataSet(file), 256);
+    check_multiple_string<testing::DataSetCreateTraits>(file, 256);
 }
 
 TEST_CASE("HighFiveSTDString (attribute, multiple, long)") {
     File file("std_string_attribute_multiple_long.h5", File::Truncate);
-    check_multiple_string(ForwardToAttribute(file), 256);
+    check_multiple_string<testing::AttributeCreateTraits>(file, 256);
 }
 
 TEST_CASE("HighFiveFixedString") {
