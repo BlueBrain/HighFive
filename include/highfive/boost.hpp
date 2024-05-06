@@ -19,7 +19,9 @@ struct inspector<boost::multi_array<T, Dims>> {
     static constexpr size_t ndim = Dims;
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
-                                                  inspector<value_type>::is_trivially_copyable;
+                                                  inspector<value_type>::is_trivially_nestable;
+    static constexpr bool is_trivially_nestable = false;
+
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes;
@@ -102,6 +104,7 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
     static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_copyable;
+    static constexpr bool is_trivially_nestable = false;
 
     static std::vector<size_t> getDimensions(const type& val) {
         std::vector<size_t> sizes{val.size1(), val.size2()};
