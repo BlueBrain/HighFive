@@ -2263,54 +2263,6 @@ TEST_CASE("DirectWriteBool") {
 }
 
 
-class ForwardToAttribute {
-  public:
-    ForwardToAttribute(const HighFive::File& file)
-        : _file(file) {}
-
-    template <class T>
-    HighFive::Attribute create(const std::string& name, const T& value) {
-        return _file.createAttribute(name, value);
-    }
-
-    HighFive::Attribute create(const std::string& name,
-                               const HighFive::DataSpace filespace,
-                               const HighFive::DataType& datatype) {
-        return _file.createAttribute(name, filespace, datatype);
-    }
-
-    HighFive::Attribute get(const std::string& name) {
-        return _file.getAttribute(name);
-    }
-
-  private:
-    HighFive::File _file;
-};
-
-class ForwardToDataSet {
-  public:
-    ForwardToDataSet(const HighFive::File& file)
-        : _file(file) {}
-
-    template <class T>
-    HighFive::DataSet create(const std::string& name, const T& value) {
-        return _file.createDataSet(name, value);
-    }
-
-    HighFive::DataSet create(const std::string& name,
-                             const HighFive::DataSpace filespace,
-                             const HighFive::DataType& datatype) {
-        return _file.createDataSet(name, filespace, datatype);
-    }
-
-    HighFive::DataSet get(const std::string& name) {
-        return _file.getDataSet(name);
-    }
-
-  private:
-    HighFive::File _file;
-};
-
 template <class CreateTraits>
 void check_single_string(File file, size_t string_length) {
     auto value = std::string(string_length, 'o');
