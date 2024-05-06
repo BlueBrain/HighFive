@@ -2333,20 +2333,20 @@ void check_single_string(File file, size_t string_length) {
 
     SECTION("fixed length") {
         auto obj = CreateTraits::create(file, "fixed", dataspace, fixed_length);
-        obj.template write(value);
+        obj.write(value);
         REQUIRE(obj.template read<std::string>() == value);
     }
 
     SECTION("overlength null-terminated") {
         auto obj =
             CreateTraits::create(file, "overlength_nullterm", dataspace, overlength_nullterm);
-        obj.template write(value);
+        obj.write(value);
         REQUIRE(obj.template read<std::string>() == value);
     }
 
     SECTION("overlength null-padded") {
         auto obj = CreateTraits::create(file, "overlength_nullpad", dataspace, overlength_nullpad);
-        obj.template write(value);
+        obj.write(value);
         auto expected = std::string(n_chars_overlength, '\0');
         expected.replace(0, value.size(), value.data());
         REQUIRE(obj.template read<std::string>() == expected);
@@ -2355,7 +2355,7 @@ void check_single_string(File file, size_t string_length) {
     SECTION("overlength space-padded") {
         auto obj =
             CreateTraits::create(file, "overlength_spacepad", dataspace, overlength_spacepad);
-        obj.template write(value);
+        obj.write(value);
         auto expected = std::string(n_chars_overlength, ' ');
         expected.replace(0, value.size(), value.data());
         REQUIRE(obj.template read<std::string>() == expected);
@@ -2363,7 +2363,7 @@ void check_single_string(File file, size_t string_length) {
 
     SECTION("variable length") {
         auto obj = CreateTraits::create(file, "variable", dataspace, variable_length);
-        obj.template write(value);
+        obj.write(value);
         REQUIRE(obj.template read<std::string>() == value);
     }
 }
@@ -2399,7 +2399,7 @@ void check_multiple_string(File file, size_t string_length) {
 
     SECTION("variable length") {
         auto obj = CreateTraits::create(file, "variable", dataspace, variable_length);
-        obj.template write(value);
+        obj.write(value);
         check(obj.template read<value_t>(), value);
     }
 
@@ -2416,14 +2416,14 @@ void check_multiple_string(File file, size_t string_length) {
         SECTION(label + " null-terminated") {
             auto datatype = FixedLengthStringType(length + 1, StringPadding::NullTerminated);
             auto obj = CreateTraits::create(file, label + "_nullterm", dataspace, datatype);
-            obj.template write(value);
+            obj.write(value);
             check(obj.template read<value_t>(), value);
         }
 
         SECTION(label + " null-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::NullPadded);
             auto obj = CreateTraits::create(file, label + "_nullpad", dataspace, datatype);
-            obj.template write(value);
+            obj.write(value);
             auto expected = make_padded_reference('\0', length);
             check(obj.template read<value_t>(), expected);
         }
@@ -2431,7 +2431,7 @@ void check_multiple_string(File file, size_t string_length) {
         SECTION(label + " space-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::SpacePadded);
             auto obj = CreateTraits::create(file, label + "_spacepad", dataspace, datatype);
-            obj.template write(value);
+            obj.write(value);
             auto expected = make_padded_reference(' ', length);
             check(obj.template read<value_t>(), expected);
         }
@@ -2444,13 +2444,13 @@ void check_multiple_string(File file, size_t string_length) {
     SECTION("underlength null-terminated") {
         auto datatype = FixedLengthStringType(string_length, StringPadding::NullTerminated);
         auto obj = CreateTraits::create(file, "underlength_nullterm", dataspace, datatype);
-        REQUIRE_THROWS(obj.template write(value));
+        REQUIRE_THROWS(obj.write(value));
     }
 
     SECTION("underlength nullpad") {
         auto datatype = FixedLengthStringType(string_length - 1, StringPadding::NullPadded);
         auto obj = CreateTraits::create(file, "underlength_nullpad", dataspace, datatype);
-        REQUIRE_THROWS(obj.template write(value));
+        REQUIRE_THROWS(obj.write(value));
     }
 
     SECTION("underlength spacepad") {
