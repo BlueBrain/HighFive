@@ -8,6 +8,7 @@
  */
 #pragma once
 
+#include <H5Ipublic.h>
 #include <algorithm>
 #include <functional>
 #include <numeric>
@@ -22,6 +23,7 @@
 #include "H5Utils.hpp"
 #include "h5a_wrapper.hpp"
 #include "h5d_wrapper.hpp"
+#include "squeeze.hpp"
 
 namespace HighFive {
 
@@ -51,7 +53,7 @@ inline DataSpace Attribute::getSpace() const {
 }
 
 inline DataSpace Attribute::getMemSpace() const {
-    return getSpace();
+    return _mem_space.getId() == H5I_INVALID_HID ? getSpace() : _mem_space;
 }
 
 template <typename T>
@@ -158,6 +160,29 @@ inline void Attribute::write_raw(const T* buffer) {
     const auto& mem_datatype = create_and_check_datatype<element_type>();
 
     write_raw(buffer, mem_datatype);
+}
+
+inline Attribute Attribute::squeezeMemSpace(const std::vector<size_t>& axes) const {
+    auto mem_dims = this->getMemSpace().getDimensions();
+    auto squeezed_dims = detail::squeeze(mem_dims, axes);
+
+    auto attr = *this;
+    attr._mem_space = DataSpace(mem_dims);
+    return attr;
+}
+
+inline Attribute Attribute::reshapeMemSpace(const std::vector<size_t>& new_dims) const {
+    auto n_elements_old = this->getMemSpace().getElementCount();
+    auto n_elements_new = compute_total_size(new_dims);
+    if (n_elements_old != n_elements_new) {
+        throw Exception("Invalid parameter `new_dims` number of elements differ: " +
+                        std::to_string(n_elements_old) + " (old) vs. " +
+                        std::to_string(n_elements_new) + " (new)");
+    }
+
+    auto attr = *this;
+    attr._mem_space = DataSpace(new_dims);
+    return attr;
 }
 
 }  // namespace HighFive
