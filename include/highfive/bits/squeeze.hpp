@@ -22,7 +22,7 @@ namespace detail {
 ///
 /// Example:
 ///   squeeze({1, 3, 2, 1}, {0, 3}) == {3, 2}
-std::vector<size_t> squeeze(const std::vector<size_t>& dims, const std::vector<size_t>& axes) {
+inline std::vector<size_t> squeeze(const std::vector<size_t>& dims, const std::vector<size_t>& axes) {
     auto n_dims = dims.size();
     auto mask = std::vector<bool>(n_dims, false);
     for (size_t i = 0; i < axes.size(); ++i) {
