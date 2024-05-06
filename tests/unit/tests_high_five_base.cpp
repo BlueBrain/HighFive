@@ -2311,8 +2311,8 @@ class ForwardToDataSet {
     HighFive::File _file;
 };
 
-template <class Proxy>
-void check_single_string(Proxy proxy, size_t string_length) {
+template <class CreateTraits>
+void check_single_string(File file, size_t string_length) {
     auto value = std::string(string_length, 'o');
     auto dataspace = DataSpace::From(value);
 
@@ -2327,42 +2327,47 @@ void check_single_string(Proxy proxy, size_t string_length) {
     auto variable_length = VariableLengthStringType();
 
     SECTION("automatic") {
-        proxy.create("auto", value);
-        REQUIRE(proxy.get("auto").template read<std::string>() == value);
+        auto obj = CreateTraits::create(file, "auto", value);
+        REQUIRE(obj.template read<std::string>() == value);
     }
 
     SECTION("fixed length") {
-        proxy.create("fixed", dataspace, fixed_length).write(value);
-        REQUIRE(proxy.get("fixed").template read<std::string>() == value);
+        auto obj = CreateTraits::create(file, "fixed", dataspace, fixed_length);
+        obj.template write(value);
+        REQUIRE(obj.template read<std::string>() == value);
     }
 
     SECTION("overlength null-terminated") {
-        proxy.create("overlength_nullterm", dataspace, overlength_nullterm).write(value);
-        REQUIRE(proxy.get("overlength_nullterm").template read<std::string>() == value);
+        auto obj = CreateTraits::create(file, "overlength_nullterm", dataspace, overlength_nullterm);
+        obj.template write(value);
+        REQUIRE(obj.template read<std::string>() == value);
     }
 
     SECTION("overlength null-padded") {
-        proxy.create("overlength_nullpad", dataspace, overlength_nullpad).write(value);
+        auto obj = CreateTraits::create(file, "overlength_nullpad", dataspace, overlength_nullpad);
+        obj.template write(value);
         auto expected = std::string(n_chars_overlength, '\0');
         expected.replace(0, value.size(), value.data());
-        REQUIRE(proxy.get("overlength_nullpad").template read<std::string>() == expected);
+        REQUIRE(obj.template read<std::string>() == expected);
     }
 
     SECTION("overlength space-padded") {
-        proxy.create("overlength_spacepad", dataspace, overlength_spacepad).write(value);
+        auto obj = CreateTraits::create(file, "overlength_spacepad", dataspace, overlength_spacepad);
+        obj. template write(value);
         auto expected = std::string(n_chars_overlength, ' ');
         expected.replace(0, value.size(), value.data());
-        REQUIRE(proxy.get("overlength_spacepad").template read<std::string>() == expected);
+        REQUIRE(obj.template read<std::string>() == expected);
     }
 
     SECTION("variable length") {
-        proxy.create("variable", dataspace, variable_length).write(value);
-        REQUIRE(proxy.get("variable").template read<std::string>() == value);
+        auto obj = CreateTraits::create(file, "variable", dataspace, variable_length);
+        obj. template write(value);
+        REQUIRE(obj.template read<std::string>() == value);
     }
 }
 
-template <class Proxy>
-void check_multiple_string(Proxy proxy, size_t string_length) {
+template <class CreateTraits>
+void check_multiple_string(File file, size_t string_length) {
     using value_t = std::vector<std::string>;
     auto value = value_t{std::string(string_length, 'o'), std::string(string_length, 'x')};
 
@@ -2386,13 +2391,14 @@ void check_multiple_string(Proxy proxy, size_t string_length) {
     };
 
     SECTION("automatic") {
-        proxy.create("auto", value);
-        check(proxy.get("auto").template read<value_t>(), value);
+        auto obj = CreateTraits::create("auto", value);
+        check(obj.template read<value_t>(), value);
     }
 
     SECTION("variable length") {
-        proxy.create("variable", dataspace, variable_length).write(value);
-        check(proxy.get("variable").template read<value_t>(), value);
+      auto obj = CreateTraits::create("variable", dataspace, variable_length);
+      obj.template write(value);
+        check(obj.template read<value_t>(), value);
     }
 
     auto make_padded_reference = [&](char pad, size_t n) {
@@ -2407,22 +2413,24 @@ void check_multiple_string(Proxy proxy, size_t string_length) {
     auto check_fixed_length = [&](const std::string& label, size_t length) {
         SECTION(label + " null-terminated") {
             auto datatype = FixedLengthStringType(length + 1, StringPadding::NullTerminated);
-            proxy.create(label + "_nullterm", dataspace, datatype).write(value);
-            check(proxy.get(label + "_nullterm").template read<value_t>(), value);
+            auto obj = CreateTraits::create(label + "_nullterm", dataspace, datatype);
+            obj.template write(value);
+            check(obj.template read<value_t>(), value);
         }
 
         SECTION(label + " null-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::NullPadded);
-            proxy.create(label + "_nullpad", dataspace, datatype).write(value);
+            auto obj = CreateTraits::create(label + "_nullpad", dataspace, datatype).write(value);
             auto expected = make_padded_reference('\0', length);
-            check(proxy.get(label + "_nullpad").template read<value_t>(), expected);
+            check(obj.template read<value_t>(), expected);
         }
 
         SECTION(label + " space-padded") {
             auto datatype = FixedLengthStringType(length, StringPadding::SpacePadded);
-            proxy.create(label + "_spacepad", dataspace, datatype).write(value);
+            auto obj = CreateTraits::create(label + "_spacepad", dataspace, datatype);
+            obj.template write(value);
             auto expected = make_padded_reference(' ', length);
-            check(proxy.get(label + "_spacepad").template read<value_t>(), expected);
+            check(obj.template read<value_t>(), expected);
         }
     };
 
@@ -2432,43 +2440,46 @@ void check_multiple_string(Proxy proxy, size_t string_length) {
 
     SECTION("underlength null-terminated") {
         auto datatype = FixedLengthStringType(string_length, StringPadding::NullTerminated);
-        REQUIRE_THROWS(proxy.create("underlength_nullterm", dataspace, datatype).write(value));
+        auto obj = CreateTraits::create("underlength_nullterm", dataspace, datatype);
+        REQUIRE_THROWS(obj.template write(value));
     }
 
     SECTION("underlength nullpad") {
         auto datatype = FixedLengthStringType(string_length - 1, StringPadding::NullPadded);
-        REQUIRE_THROWS(proxy.create("underlength_nullpad", dataspace, datatype).write(value));
+        auto obj = CreateTraits::create("underlength_nullpad", dataspace, datatype);
+        REQUIRE_THROWS(obj.template write(value));
     }
 
     SECTION("underlength spacepad") {
         auto datatype = FixedLengthStringType(string_length - 1, StringPadding::NullTerminated);
-        REQUIRE_THROWS(proxy.create("underlength_spacepad", dataspace, datatype).write(value));
+        auto obj = proxy.create("underlength_spacepad", dataspace, datatype);
+        REQUIRE_THROWS(obj.write(value));
     }
 }
 
 TEST_CASE("HighFiveSTDString (dataset, single, short)") {
     File file("std_string_dataset_single_short.h5", File::Truncate);
-    check_single_string(ForwardToDataSet(file), 3);
+    check_single_string<testing::DataSetCreateTraits>(file, 3);
 }
 
 TEST_CASE("HighFiveSTDString (attribute, single, short)") {
     File file("std_string_attribute_single_short.h5", File::Truncate);
-    check_single_string(ForwardToAttribute(file), 3);
+    check_single_string<testing::AttributeCreateTraits>(file, 3);
 }
 
 TEST_CASE("HighFiveSTDString (dataset, single, long)") {
     File file("std_string_dataset_single_long.h5", File::Truncate);
-    check_single_string(ForwardToDataSet(file), 256);
+    check_single_string<testing::DataSetCreateTraits>(file, 256);
 }
 
 TEST_CASE("HighFiveSTDString (attribute, single, long)") {
     File file("std_string_attribute_single_long.h5", File::Truncate);
-    check_single_string(ForwardToAttribute(file), 256);
+    check_single_string<testing::AttributeCreateTraits>(file, 256);
 }
 
 TEST_CASE("HighFiveSTDString (dataset, multiple, short)") {
     File file("std_string_dataset_multiple_short.h5", File::Truncate);
-    check_multiple_string(ForwardToDataSet(file), 3);
+    check_multiple_string<testing::DataSetCreateTraits>(file, 3);
 }
 
 TEST_CASE("HighFiveSTDString (attribute, multiple, short)") {
