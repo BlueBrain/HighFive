@@ -300,7 +300,6 @@ jobs:
           - os: "macOS-12"
             cxxstd: "14"
 
-        include:
           - os: "macOS-13"
             cxxstd: "20"
 
