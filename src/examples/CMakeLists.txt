@@ -18,6 +18,10 @@ set(core_examples
   ${CMAKE_CURRENT_SOURCE_DIR}/select_partial_dataset_cpp11.cpp
 )
 
+set(span_examples
+  ${CMAKE_CURRENT_SOURCE_DIR}/read_write_std_span.cpp
+)
+
 set(easy_examples
   ${CMAKE_CURRENT_SOURCE_DIR}/easy_attribute.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/easy_dumpoptions.cpp
@@ -69,6 +73,12 @@ endforeach()
 foreach(example_source ${easy_examples})
   compile_example(${example_source})
 endforeach()
+
+if(HIGHFIVE_TEST_SPAN)
+  foreach(example_source ${span_examples})
+    compile_example(${example_source})
+  endforeach()
+endif()
 
 if(HIGHFIVE_TEST_BOOST)
   foreach(example_source ${boost_examples})
