@@ -47,10 +47,18 @@ else()
   set(HIGHFIVE_EXTRAS_DEFAULT OFF)
 endif()
 
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 20)
+  include(CheckIncludeFileCXX)
+  CHECK_INCLUDE_FILE_CXX(span HIGHFIVE_TEST_SPAN_DEFAULT)
+else()
+  set(HIGHFIVE_TEST_SPAN_DEFAULT Off)
+endif()
+
 option(HIGHFIVE_UNIT_TESTS "Compile unit-tests" ${HIGHFIVE_EXTRAS_DEFAULT})
 option(HIGHFIVE_EXAMPLES "Compile examples" ${HIGHFIVE_EXTRAS_DEFAULT})
 option(HIGHFIVE_BUILD_DOCS "Build documentation" ${HIGHFIVE_EXTRAS_DEFAULT})
 
+option(HIGHFIVE_TEST_SPAN "Enable std::span testing, requires C++20" ${HIGHFIVE_TEST_SPAN_DEFAULT})
 option(HIGHFIVE_TEST_BOOST "Enable Boost testing" OFF)
 option(HIGHFIVE_TEST_EIGEN "Enable Eigen testing" OFF)
 option(HIGHFIVE_TEST_OPENCV "Enable OpenCV testing" OFF)

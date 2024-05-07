@@ -34,6 +34,14 @@ struct STDArray {
     using type = std::array<typename C::template type<T>, n>;
 };
 
+#ifdef HIGHFIVE_TEST_SPAN
+template <class C = type_identity>
+struct STDSpan {
+    template <class T>
+    using type = std::span<typename C::template type<T>>;
+};
+#endif
+
 #ifdef HIGHFIVE_TEST_BOOST
 template <size_t n, class C = type_identity>
 struct BoostMultiArray {
@@ -150,6 +158,13 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<STDArray<7, EigenMatrix<3, 5, Eigen::RowMajor>>, scalar_types_eigen>::type,
   typename ContainerProduct<STDArray<7, EigenArray<Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>, scalar_types_eigen>::type,
   std::tuple<std::array<Eigen::VectorXd, 7>>,
+#endif
+#ifdef HIGHFIVE_TEST_SPAN
+  typename ContainerProduct<STDSpan<>, all_scalar_types>::type,
+  typename ContainerProduct<STDVector<STDSpan<>>, some_scalar_types>::type,
+  typename ContainerProduct<STDArray<7, STDSpan<>>, some_scalar_types>::type,
+  typename ContainerProduct<STDSpan<STDVector<>>, some_scalar_types>::type,
+  typename ContainerProduct<STDSpan<STDArray<3>>, some_scalar_types>::type,
 #endif
   typename ContainerProduct<STDVector<>, all_scalar_types>::type,
   typename ContainerProduct<STDVector<STDVector<>>, some_scalar_types>::type,

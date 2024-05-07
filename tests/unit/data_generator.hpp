@@ -17,6 +17,10 @@
 #include <highfive/eigen.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_SPAN
+#include <highfive/span.hpp>
+#endif
+
 
 namespace HighFive {
 namespace testing {
@@ -220,6 +224,53 @@ struct ContainerTraits<std::array<T, N>>: public STLLikeContainerTraits<std::arr
         ContainerTraits<value_type>::sanitize_dims(dims, axis + 1);
     }
 };
+
+
+#ifdef HIGHFIVE_TEST_SPAN
+template <class T, std::size_t Extent>
+struct ContainerTraits<std::span<T, Extent>>: public STLLikeContainerTraits<std::span<T, Extent>> {
+  private:
+    using super = STLLikeContainerTraits<std::span<T, Extent>>;
+
+  public:
+    using container_type = typename super::container_type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+
+    static constexpr bool is_view = true;
+
+    static container_type allocate(const std::vector<size_t>& dims) {
+        size_t n_elements = dims[0];
+        value_type* ptr = new value_type[n_elements];
+
+        container_type array = container_type(ptr, n_elements);
+
+        for (size_t i = 0; i < n_elements; ++i) {
+            auto element = ContainerTraits<value_type>::allocate(lstrip(dims, 1));
+            ContainerTraits<value_type>::assign(array[i], element);
+        }
+
+        return array;
+    }
+
+    static void deallocate(container_type& array, const std::vector<size_t>& dims) {
+        size_t n_elements = dims[0];
+        for (size_t i = 0; i < n_elements; ++i) {
+            ContainerTraits<value_type>::deallocate(array[i], lstrip(dims, 1));
+        }
+
+        delete[] array.data();
+    }
+
+    static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
+        if (Extent != std::dynamic_extent) {
+            dims[axis] = Extent;
+            ContainerTraits<value_type>::sanitize_dims(dims, axis + 1);
+        }
+    }
+};
+#endif
+
 
 // -- Boost  -------------------------------------------------------------------
 #ifdef HIGHFIVE_TEST_BOOST

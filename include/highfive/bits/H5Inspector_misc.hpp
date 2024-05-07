@@ -465,6 +465,7 @@ struct inspector<std::array<T, N>> {
     }
 };
 
+
 // Cannot be use for reading
 template <typename T>
 struct inspector<T*> {
