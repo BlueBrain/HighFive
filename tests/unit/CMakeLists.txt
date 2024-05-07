@@ -46,17 +46,18 @@ option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
 
 if(HIGHFIVE_TEST_SINGLE_INCLUDES)
     file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
+
     foreach(PUBLIC_HEADER ${public_headers})
-        if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_TEST_BOOST)
-          continue()
+        if(PUBLIC_HEADER MATCHES "boost.hpp$" AND NOT HIGHFIVE_TEST_BOOST)
+            continue()
         endif()
 
-        if(PUBLIC_HEADER STREQUAL "highfive/half_float.hpp" AND NOT HIGHFIVE_TEST_HALF_FLOAT)
-          continue()
+        if(PUBLIC_HEADER MATCHES "half_float.hpp$" AND NOT HIGHFIVE_TEST_HALF_FLOAT)
+            continue()
         endif()
 
-        if(PUBLIC_HEADER STREQUAL "highfive/eigen.hpp" AND NOT HIGHFIVE_TEST_EIGEN)
-          continue()
+        if(PUBLIC_HEADER MATCHES "eigen.hpp$" AND NOT HIGHFIVE_TEST_EIGEN)
+            continue()
         endif()
 
         get_filename_component(CLASS_NAME ${PUBLIC_HEADER} NAME_WE)
