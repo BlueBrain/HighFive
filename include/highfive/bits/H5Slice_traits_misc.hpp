@@ -291,11 +291,11 @@ inline void SliceTraits<Derivate>::write_raw(const T* buffer, const DataTransfer
 }
 
 namespace detail {
-const DataSet& getDataSet(const Selection& selection) {
+inline const DataSet& getDataSet(const Selection& selection) {
     return selection.getDataset();
 }
 
-const DataSet& getDataSet(const DataSet& dataset) {
+inline const DataSet& getDataSet(const DataSet& dataset) {
     return dataset;
 }
 
