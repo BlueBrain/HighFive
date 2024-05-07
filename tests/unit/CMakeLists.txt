@@ -45,7 +45,7 @@ endif()
 option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
 
 if(HIGHFIVE_TEST_SINGLE_INCLUDES)
-  file(GLOB CONFIGURE_DEPENDS public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
+    file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
     foreach(PUBLIC_HEADER ${public_headers})
         if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_TEST_BOOST)
           continue()
