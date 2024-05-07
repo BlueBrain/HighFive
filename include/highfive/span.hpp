@@ -10,6 +10,7 @@
 #pragma once
 
 #include "bits/H5Inspector_decl.hpp"
+#include "H5Exception.hpp"
 
 #include <span>
 
