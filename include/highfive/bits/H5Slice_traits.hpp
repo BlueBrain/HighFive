@@ -368,6 +368,28 @@ class SliceTraits {
     ///
     template <typename T>
     void write_raw(const T* buffer, const DataTransferProps& xfer_props = DataTransferProps());
+
+    ///
+    /// \brief Return a `Selection` with `axes` squeezed from the memspace.
+    ///
+    /// Returns a selection in which the memspace has been modified
+    /// to not include the axes listed in `axes`.
+    ///
+    /// Throws if any axis to be squeezes has a dimension other than `1`.
+    ///
+    /// \since 3.0
+    Selection squeezeMemSpace(const std::vector<size_t>& axes) const;
+
+    ///
+    /// \brief Return a `Selection` with a simple memspace with `dims`.
+    ///
+    /// Returns a selection in which the memspace has been modified
+    /// to be a simple dataspace with dimensions `dims`.
+    ///
+    /// Throws if the number of elements changes.
+    ///
+    /// \since 3.0
+    Selection reshapeMemSpace(const std::vector<size_t>& dims) const;
 };
 
 }  // namespace HighFive

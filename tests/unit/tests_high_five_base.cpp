@@ -1638,6 +1638,45 @@ TEST_CASE("ReadInBroadcastDims") {
     }
 }
 
+TEST_CASE("squeeze") {
+    CHECK(detail::squeeze({}, {}) == std::vector<size_t>{});
+    CHECK(detail::squeeze({3, 1, 1}, {}) == std::vector<size_t>{3, 1, 1});
+    CHECK(detail::squeeze({3, 1, 1}, {2, 1}) == std::vector<size_t>{3});
+    CHECK(detail::squeeze({1, 3, 1, 2}, {2, 0}) == std::vector<size_t>{3, 2});
+
+    CHECK_THROWS(detail::squeeze({3, 1, 1}, {3}));
+    CHECK_THROWS(detail::squeeze({3, 1, 1}, {0}));
+    CHECK_THROWS(detail::squeeze({}, {0}));
+}
+
+TEST_CASE("SqueezeMemSpace") {
+    const std::string file_name("h5_squeeze_memspace.h5");
+    const std::string dataset_name("dset");
+
+    File file(file_name, File::Truncate);
+
+    auto expected_values = std::vector<double>{1.0, 2.0, 3.0};
+    auto values = std::vector<std::vector<double>>{expected_values};
+
+    auto dset = file.createDataSet(dataset_name, values);
+    SECTION("squeeze") {
+        auto actual_values = dset.squeezeMemSpace({0}).read<std::vector<double>>();
+
+        REQUIRE(actual_values.size() == expected_values.size());
+        for (size_t i = 0; i < actual_values.size(); ++i) {
+            REQUIRE(actual_values[i] == expected_values[i]);
+        }
+    }
+
+    SECTION("reshape") {
+        auto actual_values = dset.reshapeMemSpace({3}).read<std::vector<double>>();
+
+        REQUIRE(actual_values.size() == expected_values.size());
+        for (size_t i = 0; i < actual_values.size(); ++i) {
+            REQUIRE(actual_values[i] == expected_values[i]);
+        }
+    }
+}
 
 template <int n_dim>
 struct CreateEmptyVector;
@@ -1735,13 +1774,13 @@ void check_empty_read_write_cycle(const std::vector<size_t>& dims) {
     SECTION("read; one-dimensional vector (empty)") {
         auto output_data = CreateEmptyVector<1>::create({0ul});
 
-        ReadWriteInterface::get(file, dataset_name).read(output_data);
+        ReadWriteInterface::get(file, dataset_name).reshapeMemSpace({0ul}).read(output_data);
         check_empty_dimensions(output_data, {0ul});
     }
 
     SECTION("read; pre-allocated (empty)") {
         auto output_data = CreateContainer::create(dims);
-        ReadWriteInterface::get(file, dataset_name).read(output_data);
+        ReadWriteInterface::get(file, dataset_name).reshapeMemSpace(dims).read(output_data);
 
         check_empty_dimensions(output_data, dims);
     }
@@ -1749,14 +1788,15 @@ void check_empty_read_write_cycle(const std::vector<size_t>& dims) {
     SECTION("read; pre-allocated (oversized)") {
         auto oversize_dims = std::vector<size_t>(dims.size(), 2ul);
         auto output_data = CreateContainer::create(oversize_dims);
-        ReadWriteInterface::get(file, dataset_name).read(output_data);
+        ReadWriteInterface::get(file, dataset_name).reshapeMemSpace(dims).read(output_data);
 
         check_empty_dimensions(output_data, dims);
     }
 
     SECTION("read; auto-allocated") {
-        auto output_data =
-            ReadWriteInterface::get(file, dataset_name).template read<container_type>();
+        auto output_data = ReadWriteInterface::get(file, dataset_name)
+                               .reshapeMemSpace(dims)
+                               .template read<container_type>();
         check_empty_dimensions(output_data, dims);
     }
 }
