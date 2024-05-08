@@ -1649,18 +1649,16 @@ TEST_CASE("squeeze") {
     CHECK_THROWS(detail::squeeze({}, {0}));
 }
 
-TEST_CASE("SqueezeMemSpace") {
-    const std::string file_name("h5_squeeze_memspace.h5");
-    const std::string dataset_name("dset");
-
-    File file(file_name, File::Truncate);
+template <class CreateTraits>
+void check_modify_mem_space(File& file) {
+    const std::string name = "dset";
 
     auto expected_values = std::vector<double>{1.0, 2.0, 3.0};
     auto values = std::vector<std::vector<double>>{expected_values};
 
-    auto dset = file.createDataSet(dataset_name, values);
+    auto obj = CreateTraits::create(file, name, values);
     SECTION("squeeze") {
-        auto actual_values = dset.squeezeMemSpace({0}).read<std::vector<double>>();
+        auto actual_values = obj.squeezeMemSpace({0}).template read<std::vector<double>>();
 
         REQUIRE(actual_values.size() == expected_values.size());
         for (size_t i = 0; i < actual_values.size(); ++i) {
@@ -1669,7 +1667,7 @@ TEST_CASE("SqueezeMemSpace") {
     }
 
     SECTION("reshape") {
-        auto actual_values = dset.reshapeMemSpace({3}).read<std::vector<double>>();
+        auto actual_values = obj.reshapeMemSpace({3}).template read<std::vector<double>>();
 
         REQUIRE(actual_values.size() == expected_values.size());
         for (size_t i = 0; i < actual_values.size(); ++i) {
@@ -1677,6 +1675,17 @@ TEST_CASE("SqueezeMemSpace") {
         }
     }
 }
+
+TEST_CASE("Modify Mem Space, attr") {
+    File file("h5_modify_memspace_dset.h5", File::Truncate);
+    check_modify_mem_space<testing::DataSetCreateTraits>(file);
+}
+
+TEST_CASE("Modify Mem Space, dset") {
+    File file("h5_modify_memspace_attr.h5", File::Truncate);
+    check_modify_mem_space<testing::AttributeCreateTraits>(file);
+}
+
 
 template <int n_dim>
 struct CreateEmptyVector;
