@@ -167,7 +167,7 @@ inline Attribute Attribute::squeezeMemSpace(const std::vector<size_t>& axes) con
     auto squeezed_dims = detail::squeeze(mem_dims, axes);
 
     auto attr = *this;
-    attr._mem_space = DataSpace(mem_dims);
+    attr._mem_space = DataSpace(squeezed_dims);
     return attr;
 }
 
