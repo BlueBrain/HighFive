@@ -1427,6 +1427,66 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteSzip", "[template]", dataset_test_types) {
     }
 }
 
+template <class CreateTraits>
+void check_broadcast_scalar_memspace(File& file,
+                                     const std::string& name,
+                                     const std::vector<size_t>& dims) {
+    auto datatype = create_datatype<double>();
+    auto obj = CreateTraits::create(file, name, DataSpace(dims), datatype);
+
+    double expected = 3.0;
+    obj.write(expected);
+
+    auto actual = obj.template read<double>();
+    CHECK(actual == expected);
+}
+
+TEST_CASE("Broadcast scalar memspace, dset") {
+    File file("h5_broadcast_scalar_memspace_dset.h5", File::Truncate);
+
+    SECTION("[1]") {
+        check_broadcast_scalar_memspace<testing::DataSetCreateTraits>(file, "dset", {1});
+    }
+
+    SECTION("[1, 1, 1]") {
+        check_broadcast_scalar_memspace<testing::DataSetCreateTraits>(file, "dset", {1, 1, 1});
+    }
+}
+
+TEST_CASE("Broadcast scalar memspace, attr") {
+    File file("h5_broadcast_scalar_memspace_attr.h5", File::Truncate);
+
+    SECTION("[1]") {
+        check_broadcast_scalar_memspace<testing::AttributeCreateTraits>(file, "attr", {1});
+    }
+
+    SECTION("[1, 1, 1]") {
+        check_broadcast_scalar_memspace<testing::AttributeCreateTraits>(file, "attr", {1, 1, 1});
+    }
+}
+
+template <class CreateTraits>
+void check_broadcast_scalar_filespace(File& file, const std::string& name) {
+    auto datatype = create_datatype<double>();
+    auto obj = CreateTraits::create(file, name, DataSpace::Scalar(), datatype);
+
+    auto value = std::vector<double>{3.0};
+
+    REQUIRE_THROWS(obj.write(value));
+    REQUIRE_THROWS(obj.template read<std::vector<double>>());
+    REQUIRE_THROWS(obj.read(value));
+}
+
+TEST_CASE("Broadcast scalar filespace, dset") {
+    File file("h5_broadcast_scalar_filespace_dset.h5", File::Truncate);
+    check_broadcast_scalar_filespace<testing::DataSetCreateTraits>(file, "dset");
+}
+
+TEST_CASE("Broadcast scalar filespace, attr") {
+    File file("h5_broadcast_scalar_filespace_attr.h5", File::Truncate);
+    check_broadcast_scalar_filespace<testing::AttributeCreateTraits>(file, "attr");
+}
+
 TEST_CASE("squeeze") {
     CHECK(detail::squeeze({}, {}) == std::vector<size_t>{});
     CHECK(detail::squeeze({3, 1, 1}, {}) == std::vector<size_t>{3, 1, 1});
@@ -1439,9 +1499,7 @@ TEST_CASE("squeeze") {
 }
 
 template <class CreateTraits>
-void check_modify_mem_space(File& file) {
-    const std::string name = "dset";
-
+void check_modify_memspace(File& file, const std::string& name) {
     auto expected_values = std::vector<double>{1.0, 2.0, 3.0};
     auto values = std::vector<std::vector<double>>{expected_values};
 
@@ -1465,14 +1523,63 @@ void check_modify_mem_space(File& file) {
     }
 }
 
-TEST_CASE("Modify Mem Space, attr") {
+TEST_CASE("Modify MemSpace, dset") {
     File file("h5_modify_memspace_dset.h5", File::Truncate);
-    check_modify_mem_space<testing::DataSetCreateTraits>(file);
+    check_modify_memspace<testing::DataSetCreateTraits>(file, "dset");
 }
 
-TEST_CASE("Modify Mem Space, dset") {
+TEST_CASE("Modify MemSpace, attr") {
     File file("h5_modify_memspace_attr.h5", File::Truncate);
-    check_modify_mem_space<testing::AttributeCreateTraits>(file);
+    check_modify_memspace<testing::AttributeCreateTraits>(file, "attr");
+}
+
+template <class CreateTraits>
+void check_modify_scalar_filespace(File& file, const std::string& name) {
+    auto expected_value = 3.0;
+
+    auto obj = CreateTraits::create(file, name, expected_value);
+    SECTION("reshape") {
+        auto actual_values = obj.reshapeMemSpace({1}).template read<std::vector<double>>();
+
+        REQUIRE(actual_values.size() == 1);
+        REQUIRE(actual_values[0] == expected_value);
+    }
+}
+
+TEST_CASE("Modify Scalar FileSpace, dset") {
+    File file("h5_modify_scalar_filespace_dset.h5", File::Truncate);
+    check_modify_scalar_filespace<testing::DataSetCreateTraits>(file, "dset");
+}
+
+TEST_CASE("Modify Scalar FileSpace, attr") {
+    File file("h5_modify_scalar_filespace_attr.h5", File::Truncate);
+    check_modify_scalar_filespace<testing::AttributeCreateTraits>(file, "attr");
+}
+
+template <class CreateTraits>
+void check_modify_scalar_memspace(File& file, const std::string& name) {
+    auto expected_value = std::vector<double>{3.0};
+
+    auto obj = CreateTraits::create(file, name, expected_value);
+    SECTION("squeeze") {
+        auto actual_value = obj.squeezeMemSpace({0}).template read<double>();
+        REQUIRE(actual_value == expected_value[0]);
+    }
+
+    SECTION("reshape") {
+        auto actual_value = obj.reshapeMemSpace({}).template read<double>();
+        REQUIRE(actual_value == expected_value[0]);
+    }
+}
+
+TEST_CASE("Modify Scalar MemSpace, dset") {
+    File file("h5_modify_scalar_memspace_dset.h5", File::Truncate);
+    check_modify_scalar_memspace<testing::DataSetCreateTraits>(file, "dset");
+}
+
+TEST_CASE("Modify Scalar MemSpace, attr") {
+    File file("h5_modify_scalar_memspace_attr.h5", File::Truncate);
+    check_modify_scalar_memspace<testing::AttributeCreateTraits>(file, "attr");
 }
 
 
