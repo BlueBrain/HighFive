@@ -24,6 +24,7 @@
 #include "h5a_wrapper.hpp"
 #include "h5d_wrapper.hpp"
 #include "squeeze.hpp"
+#include "assert_compatible_spaces.hpp"
 
 namespace HighFive {
 
@@ -81,10 +82,7 @@ inline void Attribute::read(T& array) const {
     auto dims = mem_space.getDimensions();
 
     if (mem_space.getElementCount() == 0) {
-        auto effective_dims = details::squeezeDimensions(dims,
-                                                         details::inspector<T>::recursive_ndim);
-
-        details::inspector<T>::prepare(array, effective_dims);
+        details::inspector<T>::prepare(array, dims);
         return;
     }
 
@@ -172,13 +170,7 @@ inline Attribute Attribute::squeezeMemSpace(const std::vector<size_t>& axes) con
 }
 
 inline Attribute Attribute::reshapeMemSpace(const std::vector<size_t>& new_dims) const {
-    auto n_elements_old = this->getMemSpace().getElementCount();
-    auto n_elements_new = compute_total_size(new_dims);
-    if (n_elements_old != n_elements_new) {
-        throw Exception("Invalid parameter `new_dims` number of elements differ: " +
-                        std::to_string(n_elements_old) + " (old) vs. " +
-                        std::to_string(n_elements_new) + " (new)");
-    }
+    detail::assert_compatible_spaces(this->getMemSpace(), new_dims);
 
     auto attr = *this;
     attr._mem_space = DataSpace(new_dims);

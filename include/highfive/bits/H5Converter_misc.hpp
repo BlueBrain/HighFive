@@ -415,10 +415,8 @@ struct data_converter {
     static Reader<T> get_reader(const std::vector<size_t>& dims,
                                 T& val,
                                 const DataType& file_datatype) {
-        // TODO Use bufferinfo for recursive_ndim
-        auto effective_dims = details::squeezeDimensions(dims, inspector<T>::recursive_ndim);
-        inspector<T>::prepare(val, effective_dims);
-        return Reader<T>(effective_dims, val, file_datatype);
+        inspector<T>::prepare(val, dims);
+        return Reader<T>(dims, val, file_datatype);
     }
 };
 

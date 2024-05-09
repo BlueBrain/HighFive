@@ -22,6 +22,7 @@
 #include "H5Converter_misc.hpp"
 #include "squeeze.hpp"
 #include "compute_total_size.hpp"
+#include "assert_compatible_spaces.hpp"
 
 namespace HighFive {
 
@@ -316,14 +317,7 @@ template <typename Derivate>
 inline Selection SliceTraits<Derivate>::reshapeMemSpace(const std::vector<size_t>& new_dims) const {
     auto slice = static_cast<const Derivate&>(*this);
 
-    auto n_elements_old = slice.getMemSpace().getElementCount();
-    auto n_elements_new = compute_total_size(new_dims);
-    if (n_elements_old != n_elements_new) {
-        throw Exception("Invalid parameter `new_dims` number of elements differ: " +
-                        std::to_string(n_elements_old) + " (old) vs. " +
-                        std::to_string(n_elements_new) + " (new)");
-    }
-
+    detail::assert_compatible_spaces(slice.getMemSpace(), new_dims);
     return detail::make_selection(DataSpace(new_dims), slice.getSpace(), detail::getDataSet(slice));
 }
 
