@@ -15,7 +15,6 @@ replaced with an `std::vector<std::string>` (for example).
 If desired one can silence warnings by replacing `FixedLenStringArray` with
 `deprecated::FixedLenStringArray`.
 
-
 ## Deprecation of `read(T*, ...)`.
 A "raw read" is when the user allocates sufficient bytes and provides HighFive
 with the pointer to the first byte. "Regular reads" take a detour via the
@@ -40,7 +39,7 @@ dset.read(x);
 which is fine because is a contiguous sequence of doubles. It's equivalent to
 following `v3` code:
 ```
-double x[2][3];
+double x[n][m];
 dset.read_raw((double*) x);
 ```
 
@@ -48,11 +47,11 @@ dset.read_raw((double*) x);
 We consider the example above to be accidentally using a raw read, when it
 could be performing a regular read. We suggest to not change the above, i.e.
 ```
-double x[2][3];
+double x[n][m];
 dset.read(x);
 ```
 continues to be correct in `v3` and can check that the dimensions match. The
-inspector recognizes `double[2][3]` as a contiguous array of doubles.
+inspector recognizes `double[n][m]` as a contiguous array of doubles.
 Therefore, it'll use the shallow-copy buffer and avoid the any additional
 allocations or copies.
 
@@ -61,10 +60,47 @@ When genuinely performing a "raw read", one must replace `read` with
 `read_raw`. For example:
 
 ```
-double* x = malloc(2*3 * sizeof(double));
+double* x = malloc(n*m * sizeof(double));
 dset.read_raw(x);
 ```
 is correct in `v3`.
+
+## Change for `T**`, `T***`, etc.
+*The immediately preceding section is likely relevant.*
+
+In `v2` raw pointers could be used to indicate dimensionality. For example:
+```
+double* x = malloc(n*m * sizeof(double));
+auto dset = file.createDataSet("foo", DataSpace({n, m}), ...);
+
+dset.write((double**) x);
+dset.read((double**) x);
+```
+was valid and would write the flat array `x` into the two-dimensional dataset
+`"foo"`. This must be modernized as follows:
+```
+double* x = malloc(n*m * sizeof(double));
+auto dset = file.createDataSet("foo", DataSpace({n, m}), ...);
+
+dset.write_raw(x);
+dset.read_raw(x);
+```
+
+In `v3` the type `T**` will refer a pointer to a pointer (as usual). The
+following:
+```
+size_t n = 2, m = 3;
+double** x = malloc(n * sizeof(double*));
+for(size_t i = 0; i < n; ++i) {
+  x[i] = malloc(m * sizeof(double));
+}
+
+auto dset = file.createDataSet("foo", DataSpace({n, m}), ...);
+dset.write(x);
+dset.read(x);
+```
+is correct in `v3` but would probably segfault in `v2`.
+
 
 ## Reworked CMake
 In `v3` we completely rewrote the CMake code of HighFive. Since HighFive is a
