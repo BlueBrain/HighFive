@@ -70,7 +70,7 @@ class File: public Object, public NodeTraits<File>, public AnnotateTraits<File> 
     ///
     /// \brief Return the name of the file
     ///
-    const std::string& getName() const noexcept;
+    const std::string& getName() const;
 
 
     /// \brief Object path of a File is always "/"

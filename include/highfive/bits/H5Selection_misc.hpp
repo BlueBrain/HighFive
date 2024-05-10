@@ -17,19 +17,19 @@ inline Selection::Selection(const DataSpace& memspace,
     , _file_space(file_space)
     , _set(set) {}
 
-inline DataSpace Selection::getSpace() const noexcept {
+inline DataSpace Selection::getSpace() const {
     return _file_space;
 }
 
-inline DataSpace Selection::getMemSpace() const noexcept {
+inline DataSpace Selection::getMemSpace() const {
     return _mem_space;
 }
 
-inline DataSet& Selection::getDataset() noexcept {
+inline DataSet& Selection::getDataset() {
     return _set;
 }
 
-inline const DataSet& Selection::getDataset() const noexcept {
+inline const DataSet& Selection::getDataset() const {
     return _set;
 }
 

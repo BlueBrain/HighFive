@@ -82,7 +82,7 @@ inline File::File(const std::string& filename,
     _hid = detail::h5f_create(filename.c_str(), createMode, fcpl, fapl);
 }
 
-inline const std::string& File::getName() const noexcept {
+inline const std::string& File::getName() const {
     if (_filename.empty()) {
         _filename = details::get_name([this](char* buffer, size_t length) {
             return detail::h5f_get_name(getId(), buffer, length);
