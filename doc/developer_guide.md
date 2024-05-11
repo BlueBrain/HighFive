@@ -195,8 +195,11 @@ Write-read cycles for scalar values should be implemented in
 Unit-tests related to checking that `DataType` API, go in
 `tests/unit/tests_high_data_type.cpp`.
 
+#### Empty Arrays
+Check related to empty arrays to in `tests/unit/test_empty_arrays.cpp`.
+
 #### Selections
-Anything selection related goes in `tests/unit/test_high_five_selection.cpp`.
+Anything selection related goes in `tests/unit/test_string.cpp`.
 This includes things like `ElementSet` and `HyperSlab`.
 
 #### Strings
