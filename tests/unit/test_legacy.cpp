@@ -36,3 +36,39 @@ TEST_CASE("HighFiveReadWriteConsts") {
         }
     }
 }
+
+TEST_CASE("Array of char pointers") {
+    // Currently, serializing an `std::vector<char*>` as
+    // fixed or variable length strings doesn't work.
+    //
+    // This isn't a test of correctness. Rather it asserts the fact that
+    // something doesn't work in HighFive. Knowing it doesn't work is useful
+    // for developers, but could change in the future.
+
+    const std::string file_name = "vector_char_pointer.h5";
+
+    File file(file_name, File::Truncate);
+
+    size_t n_strings = 3;
+    size_t n_chars = 4;
+    char storage[3][4] = {"foo", "bar", "000"};
+    auto strings = std::vector<char*>(n_strings);
+
+    for (size_t i = 0; i < n_strings; ++i) {
+        strings[i] = static_cast<char*>(storage[i]);
+    }
+
+    auto filespace = DataSpace({n_strings});
+
+    SECTION("fixed length") {
+        auto datatype = FixedLengthStringType(n_chars, StringPadding::NullTerminated);
+        auto dset = file.createDataSet("dset", filespace, datatype);
+        REQUIRE_THROWS(dset.write(strings));
+    }
+
+    SECTION("variable length") {
+        auto datatype = VariableLengthStringType();
+        auto dset = file.createDataSet("dset", filespace, datatype);
+        REQUIRE_THROWS(dset.write(strings));
+    }
+}
