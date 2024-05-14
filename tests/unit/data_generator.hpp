@@ -79,6 +79,7 @@ struct ScalarContainerTraits {
     using base_type = T;
 
     static constexpr bool is_view = false;
+    static constexpr size_t rank = 0;
 
     static void set(container_type& array, std::vector<size_t> /* indices */, base_type value) {
         array = value;
@@ -120,6 +121,7 @@ struct ContainerTraits<std::vector<bool>> {
     using base_type = bool;
 
     static constexpr bool is_view = false;
+    static constexpr size_t rank = 1;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -154,6 +156,7 @@ struct STLLikeContainerTraits {
     using base_type = typename ContainerTraits<value_type>::base_type;
 
     static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = 1 + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -281,6 +284,7 @@ struct ContainerTraits<boost::multi_array<T, n>> {
     using base_type = typename ContainerTraits<value_type>::base_type;
 
     static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = n + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -333,6 +337,7 @@ struct ContainerTraits<boost::numeric::ublas::matrix<T>> {
     using base_type = typename ContainerTraits<value_type>::base_type;
 
     static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = 2 + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -392,6 +397,7 @@ struct EigenContainerTraits {
     using base_type = typename ContainerTraits<value_type>::base_type;
 
     static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = 2 + ContainerTraits<value_type>::rank;
 
     static void set(container_type& array,
                     const std::vector<size_t>& indices,
@@ -629,10 +635,11 @@ struct MultiDimVector<T, 0> {
 template <class Container>
 class DataGenerator {
   public:
-    constexpr static size_t rank = details::inspector<Container>::recursive_ndim;
     using traits = ContainerTraits<Container>;
     using base_type = typename traits::base_type;
     using container_type = Container;
+
+    constexpr static size_t rank = traits::rank;
 
   public:
     static container_type allocate(const std::vector<size_t>& dims) {

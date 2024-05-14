@@ -25,14 +25,25 @@ struct inspector<std::span<T, Extent>> {
     using hdf5_type = typename inspector<value_type>::hdf5_type;
 
     static constexpr size_t ndim = 1;
-    static constexpr size_t recursive_ndim = ndim + inspector<value_type>::recursive_ndim;
+    static constexpr size_t min_ndim = ndim + inspector<value_type>::min_ndim;
+    static constexpr size_t max_ndim = ndim + inspector<value_type>::max_ndim;
+
     static constexpr bool is_trivially_copyable = std::is_trivially_copyable<value_type>::value &&
                                                   inspector<value_type>::is_trivially_nestable;
-
     static constexpr bool is_trivially_nestable = false;
 
+
+    static size_t getRank(const type& val) {
+        if (!val.empty()) {
+            return ndim + inspector<value_type>::getRank(val[0]);
+        } else {
+            return min_ndim;
+        }
+    }
+
     static std::vector<size_t> getDimensions(const type& val) {
-        std::vector<size_t> sizes(recursive_ndim, 1ul);
+        auto rank = getRank(val);
+        std::vector<size_t> sizes(rank, 1ul);
         sizes[0] = val.size();
         if (!val.empty()) {
             auto s = inspector<value_type>::getDimensions(val[0]);
