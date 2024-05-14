@@ -71,7 +71,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \since 1.0
     DataType getDataType() const;
 
-    /// \brief Get the DataSpace of the current Attribute.
+    /// \brief Get a copy of the DataSpace of the current Attribute.
     /// \code{.cpp}
     /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
     /// auto dspace = attr.getSpace(); // This will be a DataSpace of dimension 1 * 2

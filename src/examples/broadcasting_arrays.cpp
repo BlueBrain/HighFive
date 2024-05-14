@@ -36,10 +36,9 @@ int main(void) {
 
     auto dset = file.createDataSet("dset", DataSpace(dims), create_datatype<double>());
 
-    // Note that even though `values` is one-dimensional, we can still write it
-    // to an array of dimensions `[3, 1]`. Only the number of elements needs to
-    // match.
-    dset.write(values);
+    // Note that because `values` is one-dimensional, we can't write it
+    // to a dataset of dimensions `[3, 1]` directly. Instead we use:
+    dset.squeezeMemSpace({1}).write(values);
 
     // When reading, (re-)allocation might occur. The shape to be allocated is
     // the dimensions of the memspace. Therefore, one might want to either remove

@@ -168,3 +168,69 @@ We felt that the savings in typing effort weren't worth introducing the concept
 of a "file driver". Removing the concept hopefully makes it easier to add a
 better abstraction for the handling of the property lists, when we discover
 such an abstraction.
+
+## Removal of broadcasting
+HighFive v2 had a feature that a dataset (or attribute) of shape `[n, 1]` could
+be read into a one-dimensional array automatically.
+
+The feature is prone to accidentally not failing. Consider an array that shape
+`[n, m]` and in general both `n, m > 0`. Hence, one should always be reading
+into a two-dimensional array, even if `n == 1` or `m == 1`. However, due to
+broadcasting, if one of the dimensions (accidentally) happens to be one, then
+the checks wont fails. This isn't a bug, however, it can hide a bug. For
+example if the test happen to use `[n, 1]` datasets and a one-dimensional
+array.
+
+Broadcasting in HighFive was different from broadcasting in NumPy. For reading
+into one-dimensional data HighFive supports stripping all dimensions that are
+not `1`. When extending the feature to multi-dimensional arrays it gets tricky.
+We can't strip from both the front and back. If we allow stripping from both
+ends, arrays such as `[1, n, m]` read into `[n, m]` if `m > 1` but into `[1,
+n]` (instead of `[n, 1]`) if (coincidentally) `m == 1`. For HighFive because
+avoiding being forced to read `[n, 1]` into `std::vector<std::vector<T>>` is
+more important than `[1, n]`.  Flattening the former requires copying
+everything while the latter can be made flat by just accessing the first value.
+Therefore, HighFive had a preference to strip from the right, while NumPy adds
+`1`s to the front/left of the shape.
+
+In `v3` we've removed broadcasting. Instead users must use one of the two
+alternatives: squeezing and reshaping. The examples show will use datasets and
+reading, but it works the same for attributes and writing.
+
+### Squeezing
+Often we know that the `k`th dimension is `1`, e.g. a column is `[n, 1]` and a
+row is `[1, m]`. In this case it's convenient to state, remove dimension `k`.
+The syntax to simultaneously remove the dimensions `{0, 2}` is:
+
+```
+dset.squeezeMemSpace({0, 2}).read(array);
+```
+Which will read a dataset with dimensions `[1, n, 1]` into an array of shape
+`[n]`.
+
+### Reshape
+Sometimes it's easier to state what the new shape must be. For this we have the
+syntax:
+```
+dset.reshapeMemSpace(dims).read(array);
+```
+To declare that `array` should have dimensions `dims` even if
+`dset.getDimensions()` is something different.
+
+Example:
+```
+dset.reshapeMemSpace({dset.getElementCount()}).read(array);
+```
+to read into a one-dimensional array.
+
+### Scalars
+There's a safe case that seems needlessly strict to enforce: if the dataset is
+a multi-dimensional array with one element one should be able to read into
+(write from) a scalar.
+
+The reverse, i.e. reading a scalar value in the HDF5 file into a
+multi-dimensional array isn't supported, because if we want to support array
+with runtime-defined rank, we can't deduce the correct shape, e.g. `[1]` vs.
+`[1, 1, 1]`, when read into an array.
+
+

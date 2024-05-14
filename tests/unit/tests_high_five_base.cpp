@@ -1427,176 +1427,64 @@ TEMPLATE_LIST_TEST_CASE("ReadWriteSzip", "[template]", dataset_test_types) {
     }
 }
 
-TEST_CASE("CheckDimensions") {
-    // List of dims which can all be one-dimensional.
-    std::vector<std::vector<size_t>> test_cases{
-        {1ul, 3ul}, {3ul, 1ul}, {1ul, 1ul, 3ul}, {3ul, 1ul, 1ul}, {1ul, 3ul, 1ul}};
+template <class CreateTraits>
+void check_broadcast_scalar_memspace(File& file,
+                                     const std::string& name,
+                                     const std::vector<size_t>& dims) {
+    auto datatype = create_datatype<double>();
+    auto obj = CreateTraits::create(file, name, DataSpace(dims), datatype);
 
-    for (const auto& dims: test_cases) {
-        auto actual = details::checkDimensions(dims, 1ul);
+    double expected = 3.0;
+    obj.write(expected);
 
-        INFO("dims = " + details::format_vector(dims) + ", n_dims = 1");
-        CHECK(actual);
-
-        INFO("dims = " + details::format_vector(dims) + ", n_dims = 1");
-        CHECK(!details::checkDimensions(dims, dims.size() + 1));
-    }
-
-    CHECK(details::checkDimensions(std::vector<size_t>{1ul}, 0ul));
-    CHECK(details::checkDimensions(std::vector<size_t>{1ul}, 1ul));
-
-    CHECK(!details::checkDimensions(std::vector<size_t>{0ul}, 0ul));
-    CHECK(!details::checkDimensions(std::vector<size_t>{2ul}, 0ul));
-
-    CHECK(!details::checkDimensions(std::vector<size_t>{1ul, 2ul, 3ul}, 2ul));
-    CHECK(details::checkDimensions(std::vector<size_t>{3ul, 2ul, 1ul}, 2ul));
-
-    CHECK(details::checkDimensions(std::vector<size_t>{1ul, 1ul, 1ul, 1ul}, 1ul));
-
-    CHECK(details::checkDimensions(std::vector<size_t>{}, 0ul));
-    CHECK(!details::checkDimensions(std::vector<size_t>{}, 1ul));
-    CHECK(!details::checkDimensions(std::vector<size_t>{}, 2ul));
+    auto actual = obj.template read<double>();
+    CHECK(actual == expected);
 }
 
+TEST_CASE("Broadcast scalar memspace, dset") {
+    File file("h5_broadcast_scalar_memspace_dset.h5", File::Truncate);
 
-TEST_CASE("SqueezeDimensions") {
-    SECTION("possible") {
-        // List of testcases: the first number is n_dims then the input dimensions
-        // and finally the squeezed dimensions.
-        std::vector<std::tuple<size_t, std::vector<size_t>, std::vector<size_t>>> test_cases{
-            {1ul, {3ul, 1ul}, {3ul}},
-
-            {1ul, {1ul, 1ul, 1ul}, {1ul}},
-
-            {1ul, {1ul, 3ul, 1ul}, {3ul}},
-
-            {1ul, {3ul, 1ul, 1ul}, {3ul}},
-            {2ul, {3ul, 1ul, 1ul}, {3ul, 1ul}},
-            {3ul, {3ul, 1ul, 1ul}, {3ul, 1ul, 1ul}},
-
-            {3ul, {2ul, 1ul, 3ul}, {2ul, 1ul, 3ul}}};
-
-        for (const auto& tc: test_cases) {
-            auto n_dim_requested = std::get<0>(tc);
-            auto dims = std::get<1>(tc);
-            auto expected = std::get<2>(tc);
-            auto actual = details::squeezeDimensions(dims, n_dim_requested);
-
-            CHECK(actual == expected);
-        }
+    SECTION("[1]") {
+        check_broadcast_scalar_memspace<testing::DataSetCreateTraits>(file, "dset", {1});
     }
 
-    SECTION("impossible") {
-        // List of testcases: the first number is n_dims then the input dimensions
-        // and finally the squeezed dimensions.
-        std::vector<std::tuple<size_t, std::vector<size_t>>> test_cases{{1ul, {1ul, 2ul, 3ul}},
-                                                                        {2ul, {1ul, 2ul, 3ul, 1ul}},
-
-                                                                        {1ul, {2ul, 1ul, 3ul}},
-                                                                        {2ul, {2ul, 1ul, 3ul}}};
-
-        for (const auto& tc: test_cases) {
-            auto n_dim_requested = std::get<0>(tc);
-            auto dims = std::get<1>(tc);
-
-            CHECK_THROWS(details::squeezeDimensions(dims, n_dim_requested));
-        }
+    SECTION("[1, 1, 1]") {
+        check_broadcast_scalar_memspace<testing::DataSetCreateTraits>(file, "dset", {1, 1, 1});
     }
 }
 
-void check_broadcast_1d(HighFive::File& file,
-                        const std::vector<size_t> dims,
-                        const std::string& dataset_name) {
-    // This checks that:
-    //   - we can write 1D array into 2D dataset.
-    //   - we can read 2D dataset into a 1D array.
-    std::vector<double> input_data{5.0, 6.0, 7.0};
+TEST_CASE("Broadcast scalar memspace, attr") {
+    File file("h5_broadcast_scalar_memspace_attr.h5", File::Truncate);
 
-
-    DataSpace dataspace(dims);
-    DataSet dataset = file.createDataSet(dataset_name, dataspace, AtomicType<double>());
-
-    dataset.write(input_data);
-
-    {
-        std::vector<double> read_back;
-        dataset.read(read_back);
-
-        CHECK(read_back == input_data);
+    SECTION("[1]") {
+        check_broadcast_scalar_memspace<testing::AttributeCreateTraits>(file, "attr", {1});
     }
 
-    {
-        auto read_back = dataset.read<std::vector<double>>();
-        CHECK(read_back == input_data);
+    SECTION("[1, 1, 1]") {
+        check_broadcast_scalar_memspace<testing::AttributeCreateTraits>(file, "attr", {1, 1, 1});
     }
 }
 
-// Broadcasting is supported
-TEST_CASE("ReadInBroadcastDims") {
-    const std::string file_name("h5_broadcast_dset.h5");
-    const std::string dataset_name("dset");
+template <class CreateTraits>
+void check_broadcast_scalar_filespace(File& file, const std::string& name) {
+    auto datatype = create_datatype<double>();
+    auto obj = CreateTraits::create(file, name, DataSpace::Scalar(), datatype);
 
-    // Create a new file using the default property lists.
-    File file(file_name, File::Truncate);
+    auto value = std::vector<double>{3.0};
 
-    SECTION("one-dimensional (1, 3)") {
-        check_broadcast_1d(file, {1, 3}, dataset_name + "_a");
-    }
+    REQUIRE_THROWS(obj.write(value));
+    REQUIRE_THROWS(obj.template read<std::vector<double>>());
+    REQUIRE_THROWS(obj.read(value));
+}
 
-    SECTION("one-dimensional (3, 1)") {
-        check_broadcast_1d(file, {3, 1}, dataset_name + "_b");
-    }
+TEST_CASE("Broadcast scalar filespace, dset") {
+    File file("h5_broadcast_scalar_filespace_dset.h5", File::Truncate);
+    check_broadcast_scalar_filespace<testing::DataSetCreateTraits>(file, "dset");
+}
 
-    SECTION("two-dimensional (2, 3, 1)") {
-        std::vector<size_t> dims{2, 3, 1};
-        std::vector<std::vector<double>> input_data_2d{{2.0, 3.0, 4.0}, {10.0, 11.0, 12.0}};
-
-        DataSpace dataspace(dims);
-        DataSet dataset = file.createDataSet(dataset_name + "_c", dataspace, AtomicType<double>());
-
-        dataset.write(input_data_2d);
-
-        auto check = [](const std::vector<std::vector<double>>& lhs,
-                        const std::vector<std::vector<double>>& rhs) {
-            CHECK(lhs.size() == rhs.size());
-            for (size_t i = 0; i < rhs.size(); ++i) {
-                CHECK(lhs[i].size() == rhs[i].size());
-
-                for (size_t j = 0; j < rhs[i].size(); ++j) {
-                    CHECK(lhs[i][j] == rhs[i][j]);
-                }
-            }
-        };
-
-        {
-            std::vector<std::vector<double>> read_back;
-            dataset.read(read_back);
-
-            check(read_back, input_data_2d);
-        }
-
-        {
-            auto read_back = dataset.read<std::vector<std::vector<double>>>();
-            check(read_back, input_data_2d);
-        }
-    }
-
-    SECTION("one-dimensional fixed length string") {
-        std::vector<size_t> dims{1, 1, 2};
-        char input_data[2] = "a";
-
-        DataSpace dataspace(dims);
-        DataSet dataset = file.createDataSet(dataset_name + "_d", dataspace, AtomicType<char>());
-        dataset.write(input_data);
-
-        {
-            char read_back[2];
-            dataset.read(read_back);
-
-            CHECK(read_back[0] == 'a');
-            CHECK(read_back[1] == '\0');
-        }
-    }
+TEST_CASE("Broadcast scalar filespace, attr") {
+    File file("h5_broadcast_scalar_filespace_attr.h5", File::Truncate);
+    check_broadcast_scalar_filespace<testing::AttributeCreateTraits>(file, "attr");
 }
 
 TEST_CASE("squeeze") {
@@ -1611,9 +1499,7 @@ TEST_CASE("squeeze") {
 }
 
 template <class CreateTraits>
-void check_modify_mem_space(File& file) {
-    const std::string name = "dset";
-
+void check_modify_memspace(File& file, const std::string& name) {
     auto expected_values = std::vector<double>{1.0, 2.0, 3.0};
     auto values = std::vector<std::vector<double>>{expected_values};
 
@@ -1637,14 +1523,63 @@ void check_modify_mem_space(File& file) {
     }
 }
 
-TEST_CASE("Modify Mem Space, attr") {
+TEST_CASE("Modify MemSpace, dset") {
     File file("h5_modify_memspace_dset.h5", File::Truncate);
-    check_modify_mem_space<testing::DataSetCreateTraits>(file);
+    check_modify_memspace<testing::DataSetCreateTraits>(file, "dset");
 }
 
-TEST_CASE("Modify Mem Space, dset") {
+TEST_CASE("Modify MemSpace, attr") {
     File file("h5_modify_memspace_attr.h5", File::Truncate);
-    check_modify_mem_space<testing::AttributeCreateTraits>(file);
+    check_modify_memspace<testing::AttributeCreateTraits>(file, "attr");
+}
+
+template <class CreateTraits>
+void check_modify_scalar_filespace(File& file, const std::string& name) {
+    auto expected_value = 3.0;
+
+    auto obj = CreateTraits::create(file, name, expected_value);
+    SECTION("reshape") {
+        auto actual_values = obj.reshapeMemSpace({1}).template read<std::vector<double>>();
+
+        REQUIRE(actual_values.size() == 1);
+        REQUIRE(actual_values[0] == expected_value);
+    }
+}
+
+TEST_CASE("Modify Scalar FileSpace, dset") {
+    File file("h5_modify_scalar_filespace_dset.h5", File::Truncate);
+    check_modify_scalar_filespace<testing::DataSetCreateTraits>(file, "dset");
+}
+
+TEST_CASE("Modify Scalar FileSpace, attr") {
+    File file("h5_modify_scalar_filespace_attr.h5", File::Truncate);
+    check_modify_scalar_filespace<testing::AttributeCreateTraits>(file, "attr");
+}
+
+template <class CreateTraits>
+void check_modify_scalar_memspace(File& file, const std::string& name) {
+    auto expected_value = std::vector<double>{3.0};
+
+    auto obj = CreateTraits::create(file, name, expected_value);
+    SECTION("squeeze") {
+        auto actual_value = obj.squeezeMemSpace({0}).template read<double>();
+        REQUIRE(actual_value == expected_value[0]);
+    }
+
+    SECTION("reshape") {
+        auto actual_value = obj.reshapeMemSpace({}).template read<double>();
+        REQUIRE(actual_value == expected_value[0]);
+    }
+}
+
+TEST_CASE("Modify Scalar MemSpace, dset") {
+    File file("h5_modify_scalar_memspace_dset.h5", File::Truncate);
+    check_modify_scalar_memspace<testing::DataSetCreateTraits>(file, "dset");
+}
+
+TEST_CASE("Modify Scalar MemSpace, attr") {
+    File file("h5_modify_scalar_memspace_attr.h5", File::Truncate);
+    check_modify_scalar_memspace<testing::AttributeCreateTraits>(file, "attr");
 }
 
 
