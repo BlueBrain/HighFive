@@ -14,7 +14,7 @@ foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_fiv
   catch_discover_tests(${test_name})
 endforeach()
 
-if(HIGHFIVE_PARALLEL_HDF5)
+if(HDF5_IS_PARALLEL)
   set(tests_parallel_src "tests_high_five_parallel.cpp")
 
   ## parallel MPI tests
