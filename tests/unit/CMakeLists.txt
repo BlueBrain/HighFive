@@ -42,8 +42,6 @@ if(HDF5_IS_PARALLEL)
   set(_CATCH_DISCOVER_TESTS_SCRIPT "${original_catch_script}")
 endif()
 
-option(HIGHFIVE_TEST_SINGLE_INCLUDES "Enable testing single includes" FALSE)
-
 if(HIGHFIVE_TEST_SINGLE_INCLUDES)
     file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
     foreach(PUBLIC_HEADER ${public_headers})
