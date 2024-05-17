@@ -21,6 +21,7 @@
 // The list of identifiers is taken from `Boost::Predef`.
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || \
     defined(__WINDOWS__)
+#define NOMINMAX
 #include <Windows.h>
 #endif
 
