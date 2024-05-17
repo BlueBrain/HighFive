@@ -76,7 +76,7 @@ jobs:
 
     - name: Build
       run: |
-        CMAKE_OPTIONS=(-DHIGHFIVE_PARALLEL_HDF5:BOOL=ON ${{ matrix.config.flags }})
+        CMAKE_OPTIONS=(-DHDF5_PREFER_PARALLEL:BOOL=ON ${{ matrix.config.flags }})
         source $GITHUB_WORKSPACE/.github/build.sh
 
     - name: Test
