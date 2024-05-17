@@ -346,18 +346,8 @@ jobs:
     runs-on:  ${{matrix.os}}
     strategy:
       matrix:
-        os: [ "windows-2022"]
-        vs-toolset: [ "v141", "v143" ]
+        os: [ "windows-2019", "windows-2022"]
         cxxstd: ["14", "17", "20"]
-
-        include:
-          - os: "windows-2019"
-            vs-toolset: "v142"
-            cxxstd: "14"
-
-          - os: "windows-2019"
-            vs-toolset: "v142"
-            cxxstd: "17"
 
     steps:
     - uses: actions/checkout@v3
@@ -373,7 +363,6 @@ jobs:
       shell: bash -l {0}
       run: |
         CMAKE_OPTIONS=(
-          -T ${{matrix.vs-toolset}}
           -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
           -DHIGHFIVE_UNIT_TESTS=ON
           -DHIGHFIVE_TEST_BOOST:BOOL=ON
