@@ -233,4 +233,6 @@ multi-dimensional array isn't supported, because if we want to support array
 with runtime-defined rank, we can't deduce the correct shape, e.g. `[1]` vs.
 `[1, 1, 1]`, when read into an array.
 
-
+# Removal of `Object*Props`.
+To out knowledge these could not be used meaningfully. Please create an issue
+if you relied on these.
