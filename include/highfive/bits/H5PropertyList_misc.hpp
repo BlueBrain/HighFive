@@ -17,8 +17,6 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
     // The HP5_XXX are macros with function calls so we can't assign
     // them as the enum values
     switch (propertyType) {
-    case PropertyType::OBJECT_CREATE:
-        return H5P_OBJECT_CREATE;
     case PropertyType::FILE_CREATE:
         return H5P_FILE_CREATE;
     case PropertyType::FILE_ACCESS:
@@ -41,8 +39,6 @@ inline hid_t convert_plist_type(PropertyType propertyType) {
         return H5P_STRING_CREATE;
     case PropertyType::ATTRIBUTE_CREATE:
         return H5P_ATTRIBUTE_CREATE;
-    case PropertyType::OBJECT_COPY:
-        return H5P_OBJECT_COPY;
     case PropertyType::LINK_CREATE:
         return H5P_LINK_CREATE;
     case PropertyType::LINK_ACCESS:
@@ -389,11 +385,6 @@ inline double Caching::getW0() const {
 
 inline CreateIntermediateGroup::CreateIntermediateGroup(bool create)
     : _create(create) {}
-
-inline CreateIntermediateGroup::CreateIntermediateGroup(const ObjectCreateProps& ocpl) {
-    fromPropertyList(ocpl.getId());
-}
-
 
 inline void CreateIntermediateGroup::apply(const hid_t hid) const {
     detail::h5p_set_create_intermediate_group(hid, _create ? 1 : 0);

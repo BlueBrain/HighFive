@@ -87,7 +87,6 @@ namespace HighFive {
 /// \brief Types of property lists
 ///
 enum class PropertyType : int {
-    OBJECT_CREATE,
     FILE_CREATE,
     FILE_ACCESS,
     DATASET_CREATE,
@@ -99,7 +98,6 @@ enum class PropertyType : int {
     DATATYPE_ACCESS,
     STRING_CREATE,
     ATTRIBUTE_CREATE,
-    OBJECT_COPY,
     LINK_CREATE,
     LINK_ACCESS,
 };
@@ -195,7 +193,6 @@ class PropertyList: public PropertyListBase {
     void _initializeIfNeeded();
 };
 
-using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
 using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
 using FileAccessProps = PropertyList<PropertyType::FILE_ACCESS>;
 using DataSetCreateProps = PropertyList<PropertyType::DATASET_CREATE>;
@@ -207,7 +204,6 @@ using DataTypeCreateProps = PropertyList<PropertyType::DATATYPE_CREATE>;
 using DataTypeAccessProps = PropertyList<PropertyType::DATATYPE_ACCESS>;
 using StringCreateProps = PropertyList<PropertyType::STRING_CREATE>;
 using AttributeCreateProps = PropertyList<PropertyType::ATTRIBUTE_CREATE>;
-using ObjectCopyProps = PropertyList<PropertyType::OBJECT_COPY>;
 using LinkCreateProps = PropertyList<PropertyType::LINK_CREATE>;
 using LinkAccessProps = PropertyList<PropertyType::LINK_ACCESS>;
 
@@ -606,7 +602,6 @@ class CreateIntermediateGroup {
   public:
     explicit CreateIntermediateGroup(bool create = true);
 
-    explicit CreateIntermediateGroup(const ObjectCreateProps& ocpl);
     explicit CreateIntermediateGroup(const LinkCreateProps& lcpl);
 
     bool isSet() const;
@@ -615,7 +610,6 @@ class CreateIntermediateGroup {
     void fromPropertyList(hid_t hid);
 
   private:
-    friend ObjectCreateProps;
     friend LinkCreateProps;
     void apply(hid_t hid) const;
     bool _create;
