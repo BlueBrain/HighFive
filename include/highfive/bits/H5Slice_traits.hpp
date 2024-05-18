@@ -13,6 +13,7 @@
 
 #include "H5_definitions.hpp"
 #include "H5Utils.hpp"
+#include "convert_size_vector.hpp"
 
 #include "../H5PropertyList.hpp"
 #include "h5s_wrapper.hpp"
@@ -50,17 +51,6 @@ class ElementSet {
     template <typename Derivate>
     friend class SliceTraits;
 };
-
-namespace detail {
-
-template <class To, class From>
-inline std::vector<To> convertSizeVector(const std::vector<From>& from) {
-    std::vector<To> to(from.size());
-    std::copy(from.cbegin(), from.cend(), to.begin());
-
-    return to;
-}
-}  // namespace detail
 
 inline std::vector<hsize_t> toHDF5SizeVector(const std::vector<size_t>& from) {
     return detail::convertSizeVector<hsize_t>(from);
