@@ -57,7 +57,7 @@ jobs:
               flags: '-DCMAKE_CXX_STANDARD=17 -DHIGHFIVE_TEST_BOOST:Bool=ON'
           - config:
               os: ubuntu-22.04
-              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20'
+              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20 -DHIGHFIVE_HAS_CONCEPTS=On'
 
     steps:
     - uses: actions/checkout@v3
@@ -319,8 +319,6 @@ jobs:
           -DHIGHFIVE_TEST_EIGEN:BOOL=ON
           -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
-          -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
-          -DCMAKE_CXX_FLAGS="-coverage -O0"
           -DCMAKE_CXX_STANDARD=${{matrix.cxxstd}}
         )
         source $GITHUB_WORKSPACE/.github/build.sh
@@ -368,7 +366,6 @@ jobs:
           -DHIGHFIVE_TEST_BOOST:BOOL=ON
           -DHIGHFIVE_TEST_EIGEN:BOOL=ON
           -DHIGHFIVE_TEST_XTENSOR:BOOL=ON
-          -DHIGHFIVE_TEST_SINGLE_INCLUDES=ON
         )
         source $GITHUB_WORKSPACE/.github/build.sh
 
