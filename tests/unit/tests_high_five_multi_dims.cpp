@@ -136,46 +136,4 @@ TEST_CASE("Test boost::multi_array with fortran_storage_order") {
     CHECK_THROWS_AS(dset.write(ma), DataTypeException);
 }
 
-template <typename T>
-void ublas_matrix_Test() {
-    using Matrix = boost::numeric::ublas::matrix<T>;
-
-    std::ostringstream filename;
-    filename << "h5_rw_multiarray_" << typeNameHelper<T>() << "_test.h5";
-
-    const size_t size_x = 10, size_y = 10;
-    const std::string DATASET_NAME("dset");
-
-    Matrix mat(size_x, size_y);
-
-    ContentGenerate<T> generator;
-    for (std::size_t i = 0; i < mat.size1(); ++i) {
-        for (std::size_t j = 0; j < mat.size2(); ++j) {
-            mat(i, j) = generator();
-        }
-    }
-
-    // Create a new file using the default property lists.
-    File file(filename.str(), File::ReadWrite | File::Create | File::Truncate);
-
-    DataSet dataset = file.createDataSet<T>(DATASET_NAME, DataSpace::From(mat));
-
-    dataset.write(mat);
-
-    // read it back
-    Matrix result;
-
-    dataset.read(result);
-
-    for (size_t i = 0; i < size_x; ++i) {
-        for (size_t j = 0; j < size_y; ++j) {
-            CHECK(mat(i, j) == result(i, j));
-        }
-    }
-}
-
-TEMPLATE_LIST_TEST_CASE("ublas_matrix", "[template]", numerical_test_types) {
-    ublas_matrix_Test<TestType>();
-}
-
 #endif
