@@ -723,6 +723,38 @@ struct MultiDimVector<T, 0> {
     using type = T;
 };
 
+template <class C, class F>
+void initialize_impl(C& array,
+                       const std::vector<size_t>& dims,
+                       std::vector<size_t>& indices,
+                       size_t axis,
+                       F f) {
+
+    using traits = ContainerTraits<C>;
+    if (axis == indices.size()) {
+        auto value = f(indices);
+        traits::set(array, indices, value);
+    } else {
+        for (size_t i = 0; i < dims[axis]; ++i) {
+            indices[axis] = i;
+            initialize_impl(array, dims, indices, axis + 1, f);
+        }
+    }
+}
+
+template <class C, class F>
+void initialize(C& array, const std::vector<size_t>& dims, F f) {
+    std::vector<size_t> indices(dims.size());
+    initialize_impl(array, dims, indices, 0, f);
+}
+
+template <class C>
+void initialize(C& array, const std::vector<size_t>& dims) {
+    using traits = ContainerTraits<C>;
+    initialize(array, dims, DefaultValues<typename traits::base_type>());
+}
+
+
 template <class Container>
 class DataGenerator {
   public:
@@ -760,30 +792,6 @@ class DataGenerator {
 
     static void sanitize_dims(std::vector<size_t>& dims) {
         ContainerTraits<Container>::sanitize_dims(dims, /* axis = */ 0);
-    }
-
-  private:
-    template <class C, class F>
-    static void initialize(C& array, const std::vector<size_t>& dims, F f) {
-        std::vector<size_t> indices(dims.size());
-        initialize(array, dims, indices, 0, f);
-    }
-
-    template <class C, class F>
-    static void initialize(C& array,
-                           const std::vector<size_t>& dims,
-                           std::vector<size_t>& indices,
-                           size_t axis,
-                           F f) {
-        if (axis == indices.size()) {
-            auto value = f(indices);
-            traits::set(array, indices, value);
-        } else {
-            for (size_t i = 0; i < dims[axis]; ++i) {
-                indices[axis] = i;
-                initialize(array, dims, indices, axis + 1, f);
-            }
-        }
     }
 };
 
