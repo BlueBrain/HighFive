@@ -11,6 +11,9 @@
 
 #include <highfive/highfive.hpp>
 
+#include "create_traits.hpp"
+#include "data_generator.hpp"
+
 using namespace HighFive;
 
 TEST_CASE("std::array undersized", "[stl]") {
@@ -22,4 +25,15 @@ TEST_CASE("std::array undersized", "[stl]") {
 
     auto xx = std::array<double, 2>();
     REQUIRE_THROWS(dset.read(xx));
+}
+
+TEST_CASE("T[n][m]") {
+    auto file = File("rw_carray.h5", File::Truncate);
+
+    constexpr size_t n = 3;
+    constexpr size_t m = 5;
+
+    double x[n][m];
+    testing::initialize(x, {n, m});
+
 }
