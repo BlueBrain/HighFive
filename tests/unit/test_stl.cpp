@@ -7,12 +7,14 @@
  *
  */
 
+#include <catch2/catch_template_test_macros.hpp>
+
 #include <highfive/highfive.hpp>
 
 using namespace HighFive;
 
 TEST_CASE("std::array undersized", "[stl]") {
-    auto file = File("rw_std_array_undersized.h5");
+    auto file = File("rw_std_array_undersized.h5", File::Truncate);
     auto x = std::array<double, 3>{1.0, 2.0, 3.0};
     auto dset = file.createDataSet("x", x);
 
