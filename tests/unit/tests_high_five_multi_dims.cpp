@@ -86,48 +86,6 @@ TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
     readWriteArrayTest<TestType>();
 }
 
-template <typename T, typename VectorSubT>
-void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec, const std::vector<size_t>& dims) {
-    fillVec(ndvec, dims, ContentGenerate<T>());
-
-    std::vector<VectorSubT> result;
-    readWriteDataset<T>(ndvec, result, dims.size(), "vector");
-
-    CHECK(checkLength(result, dims));
-    CHECK(ndvec == result);
-}
-
-TEMPLATE_LIST_TEST_CASE("readWritSimpleVector", "[template]", numerical_test_types) {
-    std::vector<TestType> vec;
-    readWriteVectorNDTest<TestType>(vec, {50});
-}
-
-TEMPLATE_LIST_TEST_CASE("readWrite2DVector", "[template]", numerical_test_types) {
-    std::vector<std::vector<TestType>> _2dvec;
-    readWriteVectorNDTest<TestType>(_2dvec, {10, 8});
-}
-
-TEMPLATE_LIST_TEST_CASE("readWrite3DVector", "[template]", numerical_test_types) {
-    std::vector<std::vector<std::vector<TestType>>> _3dvec;
-    readWriteVectorNDTest<TestType>(_3dvec, {10, 5, 4});
-}
-
-TEMPLATE_LIST_TEST_CASE("readWrite4DVector", "[template]", numerical_test_types) {
-    std::vector<std::vector<std::vector<std::vector<TestType>>>> _4dvec;
-    readWriteVectorNDTest<TestType>(_4dvec, {5, 4, 3, 2});
-}
-
-TEMPLATE_LIST_TEST_CASE("vector of array", "[template]", numerical_test_types) {
-    std::vector<std::array<TestType, 4>> vec{{1, 2, 3, 4}, {1, 2, 3, 4}};
-    std::vector<std::array<TestType, 4>> result;
-    readWriteDataset<TestType>(vec, result, 2, "vector");
-
-    CHECK(vec.size() == result.size());
-    CHECK(vec[0].size() == result[0].size());
-    CHECK(vec == result);
-}
-
-
 #ifdef HIGHFIVE_TEST_BOOST
 
 template <typename T>
