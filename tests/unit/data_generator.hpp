@@ -283,6 +283,38 @@ struct ContainerTraits<std::span<T, Extent>>: public STLLikeContainerTraits<std:
 #endif
 
 
+template <class T, size_t n>
+struct ContainerTraits<T[n]> {
+    using container_type = T[n];
+    using value_type = T;
+    using base_type = typename ContainerTraits<value_type>::base_type;
+
+    static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = 1 + ContainerTraits<value_type>::rank;
+
+    static void set(container_type& array,
+                    const std::vector<size_t>& indices,
+                    const base_type& value) {
+        return ContainerTraits<value_type>::set(array[indices[0]], lstrip(indices, 1), value);
+    }
+
+    static base_type get(const container_type& array, const std::vector<size_t>& indices) {
+        return ContainerTraits<value_type>::get(array[indices[0]], lstrip(indices, 1));
+    }
+
+    static void assign(container_type& dst, const container_type& src) {
+        for(size_t i = 0; i < n; ++i) {
+            dst[i] = src[i];
+        }
+    }
+
+    static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
+        dims[axis] = n;
+        ContainerTraits<value_type>::sanitize_dims(dims, axis + 1);
+    }
+};
+
+
 // -- Boost  -------------------------------------------------------------------
 #ifdef HIGHFIVE_TEST_BOOST
 template <class T, size_t n>
