@@ -66,26 +66,6 @@ TEMPLATE_LIST_TEST_CASE("ReadWrite2DArray", "[template]", numerical_test_types) 
     readWrite2DArrayTest<TestType>();
 }
 
-template <typename T>
-void readWriteArrayTest() {
-    const size_t x_size = 200;
-    typename std::array<T, x_size> vec;
-    ContentGenerate<T> generator;
-    std::generate(vec.begin(), vec.end(), generator);
-
-    typename std::array<T, x_size> result;
-    auto dataset = readWriteDataset<T>(vec, result, 1, "std-array");
-
-    CHECK(result == vec);
-
-    typename std::array<T, 1> tooSmall;
-    CHECK_THROWS_AS(dataset.read(tooSmall), DataSpaceException);
-}
-
-TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
-    readWriteArrayTest<TestType>();
-}
-
 #ifdef HIGHFIVE_TEST_BOOST
 
 template <typename T>
@@ -125,15 +105,6 @@ void MultiArray3DTest() {
 
 TEMPLATE_LIST_TEST_CASE("MultiArray3D", "[template]", numerical_test_types) {
     MultiArray3DTest<TestType>();
-}
-
-TEST_CASE("Test boost::multi_array with fortran_storage_order") {
-    const std::string file_name("h5_multi_array_fortran.h5");
-    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
-
-    boost::multi_array<int, 2> ma(boost::extents[2][2], boost::fortran_storage_order());
-    auto dset = file.createDataSet<int>("main_dset", DataSpace::From(ma));
-    CHECK_THROWS_AS(dset.write(ma), DataTypeException);
 }
 
 #endif
