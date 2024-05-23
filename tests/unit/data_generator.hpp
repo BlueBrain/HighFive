@@ -21,11 +21,16 @@
 #include <highfive/span.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_XTENSOR
+#include <highfive/xtensor.hpp>
+#endif
+
 
 namespace HighFive {
 namespace testing {
 
-std::vector<size_t> lstrip(const std::vector<size_t>& indices, size_t n) {
+template <class Dims>
+std::vector<size_t> lstrip(const Dims& indices, size_t n) {
     std::vector<size_t> subindices(indices.size() - n);
     for (size_t i = 0; i < subindices.size(); ++i) {
         subindices[i] = indices[i + n];
@@ -34,7 +39,8 @@ std::vector<size_t> lstrip(const std::vector<size_t>& indices, size_t n) {
     return subindices;
 }
 
-size_t ravel(std::vector<size_t>& indices, const std::vector<size_t> dims) {
+template <class Dims>
+size_t ravel(std::vector<size_t>& indices, const Dims& dims) {
     size_t rank = dims.size();
     size_t linear_index = 0;
     size_t ld = 1;
@@ -47,7 +53,8 @@ size_t ravel(std::vector<size_t>& indices, const std::vector<size_t> dims) {
     return linear_index;
 }
 
-std::vector<size_t> unravel(size_t flat_index, const std::vector<size_t> dims) {
+template <class Dims>
+std::vector<size_t> unravel(size_t flat_index, const Dims& dims) {
     size_t rank = dims.size();
     size_t ld = 1;
     std::vector<size_t> indices(rank);
@@ -60,7 +67,8 @@ std::vector<size_t> unravel(size_t flat_index, const std::vector<size_t> dims) {
     return indices;
 }
 
-static size_t flat_size(const std::vector<size_t>& dims) {
+template <class Dims>
+static size_t flat_size(const Dims& dims) {
     size_t n = 1;
     for (auto d: dims) {
         n *= d;
@@ -388,6 +396,7 @@ struct ContainerTraits<boost::numeric::ublas::matrix<T>> {
 
 #endif
 
+// -- Eigen  -------------------------------------------------------------------
 #if HIGHFIVE_TEST_EIGEN
 
 template <typename EigenType>
@@ -524,6 +533,88 @@ struct ContainerTraits<Eigen::Map<PlainObjectType, MapOptions>>
     }
 };
 
+
+#endif
+
+// -- XTensor  -----------------------------------------------------------------
+
+#if HIGHFIVE_TEST_XTENSOR
+template <typename XTensorType, size_t Rank>
+struct XTensorContainerTraits {
+    using container_type = XTensorType;
+    using value_type = typename container_type::value_type;
+    using base_type = typename ContainerTraits<value_type>::base_type;
+
+    static constexpr size_t rank = Rank;
+    static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+
+    static void set(container_type& array,
+                    const std::vector<size_t>& indices,
+                    const base_type& value) {
+        std::vector<size_t> local_indices(indices.begin(), indices.begin() + rank);
+        return ContainerTraits<value_type>::set(array[local_indices], lstrip(indices, rank), value);
+    }
+
+    static base_type get(const container_type& array, const std::vector<size_t>& indices) {
+        std::vector<size_t> local_indices(indices.begin(), indices.begin() + rank);
+        return ContainerTraits<value_type>::get(array[local_indices], lstrip(indices, rank));
+    }
+
+    static void assign(container_type& dst, const container_type& src) {
+        dst = src;
+    }
+
+    static container_type allocate(const std::vector<size_t>& dims) {
+        const auto& local_dims = details::inspector<XTensorType>::shapeFromDims(dims);
+        auto array = container_type(local_dims);
+
+        size_t n_elements = flat_size(local_dims);
+        for (size_t i = 0; i < n_elements; ++i) {
+            auto element = ContainerTraits<value_type>::allocate(lstrip(dims, rank));
+            set(array, unravel(i, local_dims), element);
+        }
+
+        return array;
+    }
+
+    static void deallocate(container_type& array, const std::vector<size_t>& dims) {
+        auto local_dims = std::vector<size_t>(dims.begin(), dims.begin() + rank);
+        size_t n_elements = flat_size(local_dims);
+        for (size_t i_flat = 0; i_flat < n_elements; ++i_flat) {
+            auto indices = unravel(i_flat, local_dims);
+            std::vector<size_t> local_indices(indices.begin(), indices.begin() + rank);
+            ContainerTraits<value_type>::deallocate(array[local_indices], lstrip(dims, rank));
+        }
+    }
+
+    static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
+        ContainerTraits<value_type>::sanitize_dims(dims, axis + rank);
+    }
+};
+
+template <class T, size_t rank, xt::layout_type layout>
+struct ContainerTraits<xt::xtensor<T, rank, layout>>
+    : public XTensorContainerTraits<xt::xtensor<T, rank, layout>, rank> {
+  private:
+    using super = XTensorContainerTraits<xt::xtensor<T, rank, layout>, rank>;
+
+  public:
+    using container_type = typename super::container_type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+};
+
+template <class T, xt::layout_type layout>
+struct ContainerTraits<xt::xarray<T, layout>>
+    : public XTensorContainerTraits<xt::xarray<T, layout>, 2> {
+  private:
+    using super = XTensorContainerTraits<xt::xarray<T, layout>, 2>;
+
+  public:
+    using container_type = typename super::container_type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+};
 
 #endif
 
