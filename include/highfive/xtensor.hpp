@@ -64,7 +64,7 @@ struct xtensor_inspector_base {
 
     static hdf5_type* data(type& val) {
         if (!is_trivially_copyable) {
-            throw DataSetException("Invalid used of `inspector<xarray>::data`.");
+            throw DataSetException("Invalid used of `inspector<XTensor>::data`.");
         }
 
         if (val.size() == 0) {
@@ -76,7 +76,7 @@ struct xtensor_inspector_base {
 
     static const hdf5_type* data(const type& val) {
         if (!is_trivially_copyable) {
-            throw DataSetException("Invalid used of `inspector<xarray>::data`.");
+            throw DataSetException("Invalid used of `inspector<XTensor>::data`.");
         }
 
         if (val.size() == 0) {
