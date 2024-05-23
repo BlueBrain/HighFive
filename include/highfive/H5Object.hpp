@@ -31,33 +31,11 @@ enum class ObjectType {
     Other  // Internal/custom object type
 };
 
-namespace detail {
-/// \brief Internal hack to create an `Object` from an ID.
-///
-/// WARNING: Creating an Object from an ID has implications w.r.t. the lifetime of the object
-///          that got passed via its ID. Using this method careless opens up the suite of issues
-///          related to C-style resource management, including the analog of double free, dangling
-///          pointers, etc.
-///
-/// NOTE: This is not part of the API and only serves to work around a compiler issue in GCC which
-///       prevents us from using `friend`s instead. This function should only be used for internal
-///       purposes. The problematic construct is:
-///
-///           template<class Derived>
-///           friend class SomeCRTP<Derived>;
-///
-/// \private
-Object make_object(hid_t hid);
-}  // namespace detail
-
 
 class Object {
   public:
     // move constructor, reuse hid
     Object(Object&& other) noexcept;
-
-    // decrease reference counter
-    ~Object();
 
     ///
     /// \brief isValid
@@ -99,13 +77,15 @@ class Object {
     // Init with an low-level object id
     explicit Object(hid_t);
 
+    // decrease reference counter
+    ~Object();
+
     // Copy-Assignment operator
     Object& operator=(const Object& other);
 
     hid_t _hid;
 
   private:
-    friend Object detail::make_object(hid_t);
     friend class Reference;
     friend class CompoundType;
 
