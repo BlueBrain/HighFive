@@ -11,6 +11,8 @@
 
 #include <highfive/highfive.hpp>
 
+
+#include "compary_arrays.hpp"
 #include "create_traits.hpp"
 #include "data_generator.hpp"
 
@@ -28,12 +30,29 @@ TEST_CASE("std::array undersized", "[stl]") {
 }
 
 TEST_CASE("T[n][m]") {
+    using reference_container = std::vector<std::vector<double>>;
     auto file = File("rw_carray.h5", File::Truncate);
 
     constexpr size_t n = 3;
     constexpr size_t m = 5;
 
     double x[n][m];
-    testing::initialize(x, {n, m});
 
+    SECTION("write") {
+        testing::initialize(x, {n, m});
+
+        auto dset = file.createDataSet("x", x);
+        auto actual = dset.read<reference_container>();
+
+        testing::compare_arrays(x, actual, {n, m});
+    }
+
+    SECTION("read") {
+        auto expected = testing::DataGenerator<reference_container>::create({n, m});
+
+        auto dset = file.createDataSet("x", expected);
+        dset.read(x);
+
+        testing::compare_arrays(expected, x, {n, m});
+    }
 }
