@@ -19,6 +19,7 @@
 #include "data_generator.hpp"
 #include "create_traits.hpp"
 #include "supported_types.hpp"
+#include "compary_arrays.hpp"
 
 using namespace HighFive;
 
@@ -246,68 +247,11 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::byte>", "[Types]", std::v
 }
 #endif
 
-template <class T, class = void>
-struct DiffMessageTrait;
-
-template <class T>
-struct DiffMessageTrait<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
-    static std::string diff(T a, T b) {
-        std::stringstream sstream;
-        sstream << std::scientific << " delta: " << a - b;
-        return sstream.str();
-    }
-};
-
-template <class T>
-struct DiffMessageTrait<T, typename std::enable_if<!std::is_floating_point<T>::value>::type> {
-    static std::string diff(T /* a */, T /* b */) {
-        return "";
-    }
-};
-
-template <class T>
-std::string diff_message(T a, T b) {
-    return DiffMessageTrait<T>::diff(a, b);
-}
-
-template <class Actual, class Expected, class Comp>
-void compare_arrays(const Actual& actual,
-                    const Expected& expected,
-                    const std::vector<size_t>& dims,
-                    Comp comp) {
-    using actual_trait = testing::ContainerTraits<Actual>;
-    using expected_trait = testing::ContainerTraits<Expected>;
-    using base_type = typename actual_trait::base_type;
-
-    auto n = testing::flat_size(dims);
-
-    for (size_t i = 0; i < n; ++i) {
-        auto indices = testing::unravel(i, dims);
-        base_type actual_value = actual_trait::get(actual, indices);
-        base_type expected_value = expected_trait::get(expected, indices);
-        auto c = comp(actual_value, expected_value);
-        if (!c) {
-            std::stringstream sstream;
-            sstream << std::scientific << "i = " << i << ": " << actual_value
-                    << " != " << expected_value << diff_message(actual_value, expected_value);
-            INFO(sstream.str());
-        }
-        REQUIRE(c);
-    }
-}
-
-template <class Actual, class Expected>
-void compare_arrays(const Actual& actual,
-                    const Expected& expected,
-                    const std::vector<size_t>& dims) {
-    using base_type = typename testing::ContainerTraits<Actual>::base_type;
-    compare_arrays(expected, actual, dims, [](base_type a, base_type b) { return a == b; });
-}
 
 template <class Container, class Expected, class Obj>
 auto check_read_auto(const Expected& expected, const std::vector<size_t>& dims, const Obj& obj) ->
     typename std::enable_if<!testing::ContainerTraits<Container>::is_view>::type {
-    compare_arrays(obj.template read<Container>(), expected, dims);
+      testing::compare_arrays(obj.template read<Container>(), expected, dims);
 }
 
 template <class Container, class Expected, class Obj>
@@ -321,7 +265,7 @@ void check_read_preallocated(const Expected& expected,
     auto actual = testing::DataGenerator<Container>::allocate(dims);
     obj.read(actual);
 
-    compare_arrays(actual, expected, dims);
+    testing::compare_arrays(actual, expected, dims);
 
     testing::ContainerTraits<Container>::deallocate(actual, dims);
 }
@@ -388,7 +332,7 @@ void check_writing(const std::vector<size_t>& dims, Write write) {
     auto actual = testing::DataGenerator<reference_type>::allocate(dims);
     obj.read(actual);
 
-    compare_arrays(actual, expected, dims);
+    testing::compare_arrays(actual, expected, dims);
 
     testing::ContainerTraits<reference_type>::deallocate(actual, dims);
     testing::ContainerTraits<Container>::deallocate(values, dims);
