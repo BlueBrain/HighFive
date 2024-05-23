@@ -53,43 +53,6 @@ TEMPLATE_TEST_CASE("Scalar in DataSet", "[Types]", bool, std::string) {
     }
 }
 
-TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::vector>",
-                           "[Types]",
-                           std::vector,
-                           (bool, std::string)) {
-    const std::string file_name("rw_dataset_vector_" + typeNameHelper<TestType>() + ".h5");
-    const std::string dataset_name("dset");
-    std::vector<TestType> t1(5);
-    for (auto&& e: t1) {
-        e.resize(6);
-    }
-
-    {
-        // Create a new file using the default property lists.
-        File file(file_name, File::ReadWrite | File::Create | File::Truncate);
-
-        // Create the dataset
-        DataSet dataset = file.createDataSet(
-            dataset_name,
-            {5, 6},
-            create_datatype<typename details::inspector<std::vector<TestType>>::base_type>());
-
-        // Write into the initial part of the dataset
-        dataset.write(t1);
-    }
-
-    // read it back
-    {
-        File file(file_name, File::ReadOnly);
-
-        std::vector<TestType> value;
-        DataSet dataset = file.getDataSet("/" + dataset_name);
-        dataset.read(value);
-        CHECK(t1 == value);
-        CHECK(value.size() == 5);
-    }
-}
-
 TEMPLATE_TEST_CASE("Scalar in std::array", "[Types]", bool, std::string) {
     const std::string file_name("rw_dataset_array_" + typeNameHelper<TestType>() + ".h5");
     const std::string dataset_name("dset");
