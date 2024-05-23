@@ -254,7 +254,12 @@ inline LinkType NodeTraits<Derivate>::getLinkType(const std::string& node_name) 
 
 template <typename Derivate>
 inline ObjectType NodeTraits<Derivate>::getObjectType(const std::string& node_name) const {
-    return _open(node_name).getType();
+    const auto id = detail::h5o_open(static_cast<const Derivate*>(this)->getId(),
+                                     node_name.c_str(),
+                                     H5P_DEFAULT);
+    auto object_type = _convert_object_type(detail::h5i_get_type(id));
+    detail::h5o_close(id);
+    return object_type;
 }
 
 
@@ -311,15 +316,6 @@ inline void NodeTraits<Derivate>::createHardLink(const std::string& link_name,
                             link_name.c_str(),
                             linkCreateProps.getId(),
                             linkAccessProps.getId());
-}
-
-
-template <typename Derivate>
-inline Object NodeTraits<Derivate>::_open(const std::string& node_name) const {
-    const auto id = detail::h5o_open(static_cast<const Derivate*>(this)->getId(),
-                                     node_name.c_str(),
-                                     H5P_DEFAULT);
-    return detail::make_object(id);
 }
 
 

@@ -15,5 +15,14 @@ inline hid_t h5o_open(hid_t loc_id, const char* name, hid_t lapl_id) {
     return hid;
 }
 
+inline herr_t h5o_close(hid_t id) {
+    herr_t err = H5Oclose(id);
+    if (err < 0) {
+        HDF5ErrMapper::ToException<ObjectException>("Unable to close object.");
+    }
+
+    return err;
+}
+
 }  // namespace detail
 }  // namespace HighFive
