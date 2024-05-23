@@ -77,15 +77,16 @@ mark_as_advanced(HIGHFIVE_SANITIZER)
 
 # Check compiler cxx_std requirements
 # -----------------------------------
+set(HIGHFIVE_CXX_STANDARD_DEFAULT 14)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD ${HIGHFIVE_CXX_STANDARD_DEFAULT})
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-if(CMAKE_CXX_STANDARD EQUAL 98 OR CMAKE_CXX_STANDARD LESS 14)
-    message(FATAL_ERROR "HighFive needs to be compiled with at least C++14")
+if(CMAKE_CXX_STANDARD EQUAL 98 OR CMAKE_CXX_STANDARD LESS ${HIGHFIVE_CXX_STANDARD_DEFAULT})
+  message(FATAL_ERROR "HighFive needs to be compiled with at least C++${HIGHFIVE_CXX_STANDARD_DEFAULT}")
 endif()
 
 add_compile_definitions(HIGHFIVE_CXX_STD=${CMAKE_CXX_STANDARD})
