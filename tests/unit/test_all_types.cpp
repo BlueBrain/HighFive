@@ -86,7 +86,7 @@ TEMPLATE_PRODUCT_TEST_CASE("Scalar in std::vector<std::byte>", "[Types]", std::v
 template <class Container, class Expected, class Obj>
 auto check_read_auto(const Expected& expected, const std::vector<size_t>& dims, const Obj& obj) ->
     typename std::enable_if<!testing::ContainerTraits<Container>::is_view>::type {
-      testing::compare_arrays(obj.template read<Container>(), expected, dims);
+    testing::compare_arrays(obj.template read<Container>(), expected, dims);
 }
 
 template <class Container, class Expected, class Obj>

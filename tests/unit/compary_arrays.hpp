@@ -76,5 +76,5 @@ void compare_arrays(const Actual& actual,
     compare_arrays(expected, actual, dims, [](base_type a, base_type b) { return a == b; });
 }
 
-  }
-}
+}  // namespace testing
+}  // namespace HighFive

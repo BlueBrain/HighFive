@@ -303,7 +303,7 @@ struct ContainerTraits<T[n]> {
     }
 
     static void assign(container_type& dst, const container_type& src) {
-        for(size_t i = 0; i < n; ++i) {
+        for (size_t i = 0; i < n; ++i) {
             dst[i] = src[i];
         }
     }
@@ -757,11 +757,10 @@ struct MultiDimVector<T, 0> {
 
 template <class C, class F>
 void initialize_impl(C& array,
-                       const std::vector<size_t>& dims,
-                       std::vector<size_t>& indices,
-                       size_t axis,
-                       F f) {
-
+                     const std::vector<size_t>& dims,
+                     std::vector<size_t>& indices,
+                     size_t axis,
+                     F f) {
     using traits = ContainerTraits<C>;
     if (axis == indices.size()) {
         auto value = f(indices);
