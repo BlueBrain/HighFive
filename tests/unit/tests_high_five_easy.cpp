@@ -250,15 +250,17 @@ TEST_CASE("H5Easy_xtensor_column_major") {
 
     xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
 
-    H5Easy::dump(file, "/path/to/A", A);
-
     SECTION("Write column major") {
         column_major_t B = A;
-        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+        H5Easy::dump(file, "/path/to/A", B);
+        auto A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
+        CHECK(xt::allclose(A, A_r));
     }
 
     SECTION("Read column major") {
-        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+        H5Easy::dump(file, "/path/to/A", A);
+        auto A_r = H5Easy::load<column_major_t>(file, "/path/to/A");
+        CHECK(xt::allclose(A, A_r));
     }
 }
 
@@ -269,15 +271,17 @@ TEST_CASE("H5Easy_xarray_column_major") {
 
     xt::xarray<double> A = 100. * xt::random::randn<double>({20, 5});
 
-    H5Easy::dump(file, "/path/to/A", A);
-
     SECTION("Write column major") {
         column_major_t B = A;
-        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+        H5Easy::dump(file, "/path/to/A", B);
+        auto A_r = H5Easy::load<xt::xtensor<double, 2>>(file, "/path/to/A");
+        CHECK(xt::allclose(A, A_r));
     }
 
     SECTION("Read column major") {
-        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+        H5Easy::dump(file, "/path/to/A", A);
+        auto A_r = H5Easy::load<column_major_t>(file, "/path/to/A");
+        CHECK(xt::allclose(A, A_r));
     }
 }
 

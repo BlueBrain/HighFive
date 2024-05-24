@@ -30,6 +30,7 @@
 #ifdef H5_USE_XTENSOR
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
+#include "xtensor.hpp"
 #endif
 
 // optionally enable Eigen plug-in and load the library
@@ -41,6 +42,7 @@
 
 #ifdef H5_USE_EIGEN
 #include <Eigen/Eigen>
+#include "eigen.hpp"
 #endif
 
 // optionally enable OpenCV plug-in and load the library
@@ -52,6 +54,7 @@
 
 #ifdef H5_USE_OPENCV
 #include <opencv2/opencv.hpp>
+#include "experimental/opencv.hpp"
 #endif
 
 #include "H5File.hpp"
@@ -393,8 +396,5 @@ inline T loadAttribute(const File& file, const std::string& path, const std::str
 
 #include "h5easy_bits/H5Easy_Eigen.hpp"
 #include "h5easy_bits/H5Easy_misc.hpp"
-#include "h5easy_bits/H5Easy_opencv.hpp"
 #include "h5easy_bits/H5Easy_public.hpp"
 #include "h5easy_bits/H5Easy_scalar.hpp"
-#include "h5easy_bits/H5Easy_vector.hpp"
-#include "h5easy_bits/H5Easy_xtensor.hpp"

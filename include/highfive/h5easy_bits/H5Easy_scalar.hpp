@@ -10,6 +10,7 @@
 
 #include "../H5Easy.hpp"
 #include "H5Easy_misc.hpp"
+#include "default_io_impl.hpp"
 
 namespace H5Easy {
 
@@ -20,49 +21,7 @@ Base template for partial specialization: the fallback if specialized templates 
 Used e.g. for scalars.
 */
 template <typename T, typename = void>
-struct io_impl {
-    inline static DataSet dump(File& file,
-                               const std::string& path,
-                               const T& data,
-                               const DumpOptions& options) {
-        DataSet dataset = initScalarDataset(file, path, data, options);
-        dataset.write(data);
-        if (options.flush()) {
-            file.flush();
-        }
-        return dataset;
-    }
-
-    inline static T load(const File& file, const std::string& path) {
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
-        return data;
-    }
-
-    inline static Attribute dumpAttribute(File& file,
-                                          const std::string& path,
-                                          const std::string& key,
-                                          const T& data,
-                                          const DumpOptions& options) {
-        Attribute attribute = initScalarAttribute(file, path, key, data, options);
-        attribute.write(data);
-        if (options.flush()) {
-            file.flush();
-        }
-        return attribute;
-    }
-
-    inline static T loadAttribute(const File& file,
-                                  const std::string& path,
-                                  const std::string& key) {
-        DataSet dataset = file.getDataSet(path);
-        Attribute attribute = dataset.getAttribute(key);
-        T data;
-        attribute.read(data);
-        return data;
-    }
-
+struct io_impl: public default_io_impl<T> {
     inline static DataSet dump_extend(File& file,
                                       const std::string& path,
                                       const T& data,
@@ -121,10 +80,7 @@ struct io_impl {
                               const std::string& path,
                               const std::vector<size_t>& idx) {
         std::vector<size_t> ones(idx.size(), 1);
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.select(idx, ones).read(data);
-        return data;
+        return file.getDataSet(path).select(idx, ones).read<T>();
     }
 };
 
