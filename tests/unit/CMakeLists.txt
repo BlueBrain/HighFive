@@ -6,7 +6,7 @@ if(MSVC)
 endif()
 
 ## Base tests
-foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy test_all_types test_high_five_selection tests_high_five_data_type test_empty_arrays test_legacy test_opencv test_string)
+foreach(test_name tests_high_five_base tests_high_five_multi_dims tests_high_five_easy test_all_types test_high_five_selection tests_high_five_data_type test_empty_arrays test_legacy test_opencv test_string test_xtensor)
   add_executable(${test_name} "${test_name}.cpp")
   target_link_libraries(${test_name} HighFive HighFiveWarnings HighFiveFlags Catch2::Catch2WithMain)
   target_link_libraries(${test_name} HighFiveOptionalDependencies)
@@ -47,7 +47,7 @@ endif()
 # test succeeds if it compiles.
 file(GLOB public_headers LIST_DIRECTORIES false RELATIVE ${PROJECT_SOURCE_DIR}/include CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/include/highfive/*.hpp)
 foreach(PUBLIC_HEADER ${public_headers})
-  if(PUBLIC_HEADER STREQUAL "highfive/span.hpp" AND NOT HIGHFIVE_TEST_SPAN)
+    if(PUBLIC_HEADER STREQUAL "highfive/span.hpp" AND NOT HIGHFIVE_TEST_SPAN)
       continue()
     endif()
 
@@ -64,6 +64,10 @@ foreach(PUBLIC_HEADER ${public_headers})
     endif()
 
     if(PUBLIC_HEADER STREQUAL "highfive/opencv.hpp" AND NOT HIGHFIVE_TEST_OPENCV)
+      continue()
+    endif()
+
+    if(PUBLIC_HEADER STREQUAL "highfive/xtensor.hpp" AND NOT HIGHFIVE_TEST_XTENSOR)
       continue()
     endif()
 

@@ -82,6 +82,20 @@ struct EigenMapMatrix {
 };
 #endif
 
+#ifdef HIGHFIVE_TEST_XTENSOR
+template <size_t rank, xt::layout_type layout, class C = type_identity>
+struct XTensor {
+    template <class T>
+    using type = xt::xtensor<typename C::template type<T>, rank, layout>;
+};
+
+template <xt::layout_type layout, class C = type_identity>
+struct XArray {
+    template <class T>
+    using type = xt::xarray<typename C::template type<T>, layout>;
+};
+#endif
+
 template <class C, class Tuple>
 struct ContainerProduct;
 
@@ -165,6 +179,16 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<STDArray<7, STDSpan<>>, some_scalar_types>::type,
   typename ContainerProduct<STDSpan<STDVector<>>, some_scalar_types>::type,
   typename ContainerProduct<STDSpan<STDArray<3>>, some_scalar_types>::type,
+#endif
+#ifdef HIGHFIVE_TEST_XTENSOR
+  typename ContainerProduct<XTensor<3, xt::layout_type::row_major>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDVector<XTensor<3, xt::layout_type::row_major>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDArray<5, XTensor<3, xt::layout_type::row_major>>, scalar_types_eigen>::type,
+  typename ContainerProduct<XTensor<3, xt::layout_type::column_major>, scalar_types_eigen>::type,
+  typename ContainerProduct<XArray<xt::layout_type::row_major>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDVector<XArray<xt::layout_type::row_major>>, scalar_types_eigen>::type,
+  typename ContainerProduct<STDArray<5, XArray<xt::layout_type::row_major>>, scalar_types_eigen>::type,
+  typename ContainerProduct<XArray<xt::layout_type::column_major>, scalar_types_eigen>::type,
 #endif
   typename ContainerProduct<STDVector<>, all_scalar_types>::type,
   typename ContainerProduct<STDVector<STDVector<>>, some_scalar_types>::type,
