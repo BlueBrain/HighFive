@@ -63,10 +63,10 @@ inline std::vector<size_t> toSTLSizeVector(const std::vector<hsize_t>& from) {
 struct RegularHyperSlab {
     RegularHyperSlab() = default;
 
-    RegularHyperSlab(std::vector<size_t> offset_,
-                     std::vector<size_t> count_ = {},
-                     std::vector<size_t> stride_ = {},
-                     std::vector<size_t> block_ = {})
+    RegularHyperSlab(const std::vector<size_t>& offset_,
+                     const std::vector<size_t>& count_ = {},
+                     const std::vector<size_t>& stride_ = {},
+                     const std::vector<size_t>& block_ = {})
         : offset(toHDF5SizeVector(offset_))
         , count(toHDF5SizeVector(count_))
         , stride(toHDF5SizeVector(stride_))
@@ -77,10 +77,10 @@ struct RegularHyperSlab {
                                           std::vector<hsize_t> stride_ = {},
                                           std::vector<hsize_t> block_ = {}) {
         RegularHyperSlab slab;
-        slab.offset = offset_;
-        slab.count = count_;
-        slab.stride = stride_;
-        slab.block = block_;
+        slab.offset = std::move(offset_);
+        slab.count = std::move(count_);
+        slab.stride = std::move(stride_);
+        slab.block = std::move(block_);
 
         return slab;
     }
