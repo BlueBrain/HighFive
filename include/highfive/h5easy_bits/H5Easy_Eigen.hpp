@@ -22,29 +22,31 @@ namespace detail {
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T>::value>::type> {
-    // return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"
-    inline static std::vector<size_t> shape(const T& data) {
+    using EigenIndex = Eigen::DenseIndex;
+
+    // When creating a dataset for an Eigen object, the shape of the dataset is
+    // 1D for vectors. (legacy reasons)
+    inline static std::vector<size_t> file_shape(const T& data) {
         if (std::decay<T>::type::RowsAtCompileTime == 1) {
             return {static_cast<size_t>(data.cols())};
         }
         if (std::decay<T>::type::ColsAtCompileTime == 1) {
             return {static_cast<size_t>(data.rows())};
         }
-        return shape_2d(data);
+        return inspector<T>::getDimensions(data);
     }
 
-    inline static std::vector<size_t> shape_2d(const T& data) {
-        return {static_cast<size_t>(data.rows()), static_cast<size_t>(data.cols())};
+    // The shape of an Eigen object as used in HighFive core.
+    inline static std::vector<size_t> mem_shape(const T& data) {
+        return inspector<T>::getDimensions(data);
     }
 
-    using EigenIndex = Eigen::DenseIndex;
-
-    // get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
+    // The shape of an Eigen object as used in HighFive core.
     template <class D>
-    inline static std::vector<size_t> shape(const File& file,
-                                            const std::string& path,
-                                            const D& dataset,
-                                            int RowsAtCompileTime) {
+    inline static std::vector<size_t> mem_shape(const File& file,
+                                                const std::string& path,
+                                                const D& dataset,
+                                                int RowsAtCompileTime) {
         std::vector<size_t> dims = dataset.getDimensions();
 
         if (dims.size() == 1 && RowsAtCompileTime == 1) {
@@ -66,8 +68,8 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
                                const DumpOptions& options) {
         using value_type = typename std::decay<T>::type::Scalar;
 
-        std::vector<size_t> file_dims = shape(data);
-        std::vector<size_t> mem_dims = shape_2d(data);
+        std::vector<size_t> file_dims = file_shape(data);
+        std::vector<size_t> mem_dims = mem_shape(data);
         DataSet dataset = initDataset<value_type>(file, path, file_dims, options);
         dataset.reshapeMemSpace(mem_dims).write(data);
         if (options.flush()) {
@@ -78,7 +80,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
 
     inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        std::vector<size_t> dims = shape(file, path, dataset, T::RowsAtCompileTime);
+        std::vector<size_t> dims = mem_shape(file, path, dataset, T::RowsAtCompileTime);
         return dataset.reshapeMemSpace(dims).template read<T>();
     }
 
@@ -89,8 +91,8 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
                                           const DumpOptions& options) {
         using value_type = typename std::decay<T>::type::Scalar;
 
-        std::vector<size_t> file_dims = shape(data);
-        std::vector<size_t> mem_dims = shape_2d(data);
+        std::vector<size_t> file_dims = file_shape(data);
+        std::vector<size_t> mem_dims = mem_shape(data);
         Attribute attribute = initAttribute<value_type>(file, path, key, file_dims, options);
         attribute.reshapeMemSpace(mem_dims).write(data);
         if (options.flush()) {
@@ -105,7 +107,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
-        std::vector<size_t> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
+        std::vector<size_t> dims = mem_shape(file, path, dataspace, T::RowsAtCompileTime);
         return attribute.reshapeMemSpace(dims).template read<T>();
     }
 };
