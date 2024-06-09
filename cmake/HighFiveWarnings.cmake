@@ -24,33 +24,35 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang"
             -Wconversion
             -Wsign-conversion
     )
+endif()
 
-    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(HighFiveWarnings
+        INTERFACE
+            -Wpedantic
+            -Wcast-align
+            -Wdouble-promotion
+    )
+
+    target_compile_options(HighFiveWarnings
+        INTERFACE
+            -ftemplate-backtrace-limit=0
+    )
+
+    if(HIGHFIVE_HAS_WERROR)
         target_compile_options(HighFiveWarnings
             INTERFACE
-                -Wpedantic
-                -Wcast-align
-                -Wdouble-promotion
+                -Werror
+                -Wno-error=deprecated-declarations
         )
+    endif()
+endif()
 
-        target_compile_options(HighFiveWarnings
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    if(HIGHFIVE_MAX_ERRORS)
+        target_compile_options(HighFiveFlags
             INTERFACE
-                -ftemplate-backtrace-limit=0
+            -fmax-errors=${HIGHFIVE_MAX_ERRORS}
         )
-
-      if(HIGHFIVE_MAX_ERRORS)
-          target_compile_options(HighFiveFlags
-              INTERFACE
-              -fmax-errors=${HIGHFIVE_MAX_ERRORS}
-          )
-      endif()
-
-      if(HIGHFIVE_HAS_WERROR)
-          target_compile_options(HighFiveWarnings
-              INTERFACE
-                  -Werror
-                  -Wno-error=deprecated-declarations
-          )
-      endif()
     endif()
 endif()

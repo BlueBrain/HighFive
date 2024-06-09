@@ -25,7 +25,7 @@ ctest --test-dir build
 
 You might want to add:
 * `-DHIGHFIVE_TEST_BOOST=On` or other optional dependencies on,
-* `-DHIGHFIVE_MAX_ERROR=3` to only show the first three errors.
+* `-DHIGHFIVE_MAX_ERRORS=3` to only show the first three errors.
 
 Generic CMake reminders:
 * `-DCMAKE_INSTALL_PREFIX` defines where HighFive will be installed,
