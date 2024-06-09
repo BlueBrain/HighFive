@@ -52,7 +52,6 @@ struct io_impl: public default_io_impl<T> {
             return dataset;
         }
 
-        std::vector<size_t> shape = idx;
         const size_t unlim = DataSpace::UNLIMITED;
         std::vector<size_t> unlim_shape(idx.size(), unlim);
         std::vector<hsize_t> chunks(idx.size(), 10);
@@ -62,8 +61,9 @@ struct io_impl: public default_io_impl<T> {
                 throw error(file, path, "H5Easy::dump: Incorrect dimension ChunkSize");
             }
         }
-        for (size_t& i: shape) {
-            i++;
+        std::vector<size_t> shape(idx.size());
+        for (size_t i = 0; i < idx.size(); ++i) {
+            shape[i] = idx[i] + 1;
         }
         DataSpace dataspace = DataSpace(shape, unlim_shape);
         DataSetCreateProps props;
