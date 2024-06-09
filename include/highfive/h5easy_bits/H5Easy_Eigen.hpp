@@ -45,14 +45,13 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
     template <class D>
     inline static std::vector<size_t> mem_shape(const File& file,
                                                 const std::string& path,
-                                                const D& dataset,
-                                                int RowsAtCompileTime) {
+                                                const D& dataset) {
         std::vector<size_t> dims = dataset.getDimensions();
 
-        if (dims.size() == 1 && RowsAtCompileTime == 1) {
+        if (dims.size() == 1 && T::RowsAtCompileTime == 1) {
             return std::vector<size_t>{1, dims[0]};
         }
-        if (dims.size() == 1) {
+        if (dims.size() == 1 && T::ColsAtCompileTime == 1) {
             return std::vector<size_t>{dims[0], 1};
         }
         if (dims.size() == 2) {
@@ -80,7 +79,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
 
     inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        std::vector<size_t> dims = mem_shape(file, path, dataset, T::RowsAtCompileTime);
+        std::vector<size_t> dims = mem_shape(file, path, dataset);
         return dataset.reshapeMemSpace(dims).template read<T>();
     }
 
@@ -107,7 +106,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
-        std::vector<size_t> dims = mem_shape(file, path, dataspace, T::RowsAtCompileTime);
+        std::vector<size_t> dims = mem_shape(file, path, dataspace);
         return attribute.reshapeMemSpace(dims).template read<T>();
     }
 };
