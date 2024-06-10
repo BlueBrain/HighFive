@@ -57,7 +57,6 @@ set(half_float_examples
 function(compile_example example_source)
   get_filename_component(example_filename ${example_source} NAME)
   string(REPLACE ".cpp" "_bin" example_name ${example_filename})
-  message("example_name: ${example_name}")
 
   add_executable(${example_name} ${example_source})
   target_link_libraries(${example_name} PUBLIC HighFive HighFiveWarnings HighFiveFlags)
