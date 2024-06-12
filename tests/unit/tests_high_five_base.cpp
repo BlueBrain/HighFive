@@ -1782,6 +1782,40 @@ TEST_CASE("productSet") {
 
         check(array, subarray, yslices, xslices);
     }
+
+    SECTION("pp") {
+        std::vector<std::vector<double>> subarray;
+
+        auto xpoint = Point{3};
+        auto ypoint = Point{2};
+        auto yslices = Slices{{2, 3}};
+        auto xslices = Slices{{3, 4}};
+
+        dset.select(ProductSet(ypoint, xpoint)).read(subarray);
+        check(array, subarray, yslices, xslices);
+    }
+
+    SECTION("PP") {
+        std::vector<std::vector<double>> subarray;
+
+        auto xpoints = Points{0, 3, 4};
+        auto ypoints = Points{2, 3};
+        auto yslices = Slices{{2, 4}};
+        auto xslices = Slices{{0, 1}, {3, 5}};
+
+        dset.select(ProductSet(ypoints, xpoints)).read(subarray);
+        check(array, subarray, yslices, xslices);
+    }
+
+    SECTION("RR") {
+        std::vector<std::vector<double>> subarray;
+
+        auto yslices = Slices{{2, 4}};
+        auto xslices = Slices{{0, 1}, {3, 5}};
+
+        dset.select(ProductSet(yslices, xslices)).read(subarray);
+        check(array, subarray, yslices, xslices);
+    }
 }
 
 
