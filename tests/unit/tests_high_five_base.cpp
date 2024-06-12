@@ -1310,7 +1310,7 @@ template <class S, class Y, class X>
 void check(const S& array, const S& subarray, const Y& yslices, const X& xslices) {
     check_product_set_shape(subarray, yslices, xslices);
     check_product_set_values(array, subarray, yslices, xslices);
-};
+}
 
 
 TEST_CASE("productSet") {
