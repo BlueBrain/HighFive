@@ -14,6 +14,7 @@
 
 #include "../H5Utility.hpp"
 #include "H5Utils.hpp"
+#include "h5f_wrapper.hpp"
 
 namespace HighFive {
 
@@ -62,7 +63,7 @@ inline File::File(const std::string& filename,
         if (openOrCreate)
             silencer.reset(new SilenceHDF5());
 
-        _hid = H5Fopen(filename.c_str(), openMode, fileAccessProps.getId());
+        _hid = detail::nothrow::h5f_open(filename.c_str(), openMode, fileAccessProps.getId());
 
         if (isValid())
             return;  // Done
@@ -78,15 +79,14 @@ inline File::File(const std::string& filename,
 
     auto fcpl = fileCreateProps.getId();
     auto fapl = fileAccessProps.getId();
-    if ((_hid = H5Fcreate(filename.c_str(), createMode, fcpl, fapl)) < 0) {
-        HDF5ErrMapper::ToException<FileException>(std::string("Unable to create file " + filename));
-    }
+    _hid = detail::h5f_create(filename.c_str(), createMode, fcpl, fapl);
 }
 
-inline const std::string& File::getName() const noexcept {
+inline const std::string& File::getName() const {
     if (_filename.empty()) {
-        _filename = details::get_name(
-            [this](char* buffer, size_t length) { return H5Fget_name(getId(), buffer, length); });
+        _filename = details::get_name([this](char* buffer, size_t length) {
+            return detail::h5f_get_name(getId(), buffer, length);
+        });
     }
     return _filename;
 }
@@ -122,27 +122,17 @@ inline hsize_t File::getFileSpacePageSize() const {
 #endif
 
 inline void File::flush() {
-    if (H5Fflush(_hid, H5F_SCOPE_GLOBAL) < 0) {
-        HDF5ErrMapper::ToException<FileException>(std::string("Unable to flush file " + getName()));
-    }
+    detail::h5f_flush(_hid, H5F_SCOPE_GLOBAL);
 }
 
 inline size_t File::getFileSize() const {
     hsize_t sizeValue = 0;
-    if (H5Fget_filesize(_hid, &sizeValue) < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to retrieve size of file " + getName()));
-    }
+    detail::h5f_get_filesize(_hid, &sizeValue);
     return static_cast<size_t>(sizeValue);
 }
 
 inline size_t File::getFreeSpace() const {
-    hssize_t unusedSize = H5Fget_freespace(_hid);
-    if (unusedSize < 0) {
-        HDF5ErrMapper::ToException<FileException>(
-            std::string("Unable to retrieve unused space of file " + getName()));
-    }
-    return static_cast<size_t>(unusedSize);
+    return static_cast<size_t>(detail::h5f_get_freespace(_hid));
 }
 
 }  // namespace HighFive

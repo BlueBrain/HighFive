@@ -19,6 +19,9 @@
 #include "bits/string_padding.hpp"
 #include "H5PropertyList.hpp"
 
+#include "bits/h5_wrapper.hpp"
+#include "bits/h5t_wrapper.hpp"
+
 namespace HighFive {
 
 
@@ -70,7 +73,7 @@ class DataType: public Object {
     /// \brief Returns the length (in bytes) of this type elements
     ///
     /// Notice that the size of variable length sequences may have limited applicability
-    ///   given that it refers to the size of the control structure. For info see
+    /// given that it refers to the size of the control structure. For info see
     ///   https://support.hdfgroup.org/HDF5/doc/RM/RM_H5T.html#Datatype-GetSize
     size_t getSize() const;
 
@@ -96,7 +99,6 @@ class DataType: public Object {
 
     ///
     /// \brief Check the DataType was default constructed.
-    /// Such value might represent auto-detection of the datatype from a buffer
     ///
     bool empty() const noexcept;
 
@@ -152,7 +154,7 @@ class FixedLengthStringType: public StringType {
     /// requires `4*n` bytes.
     ///
     /// The string padding is subtle, essentially it's just a hint. A
-    /// nullterminated string is guaranteed to have one `'\0'` which marks the
+    /// null-terminated string is guaranteed to have one `'\0'` which marks the
     /// semantic end of the string. The length of the buffer must be at least
     /// `size` bytes regardless. HDF5 will read or write `size` bytes,
     /// irrespective of the when the `\0` occurs.
@@ -236,21 +238,16 @@ class CompoundType: public DataType {
             ss << "hid " << _hid << " does not refer to a compound data type";
             throw DataTypeException(ss.str());
         }
-        int result = H5Tget_nmembers(_hid);
-        if (result < 0) {
-            throw DataTypeException("Could not get members of compound datatype");
-        }
-        size_t n_members = static_cast<size_t>(result);
+        size_t n_members = static_cast<size_t>(detail::h5t_get_nmembers(_hid));
         members.reserve(n_members);
         for (unsigned i = 0; i < n_members; i++) {
-            char* name = H5Tget_member_name(_hid, i);
-            size_t offset = H5Tget_member_offset(_hid, i);
-            hid_t member_hid = H5Tget_member_type(_hid, i);
+            char* name = detail::h5t_get_member_name(_hid, i);
+            size_t offset = detail::h5t_get_member_offset(_hid, i);
+            hid_t member_hid = detail::h5t_get_member_type(_hid, i);
             DataType member_type{member_hid};
             members.emplace_back(std::string(name), member_type, offset);
-            if (H5free_memory(name) < 0) {
-                throw DataTypeException("Could not free names from the compound datatype");
-            }
+
+            detail::h5_free_memory(name);
         }
     }
 
@@ -343,127 +340,6 @@ DataType create_datatype();
 /// \brief Create a DataType instance representing type T and perform a sanity check on its size
 template <typename T>
 DataType create_and_check_datatype();
-
-
-///
-/// \brief A structure representing a set of fixed-length strings
-///
-/// Although fixed-len arrays can be created 'raw' without the need for
-/// this structure, to retrieve results efficiently it must be used.
-///
-/// \tparam N Size of the string in bytes, including the null character. Note,
-///           that all string must be null-terminated.
-///
-template <std::size_t N>
-class FixedLenStringArray {
-  public:
-    FixedLenStringArray() = default;
-
-    ///
-    /// \brief Create a FixedStringArray from a raw contiguous buffer.
-    ///
-    /// The argument `n_strings` specifies the number of strings.
-    ///
-    FixedLenStringArray(const char array[][N], std::size_t n_strings);
-
-    ///
-    /// \brief Create a FixedStringArray from a sequence of strings.
-    ///
-    /// Such conversion involves a copy, original vector is not modified
-    ///
-    explicit FixedLenStringArray(const std::vector<std::string>& vec);
-
-    FixedLenStringArray(const std::string* iter_begin, const std::string* iter_end);
-
-    FixedLenStringArray(const std::initializer_list<std::string>&);
-
-    ///
-    /// \brief Append an std::string to the buffer structure
-    ///
-    void push_back(const std::string&);
-
-    void push_back(const std::array<char, N>&);
-
-    ///
-    /// \brief Retrieve a string from the structure as std::string
-    ///
-    std::string getString(std::size_t index) const;
-
-    // Container interface
-    inline const char* operator[](std::size_t i) const noexcept {
-        return datavec[i].data();
-    }
-    inline const char* at(std::size_t i) const {
-        return datavec.at(i).data();
-    }
-    inline bool empty() const noexcept {
-        return datavec.empty();
-    }
-    inline std::size_t size() const noexcept {
-        return datavec.size();
-    }
-    inline void resize(std::size_t n) {
-        datavec.resize(n);
-    }
-    inline const char* front() const {
-        return datavec.front().data();
-    }
-    inline const char* back() const {
-        return datavec.back().data();
-    }
-    inline char* data() noexcept {
-        return datavec[0].data();
-    }
-    inline const char* data() const noexcept {
-        return datavec[0].data();
-    }
-
-  private:
-    using vector_t = typename std::vector<std::array<char, N>>;
-
-  public:
-    // Use the underlying iterator
-    using iterator = typename vector_t::iterator;
-    using const_iterator = typename vector_t::const_iterator;
-    using reverse_iterator = typename vector_t::reverse_iterator;
-    using const_reverse_iterator = typename vector_t::const_reverse_iterator;
-    using value_type = typename vector_t::value_type;
-
-    inline iterator begin() noexcept {
-        return datavec.begin();
-    }
-    inline iterator end() noexcept {
-        return datavec.end();
-    }
-    inline const_iterator begin() const noexcept {
-        return datavec.begin();
-    }
-    inline const_iterator cbegin() const noexcept {
-        return datavec.cbegin();
-    }
-    inline const_iterator end() const noexcept {
-        return datavec.end();
-    }
-    inline const_iterator cend() const noexcept {
-        return datavec.cend();
-    }
-    inline reverse_iterator rbegin() noexcept {
-        return datavec.rbegin();
-    }
-    inline reverse_iterator rend() noexcept {
-        return datavec.rend();
-    }
-    inline const_reverse_iterator rbegin() const noexcept {
-        return datavec.rbegin();
-    }
-    inline const_reverse_iterator rend() const noexcept {
-        return datavec.rend();
-    }
-
-  private:
-    vector_t datavec;
-};
-
 }  // namespace HighFive
 
 
@@ -472,12 +348,15 @@ class FixedLenStringArray {
 /// This macro has to be called outside of any namespace.
 ///
 /// \code{.cpp}
+/// namespace app {
 /// enum FooBar { FOO = 1, BAR = 2 };
 /// EnumType create_enum_foobar() {
 ///    return EnumType<FooBar>({{"FOO", FooBar::FOO},
 ///                             {"BAR", FooBar::BAR}});
 /// }
-/// HIGHFIVE_REGISTER_TYPE(FooBar, create_enum_foobar)
+/// }
+///
+/// HIGHFIVE_REGISTER_TYPE(FooBar, ::app::create_enum_foobar)
 /// \endcode
 #define HIGHFIVE_REGISTER_TYPE(type, function)                    \
     template <>                                                   \

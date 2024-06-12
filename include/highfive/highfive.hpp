@@ -5,7 +5,6 @@
 #include <highfive/H5DataSpace.hpp>
 #include <highfive/H5DataType.hpp>
 #include <highfive/H5File.hpp>
-#include <highfive/H5FileDriver.hpp>
 #include <highfive/H5Group.hpp>
 #include <highfive/H5PropertyList.hpp>
 #include <highfive/H5Reference.hpp>

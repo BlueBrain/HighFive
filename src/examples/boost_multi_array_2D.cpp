@@ -8,11 +8,9 @@
  */
 #include <iostream>
 
-#undef H5_USE_BOOST
-#define H5_USE_BOOST
-
 #include <boost/multi_array.hpp>
 #include <highfive/highfive.hpp>
+#include <highfive/boost.hpp>
 
 using namespace HighFive;
 

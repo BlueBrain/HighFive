@@ -13,6 +13,7 @@
 #include <H5Apublic.h>
 
 #include "H5DataType.hpp"
+#include "H5DataSpace.hpp"
 #include "H5Object.hpp"
 #include "bits/H5Friends.hpp"
 #include "bits/H5Path_traits.hpp"
@@ -70,7 +71,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \since 1.0
     DataType getDataType() const;
 
-    /// \brief Get the DataSpace of the current Attribute.
+    /// \brief Get a copy of the DataSpace of the current Attribute.
     /// \code{.cpp}
     /// Attribute attr = dset.createAttribute<int>("foo", DataSpace(1, 2));
     /// auto dspace = attr.getSpace(); // This will be a DataSpace of dimension 1 * 2
@@ -78,8 +79,12 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \since 1.0
     DataSpace getSpace() const;
 
-    /// \brief Get the DataSpace of the current Attribute.
-    /// \note This is an alias of getSpace().
+    /// \brief Get the memory DataSpace of the current Attribute.
+    ///
+    /// HDF5 attributes don't support selections. Therefore, there's no need
+    /// for a memory dataspace. However, HighFive supports allocating arrays
+    /// and checking dimensions, this requires the dimensions of the memspace.
+    ///
     /// \since 1.0
     DataSpace getMemSpace() const;
 
@@ -132,7 +137,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \endcode
     /// \since 2.2.2
     template <typename T>
-    void read(T* array, const DataType& mem_datatype) const;
+    void read_raw(T* array, const DataType& mem_datatype) const;
 
     /// \brief Read the attribute into a buffer.
     /// Behaves like Attribute::read(T*, const DataType&) const but
@@ -154,7 +159,7 @@ class Attribute: public Object, public PathTraits<Attribute> {
     /// \endcode
     /// \since 2.2.2
     template <typename T>
-    void read(T* array) const;
+    void read_raw(T* array) const;
 
     /// \brief Write the value into the Attribute.
     ///
@@ -245,10 +250,34 @@ class Attribute: public Object, public PathTraits<Attribute> {
     // No empty attributes
     Attribute() = delete;
 
+    ///
+    /// \brief Return an `Attribute` with `axes` squeezed from the memspace.
+    ///
+    /// Returns an `Attribute` in which the memspace has been modified
+    /// to not include the axes listed in `axes`.
+    ///
+    /// Throws if any axis to be squeezes has a dimension other than `1`.
+    ///
+    /// \since 3.0
+    Attribute squeezeMemSpace(const std::vector<size_t>& axes) const;
+
+    ///
+    /// \brief Return a `Attribute` with a simple memspace with `dims`.
+    ///
+    /// Returns a `Attribute` in which the memspace has been modified
+    /// to be a simple dataspace with dimensions `dims`.
+    ///
+    /// Throws if the number of elements changes.
+    ///
+    /// \since 3.0
+    Attribute reshapeMemSpace(const std::vector<size_t>& dims) const;
+
   protected:
     using Object::Object;
 
   private:
+    DataSpace _mem_space;
+
 #if HIGHFIVE_HAS_FRIEND_DECLARATIONS
     template <typename Derivate>
     friend class ::HighFive::AnnotateTraits;

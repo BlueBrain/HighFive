@@ -16,19 +16,19 @@
 
 #include "../H5Object.hpp"
 
+#include "h5r_wrapper.hpp"
+
 namespace HighFive {
 
 inline Reference::Reference(const Object& location, const Object& object)
     : parent_id(location.getId()) {
-    obj_name = details::get_name(
-        [&](char* buffer, size_t length) { return H5Iget_name(object.getId(), buffer, length); });
+    obj_name = details::get_name([&](char* buffer, size_t length) {
+        return detail::h5i_get_name(object.getId(), buffer, length);
+    });
 }
 
 inline void Reference::create_ref(hobj_ref_t* refptr) const {
-    if (H5Rcreate(refptr, parent_id, obj_name.c_str(), H5R_OBJECT, -1) < 0) {
-        HDF5ErrMapper::ToException<ReferenceException>(
-            std::string("Unable to create the reference for \"") + obj_name + "\":");
-    }
+    detail::h5r_create(refptr, parent_id, obj_name.c_str(), H5R_OBJECT, -1);
 }
 
 inline ObjectType Reference::getType(const Object& location) const {
@@ -51,15 +51,10 @@ inline T Reference::dereference(const Object& location) const {
 }
 
 inline Object Reference::get_ref(const Object& location) const {
-    hid_t res;
 #if (H5Rdereference_vers == 2)
-    if ((res = H5Rdereference(location.getId(), H5P_DEFAULT, H5R_OBJECT, &href)) < 0) {
-        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
-    }
+    hid_t res = detail::h5r_dereference(location.getId(), H5P_DEFAULT, H5R_OBJECT, &href);
 #else
-    if ((res = H5Rdereference(location.getId(), H5R_OBJECT, &href)) < 0) {
-        HDF5ErrMapper::ToException<ReferenceException>("Unable to dereference.");
-    }
+    hid_t res = detail::h5r_dereference(location.getId(), H5R_OBJECT, &href);
 #endif
     return Object(res);
 }

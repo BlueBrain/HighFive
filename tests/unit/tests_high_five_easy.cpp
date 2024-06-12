@@ -20,12 +20,21 @@
 
 #include <stdio.h>
 
-#include <highfive/H5Easy.hpp>
 
-#ifdef H5_USE_XTENSOR
+#ifdef HIGHFIVE_TEST_XTENSOR
 #include <xtensor/xrandom.hpp>
 #include <xtensor/xview.hpp>
 #endif
+
+#ifdef HIGHFIVE_TEST_EIGEN
+#include <Eigen/Dense>
+#endif
+
+#ifdef HIGHFIVE_TEST_OPENCV
+#define H5_USE_OPENCV
+#endif
+
+#include <highfive/H5Easy.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -179,7 +188,7 @@ TEST_CASE("H5Easy_Attribute_scalar") {
     CHECK(c == c_r);
 }
 
-#ifdef H5_USE_XTENSOR
+#ifdef HIGHFIVE_TEST_XTENSOR
 TEST_CASE("H5Easy_extend1d") {
     H5Easy::File file("h5easy_extend1d.h5", H5Easy::File::Overwrite);
 
@@ -232,6 +241,44 @@ TEST_CASE("H5Easy_xtensor") {
 
     CHECK(xt::allclose(A, A_r));
     CHECK(xt::all(xt::equal(B, B_r)));
+}
+
+TEST_CASE("H5Easy_xtensor_column_major") {
+    H5Easy::File file("h5easy_xtensor_colum_major.h5", H5Easy::File::Overwrite);
+
+    using column_major_t = xt::xtensor<double, 2, xt::layout_type::column_major>;
+
+    xt::xtensor<double, 2> A = 100. * xt::random::randn<double>({20, 5});
+
+    H5Easy::dump(file, "/path/to/A", A);
+
+    SECTION("Write column major") {
+        column_major_t B = A;
+        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+    }
+
+    SECTION("Read column major") {
+        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+    }
+}
+
+TEST_CASE("H5Easy_xarray_column_major") {
+    H5Easy::File file("h5easy_xarray_colum_major.h5", H5Easy::File::Overwrite);
+
+    using column_major_t = xt::xarray<double, xt::layout_type::column_major>;
+
+    xt::xarray<double> A = 100. * xt::random::randn<double>({20, 5});
+
+    H5Easy::dump(file, "/path/to/A", A);
+
+    SECTION("Write column major") {
+        column_major_t B = A;
+        REQUIRE_THROWS(H5Easy::dump(file, "path/to/B", B));
+    }
+
+    SECTION("Read column major") {
+        REQUIRE_THROWS(H5Easy::load<column_major_t>(file, "/path/to/A"));
+    }
 }
 
 TEST_CASE("H5Easy_xarray") {
@@ -304,7 +351,7 @@ TEST_CASE("H5Easy_Attribute_xtensor") {
 }
 #endif
 
-#ifdef H5_USE_EIGEN
+#ifdef HIGHFIVE_TEST_EIGEN
 TEST_CASE("H5Easy_Eigen_MatrixX") {
     H5Easy::File file("h5easy_eigen_MatrixX.h5", H5Easy::File::Overwrite);
 
@@ -439,7 +486,7 @@ TEST_CASE("H5Easy_Attribute_Eigen_MatrixX") {
 }
 #endif
 
-#ifdef H5_USE_OPENCV
+#ifdef HIGHFIVE_TEST_OPENCV
 TEST_CASE("H5Easy_OpenCV_Mat_") {
     H5Easy::File file("h5easy_opencv_Mat_.h5", H5Easy::File::Overwrite);
 

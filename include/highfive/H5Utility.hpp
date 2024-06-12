@@ -9,11 +9,11 @@
 
 #pragma once
 
-#include <H5Epublic.h>
 #include <functional>
 #include <string>
 #include <iostream>
 
+#include "bits/h5e_wrapper.hpp"
 #include "bits/H5Friends.hpp"
 
 namespace HighFive {
@@ -25,13 +25,15 @@ class SilenceHDF5 {
   public:
     inline SilenceHDF5(bool enable = true)
         : _client_data(nullptr) {
-        H5Eget_auto2(H5E_DEFAULT, &_func, &_client_data);
-        if (enable)
-            H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+        detail::nothrow::h5e_get_auto2(H5E_DEFAULT, &_func, &_client_data);
+
+        if (enable) {
+            detail::nothrow::h5e_set_auto2(H5E_DEFAULT, nullptr, nullptr);
+        }
     }
 
     inline ~SilenceHDF5() {
-        H5Eset_auto2(H5E_DEFAULT, _func, _client_data);
+        detail::nothrow::h5e_set_auto2(H5E_DEFAULT, _func, _client_data);
     }
 
   private:

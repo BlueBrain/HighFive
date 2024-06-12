@@ -20,6 +20,12 @@ namespace detail {
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
+    inline static void assert_row_major(const File& file, const std::string& path, const T& data) {
+        if (data.layout() != xt::layout_type::row_major) {
+            throw detail::error(file, path, "Only row-major XTensor object are supported.");
+        }
+    }
+
     inline static std::vector<size_t> shape(const T& data) {
         return std::vector<size_t>(data.shape().cbegin(), data.shape().cend());
     }
@@ -28,6 +34,7 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
+        assert_row_major(file, path, data);
         using value_type = typename std::decay_t<T>::value_type;
         DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
         dataset.write_raw(data.data());
@@ -44,7 +51,8 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         DataSet dataset = file.getDataSet(path);
         std::vector<size_t> dims = dataset.getDimensions();
         T data = T::from_shape(dims);
-        dataset.read(data.data());
+        assert_row_major(file, path, data);
+        dataset.read_raw(data.data());
         return data;
     }
 
@@ -53,6 +61,7 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
                                           const std::string& key,
                                           const T& data,
                                           const DumpOptions& options) {
+        assert_row_major(file, path, data);
         using value_type = typename std::decay_t<T>::value_type;
         Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
         attribute.write_raw(data.data());
@@ -73,7 +82,8 @@ struct io_impl<T, typename std::enable_if<xt::is_xexpression<T>::value>::type> {
         DataSpace dataspace = attribute.getSpace();
         std::vector<size_t> dims = dataspace.getDimensions();
         T data = T::from_shape(dims);
-        attribute.read(data.data());
+        assert_row_major(file, path, data);
+        attribute.read_raw(data.data());
         return data;
     }
 };

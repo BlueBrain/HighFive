@@ -87,7 +87,6 @@ namespace HighFive {
 /// \brief Types of property lists
 ///
 enum class PropertyType : int {
-    OBJECT_CREATE,
     FILE_CREATE,
     FILE_ACCESS,
     DATASET_CREATE,
@@ -99,7 +98,6 @@ enum class PropertyType : int {
     DATATYPE_ACCESS,
     STRING_CREATE,
     ATTRIBUTE_CREATE,
-    OBJECT_COPY,
     LINK_CREATE,
     LINK_ACCESS,
 };
@@ -179,11 +177,22 @@ class PropertyList: public PropertyListBase {
         return static_cast<const PropertyList<T>&>(PropertyListBase::Default());
     }
 
+    /// Return a property list created via a call to `H5Pcreate`.
+    ///
+    /// An empty property is needed when one wants `getId()` to immediately
+    /// point at a valid HID. This is important when interfacing directly with
+    /// HDF5 to set properties that haven't been wrapped by HighFive.
+    static PropertyList<T> Empty() {
+        auto plist = PropertyList<T>();
+        plist._initializeIfNeeded();
+
+        return plist;
+    }
+
   protected:
     void _initializeIfNeeded();
 };
 
-using ObjectCreateProps = PropertyList<PropertyType::OBJECT_CREATE>;
 using FileCreateProps = PropertyList<PropertyType::FILE_CREATE>;
 using FileAccessProps = PropertyList<PropertyType::FILE_ACCESS>;
 using DataSetCreateProps = PropertyList<PropertyType::DATASET_CREATE>;
@@ -195,7 +204,6 @@ using DataTypeCreateProps = PropertyList<PropertyType::DATATYPE_CREATE>;
 using DataTypeAccessProps = PropertyList<PropertyType::DATATYPE_ACCESS>;
 using StringCreateProps = PropertyList<PropertyType::STRING_CREATE>;
 using AttributeCreateProps = PropertyList<PropertyType::ATTRIBUTE_CREATE>;
-using ObjectCopyProps = PropertyList<PropertyType::OBJECT_COPY>;
 using LinkCreateProps = PropertyList<PropertyType::LINK_CREATE>;
 using LinkAccessProps = PropertyList<PropertyType::LINK_ACCESS>;
 
@@ -229,6 +237,8 @@ class MPIOFileAccess {
     MPI_Info _info;
 };
 
+
+#if H5_VERSION_GE(1, 10, 0)
 ///
 /// \brief Use collective MPI-IO for metadata read and write.
 ///
@@ -306,6 +316,7 @@ class MPIOCollectiveMetadataWrite {
     bool collective_;
 };
 
+#endif
 #endif
 
 ///
@@ -591,7 +602,6 @@ class CreateIntermediateGroup {
   public:
     explicit CreateIntermediateGroup(bool create = true);
 
-    explicit CreateIntermediateGroup(const ObjectCreateProps& ocpl);
     explicit CreateIntermediateGroup(const LinkCreateProps& lcpl);
 
     bool isSet() const;
@@ -600,7 +610,6 @@ class CreateIntermediateGroup {
     void fromPropertyList(hid_t hid);
 
   private:
-    friend ObjectCreateProps;
     friend LinkCreateProps;
     void apply(hid_t hid) const;
     bool _create;

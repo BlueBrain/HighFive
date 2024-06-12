@@ -5,8 +5,15 @@
 #elif defined(_MSC_VER)
 #define H5_DEPRECATED(msg) __declspec(deprecated(#msg))
 #else
-#pragma message("WARNING: Compiler doesnt support deprecation")
+#pragma message("WARNING: Compiler doesn't support deprecation")
 #define H5_DEPRECATED(msg)
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#define H5_DEPRECATED_USING(msg) H5_DEPRECATED((msg))
+#else
+#pragma message("WARNING: Compiler doesn't support deprecating using statements.")
+#define H5_DEPRECATED_USING(msg)
 #endif
 
 
@@ -37,9 +44,6 @@ class AtomicType;
 
 template <typename Derivate>
 class AnnotateTraits;
-
-template <std::size_t N>
-class FixedLenStringArray;
 
 template <typename Derivate>
 class NodeTraits;

@@ -1,0 +1,38 @@
+{
+    "creators": [
+        {
+            "affiliation": "",
+            "name": "Devresse, Adrien"
+        },
+        {
+            "affiliation": "",
+            "name": "Cornu, Nicolas"
+        },
+        {
+            "affiliation": "",
+            "name": "Grosheintz-Laval, Luc"
+        },
+        {
+            "affiliation": "",
+            "name": "Awile, Omar"
+        },
+        {
+            "affiliation": "",
+            "name": "de Geus, Tom"
+        },
+        {
+            "affiliation": "",
+            "name": "Pereira, Fernando"
+        },
+        {
+            "affiliation": "",
+            "name": "Wolf, Matthias"
+        },
+        {
+            "affiliation": "",
+            "name": "HighFive Contributors"
+        }
+    ],
+
+    "title": "HighFive - Header-only C++ HDF5 interface"
+}

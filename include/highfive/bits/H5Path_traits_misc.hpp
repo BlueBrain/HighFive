@@ -21,25 +21,25 @@ inline PathTraits<Derivate>::PathTraits() {
                       std::is_same<Derivate, Attribute>::value,
                   "PathTraits can only be applied to Group, DataSet and Attribute");
     const auto& obj = static_cast<const Derivate&>(*this);
-    if (!obj.isValid()) {
-        return;
+    if (obj.isValid()) {
+        const hid_t file_id = detail::h5i_get_file_id<PropertyException>(obj.getId());
+        _file_obj.reset(new File(file_id));
     }
-    const hid_t file_id = H5Iget_file_id(obj.getId());
-    if (file_id < 0) {
-        HDF5ErrMapper::ToException<PropertyException>("getFile(): Could not obtain file of object");
-    }
-    _file_obj.reset(new File(file_id));
 }
 
 template <typename Derivate>
 inline std::string PathTraits<Derivate>::getPath() const {
     return details::get_name([this](char* buffer, size_t length) {
-        return H5Iget_name(static_cast<const Derivate&>(*this).getId(), buffer, length);
+        return detail::h5i_get_name(static_cast<const Derivate&>(*this).getId(), buffer, length);
     });
 }
 
 template <typename Derivate>
-inline File& PathTraits<Derivate>::getFile() const noexcept {
+inline File& PathTraits<Derivate>::getFile() const {
+    const auto& obj = static_cast<const Derivate&>(*this);
+    if (!obj.isValid()) {
+        throw ObjectException("Invalid call to `PathTraits::getFile` for invalid object");
+    }
     return *_file_obj;
 }
 

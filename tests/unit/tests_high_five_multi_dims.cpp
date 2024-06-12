@@ -13,8 +13,9 @@
 #include <highfive/highfive.hpp>
 
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 #include <boost/multi_array.hpp>
+#include <highfive/boost.hpp>
 #endif
 
 #include <catch2/catch_test_macros.hpp>
@@ -80,10 +81,10 @@ void readWriteArrayTest() {
     typename std::array<T, 1> tooSmall;
     CHECK_THROWS_AS(dataset.read(tooSmall), DataSpaceException);
 }
+
 TEMPLATE_LIST_TEST_CASE("readWriteArray", "[template]", numerical_test_types) {
     readWriteArrayTest<TestType>();
 }
-
 
 template <typename T, typename VectorSubT>
 void readWriteVectorNDTest(std::vector<VectorSubT>& ndvec, const std::vector<size_t>& dims) {
@@ -127,7 +128,7 @@ TEMPLATE_LIST_TEST_CASE("vector of array", "[template]", numerical_test_types) {
 }
 
 
-#ifdef H5_USE_BOOST
+#ifdef HIGHFIVE_TEST_BOOST
 
 template <typename T>
 void MultiArray3DTest() {
@@ -166,6 +167,15 @@ void MultiArray3DTest() {
 
 TEMPLATE_LIST_TEST_CASE("MultiArray3D", "[template]", numerical_test_types) {
     MultiArray3DTest<TestType>();
+}
+
+TEST_CASE("Test boost::multi_array with fortran_storage_order") {
+    const std::string file_name("h5_multi_array_fortran.h5");
+    File file(file_name, File::ReadWrite | File::Create | File::Truncate);
+
+    boost::multi_array<int, 2> ma(boost::extents[2][2], boost::fortran_storage_order());
+    auto dset = file.createDataSet<int>("main_dset", DataSpace::From(ma));
+    CHECK_THROWS_AS(dset.write(ma), DataTypeException);
 }
 
 template <typename T>

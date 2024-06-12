@@ -98,7 +98,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
         DataSet dataset = file.getDataSet(path);
         std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
-        dataset.read(data.data());
+        dataset.read_raw(data.data());
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }
@@ -130,7 +130,7 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
         DataSpace dataspace = attribute.getSpace();
         std::vector<typename T::Index> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
         T data(dims[0], dims[1]);
-        attribute.read(data.data());
+        attribute.read_raw(data.data());
         if (data.IsVectorAtCompileTime || data.IsRowMajor) {
             return data;
         }

@@ -19,6 +19,7 @@
 
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
+#include "data_generator.hpp"
 
 using namespace HighFive;
 
@@ -149,6 +150,82 @@ TEMPLATE_LIST_TEST_CASE("mpiSelectionArraySimpleDefaultProps", "[template]", num
 
 TEMPLATE_LIST_TEST_CASE("mpiSelectionArraySimpleCollectiveMD", "[template]", numerical_test_types) {
     selectionArraySimpleTestParallelCollectiveMDProps<TestType>();
+}
+
+
+TEST_CASE("ReadWriteHalfEmptyDatasets") {
+    int mpi_rank = -1;
+    MPI_Comm mpi_comm = MPI_COMM_WORLD;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+
+    std::string filename = "rw_collective_some_empty.h5";
+    std::string dset_name = "dset";
+
+    using container_t = std::vector<std::vector<double>>;
+    using traits = testing::ContainerTraits<container_t>;
+
+    auto dims = std::vector<size_t>{5ul, 7ul};
+    auto values = testing::DataGenerator<container_t>::create(dims);
+
+    if (mpi_rank == 0) {
+        auto file = HighFive::File(filename, HighFive::File::Truncate);
+        file.createDataSet(dset_name, values);
+    }
+
+    MPI_Barrier(mpi_comm);
+
+    bool collective_metadata = true;
+    bool collective_transfer = true;
+
+    HighFive::FileAccessProps fapl;
+    fapl.add(HighFive::MPIOFileAccess{MPI_COMM_WORLD, MPI_INFO_NULL});
+    fapl.add(HighFive::MPIOCollectiveMetadata{collective_metadata});
+
+    auto file = HighFive::File(filename, HighFive::File::Truncate, fapl);
+    file.createDataSet(dset_name, values);
+    auto dset = file.getDataSet(dset_name);
+
+    HighFive::DataTransferProps dxpl;
+    dxpl.add(HighFive::UseCollectiveIO{collective_transfer});
+
+    auto hyperslab = HighFive::HyperSlab();
+    auto subdims = std::vector<size_t>(2, 0ul);
+
+    if (mpi_rank == 0) {
+        subdims = std::vector<size_t>{2ul, 4ul};
+        hyperslab |= HighFive::RegularHyperSlab({0ul, 0ul}, subdims);
+    }
+
+    SECTION("read") {
+        auto subvalues = dset.select(hyperslab, DataSpace(subdims)).template read<container_t>();
+
+        for (size_t i = 0; i < subdims[0]; ++i) {
+            for (size_t j = 0; j < subdims[1]; ++j) {
+                REQUIRE(traits::get(subvalues, {i, j}) == traits::get(values, {i, j}));
+            }
+        }
+    }
+
+    SECTION("write") {
+        auto subvalues =
+            testing::DataGenerator<container_t>::create(subdims, [](const std::vector<size_t>& d) {
+                auto default_values = testing::DefaultValues<double>();
+                return -1000.0 + default_values(d);
+            });
+        dset.select(hyperslab, DataSpace(subdims)).write(subvalues, dxpl);
+
+        MPI_Barrier(mpi_comm);
+
+        if (mpi_rank == 0) {
+            auto modified_values = dset.read<container_t>();
+
+            for (size_t i = 0; i < subdims[0]; ++i) {
+                for (size_t j = 0; j < subdims[1]; ++j) {
+                    REQUIRE(traits::get(subvalues, {i, j}) == traits::get(modified_values, {i, j}));
+                }
+            }
+        }
+    }
 }
 
 

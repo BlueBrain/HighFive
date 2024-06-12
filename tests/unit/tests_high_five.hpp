@@ -21,6 +21,7 @@
 // The list of identifiers is taken from `Boost::Predef`.
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__TOS_WIN__) || \
     defined(__WINDOWS__)
+#define NOMINMAX
 #include <Windows.h>
 #endif
 
@@ -42,8 +43,8 @@ using base_test_types = std::tuple<int,
                                    dcomplex,
                                    fcomplex>;
 
-#ifdef H5_USE_HALF_FLOAT
-#include <half.hpp>
+#ifdef HIGHFIVE_TEST_HALF_FLOAT
+#include <highfive/half_float.hpp>
 
 using float16_t = half_float::half;
 using numerical_test_types =

@@ -7,13 +7,12 @@
  *
  */
 
-#ifdef H5_USE_HALF_FLOAT
-
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include <highfive/highfive.hpp>
+#include <highfive/half_float.hpp>
 
 const std::string FILE_NAME("create_dataset_half_float_example.h5");
 const std::string DATASET_NAME("dset");
@@ -45,5 +44,3 @@ int main(void) {
 
     return 0;
 }
-
-#endif

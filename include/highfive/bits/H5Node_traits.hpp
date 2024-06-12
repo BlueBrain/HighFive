@@ -53,20 +53,7 @@ class NodeTraits {
     /// \param accessProps A property list with data set access properties
     /// \param parents Create intermediate groups if needed. Default: true.
     /// \return DataSet Object
-    template <typename T,
-              typename std::enable_if<
-                  std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-                  int>::type* = nullptr>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const DataSpace& space,
-                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                          bool parents = true);
-
-    template <typename T,
-              typename std::enable_if<
-                  !std::is_same<typename details::inspector<T>::base_type, details::Boolean>::value,
-                  int>::type* = nullptr>
+    template <typename T>
     DataSet createDataSet(const std::string& dataset_name,
                           const DataSpace& space,
                           const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
@@ -90,13 +77,6 @@ class NodeTraits {
                           const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
                           bool parents = true);
 
-
-    template <std::size_t N>
-    DataSet createDataSet(const std::string& dataset_name,
-                          const FixedLenStringArray<N>& data,
-                          const DataSetCreateProps& createProps = DataSetCreateProps::Default(),
-                          const DataSetAccessProps& accessProps = DataSetAccessProps::Default(),
-                          bool parents = true);
 
     ///
     /// \brief get an existing dataset in the current file
@@ -237,9 +217,6 @@ class NodeTraits {
     // It makes behavior consistent among versions and by default transforms
     // errors to exceptions
     bool _exist(const std::string& node_name, bool raise_errors = true) const;
-
-    // Opens an arbitrary object to obtain info
-    Object _open(const std::string& node_name) const;
 };
 
 
