@@ -231,6 +231,85 @@ class HyperSlab {
     std::vector<Select_> selects;
 };
 
+///
+/// \brief Selects the Cartesian product of slices.
+///
+/// Given a one-dimensional dataset one might want to select the union of
+/// multiple, non-overlapping slices. For example,
+///
+///     using Slice = std::array<size_t, 2>;
+///     using Slices = std::vector<Slice>;
+///     auto slices = Slices{{0, 2}, {4, 10}};
+///     dset.select(ProductSet(slices);
+///
+/// to select elements `0`, `1` and `4`, ..., `9` (inclusive).
+///
+/// For a two-dimensional array one which to select the row specified above,
+/// but only columns `2`, `3` and `4`:
+///
+///    dset.select(ProductSet(slices, Slice{2, 5}));
+///    // Analogues with the roles of columns and rows reversed:
+///    dset.select(ProductSet(Slice{2, 5}, slices));
+///
+/// One can generalize once more and allow the unions of slices in both x- and
+/// y-dimension:
+///
+///     auto yslices = Slices{{1, 5}, {7, 8}};
+///     auto xslices = Slices{{0, 3}, {6, 8}};
+///     dset.select(ProductSet(yslices, xslices));
+///
+/// which selects the following from a 11x8 dataset:
+///
+///     . . . . . . . .
+///     x x x . . . x x
+///     x x x . . . x x
+///     x x x . . . x x
+///     x x x . . . x x
+///     . . . . . . . .
+///     . . . . . . . .
+///     x x x . . . x x
+///     . . . . . . . .
+///     . . . . . . . .
+///     . . . . . . . .
+///
+/// Final twist, the selection along and axis may be discrete indices, from
+/// which a vector of, possibly single-element, slices can be constructed. The
+/// corresponding types are `std::vector<size_t>` and `size_t` for multiple or
+/// just a single values. Note, looping over rows or columns one-by-one can be
+/// a very serious performance problem. In particular,
+///
+///     // Avoid:
+///     for(auto i : indices) {
+///         dset.select(i).read<double>();
+///     }
+///
+///     // Use:
+///     std::vector<size_t> tmp(indices.begin(), indices.end());
+///     dset.select(tmp).read<std::vector<double>>();
+///
+/// obvious omit the copy if `indices` already has the correct type.
+///
+/// The solution works analogous in higher dimensions. A selection `sk` along
+/// axis `k` can be interpreted as a subset `S_k` of the natural numbers. The
+/// index `i` is in `S_k` if it's selected by `sk`.  The `ProductSet` of `s0`,
+/// ..., `sN` selects the Cartesian product `S_0 x ... x S_N`.
+///
+/// Note that the selections along each axis must be sorted and non-overlapping.
+///
+class ProductSet {
+  public:
+    template <class... Slices>
+    explicit ProductSet(const Slices&... slices);
+
+  private:
+    HyperSlab slab;
+    std::vector<size_t> shape;
+
+    template <typename Derivate>
+    friend class SliceTraits;
+};
+
+
 template <typename Derivate>
 class SliceTraits {
   public:
@@ -276,6 +355,8 @@ class SliceTraits {
     /// \brief Select a region in the current Slice/Dataset out of a list of elements.
     ///
     Selection select(const ElementSet& elements) const;
+
+    Selection select(const ProductSet& product_set) const;
 
     template <typename T>
     T read(const DataTransferProps& xfer_props = DataTransferProps()) const;
