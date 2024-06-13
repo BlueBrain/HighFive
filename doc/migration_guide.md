@@ -233,6 +233,32 @@ multi-dimensional array isn't supported, because if we want to support array
 with runtime-defined rank, we can't deduce the correct shape, e.g. `[1]` vs.
 `[1, 1, 1]`, when read into an array.
 
-# Removal of `Object*Props`.
-To out knowledge these could not be used meaningfully. Please create an issue
+## Change to `File::Truncate` and friends.
+In `v2`, `File::{ReadOnly,Truncate,...}` was an anonymous member enum of
+`File`. Effectively it's type was the same as an `int`.
+
+To improve type-safety, we converted it into an `enum class` called
+`File::AccessMode`. In order to reduce the migration effort, we retained the
+ability to write: `File::ReadOnly`.
+
+Functions that accept a file access mode should be modernized as follows:
+```
+// old
+HighFive::File open(std::string name, int mode) {
+  return HighFive::File(name, mode);
+}
+
+// new
+HighFive::File open(std::string name, HighFive::File::AccessMode mode) {
+  return HighFive::File(name, mode);
+}
+```
+
+Note: There's a caveat, the short-hand notation `File::ReadOnly` doesn't have
+an address. Meaning one can't take it's address or const-references of it
+(results in a linker error about missing symbol `File::ReadOnly`). Use
+`File::AccessMode::ReadOnly` instead.
+
+## Removal of `Object*Props`.
+To our knowledge these could not be used meaningfully. Please create an issue
 if you relied on these.
