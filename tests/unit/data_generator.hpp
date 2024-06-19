@@ -283,6 +283,38 @@ struct ContainerTraits<std::span<T, Extent>>: public STLLikeContainerTraits<std:
 #endif
 
 
+template <class T, size_t n>
+struct ContainerTraits<T[n]> {
+    using container_type = T[n];
+    using value_type = T;
+    using base_type = typename ContainerTraits<value_type>::base_type;
+
+    static constexpr bool is_view = ContainerTraits<value_type>::is_view;
+    static constexpr size_t rank = 1 + ContainerTraits<value_type>::rank;
+
+    static void set(container_type& array,
+                    const std::vector<size_t>& indices,
+                    const base_type& value) {
+        return ContainerTraits<value_type>::set(array[indices[0]], lstrip(indices, 1), value);
+    }
+
+    static base_type get(const container_type& array, const std::vector<size_t>& indices) {
+        return ContainerTraits<value_type>::get(array[indices[0]], lstrip(indices, 1));
+    }
+
+    static void assign(container_type& dst, const container_type& src) {
+        for (size_t i = 0; i < n; ++i) {
+            dst[i] = src[i];
+        }
+    }
+
+    static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
+        dims[axis] = n;
+        ContainerTraits<value_type>::sanitize_dims(dims, axis + 1);
+    }
+};
+
+
 // -- Boost  -------------------------------------------------------------------
 #ifdef HIGHFIVE_TEST_BOOST
 template <class T, size_t n>
@@ -723,6 +755,37 @@ struct MultiDimVector<T, 0> {
     using type = T;
 };
 
+template <class C, class F>
+void initialize_impl(C& array,
+                     const std::vector<size_t>& dims,
+                     std::vector<size_t>& indices,
+                     size_t axis,
+                     F f) {
+    using traits = ContainerTraits<C>;
+    if (axis == indices.size()) {
+        auto value = f(indices);
+        traits::set(array, indices, value);
+    } else {
+        for (size_t i = 0; i < dims[axis]; ++i) {
+            indices[axis] = i;
+            initialize_impl(array, dims, indices, axis + 1, f);
+        }
+    }
+}
+
+template <class C, class F>
+void initialize(C& array, const std::vector<size_t>& dims, F f) {
+    std::vector<size_t> indices(dims.size());
+    initialize_impl(array, dims, indices, 0, f);
+}
+
+template <class C>
+void initialize(C& array, const std::vector<size_t>& dims) {
+    using traits = ContainerTraits<C>;
+    initialize(array, dims, DefaultValues<typename traits::base_type>());
+}
+
+
 template <class Container>
 class DataGenerator {
   public:
@@ -760,30 +823,6 @@ class DataGenerator {
 
     static void sanitize_dims(std::vector<size_t>& dims) {
         ContainerTraits<Container>::sanitize_dims(dims, /* axis = */ 0);
-    }
-
-  private:
-    template <class C, class F>
-    static void initialize(C& array, const std::vector<size_t>& dims, F f) {
-        std::vector<size_t> indices(dims.size());
-        initialize(array, dims, indices, 0, f);
-    }
-
-    template <class C, class F>
-    static void initialize(C& array,
-                           const std::vector<size_t>& dims,
-                           std::vector<size_t>& indices,
-                           size_t axis,
-                           F f) {
-        if (axis == indices.size()) {
-            auto value = f(indices);
-            traits::set(array, indices, value);
-        } else {
-            for (size_t i = 0; i < dims[axis]; ++i) {
-                indices[axis] = i;
-                initialize(array, dims, indices, axis + 1, f);
-            }
-        }
     }
 };
 

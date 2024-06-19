@@ -165,7 +165,7 @@ void check_write(...) {
 ### Test Organization
 #### Multi-Dimensional Arrays
 All tests for reading/writing whole multi-dimensional arrays to datasets or
-attributes belong in `tests/unit/tests_high_five_multi_dimensional.cpp`. This
+attributes belong in `tests/unit/test_all_types.cpp`. This
 includes write/read cycles; checking all the generic edges cases, e.g. empty
 arrays and mismatching sizes; and checking non-reallocation.
 
