@@ -133,7 +133,7 @@ target_link_libraries(add PUBLIC boost::boost)
 # For HighFive there's two options for adding `-I ${HIGHFIVE_DIR}` and the
 # flags for HDF5.
 #
-# Option 1: HighFive is install (systemwide) as a regular library:
+# Option 1: HighFive is installed as a (system-wide) regular library:
 find_package(HighFive)
 target_link_libraries(app PUBLIC HighFive::HighFive)
 
@@ -169,7 +169,7 @@ of a "file driver". Removing the concept hopefully makes it easier to add a
 better abstraction for the handling of the property lists, when we discover
 such an abstraction.
 
-## Removal of broadcasting
+## Removal of broadcasting.
 HighFive v2 had a feature that a dataset (or attribute) of shape `[n, 1]` could
 be read into a one-dimensional array automatically.
 
