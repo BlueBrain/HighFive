@@ -71,7 +71,7 @@ foreach(example_source ${core_examples})
 endforeach()
 
 foreach(example_source ${easy_examples})
-  compile_example(${example_source})
+  compile_example(${example_source} HighFiveOptionalDependencies)
 endforeach()
 
 if(HIGHFIVE_TEST_SPAN)

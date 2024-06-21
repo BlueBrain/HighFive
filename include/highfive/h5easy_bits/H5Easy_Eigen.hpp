@@ -14,66 +14,48 @@
 
 #ifdef H5_USE_EIGEN
 
+#include "../eigen.hpp"
+
 namespace H5Easy {
 
 namespace detail {
 
 template <typename T>
 struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T>::value>::type> {
-    // abbreviate row-major <-> col-major conversions
-    template <typename S>
-    struct types {
-        using row_major = Eigen::Ref<
-            const Eigen::Array<typename std::decay<T>::type::Scalar,
-                               std::decay<T>::type::RowsAtCompileTime,
-                               std::decay<T>::type::ColsAtCompileTime,
-                               std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor
-                                                                           : Eigen::RowMajor,
-                               std::decay<T>::type::MaxRowsAtCompileTime,
-                               std::decay<T>::type::MaxColsAtCompileTime>,
-            0,
-            Eigen::InnerStride<1>>;
+    using EigenIndex = Eigen::DenseIndex;
 
-        using col_major =
-            Eigen::Map<Eigen::Array<typename std::decay<T>::type::Scalar,
-                                    std::decay<T>::type::RowsAtCompileTime,
-                                    std::decay<T>::type::ColsAtCompileTime,
-                                    std::decay<T>::type::ColsAtCompileTime == 1 ? Eigen::ColMajor
-                                                                                : Eigen::RowMajor,
-                                    std::decay<T>::type::MaxRowsAtCompileTime,
-                                    std::decay<T>::type::MaxColsAtCompileTime>>;
-    };
-
-    // return the shape of Eigen::DenseBase<T> object as size 1 or 2 "std::vector<size_t>"
-    inline static std::vector<size_t> shape(const T& data) {
+    // When creating a dataset for an Eigen object, the shape of the dataset is
+    // 1D for vectors. (legacy reasons)
+    inline static std::vector<size_t> file_shape(const T& data) {
         if (std::decay<T>::type::RowsAtCompileTime == 1) {
             return {static_cast<size_t>(data.cols())};
         }
         if (std::decay<T>::type::ColsAtCompileTime == 1) {
             return {static_cast<size_t>(data.rows())};
         }
-        return {static_cast<size_t>(data.rows()), static_cast<size_t>(data.cols())};
+        return inspector<T>::getDimensions(data);
     }
 
-    using EigenIndex = Eigen::DenseIndex;
+    // The shape of an Eigen object as used in HighFive core.
+    inline static std::vector<size_t> mem_shape(const T& data) {
+        return inspector<T>::getDimensions(data);
+    }
 
-    // get the shape of a "DataSet" as size 2 "std::vector<Eigen::Index>"
+    // The shape of an Eigen object as used in HighFive core.
     template <class D>
-    inline static std::vector<EigenIndex> shape(const File& file,
+    inline static std::vector<size_t> mem_shape(const File& file,
                                                 const std::string& path,
-                                                const D& dataset,
-                                                int RowsAtCompileTime) {
+                                                const D& dataset) {
         std::vector<size_t> dims = dataset.getDimensions();
 
-        if (dims.size() == 1 && RowsAtCompileTime == 1) {
-            return std::vector<EigenIndex>{1u, static_cast<EigenIndex>(dims[0])};
+        if (dims.size() == 1 && T::RowsAtCompileTime == 1) {
+            return std::vector<size_t>{1, dims[0]};
         }
-        if (dims.size() == 1) {
-            return std::vector<EigenIndex>{static_cast<EigenIndex>(dims[0]), 1u};
+        if (dims.size() == 1 && T::ColsAtCompileTime == 1) {
+            return std::vector<size_t>{dims[0], 1};
         }
         if (dims.size() == 2) {
-            return std::vector<EigenIndex>{static_cast<EigenIndex>(dims[0]),
-                                           static_cast<EigenIndex>(dims[1])};
+            return dims;
         }
 
         throw detail::error(file, path, "H5Easy::load: Inconsistent rank");
@@ -83,11 +65,12 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
-        using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
-        row_major_type row_major(data);
-        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
-        dataset.write_raw(row_major.data());
+
+        std::vector<size_t> file_dims = file_shape(data);
+        std::vector<size_t> mem_dims = mem_shape(data);
+        DataSet dataset = initDataset<value_type>(file, path, file_dims, options);
+        dataset.reshapeMemSpace(mem_dims).write(data);
         if (options.flush()) {
             file.flush();
         }
@@ -96,14 +79,8 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
 
     inline static T load(const File& file, const std::string& path) {
         DataSet dataset = file.getDataSet(path);
-        std::vector<typename T::Index> dims = shape(file, path, dataset, T::RowsAtCompileTime);
-        T data(dims[0], dims[1]);
-        dataset.read_raw(data.data());
-        if (data.IsVectorAtCompileTime || data.IsRowMajor) {
-            return data;
-        }
-        using col_major = typename types<T>::col_major;
-        return col_major(data.data(), dims[0], dims[1]);
+        std::vector<size_t> dims = mem_shape(file, path, dataset);
+        return dataset.reshapeMemSpace(dims).template read<T>();
     }
 
     inline static Attribute dumpAttribute(File& file,
@@ -111,11 +88,12 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
                                           const std::string& key,
                                           const T& data,
                                           const DumpOptions& options) {
-        using row_major_type = typename types<T>::row_major;
         using value_type = typename std::decay<T>::type::Scalar;
-        row_major_type row_major(data);
-        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
-        attribute.write_raw(row_major.data());
+
+        std::vector<size_t> file_dims = file_shape(data);
+        std::vector<size_t> mem_dims = mem_shape(data);
+        Attribute attribute = initAttribute<value_type>(file, path, key, file_dims, options);
+        attribute.reshapeMemSpace(mem_dims).write(data);
         if (options.flush()) {
             file.flush();
         }
@@ -128,14 +106,8 @@ struct io_impl<T, typename std::enable_if<std::is_base_of<Eigen::DenseBase<T>, T
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
         DataSpace dataspace = attribute.getSpace();
-        std::vector<typename T::Index> dims = shape(file, path, dataspace, T::RowsAtCompileTime);
-        T data(dims[0], dims[1]);
-        attribute.read_raw(data.data());
-        if (data.IsVectorAtCompileTime || data.IsRowMajor) {
-            return data;
-        }
-        using col_major = typename types<T>::col_major;
-        return col_major(data.data(), dims[0], dims[1]);
+        std::vector<size_t> dims = mem_shape(file, path, dataspace);
+        return attribute.reshapeMemSpace(dims).template read<T>();
     }
 };
 

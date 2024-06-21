@@ -13,28 +13,22 @@
 #include "H5Easy_scalar.hpp"
 
 namespace H5Easy {
-
 namespace detail {
-
-template <class T>
-struct is_vector: std::false_type {};
-template <class T>
-struct is_vector<std::vector<T>>: std::true_type {};
 
 using HighFive::details::inspector;
 
 template <typename T>
-struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
+struct default_io_impl {
+    inline static std::vector<size_t> shape(const T& data) {
+        return inspector<T>::getDimensions(data);
+    }
+
     inline static DataSet dump(File& file,
                                const std::string& path,
                                const T& data,
                                const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
-        auto dims = inspector<T>::getDimensions(data);
-        DataSet dataset = initDataset<value_type>(file,
-                                                  path,
-                                                  std::vector<size_t>(dims.begin(), dims.end()),
-                                                  options);
+        DataSet dataset = initDataset<value_type>(file, path, shape(data), options);
         dataset.write(data);
         if (options.flush()) {
             file.flush();
@@ -43,10 +37,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
     }
 
     inline static T load(const File& file, const std::string& path) {
-        DataSet dataset = file.getDataSet(path);
-        T data;
-        dataset.read(data);
-        return data;
+        return file.getDataSet(path).read<T>();
     }
 
     inline static Attribute dumpAttribute(File& file,
@@ -55,9 +46,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                           const T& data,
                                           const DumpOptions& options) {
         using value_type = typename inspector<T>::base_type;
-        auto dims = inspector<T>::getDimensions(data);
-        std::vector<size_t> shape(dims.begin(), dims.end());
-        Attribute attribute = initAttribute<value_type>(file, path, key, shape, options);
+        Attribute attribute = initAttribute<value_type>(file, path, key, shape(data), options);
         attribute.write(data);
         if (options.flush()) {
             file.flush();
@@ -70,9 +59,7 @@ struct io_impl<T, typename std::enable_if<is_vector<T>::value>::type> {
                                   const std::string& key) {
         DataSet dataset = file.getDataSet(path);
         Attribute attribute = dataset.getAttribute(key);
-        T data;
-        attribute.read(data);
-        return data;
+        return attribute.read<T>();
     }
 };
 
