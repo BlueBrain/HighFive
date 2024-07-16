@@ -58,6 +58,9 @@ jobs:
           - config:
               os: ubuntu-22.04
               flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20 -DHIGHFIVE_HAS_CONCEPTS=On'
+          - config:
+              os: ubuntu-24.04
+              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20 -DHIGHFIVE_HAS_CONCEPTS=On'
 
     steps:
     - uses: actions/checkout@v3
