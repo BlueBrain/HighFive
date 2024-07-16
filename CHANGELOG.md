@@ -24,8 +24,6 @@ If you want to cite us, we now are on Zenodo: https://zenodo.org/records/1067973
     - Type `T[N]` or `T[N][M]` will works better. (#929)
     - `DataspaceType` is now an enum class for `dataspace_scalar` or `dataspace_null`. (#900)
 
-### Bug Fix
-
 ## Version 2.9.0 - 2024-01-25
 ### New Features
     - Add named ctors for scalar and null dataspaces. (#899)
