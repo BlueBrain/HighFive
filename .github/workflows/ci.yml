@@ -58,6 +58,9 @@ jobs:
           - config:
               os: ubuntu-22.04
               flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20 -DHIGHFIVE_HAS_CONCEPTS=On'
+          - config:
+              os: ubuntu-24.04
+              flags: '-DHIGHFIVE_TEST_BOOST=Off -DCMAKE_CXX_STANDARD=20 -DHIGHFIVE_HAS_CONCEPTS=On'
 
     steps:
     - uses: actions/checkout@v3
@@ -96,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5_1.14.4.1 ]
+        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5_1.14.4.3 ]
 
     steps:
     - uses: actions/checkout@v3
