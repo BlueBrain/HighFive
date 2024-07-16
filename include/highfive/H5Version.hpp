@@ -30,4 +30,4 @@
  *
  *  \warning This macro only exists from 2.7.1 onwards.
  */
-#define HIGHFIVE_VERSION_STRING "3.0.0-beta"
+#define HIGHFIVE_VERSION_STRING "3.0.0"
