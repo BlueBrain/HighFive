@@ -296,6 +296,7 @@ class HyperSlab {
 ///
 /// Note that the selections along each axis must be sorted and non-overlapping.
 ///
+/// \since 3.0
 class ProductSet {
   public:
     template <class... Slices>
@@ -356,6 +357,11 @@ class SliceTraits {
     ///
     Selection select(const ElementSet& elements) const;
 
+    ///
+    /// \brief Select a region consisting of a product of slices.
+    ///
+    /// \since 3.0
+    ///
     Selection select(const ProductSet& product_set) const;
 
     template <typename T>
