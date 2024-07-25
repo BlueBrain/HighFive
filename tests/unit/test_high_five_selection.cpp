@@ -25,6 +25,7 @@
 
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
+#include "data_generator.hpp"
 
 using namespace HighFive;
 using Catch::Matchers::Equals;
@@ -533,4 +534,60 @@ void irregularHyperSlabSelectionWriteTest() {
 
 TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::tuple<int>) {
     irregularHyperSlabSelectionWriteTest<TestType>();
+}
+
+TEST_CASE("select_multiple_ors", "[hyperslab]") {
+    size_t n = 100, m = 20;
+    size_t nsel = 30;
+    auto x = testing::DataGenerator<std::vector<std::vector<int>>>::create({n, m});
+
+    auto file = File("select_multiple_ors.h5", File::Truncate);
+    auto dset = file.createDataSet("x", x);
+
+    std::vector<std::array<size_t, 2>> indices;
+    auto hyperslab = HyperSlab();
+    for (size_t i = 0; i < nsel; ++i) {
+        std::vector<size_t> offsets{i, i % 10};
+        std::vector<size_t> counts{1, 3};
+        hyperslab |= RegularHyperSlab(offsets, counts);
+
+        for (size_t k = 0; k < counts[1]; ++k) {
+            indices.push_back({offsets[0], offsets[1] + k});
+        }
+    }
+
+    SECTION("Pure Or Chain") {
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        REQUIRE(selected.size() == indices.size());
+        for (size_t k = 0; k < selected.size(); ++k) {
+            size_t i = indices[k][0];
+            size_t j = indices[k][1];
+            REQUIRE(selected[k] == x[i][j]);
+        }
+    }
+
+    SECTION("Or Chain And Slab") {
+        std::vector<size_t> offsets{5, 2};
+        std::vector<size_t> counts{85, 12};
+
+        std::vector<std::array<size_t, 2>> selected_indices;
+        for (const auto ij: indices) {
+            std::array<size_t, 2> ij_max = {offsets[0] + counts[0], offsets[1] + counts[1]};
+
+            if (offsets[0] <= ij[0] && ij[0] < ij_max[0] && offsets[1] <= ij[1] &&
+                ij[1] < ij_max[1]) {
+                selected_indices.push_back(ij);
+            }
+        }
+
+        hyperslab &= RegularHyperSlab(offsets, counts);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        REQUIRE(selected.size() == selected_indices.size());
+        for (size_t k = 0; k < selected.size(); ++k) {
+            size_t i = selected_indices[k][0];
+            size_t j = selected_indices[k][1];
+            REQUIRE(selected[k] == x[i][j]);
+        }
+    }
 }
