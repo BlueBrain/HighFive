@@ -415,33 +415,33 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
     // xor, irregular
     auto slab_ab_xor = HyperSlab(slabs["a"]) ^ slabs["b"];
     // clang-format off
-        auto answer_ab_xor = IrregularHyperSlabAnswer{{
-                        {1ul, 1ul}, {1ul, 2ul},
-            {2ul, 0ul},             {2ul, 2ul},
-                        {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ab_xor = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+        {2ul, 0ul},             {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"a xor b", slab_ab_xor, answer_ab_xor});
 
     // (not a) and e, irregular
     auto slab_ab_nota = HyperSlab(slabs["a"]).notA(slabs["b"]);
     // clang-format off
-        auto answer_ab_nota = IrregularHyperSlabAnswer{{
-                        {1ul, 1ul}, {1ul, 2ul},
-                                    {2ul, 2ul},
-                        {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ab_nota = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+                                {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"a nota b", slab_ab_nota, answer_ab_nota});
 
     // (not a) and e, irregular
     auto slab_ba_notb = HyperSlab(slabs["b"]).notB(slabs["a"]);
     // clang-format off
-        auto answer_ba_notb = IrregularHyperSlabAnswer{{
-                         {1ul, 1ul}, {1ul, 2ul},
-                                     {2ul, 2ul},
-                         {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ba_notb = IrregularHyperSlabAnswer{{
+                     {1ul, 1ul}, {1ul, 2ul},
+                                 {2ul, 2ul},
+                     {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"b notb a", slab_ba_notb, answer_ba_notb});
 
