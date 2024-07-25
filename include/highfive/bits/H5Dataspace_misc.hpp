@@ -21,6 +21,12 @@
 
 namespace HighFive {
 
+namespace detail {
+inline DataSpace make_data_space(hid_t hid) {
+    return DataSpace::fromId(hid);
+}
+}  // namespace detail
+
 inline DataSpace::DataSpace(const std::vector<size_t>& dims)
     : DataSpace(dims.begin(), dims.end()) {}
 
