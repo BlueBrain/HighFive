@@ -162,20 +162,7 @@ class HyperSlab {
     }
 
     DataSpace apply(const DataSpace& space_) const {
-        auto space = space_.clone();
-        for (const auto& sel: selects) {
-            if (sel.op == Op::None) {
-                detail::h5s_select_none(space.getId());
-            } else {
-                detail::h5s_select_hyperslab(space.getId(),
-                                             convert(sel.op),
-                                             sel.offset.empty() ? nullptr : sel.offset.data(),
-                                             sel.stride.empty() ? nullptr : sel.stride.data(),
-                                             sel.count.empty() ? nullptr : sel.count.data(),
-                                             sel.block.empty() ? nullptr : sel.block.data());
-            }
-        }
-        return space;
+        return apply_impl(space_);
     }
 
   private:
@@ -229,6 +216,113 @@ class HyperSlab {
     };
 
     std::vector<Select_> selects;
+
+  protected:
+    DataSpace select_none(const DataSpace& outer_space) const {
+        auto space = outer_space.clone();
+        detail::h5s_select_none(space.getId());
+        return space;
+    }
+
+    void select_hyperslab(DataSpace& space, const Select_& sel) const {
+        detail::h5s_select_hyperslab(space.getId(),
+                                     convert(sel.op),
+                                     sel.offset.empty() ? nullptr : sel.offset.data(),
+                                     sel.stride.empty() ? nullptr : sel.stride.data(),
+                                     sel.count.empty() ? nullptr : sel.count.data(),
+                                     sel.block.empty() ? nullptr : sel.block.data());
+    }
+
+#if H5_VERSION_GE(1, 10, 6)
+    /// The length of a stream of `Op::Or` starting at `begin`.
+    size_t detect_streak(Select_ const* begin, Select_ const* end, Op op) const {
+        assert(op == Op::Or);
+        auto it = std::find_if(begin, end, [op](const Select_& sel) { return sel.op != op; });
+        return static_cast<size_t>(it - begin);
+    }
+
+    DataSpace combine_selections(const DataSpace& left_space,
+                                 Op op,
+                                 const DataSpace& right_space) const {
+        return detail::make_data_space(
+            H5Scombine_select(left_space.getId(), convert(op), right_space.getId()));
+    }
+
+    /// Reduce a sequence of `Op::Or` efficiently.
+    ///
+    /// The issue is that `H5Sselect_hyperslab` runs in time that linear of the
+    /// number of block in the existing selection. Therefore, a loop that adds
+    /// slab-by-slab has quadratic runtime in the number of slabs.
+    ///
+    /// Fortunately, `H5Scombine_select` doesn't suffer from the same problem.
+    /// However, it's only available in 1.10.6 and newer.
+    ///
+    /// The solution is to use divide-and-conquer to reduce (long) streaks of
+    /// `Op::Or` in what seems to be log-linear time.
+    DataSpace reduce_streak(const DataSpace& outer_space,
+                            Select_ const* begin,
+                            Select_ const* end,
+                            Op op) const {
+        assert(op == Op::Or);
+
+        if (begin == end) {
+            throw std::runtime_error("Broken logic in 'DataSpace::reduce_streak'.");
+        }
+
+        std::ptrdiff_t distance = end - begin;
+        if (distance == 1) {
+            auto space = select_none(outer_space);
+            select_hyperslab(space, *begin);
+            return space;
+        }
+
+        Select_ const* mid = begin + distance / 2;
+        auto right_space = reduce_streak(outer_space, begin, mid, op);
+        auto left_space = reduce_streak(outer_space, mid, end, op);
+
+        return combine_selections(left_space, op, right_space);
+    }
+
+    DataSpace apply_impl(const DataSpace& space_) const {
+        auto space = space_.clone();
+        auto n_selects = selects.size();
+        for (size_t i = 0; i < n_selects; ++i) {
+            auto begin = selects.data() + i;
+            auto end = selects.data() + n_selects;
+
+            auto n_ors = detect_streak(begin, end, Op::Or);
+
+            if (n_ors > 1) {
+                auto right_space = reduce_streak(space_, begin, begin + n_ors, Op::Or);
+                // Since HDF5 doesn't allow `combine_selections` with a None
+                // selection, we need to avoid the issue:
+                if (detail::h5s_get_select_type(space.getId()) == H5S_SEL_NONE) {
+                    space = right_space;
+                } else {
+                    space = combine_selections(space, Op::Or, right_space);
+                }
+                i += n_ors - 1;
+            } else if (selects[i].op == Op::None) {
+                detail::h5s_select_none(space.getId());
+            } else {
+                select_hyperslab(space, selects[i]);
+            }
+        }
+        return space;
+    }
+#else
+    DataSpace apply_impl(const DataSpace& space_) const {
+        auto space = space_.clone();
+        for (const auto& sel: selects) {
+            if (sel.op == Op::None) {
+                detail::h5s_select_none(space.getId());
+            } else {
+                select_hyperslab(space, sel);
+            }
+        }
+        return space;
+    }
+#endif
 };
 
 ///
