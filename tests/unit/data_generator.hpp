@@ -68,7 +68,7 @@ std::vector<size_t> unravel(size_t flat_index, const Dims& dims) {
 }
 
 template <class Dims>
-static size_t flat_size(const Dims& dims) {
+size_t flat_size(const Dims& dims) {
     size_t n = 1;
     for (auto d: dims) {
         n *= d;
