@@ -51,7 +51,7 @@ std::vector<size_t> unravel(size_t flat_index, const std::vector<size_t> dims) {
     return indices;
 }
 
-static size_t flat_size(const std::vector<size_t>& dims) {
+inline size_t flat_size(const std::vector<size_t>& dims) {
     size_t n = 1;
     for (auto d: dims) {
         n *= d;
