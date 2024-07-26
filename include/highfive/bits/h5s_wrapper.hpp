@@ -121,7 +121,7 @@ inline H5S_sel_type h5s_get_select_type(hid_t space_id) {
 }
 
 #if H5_VERSION_GE(1, 10, 6)
-hid_t h5s_combine_select(hid_t space1_id, H5S_seloper_t op, hid_t space2_id) {
+inline hid_t h5s_combine_select(hid_t space1_id, H5S_seloper_t op, hid_t space2_id) {
     auto space_id = H5Scombine_select(space1_id, op, space2_id);
     if (space_id == H5I_INVALID_HID) {
         HDF5ErrMapper::ToException<DataSpaceException>("Unable to combine two selections.");
