@@ -1,0 +1,23 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,213,119,241"/>
+<area shape="rect" id="Node000001" href="$class_high_five_1_1_exception.html" title="Basic HighFive Exception class." alt="" coords="167,213,317,241"/>
+<area shape="poly" id="edge43_Node000000_Node000001" title=" " alt="" coords="134,225,166,225,166,230,134,230"/>
+<area shape="rect" id="Node000002" href="$class_high_five_1_1_attribute_exception.html" title="Exception specific to HighFive Attribute interface." alt="" coords="372,5,579,33"/>
+<area shape="poly" id="edge44_Node000001_Node000002" title=" " alt="" coords="252,198,269,162,293,120,325,79,363,44,387,31,389,36,367,48,328,82,297,123,273,165,257,200"/>
+<area shape="rect" id="Node000003" href="$class_high_five_1_1_data_set_exception.html" title="Exception specific to HighFive DataSet interface." alt="" coords="374,57,576,85"/>
+<area shape="poly" id="edge45_Node000001_Node000003" title=" " alt="" coords="259,199,302,146,331,119,364,96,391,83,393,88,366,100,335,123,306,150,263,202"/>
+<area shape="rect" id="Node000004" href="$class_high_five_1_1_data_space_exception.html" title="Exception specific to HighFive DataSpace interface." alt="" coords="365,109,585,137"/>
+<area shape="poly" id="edge46_Node000001_Node000004" title=" " alt="" coords="272,201,315,173,364,147,400,135,402,140,366,152,317,178,275,206"/>
+<area shape="rect" id="Node000005" href="$class_high_five_1_1_data_type_exception.html" title="Exception specific to HighFive DataType interface." alt="" coords="370,161,581,189"/>
+<area shape="poly" id="edge47_Node000001_Node000005" title=" " alt="" coords="322,207,409,187,410,192,323,212"/>
+<area shape="rect" id="Node000006" href="$class_high_five_1_1_file_exception.html" title="Exception specific to HighFive File interface." alt="" coords="389,213,562,241"/>
+<area shape="poly" id="edge48_Node000001_Node000006" title=" " alt="" coords="333,225,388,225,388,230,333,230"/>
+<area shape="rect" id="Node000007" href="$class_high_five_1_1_group_exception.html" title="Exception specific to HighFive Group interface." alt="" coords="381,265,570,293"/>
+<area shape="poly" id="edge49_Node000001_Node000007" title=" " alt="" coords="323,242,410,262,409,267,322,248"/>
+<area shape="rect" id="Node000008" href="$class_high_five_1_1_object_exception.html" title="Exception specific to HighFive Object interface." alt="" coords="379,317,571,345"/>
+<area shape="poly" id="edge50_Node000001_Node000008" title=" " alt="" coords="275,248,317,276,366,302,402,314,400,319,364,307,315,281,272,253"/>
+<area shape="rect" id="Node000009" href="$class_high_five_1_1_property_exception.html" title="Exception specific to HighFive Property interface." alt="" coords="373,369,578,397"/>
+<area shape="poly" id="edge51_Node000001_Node000009" title=" " alt="" coords="263,252,306,305,335,332,366,354,393,366,391,371,364,359,331,336,302,308,259,255"/>
+<area shape="rect" id="Node000010" href="$class_high_five_1_1_reference_exception.html" title="Exception specific to HighFive Reference interface." alt="" coords="367,421,583,449"/>
+<area shape="poly" id="edge52_Node000001_Node000010" title=" " alt="" coords="257,254,273,290,297,331,328,372,367,406,389,418,387,423,363,411,325,376,293,334,269,292,252,256"/>
+</map>

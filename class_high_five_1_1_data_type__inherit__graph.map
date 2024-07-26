@@ -1,0 +1,23 @@
+<map id="HighFive::DataType" name="HighFive::DataType">
+<area shape="rect" id="Node000001" title="HDF5 Data Type." alt="" coords="182,220,329,248"/>
+<area shape="rect" id="Node000003" href="$class_high_five_1_1_atomic_type.html" title="create an HDF5 DataType from a C++ type" alt="" coords="383,5,583,33"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="264,205,280,167,304,123,336,79,375,42,396,31,398,36,379,47,340,83,309,126,285,170,269,207"/>
+<area shape="rect" id="Node000004" href="$class_high_five_1_1_atomic_type_3_01char_0f_str_len_0e_4.html" title=" " alt="" coords="402,57,564,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="275,206,318,158,346,133,376,112,400,99,403,104,378,116,349,137,322,162,279,209"/>
+<area shape="rect" id="Node000005" href="$class_high_five_1_1_atomic_type_3_01deprecated_1_1_fixed_len_string_array_3_01_str_len_01_4_01_4.html" title=" " alt="" coords="377,126,589,187"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="312,212,389,185,391,190,313,217"/>
+<area shape="rect" id="Node000006" href="$class_high_five_1_1_atomic_type_3_01std_1_1complex_3_01_t_01_4_01_4.html" title=" " alt="" coords="397,212,570,256"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="344,231,396,231,396,237,344,237"/>
+<area shape="rect" id="Node000007" href="$class_high_five_1_1_compound_type.html" title="Create a compound HDF5 datatype." alt="" coords="390,280,576,308"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="320,250,378,266,421,277,420,282,376,271,319,255"/>
+<area shape="rect" id="Node000008" href="$class_high_five_1_1_enum_type.html" title="Create a enum HDF5 datatype." alt="" coords="388,332,579,360"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="286,256,328,288,378,317,411,329,409,334,376,322,325,292,283,260"/>
+<area shape="rect" id="Node000009" href="$class_high_five_1_1_string_type.html" title=" " alt="" coords="406,384,560,412"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="275,259,318,316,346,345,378,369,407,382,405,387,376,373,343,349,314,319,271,262"/>
+<area shape="rect" id="Node000002" href="$class_high_five_1_1_object.html" title=" " alt="" coords="5,220,134,248"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,231,181,231,181,237,149,237"/>
+<area shape="rect" id="Node000010" href="$class_high_five_1_1_fixed_length_string_type.html" title=" " alt="" coords="637,353,870,381"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="575,385,636,378,637,383,576,390"/>
+<area shape="rect" id="Node000011" href="$class_high_five_1_1_variable_length_string_type.html" title=" " alt="" coords="662,405,845,450"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="576,405,662,415,661,420,576,410"/>
+</map>

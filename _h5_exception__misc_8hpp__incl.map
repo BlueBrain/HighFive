@@ -1,0 +1,15 @@
+<map id="highfive/bits/H5Exception_misc.hpp" name="highfive/bits/H5Exception_misc.hpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="99,5,286,50"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,98,70,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,53,77,93,74,88,150,48"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="94,98,168,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="178,52,152,87,148,84,174,49"/>
+<area shape="rect" id="Node000004" href="$h5__wrapper_8hpp.html" title=" " alt="" coords="193,98,317,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,49,238,84,233,87,207,52"/>
+<area shape="rect" id="Node000006" href="$h5e__wrapper_8hpp.html" title=" " alt="" coords="341,98,473,126"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="250,48,359,90,357,95,248,53"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="210,174,300,201"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="258,126,258,158,252,158,252,126"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="358,174,456,201"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="410,126,410,158,404,158,404,126"/>
+</map>
