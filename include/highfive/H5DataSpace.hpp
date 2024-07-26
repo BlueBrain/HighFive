@@ -19,6 +19,14 @@
 
 namespace HighFive {
 
+namespace detail {
+/// @brief Create a HighFive::DataSpace from an HID, without incrementing the id.
+///
+/// @note This is internal API and subject to change.
+/// @internal
+DataSpace make_data_space(hid_t hid);
+}  // namespace detail
+
 /// \brief Class representing the space (dimensions) of a DataSet
 ///
 /// \code{.cpp}
@@ -250,9 +258,18 @@ class DataSpace: public Object {
   protected:
     DataSpace() = default;
 
+    static DataSpace fromId(hid_t hid) {
+        DataSpace space;
+        space._hid = hid;
+
+        return space;
+    }
+
     friend class Attribute;
     friend class File;
     friend class DataSet;
+
+    friend DataSpace detail::make_data_space(hid_t hid);
 };
 
 }  // namespace HighFive
