@@ -1,4 +1,21 @@
 # Changes
+## Version 2.10.0 - 2024-07-26
+### New Features
+    - `read_raw` when reading from pointers. (#928,#940)
+    - Improve inspector for `T[N]`. (#929)
+
+### Deprecations
+Please consult the Migration Guide for details about migrating away from
+deprecated features.
+    - Deprecated `FixedLenStringArray` (#932)
+    - The overload `read(T*, ...)` has been deprecated, but not `read(T&, ...)`. (#928)
+
+### Improvements
+    - Improved documentation.
+
+### Bug Fixes
+    - Fixed a performance bug involving `HyperSlab`s (#1032)
+
 ## Version 2.9.0 - 2024-01-25
 ### New Features
     - Add named ctors for scalar and null dataspaces. (#899)
