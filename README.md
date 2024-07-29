@@ -21,26 +21,6 @@ HighFive does not require additional libraries (see dependencies).
 
 It integrates nicely with other CMake projects by defining (and exporting) a HighFive target.
 
-### Versioning & Code Stability
-We use semantic versioning. Currently, we're preparing `v3` which contains a
-limited set of breaking changes required to eliminate undesireable behaviour or
-modernize outdated patterns. We provide a
-[Migration Guide](https://bluebrain.github.io/HighFive/md__2home_2runner_2work_2_high_five_2_high_five_2doc_2migration__guide.html),
-please report any missing or incorrect information to help others make the
-switch more easily.
-
-- `v2.x.y` are stable and any API breaking changes are considered bugs. There's
-  like not going to be very many releases of the `v2` line once `v3` is stable.
-
-- `v3.0.0-beta?` are pre-releases of `v3.0.0`. We predict that one more
-  breaking changes might happen: the string handling is confusing to some of the
-  maintainers and the default encoding is inconsistent (and will likely be made
-  consistent).
-
-  For codes that either use `std::string` when dealing with strings, or that
-  don't use strings with HDF5 at all, we don't currently have any additional
-  breaking changes planned for 3.0.0.
-
 ### Design
 - Simple C++-ish minimalist interface
 - No other dependency than libhdf5
@@ -65,6 +45,27 @@ switch more easily.
 - eigen3 (optional)
 - xtensor (optional)
 - half (optional)
+
+### Versioning & Code Stability
+We use semantic versioning. Currently, we're preparing `v3` which contains a
+limited set of breaking changes required to eliminate undesireable behaviour or
+modernize outdated patterns. We provide a
+[Migration Guide](https://bluebrain.github.io/HighFive/md__2home_2runner_2work_2_high_five_2_high_five_2doc_2migration__guide.html),
+please report any missing or incorrect information to help others make the
+switch more easily.
+
+- `v2.x.y` are stable and any API breaking changes are considered bugs. There's
+  like not going to be very many releases of the `v2` line once `v3` is stable.
+
+- `v3.0.0-beta?` are pre-releases of `v3.0.0`. We predict that one more
+  breaking changes might happen: the string handling is confusing to some of the
+  maintainers and the default encoding is inconsistent (and will likely be made
+  consistent).
+
+  For codes that either use `std::string` when dealing with strings, or that
+  don't use strings with HDF5 at all, we don't currently have any additional
+  breaking changes planned for 3.0.0.
+
 
 ### Known flaws
 - HighFive is not thread-safe. At best it has the same limitations as the HDF5 library. However, HighFive objects modify their members without protecting these writes. Users have reported that HighFive is not thread-safe even when using the threadsafe HDF5 library, e.g., https://github.com/BlueBrain/HighFive/discussions/675.
