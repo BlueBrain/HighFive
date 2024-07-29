@@ -9,8 +9,8 @@ If you want to cite us, we now are on Zenodo: https://zenodo.org/records/1067973
 
 ### Removed
     - Removed `read(T*, ...)`, use explicit `read_raw(T*, ...)` for `Slice` or `Attribute`. (#928)
-    - Removed `FixedLenStringArray`. Use any container with strings instead. (#932)
-    - Removed `FileDriver` and `MPIOFileDriver` use file access properties instead. (#949)
+    - Removed `FixedLenStringArray`, use any container with strings instead. (#932)
+    - Removed `FileDriver` and `MPIOFileDriver`, use file access properties instead. (#949)
     - Removed default constructor for `Group` and `DataSet`. (#947, #948)
     - Broadcasting have been removed. Use `squeeze` and `reshape` feature instead. (#992)
     - `ObjectCreateProps` and `ObjectAccessProps` those do not really exist in hdf5. (#1002)
@@ -21,7 +21,7 @@ If you want to cite us, we now are on Zenodo: https://zenodo.org/records/1067973
     - `ProductSet` let you select a cartesian product of slices. (#842)
 
 ### Improvements
-    - Type `T[N]` or `T[N][M]` will works better. (#929)
+    - Type `T[N]` or `T[N][M]` will work better. (#929)
     - `DataspaceType` is now an enum class for `dataspace_scalar` or `dataspace_null`. (#900)
 
 ## Version 2.9.0 - 2024-01-25
