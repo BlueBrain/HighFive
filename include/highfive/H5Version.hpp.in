@@ -12,6 +12,9 @@
 #define HIGHFIVE_VERSION_MINOR @PROJECT_VERSION_MINOR@
 #define HIGHFIVE_VERSION_PATCH @PROJECT_VERSION_PATCH@
 
+// Undefined for regular releases.
+#define HIGHFIVE_VERSION_PRERELEASE @HIGHFIVE_VERSION_PRERELEASE@
+
 /** \brief Concatenated representation of the HighFive version.
  *
  *  \warning The macro `HIGHFIVE_VERSION` by itself isn't valid C/C++.
@@ -30,4 +33,4 @@
  *
  *  \warning This macro only exists from 2.7.1 onwards.
  */
-#define HIGHFIVE_VERSION_STRING "@PROJECT_VERSION@"
+#define HIGHFIVE_VERSION_STRING "@PROJECT_VERSION@-beta@HIGHFIVE_VERSION_PRERELEASE@"
