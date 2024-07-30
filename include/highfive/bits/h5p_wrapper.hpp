@@ -239,6 +239,21 @@ inline herr_t h5p_set_szip(hid_t plist_id, unsigned options_mask, unsigned pixel
     return err;
 }
 
+#include "blosc_filter.h"
+
+inline herr_t h5p_set_blosc(hid_t plist_id, const unsigned int *cd_values) {
+    char *version, *date;
+    if (register_blosc(&version, &date) < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Blosc filter unavailable.");
+    }
+
+    herr_t err = H5Pset_filter(plist_id, FILTER_BLOSC, H5Z_FLAG_OPTIONAL, 7, cd_values);
+    if (err < 0) {
+        HDF5ErrMapper::ToException<PropertyException>("Error setting blosc property");
+    }
+    return err;
+}
+
 inline herr_t h5p_set_shuffle(hid_t plist_id) {
     herr_t err = H5Pset_shuffle(plist_id);
     if (err < 0) {
