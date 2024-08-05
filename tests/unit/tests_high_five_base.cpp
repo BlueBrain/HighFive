@@ -137,8 +137,27 @@ TEST_CASE("Test open modes in HighFive") {
     { File file(file_name, File::Truncate); }
 
     // Last but not least, defaults should be ok
-    { File file(file_name); }     // ReadOnly
-    { File file(file_name, 0); }  // force empty-flags, does open without flags
+    { File file(file_name); }  // ReadOnly
+}
+
+void check_access_mode(File::AccessMode mode) {
+    CHECK(any(mode));
+    CHECK(((File::ReadOnly | mode) & File::ReadOnly) == File::AccessMode::ReadOnly);
+    CHECK(!any(File::ReadOnly & mode));
+    CHECK(((File::ReadOnly | mode) ^ mode) == File::AccessMode::ReadOnly);
+    CHECK((File::ReadOnly & ~mode) == File::AccessMode::ReadOnly);
+    CHECK(!any(mode & ~mode));
+}
+
+TEST_CASE("File::AccessMode") {
+    CHECK(!any(File::AccessMode::None));
+    CHECK(any(File::ReadOnly));
+
+    check_access_mode(File::ReadWrite);
+    check_access_mode(File::Truncate);
+    check_access_mode(File::Excl);
+    check_access_mode(File::Debug);
+    check_access_mode(File::Create);
 }
 
 TEST_CASE("Test file version bounds") {

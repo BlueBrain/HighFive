@@ -22,33 +22,33 @@ namespace {  // unnamed
 
 // libhdf5 uses a preprocessor trick on their oflags
 // we can not declare them constant without a mapper
-inline unsigned convert_open_flag(unsigned openFlags) {
+inline unsigned convert_open_flag(File::AccessMode openFlags) {
     unsigned res_open = 0;
-    if (openFlags & File::ReadOnly)
+    if (any(openFlags & File::ReadOnly))
         res_open |= H5F_ACC_RDONLY;
-    if (openFlags & File::ReadWrite)
+    if (any(openFlags & File::ReadWrite))
         res_open |= H5F_ACC_RDWR;
-    if (openFlags & File::Create)
+    if (any(openFlags & File::Create))
         res_open |= H5F_ACC_CREAT;
-    if (openFlags & File::Truncate)
+    if (any(openFlags & File::Truncate))
         res_open |= H5F_ACC_TRUNC;
-    if (openFlags & File::Excl)
+    if (any(openFlags & File::Excl))
         res_open |= H5F_ACC_EXCL;
     return res_open;
 }
 }  // namespace
 
 inline File::File(const std::string& filename,
-                  unsigned openFlags,
+                  AccessMode openFlags,
                   const FileAccessProps& fileAccessProps)
     : File(filename, openFlags, FileCreateProps::Default(), fileAccessProps) {}
 
 
 inline File::File(const std::string& filename,
-                  unsigned openFlags,
+                  AccessMode access_mode,
                   const FileCreateProps& fileCreateProps,
                   const FileAccessProps& fileAccessProps) {
-    openFlags = convert_open_flag(openFlags);
+    unsigned openFlags = convert_open_flag(access_mode);
 
     unsigned createMode = openFlags & (H5F_ACC_TRUNC | H5F_ACC_EXCL);
     unsigned openMode = openFlags & (H5F_ACC_RDWR | H5F_ACC_RDONLY);
