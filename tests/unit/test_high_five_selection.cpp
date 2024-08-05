@@ -591,3 +591,54 @@ TEST_CASE("select_multiple_ors", "[hyperslab]") {
         }
     }
 }
+
+TEST_CASE("select_multiple_ors_edge_cases", "[hyperslab]") {
+    size_t n = 100, m = 20;
+
+    auto space = DataSpace({n, m});
+    SECTION("complete |= ") {
+        auto hyperslab = HyperSlab(RegularHyperSlab({0, 0}, {n, m}));
+
+        hyperslab &= RegularHyperSlab({0, 0}, {n, m});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({3, 0}, {1, 3});
+        hyperslab |= RegularHyperSlab({6, 0}, {1, 3});
+        hyperslab.apply(space);
+    }
+
+    SECTION("complete &=") {
+        auto hyperslab = HyperSlab();
+
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, m / 2}, {n, m - m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m});
+        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
+
+        hyperslab.apply(space);
+    }
+
+    SECTION("empty |=") {
+        auto hyperslab = HyperSlab();
+        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab &= RegularHyperSlab({3, 0}, {1, 2});
+
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, m / 2}, {n, m - m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m});
+
+        hyperslab.apply(space);
+    }
+
+    SECTION("&= empty") {
+        auto hyperslab = HyperSlab();
+        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab &= RegularHyperSlab({3, 0}, {1, 2});
+
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {0, 0});
+
+        hyperslab.apply(space);
+    }
+}
