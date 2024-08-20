@@ -537,7 +537,7 @@ TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::t
 }
 
 void check_selected(const std::vector<int>& selected,
-                    const std::vector<std::array<int, 2>>& indices,
+                    const std::vector<std::array<size_t, 2>>& indices,
                     const std::vector<std::vector<int>>& x) {
     REQUIRE(selected.size() == indices.size());
     for (size_t k = 0; k < selected.size(); ++k) {
@@ -589,38 +589,59 @@ TEST_CASE("select_multiple_ors", "[hyperslab]") {
         hyperslab &= RegularHyperSlab(offsets, counts);
 
         auto selected = dset.select(hyperslab).read<std::vector<int>>();
-        check_selected(selected, indices, x);
+        check_selected(selected, selected_indices, x);
     }
 }
 
 TEST_CASE("select_multiple_ors_edge_cases", "[hyperslab]") {
     size_t n = 100, m = 20;
 
+    auto x = testing::DataGenerator<std::vector<std::vector<int>>>::create({n, m});
+    auto file = File("select_multiple_ors_edge_cases.h5", File::Truncate);
+    auto dset = file.createDataSet("x", x);
+
+    std::vector<std::array<size_t, 2>> indices;
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < m; ++j) {
+            indices.push_back({i, j});
+        }
+    }
+
     auto space = DataSpace({n, m});
     SECTION("complete |= ") {
         auto hyperslab = HyperSlab(RegularHyperSlab({0, 0}, {n, m}));
 
+        // Select everything; and then redundantly some parts again.
         hyperslab &= RegularHyperSlab({0, 0}, {n, m});
         hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
         hyperslab |= RegularHyperSlab({3, 0}, {1, 3});
         hyperslab |= RegularHyperSlab({6, 0}, {1, 3});
         hyperslab.apply(space);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
     }
 
     SECTION("complete &=") {
         auto hyperslab = HyperSlab();
 
+        // With detours, select everything, then reduce it to the first 2
+        // elements.
         hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
         hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
         hyperslab |= RegularHyperSlab({0, m / 2}, {n, m - m / 2});
         hyperslab |= RegularHyperSlab({0, 0}, {n, m});
         hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
-
         hyperslab.apply(space);
+
+        indices = {{0, 0}, {0, 1}};
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
     }
 
     SECTION("empty |=") {
-        auto hyperslab = HyperSlab();
+        auto hyperslab = HyperSlab(RegularHyperSlab({0, 0}, {n, m}));
         hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
         hyperslab &= RegularHyperSlab({3, 0}, {1, 2});
 
@@ -630,16 +651,23 @@ TEST_CASE("select_multiple_ors_edge_cases", "[hyperslab]") {
         hyperslab |= RegularHyperSlab({0, 0}, {n, m});
 
         hyperslab.apply(space);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
     }
 
-    SECTION("&= empty") {
+    SECTION("|= empty") {
         auto hyperslab = HyperSlab();
-        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
-        hyperslab &= RegularHyperSlab({3, 0}, {1, 2});
 
-        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {1, 2});
         hyperslab |= RegularHyperSlab({0, 0}, {0, 0});
 
         hyperslab.apply(space);
+
+        indices = {{0, 0}, {0, 1}};
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
     }
 }
