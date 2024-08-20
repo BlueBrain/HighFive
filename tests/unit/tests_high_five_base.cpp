@@ -2537,6 +2537,12 @@ TEST_CASE("Version Numbers") {
                     std::to_string(patch);
 
     CHECK(version == expected);
+
+#if defined(HIGHFIVE_VERSION_PRERELEASE)
+    int prerelease = HIGHFIVE_VERSION_PRERELEASE;
+    expected += "-beta" + std::to_string(prerelease);
+#endif
+
     CHECK(HIGHFIVE_VERSION_STRING == expected);
 }
 

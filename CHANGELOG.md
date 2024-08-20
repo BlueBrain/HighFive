@@ -1,4 +1,29 @@
 # Changes
+## Version 3.0.0-beta - 2024-07-16
+This version is a major one and is breaking some usage compare to v2.
+Read the migration guide from the documentation: https://bluebrain.github.io/HighFive/md__2home_2runner_2work_2_high_five_2_high_five_2doc_2migration__guide.html
+
+The minimum version for C++ has been moved to `C++14`.
+
+### Removed
+    - Removed `read(T*, ...)`, use explicit `read_raw(T*, ...)` for `Slice` or `Attribute`. (#928)
+    - Removed `FixedLenStringArray`, use any container with strings instead. (#932)
+    - Removed `FileDriver` and `MPIOFileDriver`, use file access properties instead. (#949)
+    - Removed default constructor for `Group` and `DataSet`. (#947, #948)
+    - Broadcasting have been removed. Use `squeeze` and `reshape` feature instead. (#992)
+    - `ObjectCreateProps` and `ObjectAccessProps` those don't map well to HighFive and are unused. (#1002)
+
+### New Features
+    - Added support for `std::span`. (#987)
+    - Added `squeezeMemSpace` and `reshapeMemSpace` for `Attribute` and `Slice` to reshape the memory space. (#991)
+    - Added `ProductSet` to select a Cartesian products of (generalized) slices. (#842)
+
+### Improvements
+    - Optimized chained hyperslab selection. (#1031)
+    - Type `T[N]` or `T[N][M]` will work better. (#929)
+    - `DataspaceType` is now an enum class for `dataspace_scalar` or `dataspace_null`. (#900)
+    - `File::AccessMode` is now an enum class. (#1020)
+
 ## Version 2.9.0 - 2024-01-25
 ### New Features
     - Add named ctors for scalar and null dataspaces. (#899)
