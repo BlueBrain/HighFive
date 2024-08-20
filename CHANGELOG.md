@@ -21,6 +21,7 @@ If you want to cite us, we now are on Zenodo: https://zenodo.org/records/1067973
     - `ProductSet` let you select a cartesian product of slices. (#842)
 
 ### Improvements
+    - Optimize chained hyperslab selection. (#1031)
     - Type `T[N]` or `T[N][M]` will work better. (#929)
     - `DataspaceType` is now an enum class for `dataspace_scalar` or `dataspace_null`. (#900)
 
