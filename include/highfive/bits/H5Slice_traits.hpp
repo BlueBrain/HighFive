@@ -254,8 +254,25 @@ class HyperSlab {
     DataSpace combine_selections(const DataSpace& left_space,
                                  Op op,
                                  const DataSpace& right_space) const {
-        return detail::make_data_space(
-            H5Scombine_select(left_space.getId(), convert(op), right_space.getId()));
+        assert(op == Op::Or);
+
+        auto left_type = detail::h5s_get_select_type(left_space.getId());
+        auto right_type = detail::h5s_get_select_type(right_space.getId());
+
+        // Since HDF5 doesn't allow `combine_selections` with a None
+        // selection, we need to avoid the issue:
+        if (left_type == H5S_SEL_NONE) {
+            return right_space;
+        } else if (right_type == H5S_SEL_NONE) {
+            return left_space;
+        } else if (left_type == H5S_SEL_ALL) {
+            return left_space;
+        } else if (right_type == H5S_SEL_ALL) {
+            return right_space;
+        } else {
+            return detail::make_data_space(
+                detail::h5s_combine_select(left_space.getId(), convert(op), right_space.getId()));
+        }
     }
 
     /// Reduce a sequence of `Op::Or` efficiently.
@@ -304,13 +321,7 @@ class HyperSlab {
 
             if (n_ors > 1) {
                 auto right_space = reduce_streak(space_, begin, begin + n_ors, Op::Or);
-                // Since HDF5 doesn't allow `combine_selections` with a None
-                // selection, we need to avoid the issue:
-                if (detail::h5s_get_select_type(space.getId()) == H5S_SEL_NONE) {
-                    space = right_space;
-                } else {
-                    space = combine_selections(space, Op::Or, right_space);
-                }
+                space = combine_selections(space, Op::Or, right_space);
                 i += n_ors - 1;
             } else if (selects[i].op == Op::None) {
                 detail::h5s_select_none(space.getId());
