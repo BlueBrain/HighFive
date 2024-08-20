@@ -5,8 +5,6 @@ Read the migration guide from the documentation: https://bluebrain.github.io/Hig
 
 The minimum version for C++ has been moved to `C++14`.
 
-If you want to cite us, we now are on Zenodo: https://zenodo.org/records/10679738
-
 ### Removed
     - Removed `read(T*, ...)`, use explicit `read_raw(T*, ...)` for `Slice` or `Attribute`. (#928)
     - Removed `FixedLenStringArray`, use any container with strings instead. (#932)
