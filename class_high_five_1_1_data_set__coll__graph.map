@@ -1,0 +1,11 @@
+<map id="HighFive::DataSet" name="HighFive::DataSet">
+<area shape="rect" id="Node000001" title="Class representing a dataset." alt="" coords="234,100,372,128"/>
+<area shape="rect" id="Node000002" href="$class_high_five_1_1_object.html" title=" " alt="" coords="31,5,160,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,36,187,42,240,70,283,97,280,102,237,74,185,47,169,41"/>
+<area shape="rect" id="Node000003" href="$class_high_five_1_1_slice_traits.html" title=" " alt="" coords="19,57,172,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,92,234,100,233,105,186,97"/>
+<area shape="rect" id="Node000004" href="$class_high_five_1_1_annotate_traits.html" title=" " alt="" coords="5,126,186,171"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="201,128,233,123,234,128,201,133"/>
+<area shape="rect" id="Node000005" href="$class_high_five_1_1_path_traits.html" title=" " alt="" coords="21,196,170,240"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="172,187,184,181,236,153,278,126,281,131,238,157,187,186,174,191"/>
+</map>

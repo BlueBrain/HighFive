@@ -1,0 +1,5 @@
+<map id="HighFive::AllocationTime" name="HighFive::AllocationTime">
+<area shape="rect" id="Node000001" title="When are datasets allocated?" alt="" coords="5,81,190,109"/>
+<area shape="rect" id="Node000002" href="$interface_property_interface.html" title="HDF5 file property object." alt="" coords="30,5,165,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,49,100,81,95,81,95,49"/>
+</map>

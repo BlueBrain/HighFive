@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>HighFive: An easy-to-use, header-only C++ library for HDF5</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/default.min.css">
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
+    <style>
+      body {
+        padding-top: 60px;
+      }
+      @media (max-width: 979px) {
+        body {
+          padding-top: 0px;
+        }
+      }
+      .code {
+        background-color: #f8f9fa;
+        font-size: small;
+      }
+      .godbolt {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="container">
+        <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">HighFive</a>
+            <ul class="nav justify-content-end">
+              <a class="nav-link text-muted" href="https://github.com/BlueBrain/HighFive"><span class="d-none d-sm-inline">View on GitHub </span><svg version="1.1" width="32" height="32" viewBox="0 0 16 16" class="octicon octicon-mark-github" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+              <li class="nav-item">
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <div class="container">
+        <h1>HighFive: An easy-to-use, header-only C++ library for HDF5</h1>
+
+        <p><i>Adrien Devresse<sup>1</sup>, Omar Awile<sup>1</sup>, Jorge
+          Blanco<sup>1</sup>, Tristan Carel<sup>1</sup>, Nicolas Cornu<sup>1</sup>,
+          Tom de Geus<sup>2</sup>, Luc Grosheintz-Laval<sup>1</sup>, Pramod Kumbhar<sup>1</sup>,
+          Fernando Pereira<sup>1</sup>, Sergio Rivas Gomez<sup>1</sup>, Matthias Wolf<sup>1</sup>,
+          James King<sup>1</sup></i></p>
+      </div>
+      <div class="container">
+        <p>
+        <sup>1</sup> Blue Brain Project, École Polytechnique Fédérale de Lausanne, Switzerland<br/>
+        <sup>2</sup> Physics of Complex Systems Laboratory, École Polytechnique Fédérale de Lausanne,
+        Switzerland</p>
+      </div>
+
+      <div class="container mb-5">
+        <h2>Introduction</h2>
+        <p>The use of portable scientific data formats are vital for managing complex workflows,
+        reliable data storage, knowledge transfer, and long-term maintainability and
+        reproducibility. Hierarchical Data Format (HDF) 5 is considered the de-facto
+        industry-standard for this purpose. While the official HDF5 library is versatile and
+        well supported, it only provides a low-level C/C++ interface. Lacking proper high-level
+        C++ abstractions dissuades the use of HDF5 in scientific applications. There are a
+        number of C++ wrapper libraries available. Many, however, are domain-specific,
+        incomplete or not actively maintained.</p>
+        <p>HighFive is an attempt to address these challenges.</p>
+      </div>
+      <div class="container mb-5">
+        <h2>Basic use of HighFive</h2>
+        <p>It is an easy to use modern C++ header-only library that reduces most of the
+        book-keeping overhead required by HDF5. HighFive uses RAII to handle object life-times
+        and automatically handles reference counting on HDF5 objects. The library makes use of
+        C++ templating for automatic type mapping. These features significantly increase
+        programmer productivity and reduce coding bugs.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>HighFive</td>
+              <td>HDF5</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_highfive" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example1_highfive"></div></pre>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example1_hdf5" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example1_hdf5"></div></pre>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="container mb-5">
+        <h2>Support for HDF5 advanced features</h2>
+        <p>Its simplified data-management does not come at a loss of HDF5's flexibility and
+        advanced features and tunable parameters are exposed through a simple interface. File
+        version bounds can be read and written to define object compatibility, the metadata
+        block size can be set. Group properties for compression, chunking and link info
+        estimates can be set and read:</p>
+        <div class="card w-75">
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example_props" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_props"></div></pre>
+          </div>
+        </div>
+      </div>
+      <div class="container mb-5">
+        <h2>Complex data types</h2>
+        <p>HighFive is built with scientific applications in mind. Besides scalar and simple STL
+        vectors it is possible to map C++ structs to HDF5 compound types and to read and write
+        Boost, Boost ublas, Eigen and XTensor array types. The library is also able to handle
+        combinations of array types (e.g. <code>std::vector&lt;Eigen::Matrix&gt;</code>). This is
+        achieved through various templated converters. Additionally, HighFive supports enums and
+        various string types.</p>
+        <div class="card w-75">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="highfive-type-support" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="compound-tab" data-bs-toggle="tab"
+                                                                  data-bs-target="#compound" type="button" role="tab" aria-controls="compound"
+                                                                                                                      aria-selected="true">Compound types</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="boost-tab" data-bs-toggle="tab" data-bs-target="#boost"
+                                                                             type="button" role="tab" aria-controls="boost" aria-selected="false">Boost</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="boost-ublas-tab" data-bs-toggle="tab"
+                                                              data-bs-target="#boost-ublas"
+                                                                             type="button"
+                                                                             role="tab"
+                                                                           aria-controls="boost-ublas"
+                                                                           aria-selected="false">Boost
+                ublas</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eigen-tab" data-bs-toggle="tab" data-bs-target="#eigen"
+                                                                             type="button" role="tab" aria-controls="eigen" aria-selected="false">Eigen</button>
+              </li>
+            </ul>
+          </div>
+          <div class="tab-content code card-body" id="highfive-type-support-content">
+            <div class="tab-pane fade show active" id="compound" role="tabpanel" aria-labelledby="compound-tab">
+              <img src="godbolt.org.ico" id="gb_example3" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example3"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="boost" role="tabpanel" aria-labelledby="boost-tab">
+              <img src="godbolt.org.ico" id="gb_example_boost" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_boost"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="boost-ublas" role="tabpanel" aria-labelledby="boost-ublas-tab">
+              <img src="godbolt.org.ico" id="gb_example_boost_ublas" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_boost_ublas"></div></pre>
+            </div>
+            <div class="tab-pane fade" id="eigen" role="tabpanel" aria-labelledby="eigen-tab">
+              <img src="godbolt.org.ico" id="gb_example_eigen" width=32 height=32  class="godbolt float-end img-thumbnail">
+              <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_eigen"></div></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container mb-5">
+        <h2>HighFive for parallel applications</h2>
+        <p>With the aim to support large-scale scientific application, we have made an effort to
+        also natively support the HDF5 MPI backend in HighFive. A special
+        <code>MPIOFileDriver</code> is used in the application code to ensure that HDF5 is correctly
+        initialized. No other special API calls are required since all necessary provisions are
+        handled transparently.</p>
+        <div class="card w-75">
+          <div class="code card-body"><img src="godbolt.org.ico" id="gb_example6" width=32 height=32  class="godbolt float-end img-thumbnail">
+            <pre class="font-monospace"><div class="example" data-lang="cpp" data-lang="cpp" id="example6"></div></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="container mb-5">
+        <h2>H5Easy: one-liners</h2>
+        <p>HighFive also offers the H5Easy API (on its own namespace).
+        This has an API in which things can be done in one-liners, with a syntax comparable
+        to for example h5py for Python.
+        It offers overloads for STL containers, Boost, Eigen, xtensor, and OpenCV.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>H5Easy</td>
+              <td>h5py</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body"><img src="godbolt.org.ico" id="gb_example_easy_highfive" width=32 height=32  class="godbolt float-end img-thumbnail">
+                    <pre class="font-monospace"><div class="example" data-lang="cpp" id="example_easy_highfive"></div></pre>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="card w-100">
+                  <div class="code card-body">
+                    <pre class="font-monospace"><div class="example" data-lang="py" id="example_easy_h5py"></div></pre>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="container mb-5">
+        <h2>Obtaining and building HighFive</h2>
+        <p>HighFive is developed open-source and can be cloned and forked from
+        <a href="https://github.com/BlueBrain/HighFive">GitHub</a>.
+        It can also be installed from the clone,
+        via <a href="https://spack.readthedocs.io/en/latest/package_list.html#highfive">spack</a>,
+        or via <a href="https://anaconda.org/conda-forge/highfive">conda</a>.
+        It can then be used for example with <code>find_package(HighFive)</code> in CMake.
+        Being a header-only library, HighFive can be used directly as a subfolder in a C++ project,
+        for example by adding it as a submodule.
+        More details can be found in the
+        <a href=""https://github.com/BlueBrain/HighFive/blob/master/README.md>README.md</a> file.
+        </p>
+      </div> <!-- top level container -->
+      <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+          <div class="col-md-8 d-flex align-items-left">
+            <span class="text-muted">© 2022 Blue Brain Project/EPFL<br>
+              <small>The development of this software was supported by funding to the Blue Brain
+                Project, a research center of the École polytechnique fédérale de Lausanne (EPFL),
+                from the Swiss government's ETH Board of the Swiss Federal Institutes of
+                Technology.</small>
+            </span><br>
+            <span class="text-muted">
+            </span>
+          </div>
+          <div class="col-md-4 justify-content-end list-unstyled d-flex">
+            <span class="text-muted">Boost Software License 1.0</span>
+          </div>
+        </footer>
+      </div>
+
+      <!-- Example code loading -->
+      <script src="examples.js"></script>
+    </div>
+  </body>
+</html>
