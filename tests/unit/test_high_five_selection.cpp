@@ -536,6 +536,17 @@ TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::t
     irregularHyperSlabSelectionWriteTest<TestType>();
 }
 
+void check_selected(const std::vector<int>& selected,
+                    const std::vector<std::array<int, 2>>& indices,
+                    const std::vector<std::vector<int>>& x) {
+    REQUIRE(selected.size() == indices.size());
+    for (size_t k = 0; k < selected.size(); ++k) {
+        size_t i = indices[k][0];
+        size_t j = indices[k][1];
+        REQUIRE(selected[k] == x[i][j]);
+    }
+}
+
 TEST_CASE("select_multiple_ors", "[hyperslab]") {
     size_t n = 100, m = 20;
     size_t nsel = 30;
@@ -558,12 +569,7 @@ TEST_CASE("select_multiple_ors", "[hyperslab]") {
 
     SECTION("Pure Or Chain") {
         auto selected = dset.select(hyperslab).read<std::vector<int>>();
-        REQUIRE(selected.size() == indices.size());
-        for (size_t k = 0; k < selected.size(); ++k) {
-            size_t i = indices[k][0];
-            size_t j = indices[k][1];
-            REQUIRE(selected[k] == x[i][j]);
-        }
+        check_selected(selected, indices, x);
     }
 
     SECTION("Or Chain And Slab") {
@@ -583,12 +589,7 @@ TEST_CASE("select_multiple_ors", "[hyperslab]") {
         hyperslab &= RegularHyperSlab(offsets, counts);
 
         auto selected = dset.select(hyperslab).read<std::vector<int>>();
-        REQUIRE(selected.size() == selected_indices.size());
-        for (size_t k = 0; k < selected.size(); ++k) {
-            size_t i = selected_indices[k][0];
-            size_t j = selected_indices[k][1];
-            REQUIRE(selected[k] == x[i][j]);
-        }
+        check_selected(selected, indices, x);
     }
 }
 
