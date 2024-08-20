@@ -11,17 +11,18 @@ The minimum version for C++ has been moved to `C++14`.
     - Removed `FileDriver` and `MPIOFileDriver`, use file access properties instead. (#949)
     - Removed default constructor for `Group` and `DataSet`. (#947, #948)
     - Broadcasting have been removed. Use `squeeze` and `reshape` feature instead. (#992)
-    - `ObjectCreateProps` and `ObjectAccessProps` those do not really exist in hdf5. (#1002)
+    - `ObjectCreateProps` and `ObjectAccessProps` those don't map well to HighFive and are unused. (#1002)
 
 ### New Features
-    - Support for `std::span`. (#987)
-    - Add `squeezeMemSpace` and `reshapeMemSpace` for `Attribute` and `Slice` to reshape the memory space. (#991)
-    - `ProductSet` let you select a cartesian product of slices. (#842)
+    - Added support for `std::span`. (#987)
+    - Added `squeezeMemSpace` and `reshapeMemSpace` for `Attribute` and `Slice` to reshape the memory space. (#991)
+    - Added `ProductSet` to select a Cartesian products of (generalized) slices. (#842)
 
 ### Improvements
-    - Optimize chained hyperslab selection. (#1031)
+    - Optimized chained hyperslab selection. (#1031)
     - Type `T[N]` or `T[N][M]` will work better. (#929)
     - `DataspaceType` is now an enum class for `dataspace_scalar` or `dataspace_null`. (#900)
+    - `File::AccessMode` is now an enum class. (#1020)
 
 ## Version 2.9.0 - 2024-01-25
 ### New Features
