@@ -25,6 +25,7 @@
 
 #include <highfive/highfive.hpp>
 #include "tests_high_five.hpp"
+#include "data_generator.hpp"
 
 using namespace HighFive;
 using Catch::Matchers::Equals;
@@ -415,33 +416,33 @@ std::vector<IrregularHyperSlabTestData> make_irregular_hyperslab_test_data() {
     // xor, irregular
     auto slab_ab_xor = HyperSlab(slabs["a"]) ^ slabs["b"];
     // clang-format off
-        auto answer_ab_xor = IrregularHyperSlabAnswer{{
-                        {1ul, 1ul}, {1ul, 2ul},
-            {2ul, 0ul},             {2ul, 2ul},
-                        {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ab_xor = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+        {2ul, 0ul},             {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"a xor b", slab_ab_xor, answer_ab_xor});
 
     // (not a) and e, irregular
     auto slab_ab_nota = HyperSlab(slabs["a"]).notA(slabs["b"]);
     // clang-format off
-        auto answer_ab_nota = IrregularHyperSlabAnswer{{
-                        {1ul, 1ul}, {1ul, 2ul},
-                                    {2ul, 2ul},
-                        {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ab_nota = IrregularHyperSlabAnswer{{
+                    {1ul, 1ul}, {1ul, 2ul},
+                                {2ul, 2ul},
+                    {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"a nota b", slab_ab_nota, answer_ab_nota});
 
     // (not a) and e, irregular
     auto slab_ba_notb = HyperSlab(slabs["b"]).notB(slabs["a"]);
     // clang-format off
-        auto answer_ba_notb = IrregularHyperSlabAnswer{{
-                         {1ul, 1ul}, {1ul, 2ul},
-                                     {2ul, 2ul},
-                         {3ul, 1ul}, {3ul, 2ul}
-        }};
+    auto answer_ba_notb = IrregularHyperSlabAnswer{{
+                     {1ul, 1ul}, {1ul, 2ul},
+                                 {2ul, 2ul},
+                     {3ul, 1ul}, {3ul, 2ul}
+    }};
     // clang-format on
     test_data.push_back({"b notb a", slab_ba_notb, answer_ba_notb});
 
@@ -533,4 +534,140 @@ void irregularHyperSlabSelectionWriteTest() {
 
 TEMPLATE_LIST_TEST_CASE("irregularHyperSlabSelectionWrite", "[template]", std::tuple<int>) {
     irregularHyperSlabSelectionWriteTest<TestType>();
+}
+
+void check_selected(const std::vector<int>& selected,
+                    const std::vector<std::array<size_t, 2>>& indices,
+                    const std::vector<std::vector<int>>& x) {
+    REQUIRE(selected.size() == indices.size());
+    for (size_t k = 0; k < selected.size(); ++k) {
+        size_t i = indices[k][0];
+        size_t j = indices[k][1];
+        REQUIRE(selected[k] == x[i][j]);
+    }
+}
+
+TEST_CASE("select_multiple_ors", "[hyperslab]") {
+    size_t n = 100, m = 20;
+    size_t nsel = 30;
+    auto x = testing::DataGenerator<std::vector<std::vector<int>>>::create({n, m});
+
+    auto file = File("select_multiple_ors.h5", File::Truncate);
+    auto dset = file.createDataSet("x", x);
+
+    std::vector<std::array<size_t, 2>> indices;
+    auto hyperslab = HyperSlab();
+    for (size_t i = 0; i < nsel; ++i) {
+        std::vector<size_t> offsets{i, i % 10};
+        std::vector<size_t> counts{1, 3};
+        hyperslab |= RegularHyperSlab(offsets, counts);
+
+        for (size_t k = 0; k < counts[1]; ++k) {
+            indices.push_back({offsets[0], offsets[1] + k});
+        }
+    }
+
+    SECTION("Pure Or Chain") {
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
+    }
+
+    SECTION("Or Chain And Slab") {
+        std::vector<size_t> offsets{5, 2};
+        std::vector<size_t> counts{85, 12};
+
+        std::vector<std::array<size_t, 2>> selected_indices;
+        for (const auto ij: indices) {
+            std::array<size_t, 2> ij_max = {offsets[0] + counts[0], offsets[1] + counts[1]};
+
+            if (offsets[0] <= ij[0] && ij[0] < ij_max[0] && offsets[1] <= ij[1] &&
+                ij[1] < ij_max[1]) {
+                selected_indices.push_back(ij);
+            }
+        }
+
+        hyperslab &= RegularHyperSlab(offsets, counts);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, selected_indices, x);
+    }
+}
+
+TEST_CASE("select_multiple_ors_edge_cases", "[hyperslab]") {
+    size_t n = 100, m = 20;
+
+    auto x = testing::DataGenerator<std::vector<std::vector<int>>>::create({n, m});
+    auto file = File("select_multiple_ors_edge_cases.h5", File::Truncate);
+    auto dset = file.createDataSet("x", x);
+
+    std::vector<std::array<size_t, 2>> indices;
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < m; ++j) {
+            indices.push_back({i, j});
+        }
+    }
+
+    auto space = DataSpace({n, m});
+    SECTION("complete |= ") {
+        auto hyperslab = HyperSlab(RegularHyperSlab({0, 0}, {n, m}));
+
+        // Select everything; and then redundantly some parts again.
+        hyperslab &= RegularHyperSlab({0, 0}, {n, m});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({3, 0}, {1, 3});
+        hyperslab |= RegularHyperSlab({6, 0}, {1, 3});
+        hyperslab.apply(space);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
+    }
+
+    SECTION("complete &=") {
+        auto hyperslab = HyperSlab();
+
+        // With detours, select everything, then reduce it to the first 2
+        // elements.
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, m / 2}, {n, m - m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m});
+        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab.apply(space);
+
+        indices = {{0, 0}, {0, 1}};
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
+    }
+
+    SECTION("empty |=") {
+        auto hyperslab = HyperSlab(RegularHyperSlab({0, 0}, {n, m}));
+        hyperslab &= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab &= RegularHyperSlab({3, 0}, {1, 2});
+
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m / 2});
+        hyperslab |= RegularHyperSlab({0, m / 2}, {n, m - m / 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {n, m});
+
+        hyperslab.apply(space);
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
+    }
+
+    SECTION("|= empty") {
+        auto hyperslab = HyperSlab();
+
+        hyperslab |= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {1, 2});
+        hyperslab |= RegularHyperSlab({0, 0}, {0, 0});
+
+        hyperslab.apply(space);
+
+        indices = {{0, 0}, {0, 1}};
+
+        auto selected = dset.select(hyperslab).read<std::vector<int>>();
+        check_selected(selected, indices, x);
+    }
 }
