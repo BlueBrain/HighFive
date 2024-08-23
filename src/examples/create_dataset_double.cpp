@@ -24,8 +24,12 @@ int main(void) {
     // Define the size of our dataset: 2x6
     std::vector<size_t> dims{2, 6};
 
+    HighFive::DataSetCreateProps props;
+    props.add(HighFive::Chunking({2,2}));
+    props.add(HighFive::Blosc(4, 1, BLOSC_BLOSCLZ));
+
     // Create the dataset
-    DataSet dataset = file.createDataSet<double>("dset", DataSpace(dims));
+    DataSet dataset = file.createDataSet<double>("dset", DataSpace(dims), props);
 
     double data[2][6] = {{1.1, 2.2, 3.3, 4.4, 5.5, 6.6},
                          {11.11, 12.12, 13.13, 14.14, 15.15, 16.16}};
