@@ -2,9 +2,11 @@
 
 #include "bits/H5Inspector_decl.hpp"
 #include "H5Exception.hpp"
+#include "bits/inspector_stl_span_misc.hpp"
 
 #include <boost/multi_array.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/core/span.hpp>
 
 namespace HighFive {
 namespace details {
@@ -170,6 +172,18 @@ struct inspector<boost::numeric::ublas::matrix<T>> {
                                                *(&val(0, 0) + i));
         }
     }
+};
+
+template <class T, std::size_t Extent>
+struct inspector<boost::span<T, Extent>>: public inspector_stl_span<boost::span<T, Extent>> {
+  private:
+    using super = inspector_stl_span<boost::span<T, Extent>>;
+
+  public:
+    using type = typename super::type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+    using hdf5_type = typename super::hdf5_type;
 };
 
 }  // namespace details

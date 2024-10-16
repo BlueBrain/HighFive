@@ -54,6 +54,12 @@ struct BoostUblasMatrix {
     template <class T>
     using type = boost::numeric::ublas::matrix<typename C::template type<T>>;
 };
+
+template <class C = type_identity>
+struct BoostSpan {
+    template <class T>
+    using type = boost::span<typename C::template type<T>>;
+};
 #endif
 
 #ifdef HIGHFIVE_TEST_EIGEN
@@ -152,6 +158,10 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<BoostUblasMatrix<>, scalar_types_boost>::type,
   typename ContainerProduct<STDVector<BoostUblasMatrix<>>, scalar_types_boost>::type,
   typename ContainerProduct<STDArray<5, BoostUblasMatrix<>>, scalar_types_boost>::type,
+
+  typename ContainerProduct<BoostSpan<>, scalar_types_boost>::type,
+  typename ContainerProduct<STDVector<BoostSpan<>>, scalar_types_boost>::type,
+  typename ContainerProduct<STDArray<5, BoostSpan<>>, scalar_types_boost>::type,
 #endif
 #ifdef HIGHFIVE_TEST_EIGEN
   typename ContainerProduct<EigenMatrix<3, 5, Eigen::ColMajor>, scalar_types_eigen>::type,
