@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5_1.14.4.3 ]
+        hdf5_version : [ hdf5-1_8_23, hdf5-1_10_11, hdf5-1_12_3, hdf5_1.14.5 ]
 
     steps:
     - uses: actions/checkout@v3
