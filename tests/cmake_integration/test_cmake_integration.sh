@@ -16,9 +16,20 @@ HIGHFIVE_INSTALL_DIR="${HIGHFIVE_BUILD_DIR}/install"
 export HIGHFIVE_GIT_REPOSITORY="file://$(realpath "$HIGHFIVE_DIR")"
 export HIGHFIVE_GIT_TAG=$(git rev-parse HEAD)
 
+make_submodule() {
+    local project_dir="$1"
+    local dep_dir="${project_dir}/deps/HighFive"
+
+    rm "${dep_dir}" || true
+    mkdir -p "$(dirname "${dep_dir}")"
+    ln -sf "${HIGHFIVE_DIR}" "${dep_dir}"
+}
+
 test_dependent_library() {
     local project="dependent_library"
     local project_dir="${TEST_DIR}/${project}"
+
+    make_submodule ${project_dir}
 
     for use_boost in On Off
     do
@@ -35,33 +46,32 @@ test_dependent_library() {
 
       cmake --build "${build_dir}" --verbose --target install
 
-      local test_project="test_dependent_library"
-      local test_build_dir="${TMP_DIR}/test_build"
-      local test_install_dir="${TMP_DIR}/test_build/install"
 
-      rm -rf ${test_build_dir} || true
+      for vendor in submodule fetch_content external none
+      do
+        local test_project="test_dependent_library"
+        local test_build_dir="${TMP_DIR}/test_build"
+        local test_install_dir="${TMP_DIR}/test_build/install"
 
-      cmake -DUSE_BOOST=${use_boost} \
-            -DCMAKE_PREFIX_PATH="${HIGHFIVE_INSTALL_DIR};${install_dir}" \
-            -DCMAKE_INSTALL_PREFIX="${test_install_dir}" \
-            -B "${test_build_dir}" "${test_project}"
+        rm -rf ${test_build_dir} || true
 
-      cmake --build "${test_build_dir}" --verbose
-      ctest --test-dir "${test_build_dir}" --verbose
+        cmake -DUSE_BOOST=${use_boost} \
+              -DVENDOR_STRATEGY=${vendor} \
+              -DCMAKE_PREFIX_PATH="${HIGHFIVE_INSTALL_DIR};${install_dir}" \
+              -DCMAKE_INSTALL_PREFIX="${test_install_dir}" \
+              -B "${test_build_dir}" "${test_project}"
 
+        cmake --build "${test_build_dir}" --verbose
+        ctest --test-dir "${test_build_dir}" --verbose
+      done
     done
 }
 
 test_application() {
     local project="application"
     local project_dir="${TEST_DIR}/${project}"
-    local dep_dir="${TEST_DIR}/${project}/deps/HighFive"
 
-    rm "${dep_dir}" || true
-    ln -sf "${HIGHFIVE_DIR}" "${dep_dir}"
-
-    echo ${HIGHFIVE_DIR}
-    echo ${dep_dir}
+    make_submodule ${project_dir}
 
     for vendor in submodule fetch_content external
     do
