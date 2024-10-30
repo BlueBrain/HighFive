@@ -29,8 +29,6 @@ test_dependent_library() {
     local project="dependent_library"
     local project_dir="${TEST_DIR}/${project}"
 
-    make_submodule ${project_dir}
-
     for use_boost in On Off
     do
       local build_dir="${TMP_DIR}/build"
@@ -52,6 +50,9 @@ test_dependent_library() {
         local test_project="test_dependent_library"
         local test_build_dir="${TMP_DIR}/test_build"
         local test_install_dir="${TMP_DIR}/test_build/install"
+
+        make_submodule ${test_project}
+
 
         rm -rf ${test_build_dir} || true
 
