@@ -153,16 +153,18 @@ class FixedLengthStringType: public StringType {
     /// UTF8. In particular, a string with `n` UFT8 characters in general
     /// requires `4*n` bytes.
     ///
-    /// The string padding is subtle, essentially it's just a hint. A
-    /// null-terminated string is guaranteed to have one `'\0'` which marks the
-    /// semantic end of the string. The length of the buffer must be at least
-    /// `size` bytes regardless. HDF5 will read or write `size` bytes,
-    /// irrespective of the when the `\0` occurs.
+    /// The string padding is subtle, essentially it's just a hint. While
+    /// commonly, a null-terminated string is guaranteed to have one `'\0'`
+    /// which marks the semantic end of the string, this is not enforced by
+    /// HDF5. In fact, there are HDF5 files that contain strings that claim to
+    /// be null-terminated but aren't.  The length of the buffer must be at
+    /// least `size` bytes regardless of the padding. HDF5 will read or write
+    /// `size` bytes, irrespective of when (if at all) the `\0` occurs.
     ///
-    /// Note that when writing passing `StringPadding::NullTerminated` is a
+    /// Note that when writing, passing `StringPadding::NullTerminated` is a
     /// guarantee to the reader that it contains a `\0`. Therefore, make sure
-    /// that the string really is nullterminated. Otherwise prefer a
-    /// null-padded string which only means states that the buffer is filled up
+    /// that the string really is null-terminated. Otherwise prefer a
+    /// null-padded string. This mearly states that the buffer is filled up
     /// with 0 or more `\0`.
     FixedLengthStringType(size_t size,
                           StringPadding padding,
