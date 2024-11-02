@@ -57,7 +57,7 @@ class Group: public Object,
     }
 
     Group(Object&& o) noexcept
-        : Object(std::move(o)){};
+        : Object(std::move(o)) {};
 
   protected:
     using Object::Object;

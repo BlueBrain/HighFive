@@ -114,16 +114,22 @@ TEST_CASE("Test open modes in HighFive") {
     CHECK_THROWS_AS(File(file_name, File::ReadWrite), FileException);
 
     // But with Create flag should be fine
-    { File file(file_name, File::ReadWrite | File::Create); }
+    {
+        File file(file_name, File::ReadWrite | File::Create);
+    }
 
     // But if its there and exclusive is given, should fail
     CHECK_THROWS_AS(File(file_name, File::ReadWrite | File::Excl), FileException);
     // ReadWrite and Excl flags are fine together (posix)
     std::remove(file_name.c_str());
-    { File file(file_name, File::ReadWrite | File::Excl); }
+    {
+        File file(file_name, File::ReadWrite | File::Excl);
+    }
     // All three are fine as well (as long as the file does not exist)
     std::remove(file_name.c_str());
-    { File file(file_name, File::ReadWrite | File::Create | File::Excl); }
+    {
+        File file(file_name, File::ReadWrite | File::Create | File::Excl);
+    }
 
     // Just a few combinations are incompatible, detected by hdf5lib
     CHECK_THROWS_AS(File(file_name, File::Truncate | File::Excl), FileException);
@@ -132,12 +138,18 @@ TEST_CASE("Test open modes in HighFive") {
     CHECK_THROWS_AS(File(file_name, File::Truncate | File::Excl), FileException);
 
     // But in most cases we will truncate and that should always work
-    { File file(file_name, File::Truncate); }
+    {
+        File file(file_name, File::Truncate);
+    }
     std::remove(file_name.c_str());
-    { File file(file_name, File::Truncate); }
+    {
+        File file(file_name, File::Truncate);
+    }
 
     // Last but not least, defaults should be ok
-    { File file(file_name); }  // ReadOnly
+    {
+        File file(file_name);
+    }  // ReadOnly
 }
 
 void check_access_mode(File::AccessMode mode) {

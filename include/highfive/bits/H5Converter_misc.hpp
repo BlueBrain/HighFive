@@ -45,7 +45,7 @@ struct ShallowCopyBuffer {
     ShallowCopyBuffer() = delete;
 
     explicit ShallowCopyBuffer(typename std::conditional<IsReadOnly, const T&, T&>::type val)
-        : ptr(inspector<T>::data(val)){};
+        : ptr(inspector<T>::data(val)) {};
 
     hdf5_type* getPointer() const {
         return ptr;
@@ -349,7 +349,7 @@ struct Writer<T, typename enable_shallow_copy<T>::type>: public ShallowCopyBuffe
     explicit Writer(const T& val,
                     const std::vector<size_t>& /* dims */,
                     const DataType& /* file_datatype */)
-        : super(val){};
+        : super(val) {};
 };
 
 template <typename T>
