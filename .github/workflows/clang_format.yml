@@ -20,18 +20,4 @@ jobs:
 
     - name: Run clang-format
       run: |
-          clang-format --version
-          for i in $(git ls-files | grep ".[ch]pp$");
-          do
-            clang-format -i "$i" > /dev/null 2>&1;
-          done
-          modified_files=$(git diff --name-only)
-          if [ -n "$modified_files" ];
-          then
-              echo "Some files are not well formatted:"
-              echo $modified_files
-              echo ""
-              echo "The diff is:"
-              git diff
-              exit 1
-          fi
+        bash bin/format.sh
