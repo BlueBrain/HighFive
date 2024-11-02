@@ -229,7 +229,7 @@ struct StringBuffer {
         /// `length() + 1` bytes long.
         size_t length() const {
             if (buffer.isNullTerminated()) {
-                return char_buffer_size(data(), buffer.string_length);
+                return char_buffer_size(data(), buffer.string_size);
             } else {
                 return buffer.string_length;
             }
