@@ -7,7 +7,7 @@ venv_dir="$script_dir/../.clang-format-venv"
 if [ ! -d "$venv_dir" ]; then
     python3 -m venv "$venv_dir"
     source "$venv_dir/bin/activate"
-    pip install clang-format==14.0.0
+    pip install clang-format==12.0.1
     deactivate
 fi
 
