@@ -322,9 +322,11 @@ struct StringBuffer {
   private:
     StringType file_datatype;
     StringPadding padding;
-    size_t string_size;    // Size of buffer required to store the string.
-                           // Meaningful for fixed length strings only.
-    size_t string_max_length;  // Maximum length of string.
+    // Size of buffer required to store the string.
+    // Meaningful for fixed length strings only.
+    size_t string_size;
+    // Maximum length of string.
+    size_t string_max_length;
     std::vector<size_t> dims;
 
     std::vector<char> fixed_length_buffer;
