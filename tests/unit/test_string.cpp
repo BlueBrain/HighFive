@@ -206,6 +206,33 @@ void check_multiple_string(File file, size_t string_length) {
     }
 }
 
+template <class CreateTraits>
+void check_supposedly_nullterm(HighFive::File& file) {
+    auto dataspace = HighFive::DataSpace::Scalar();
+    auto datatype = HighFive::FixedLengthStringType(5, HighFive::StringPadding::NullTerminated);
+    auto obj = CreateTraits::create(file, "not_null_terminated", dataspace, datatype);
+
+    // Creates a 5 byte, "null-terminated", fixed-length string. The first five
+    // bytes are filled with "GROUP". Clearly, this isn't null-terminated. However,
+    // h5py will read it back as "GROUP", HDF5 allows us to create these; and they're
+    // found in the wild.
+    std::string value = "GROUP";
+    obj.write_raw(value.c_str(), datatype);
+
+    auto actual = obj.template read<std::string>();
+    REQUIRE(actual == value);
+}
+
+TEST_CASE("HighFiveSTDString (attribute, nullterm cornercase)") {
+    auto file = HighFive::File("not_null_terminated_attribute.h5", HighFive::File::Truncate);
+    check_supposedly_nullterm<testing::AttributeCreateTraits>(file);
+}
+
+TEST_CASE("HighFiveSTDString (dataset, nullterm cornercase)") {
+    auto file = HighFive::File("not_null_terminated_dataset.h5", HighFive::File::Truncate);
+    check_supposedly_nullterm<testing::DataSetCreateTraits>(file);
+}
+
 TEST_CASE("HighFiveSTDString (dataset, single, short)") {
     File file("std_string_dataset_single_short.h5", File::Truncate);
     check_single_string<testing::DataSetCreateTraits>(file, 3);
