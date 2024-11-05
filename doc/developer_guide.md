@@ -41,22 +41,16 @@ tests.
 ### Code formatting
 The project is formatted using clang-format version 12.0.1 and CI will complain
 if a commit isn't formatted accordingly. The `.clang-format` is at the root of
-the git repository. Conveniently, `clang-format` is available via `pip`:
+the git repository. Conveniently, `clang-format` is available via `pip`.
 
+Formatting the entire code base can be done with:
 ```bash
-python -m venv venv
-source venv/bin/activate
-
-pip install clang-format==12.0.1
+    bin/format.sh
 ```
+which will install the required version of clang-format in a venv called
+`.clang-format-venv`.
 
-The changed lines can be formatted with `git-clang-format`, e.g. to format all lines changed compared to master:
-
-```bash
-git-clang-format master
-```
-(add `-f` to allow formatting unstaged changes if you trust it to not destroy
-your changes.)
+To format only the changed files `git-clang-format` can be used.
 
 ## Releasing HighFive
 Before releasing a new version perform the following:
