@@ -23,15 +23,16 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 
 ### Design
 - Simple C++-ish minimalist interface
-- No other dependency than libhdf5
-- Zero overhead
-- Support C++14
+- Only hard dependency is libhdf5
+- Zero/low overhead, when possible
+- RAII for opening/closing files, groups, datasets, etc.
+- Written in C++14
 
 ### Feature support
 - create/read/write files, datasets, attributes, groups, dataspaces.
 - automatic memory management / ref counting
 - automatic conversion of `std::vector` and nested `std::vector` from/to any dataset with basic types
-- automatic conversion of `std::string` to/from variable length string dataset
+- automatic conversion of `std::string` to/from variable- or fixed-length string dataset
 - selection() / slice support
 - parallel Read/Write operations from several nodes with Parallel HDF5
 - Advanced types: Compound, Enum, Arrays of Fixed-length strings, References
@@ -41,7 +42,7 @@ It integrates nicely with other CMake projects by defining (and exporting) a Hig
 
 ### Dependencies
 - HDF5 or pHDF5, including headers
-- boost >= 1.41 (recommended)
+- boost (optional)
 - eigen3 (optional)
 - xtensor (optional)
 - half (optional)
