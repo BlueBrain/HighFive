@@ -2318,11 +2318,12 @@ void check_multiple_string(Proxy proxy, size_t string_length) {
     }
 }
 
-template <class CreateTraits>
-void check_supposedly_nullterm(HighFive::File& file) {
+template <class Proxy>
+void check_supposedly_nullterm(Proxy proxy) {
     auto dataspace = HighFive::DataSpace::Scalar();
     auto datatype = HighFive::FixedLengthStringType(5, HighFive::StringPadding::NullTerminated);
-    auto obj = CreateTraits::create(file, "not_null_terminated", dataspace, datatype);
+    proxy.create("not_null_terminated", dataspace, datatype);
+    auto obj = proxy.get("not_null_terminated");
 
     // Creates a 5 byte, "null-terminated", fixed-length string. The first five
     // bytes are filled with "GROUP". Clearly, this isn't null-terminated. However,
@@ -2337,12 +2338,12 @@ void check_supposedly_nullterm(HighFive::File& file) {
 
 TEST_CASE("HighFiveSTDString (attribute, nullterm cornercase)") {
     auto file = HighFive::File("not_null_terminated_attribute.h5", HighFive::File::Truncate);
-    check_supposedly_nullterm<testing::AttributeCreateTraits>(file);
+    check_supposedly_nullterm(ForwardToAttribute(file));
 }
 
 TEST_CASE("HighFiveSTDString (dataset, nullterm cornercase)") {
     auto file = HighFive::File("not_null_terminated_dataset.h5", HighFive::File::Truncate);
-    check_supposedly_nullterm<testing::DataSetCreateTraits>(file);
+    check_supposedly_nullterm(ForwardToDataSet(file));
 }
 
 TEST_CASE("HighFiveSTDString (dataset, single, short)") {
