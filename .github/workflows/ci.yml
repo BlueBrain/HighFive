@@ -92,6 +92,9 @@ jobs:
       run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
 
+    - name: Examples
+      working-directory: ${{github.workspace}}/build/src/examples
+      run: $GITHUB_WORKSPACE/.github/run_examples.sh
 
   # Job testing several versions of hdf5
   # ===================================================
@@ -135,7 +138,6 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: |
         ! ctest --verbose -C $BUILD_TYPE | grep HDF5-DIAG
-
 
     - name: Examples
       working-directory: ${{github.workspace}}/build/src/examples
