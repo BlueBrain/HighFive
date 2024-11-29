@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 
         // MPI ranks don't have to read non-overlapping parts, but in this
         // example they happen to. Again all rank participate in this call.
-        dataset.select(offset, count).read(data, xfer_props);
+        dataset.select(offset, count).squeezeMemSpace({0}).read(data, xfer_props);
         check_collective_io(xfer_props);
 
     } catch (Exception& err) {
