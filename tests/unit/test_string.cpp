@@ -207,30 +207,45 @@ void check_multiple_string(File file, size_t string_length) {
 }
 
 template <class CreateTraits>
-void check_supposedly_nullterm(HighFive::File& file) {
+void check_supposedly_nullterm(HighFive::File& file, size_t string_length) {
     auto dataspace = HighFive::DataSpace::Scalar();
-    auto datatype = HighFive::FixedLengthStringType(5, HighFive::StringPadding::NullTerminated);
-    auto obj = CreateTraits::create(file, "not_null_terminated", dataspace, datatype);
+    auto datatype = HighFive::FixedLengthStringType(string_length,
+                                                    HighFive::StringPadding::NullTerminated);
+    auto obj = CreateTraits::create(file,
+                                    "not_null_terminated_" + std::to_string(string_length),
+                                    dataspace,
+                                    datatype);
 
-    // Creates a 5 byte, "null-terminated", fixed-length string. The first five
-    // bytes are filled with "GROUP". Clearly, this isn't null-terminated. However,
-    // h5py will read it back as "GROUP", HDF5 allows us to create these; and they're
+    // Creates an `string_length` byte, "null-terminated", fixed-length string. The first
+    // `string_length` bytes are filled with "a"s. Clearly, this isn't null-terminated. However,
+    // h5py will read it back, HDF5 allows us to create these; and they're
     // found in the wild.
-    std::string value = "GROUP";
+    std::string value(string_length, 'a');
     obj.write_raw(value.c_str(), datatype);
 
     auto actual = obj.template read<std::string>();
     REQUIRE(actual == value);
 }
 
+template <class CreateTraits>
+void check_supposedly_nullterm_scan(HighFive::File& file) {
+    for (size_t n = 1; n < 256; ++n) {
+        check_supposedly_nullterm<CreateTraits>(file, n);
+    }
+
+    check_supposedly_nullterm<CreateTraits>(file, 4091);
+    check_supposedly_nullterm<CreateTraits>(file, 4092);
+    check_supposedly_nullterm<CreateTraits>(file, 4093);
+}
+
 TEST_CASE("HighFiveSTDString (attribute, nullterm cornercase)") {
     auto file = HighFive::File("not_null_terminated_attribute.h5", HighFive::File::Truncate);
-    check_supposedly_nullterm<testing::AttributeCreateTraits>(file);
+    check_supposedly_nullterm_scan<testing::AttributeCreateTraits>(file);
 }
 
 TEST_CASE("HighFiveSTDString (dataset, nullterm cornercase)") {
     auto file = HighFive::File("not_null_terminated_dataset.h5", HighFive::File::Truncate);
-    check_supposedly_nullterm<testing::DataSetCreateTraits>(file);
+    check_supposedly_nullterm_scan<testing::DataSetCreateTraits>(file);
 }
 
 TEST_CASE("HighFiveSTDString (dataset, single, short)") {
