@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
         std::vector<size_t> offset{std::size_t(mpi_rank), 0ul};
         std::vector<size_t> count{1ul, 2ul};
 
-        dataset.select(offset, count).write(data, xfer_props);
+        dataset.select(offset, count).squeezeMemSpace({0}).write(data, xfer_props);
         check_collective_io(xfer_props);
 
         // Let's ensure that everything has been written do disk.
