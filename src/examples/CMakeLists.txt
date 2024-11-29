@@ -59,36 +59,36 @@ function(compile_example example_source)
   string(REPLACE ".cpp" "_bin" example_name ${example_filename})
 
   add_executable(${example_name} ${example_source})
-  target_link_libraries(${example_name} PUBLIC HighFive HighFiveWarnings HighFiveFlags)
-  if(${ARGC} EQUAL 2)
-    target_link_libraries(${example_name} PUBLIC ${ARGV1})
+  target_link_libraries(${example_name} PUBLIC HighFive HighFiveWarnings)
+  if(${ARGC} GREATER_EQUAL 2)
+    target_link_libraries(${example_name} PUBLIC ${ARGV1} ${ARGV2} ${ARGV3} ${ARGV4})
   endif()
 endfunction()
 
 
 foreach(example_source ${core_examples})
-  compile_example(${example_source})
+  compile_example(${example_source} HighFiveFlags)
 endforeach()
 
 foreach(example_source ${easy_examples})
-  compile_example(${example_source} HighFiveOptionalDependencies)
+  compile_example(${example_source} HighFiveFlags HighFiveOptionalDependencies)
 endforeach()
 
 if(HIGHFIVE_TEST_SPAN)
   foreach(example_source ${span_examples})
-    compile_example(${example_source})
+    compile_example(${example_source} HighFiveFlags)
   endforeach()
 endif()
 
 if(HIGHFIVE_TEST_BOOST)
   foreach(example_source ${boost_examples})
-    compile_example(${example_source} HighFiveBoostDependency)
+    compile_example(${example_source} HighFiveFlags HighFiveBoostDependency)
   endforeach()
 endif()
 
 if(HIGHFIVE_TEST_EIGEN)
   foreach(example_source ${eigen_examples})
-    compile_example(${example_source} HighFiveEigenDependency)
+    compile_example(${example_source} HighFiveFlags HighFiveEigenDependency)
   endforeach()
 endif()
 
@@ -105,7 +105,7 @@ if(${HDF5_HL_FOUND})
     target_link_libraries(HighFiveHlHdf5Dependency ${HDF5_HL_LIBRARIES})
 
     foreach(example_source ${hl_hdf5_examples})
-      compile_examples(${example_source} HighFiveHlHdf5Dependency)
+      compile_examples(${example_source} HighFiveFlags HighFiveHlHdf5Dependency)
     endforeach()
 endif()
 
