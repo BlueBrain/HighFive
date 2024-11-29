@@ -156,6 +156,7 @@ install(FILES
 
 if(HIGHFIVE_EXAMPLES OR HIGHFIVE_UNIT_TESTS)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveWarnings.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveFlags.cmake)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/HighFiveOptionalDependencies.cmake)
 endif()
 
