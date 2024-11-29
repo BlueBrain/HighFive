@@ -209,8 +209,12 @@ void check_multiple_string(File file, size_t string_length) {
 template <class CreateTraits>
 void check_supposedly_nullterm(HighFive::File& file, size_t string_length) {
     auto dataspace = HighFive::DataSpace::Scalar();
-    auto datatype = HighFive::FixedLengthStringType(string_length, HighFive::StringPadding::NullTerminated);
-    auto obj = CreateTraits::create(file, "not_null_terminated_" + std::to_string(string_length), dataspace, datatype);
+    auto datatype = HighFive::FixedLengthStringType(string_length,
+                                                    HighFive::StringPadding::NullTerminated);
+    auto obj = CreateTraits::create(file,
+                                    "not_null_terminated_" + std::to_string(string_length),
+                                    dataspace,
+                                    datatype);
 
     // Creates an `string_length` byte, "null-terminated", fixed-length string. The first
     // `string_length` bytes are filled with "a"s. Clearly, this isn't null-terminated. However,
@@ -223,10 +227,10 @@ void check_supposedly_nullterm(HighFive::File& file, size_t string_length) {
     REQUIRE(actual == value);
 }
 
-template<class CreateTraits>
+template <class CreateTraits>
 void check_supposedly_nullterm_scan(HighFive::File& file) {
-    for(size_t n = 1; n < 256; ++n) {
-      check_supposedly_nullterm<CreateTraits>(file, n);
+    for (size_t n = 1; n < 256; ++n) {
+        check_supposedly_nullterm<CreateTraits>(file, n);
     }
 
     check_supposedly_nullterm<CreateTraits>(file, 4091);
