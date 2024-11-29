@@ -16,5 +16,10 @@ fi
 for f in "${examples_dir}"/*_bin
 do
   echo "-- ${f}"
-  "${f}"
+  if [[ "${f}" == *"parallel_"* ]]
+  then
+    mpiexec -np 2 "${f}"
+  else
+    "${f}"
+  fi
 done
