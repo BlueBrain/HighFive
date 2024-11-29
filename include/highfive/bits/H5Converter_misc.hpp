@@ -103,14 +103,14 @@ enum class BufferMode { Read, Write };
 ///
 /// \brief String length in bytes excluding the `\0`.
 ///
-inline size_t char_buffer_size(char const* const str, size_t max_string_length) {
-    for (size_t i = 0; i <= max_string_length; ++i) {
+inline size_t char_buffer_length(char const* const str, size_t max_string_size) {
+    for (size_t i = 0; i < max_string_size; ++i) {
         if (str[i] == '\0') {
             return i;
         }
     }
 
-    return max_string_length;
+    return max_string_size;
 }
 
 
@@ -229,7 +229,7 @@ struct StringBuffer {
         /// `length() + 1` bytes long.
         size_t length() const {
             if (buffer.isNullTerminated()) {
-                return char_buffer_size(data(), buffer.string_size);
+                return char_buffer_length(data(), buffer.string_size);
             } else {
                 return buffer.string_max_length;
             }
