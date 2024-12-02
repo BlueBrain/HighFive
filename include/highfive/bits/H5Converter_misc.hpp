@@ -103,14 +103,14 @@ enum class BufferMode { Read, Write };
 ///
 /// \brief String length in bytes excluding the `\0`.
 ///
-inline size_t char_buffer_size(char const* const str, size_t max_string_length) {
-    for (size_t i = 0; i <= max_string_length; ++i) {
+inline size_t char_buffer_length(char const* const str, size_t max_string_size) {
+    for (size_t i = 0; i < max_string_size; ++i) {
         if (str[i] == '\0') {
             return i;
         }
     }
 
-    return max_string_length;
+    return max_string_size;
 }
 
 
@@ -190,7 +190,7 @@ struct StringBuffer {
             } else if (buffer.isFixedLengthString()) {
                 // If the buffer is fixed-length and null-terminated, then
                 // `buffer.string_length` doesn't include the null-character.
-                if (length > buffer.string_length) {
+                if (length > buffer.string_max_length) {
                     throw std::invalid_argument("String length too big.");
                 }
 
@@ -229,9 +229,9 @@ struct StringBuffer {
         /// `length() + 1` bytes long.
         size_t length() const {
             if (buffer.isNullTerminated()) {
-                return char_buffer_size(data(), buffer.string_length);
+                return char_buffer_length(data(), buffer.string_size);
             } else {
-                return buffer.string_length;
+                return buffer.string_max_length;
             }
         }
 
@@ -272,7 +272,7 @@ struct StringBuffer {
         : file_datatype(_file_datatype.asStringType())
         , padding(file_datatype.getPadding())
         , string_size(file_datatype.isVariableStr() ? size_t(-1) : file_datatype.getSize())
-        , string_length(string_size - size_t(isNullTerminated()))
+        , string_max_length(string_size - size_t(isNullTerminated()))
         , dims(_dims) {
         if (string_size == 0 && isNullTerminated()) {
             throw DataTypeException(
@@ -322,9 +322,11 @@ struct StringBuffer {
   private:
     StringType file_datatype;
     StringPadding padding;
-    size_t string_size;    // Size of buffer required to store the string.
-                           // Meaningful for fixed length strings only.
-    size_t string_length;  // Semantic length of string.
+    // Size of buffer required to store the string.
+    // Meaningful for fixed length strings only.
+    size_t string_size;
+    // Maximum length of string.
+    size_t string_max_length;
     std::vector<size_t> dims;
 
     std::vector<char> fixed_length_buffer;
