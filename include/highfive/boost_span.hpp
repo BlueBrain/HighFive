@@ -20,4 +20,5 @@ struct inspector<boost::span<T, Extent>>: public inspector_stl_span<boost::span<
     using hdf5_type = typename super::hdf5_type;
 };
 
-}}
+}  // namespace details
+}  // namespace HighFive
