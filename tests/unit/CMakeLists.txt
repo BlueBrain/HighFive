@@ -51,7 +51,7 @@ foreach(PUBLIC_HEADER ${public_headers})
       continue()
     endif()
 
-    if(PUBLIC_HEADER STREQUAL "highfive/boost.hpp" AND NOT HIGHFIVE_TEST_BOOST)
+    if(PUBLIC_HEADER MATCHES "highfive/boost.*.hpp" AND NOT HIGHFIVE_TEST_BOOST)
       continue()
     endif()
 
