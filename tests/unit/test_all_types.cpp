@@ -112,7 +112,8 @@ void check_read_regular(const std::string& file_name, const std::vector<size_t>&
     using reference_type = typename testing::MultiDimVector<base_type, traits::rank>::type;
 
     auto file = File(file_name, File::Truncate);
-    auto expected = testing::copy<reference_type>(traits::create(dims), dims);
+    auto raw_expected = traits::create(dims);
+    auto expected = testing::copy<reference_type>(raw_expected, dims);
 
     auto dataspace = DataSpace(dims);
     auto attr = testing::AttributeCreateTraits::create<base_type>(file, "dset", dataspace);
@@ -139,6 +140,7 @@ void check_read_regular(const std::string& file_name, const std::vector<size_t>&
     }
 
     testing::ContainerTraits<reference_type>::deallocate(expected, dims);
+    testing::ContainerTraits<Container>::deallocate(raw_expected, dims);
 }
 
 template <class Container>
