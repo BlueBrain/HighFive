@@ -164,7 +164,7 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq install boost1.83 libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
