@@ -458,7 +458,7 @@ struct ContainerTraits<boost::span<T, Extent>>
 
   public:
     using container_type = typename super::container_type;
-    using value_type = typename super::value_type;
+    using value_type = typename super::valu_type;
     using base_type = typename super::base_type;
 };
 #endif
