@@ -9,6 +9,10 @@
 #include <boost/multi_array.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_BOOST_SPAN
+#include <boost/core/span.hpp>
+#endif
+
 #ifdef HIGHFIVE_TEST_EIGEN
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -54,7 +58,9 @@ struct BoostUblasMatrix {
     template <class T>
     using type = boost::numeric::ublas::matrix<typename C::template type<T>>;
 };
+#endif
 
+#ifdef HIGHFIVE_TEST_BOOST_SPAN
 template <class C = type_identity>
 struct BoostSpan {
     template <class T>
@@ -158,7 +164,8 @@ using supported_array_types = typename ConcatenateTuples<
   typename ContainerProduct<BoostUblasMatrix<>, scalar_types_boost>::type,
   typename ContainerProduct<STDVector<BoostUblasMatrix<>>, scalar_types_boost>::type,
   typename ContainerProduct<STDArray<5, BoostUblasMatrix<>>, scalar_types_boost>::type,
-
+#endif
+#ifdef HIGHFIVE_TEST_BOOST_SPAN
   typename ContainerProduct<BoostSpan<>, scalar_types_boost>::type,
   typename ContainerProduct<STDVector<BoostSpan<>>, scalar_types_boost>::type,
   typename ContainerProduct<STDArray<5, BoostSpan<>>, scalar_types_boost>::type,

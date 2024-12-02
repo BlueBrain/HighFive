@@ -13,6 +13,10 @@
 #include <highfive/boost.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_BOOST_SPAN
+#include <highfive/boost_span.hpp>
+#endif
+
 #ifdef HIGHFIVE_TEST_EIGEN
 #include <highfive/eigen.hpp>
 #endif
@@ -443,6 +447,9 @@ struct ContainerTraits<boost::numeric::ublas::matrix<T>> {
     }
 };
 
+#endif
+
+#if HIGHFIVE_TEST_BOOST_SPAN
 template <class T, std::size_t Extent>
 struct ContainerTraits<boost::span<T, Extent>>
     : public STLSpanLikeContainerTraits<boost::span<T, Extent>, boost::dynamic_extent> {
@@ -454,7 +461,6 @@ struct ContainerTraits<boost::span<T, Extent>>
     using value_type = typename super::value_type;
     using base_type = typename super::base_type;
 };
-
 #endif
 
 // -- Eigen  -------------------------------------------------------------------
