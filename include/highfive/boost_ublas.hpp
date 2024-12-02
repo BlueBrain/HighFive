@@ -7,6 +7,7 @@
 
 namespace HighFive {
 namespace details {
+
 template <typename T>
 struct inspector<boost::numeric::ublas::matrix<T>> {
     using type = boost::numeric::ublas::matrix<T>;
