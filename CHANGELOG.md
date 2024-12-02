@@ -1,4 +1,9 @@
 # Changes
+## Version 2.10.1 - 2024-12-02
+### Bug Fixes
+    - Fix corner cases of `combine_selection`. (#1038, #1040)
+    - Allow reading not-quite null-terminated strings. (#1059)
+
 ## Version 2.10.0 - 2024-07-26
 ### New Features
     - `read_raw` when reading from pointers. (#928,#940)
