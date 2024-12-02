@@ -164,7 +164,7 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install boost1.83 libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq install libboost-all-dev libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
@@ -189,7 +189,7 @@ jobs:
   # Job running unit-test with sanitizers
   # =====================================
   Linux_Sanitizers:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         env: [
@@ -206,7 +206,7 @@ jobs:
     - name: "Install libraries"
       run: |
         sudo apt-get -qq update
-        sudo apt-get -qq install libboost-all-dev libeigen3-dev libhdf5-dev libsz2 ninja-build
+        sudo apt-get -qq install boost1.83 libeigen3-dev libhdf5-dev libsz2 ninja-build
 
     - name: Build
       env: ${{matrix.env}}
@@ -214,6 +214,7 @@ jobs:
         CMAKE_OPTIONS=(
           -GNinja
           -DHIGHFIVE_TEST_BOOST:BOOL=ON
+          -DHIGHFIVE_TEST_BOOST_SPAN:BOOL=ON
           -DHIGHFIVE_TEST_EIGEN:BOOL=ON
           -DHIGHFIVE_BUILD_DOCS:BOOL=FALSE
           -DHIGHFIVE_GLIBCXX_ASSERTIONS=${HIGHFIVE_GLIBCXX_ASSERTIONS:-OFF}
