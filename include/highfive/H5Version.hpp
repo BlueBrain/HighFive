@@ -13,7 +13,7 @@
 #define HIGHFIVE_VERSION_PATCH 0
 
 // Undefined for regular releases.
-#define HIGHFIVE_VERSION_PRERELEASE 1
+#define HIGHFIVE_VERSION_PRERELEASE 2
 
 /** \brief Concatenated representation of the HighFive version.
  *
@@ -33,4 +33,4 @@
  *
  *  \warning This macro only exists from 2.7.1 onwards.
  */
-#define HIGHFIVE_VERSION_STRING "3.0.0-beta1"
+#define HIGHFIVE_VERSION_STRING "3.0.0-beta2"
