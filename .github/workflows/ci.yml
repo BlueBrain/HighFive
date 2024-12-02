@@ -193,9 +193,9 @@ jobs:
     strategy:
       matrix:
         env: [
-          {CC: clang-12, CXX: clang++-12, HIGHFIVE_SANITIZER: address},
-          {CC: clang-12, CXX: clang++-12, HIGHFIVE_SANITIZER: undefined},
-          {CC: gcc-10, CXX: g++-10, HIGHFIVE_GLIBCXX_ASSERTIONS: On},
+          {CC: clang, CXX: clang++, HIGHFIVE_SANITIZER: address},
+          {CC: clang, CXX: clang++, HIGHFIVE_SANITIZER: undefined},
+          {CC: gcc, CXX: g++, HIGHFIVE_GLIBCXX_ASSERTIONS: On},
         ]
 
     steps:
