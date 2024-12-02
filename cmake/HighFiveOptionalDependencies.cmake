@@ -7,6 +7,9 @@ if(NOT TARGET HighFiveBoostDependency)
     # -DBOOST_ALL_NO_LIB (does something on MSVC).
     target_compile_definitions(HighFiveBoostDependency INTERFACE HIGHFIVE_TEST_BOOST=1)
   endif()
+  if(HIGHFIVE_TEST_BOOST_SPAN)
+    target_compile_definitions(HighFiveBoostDependency INTERFACE HIGHFIVE_TEST_BOOST_SPAN=1)
+  endif()
 endif()
 
 if(NOT TARGET HighFiveEigenDependency)

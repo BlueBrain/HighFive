@@ -13,6 +13,10 @@
 #include <highfive/boost.hpp>
 #endif
 
+#ifdef HIGHFIVE_TEST_BOOST_SPAN
+#include <highfive/boost_span.hpp>
+#endif
+
 #ifdef HIGHFIVE_TEST_EIGEN
 #include <highfive/eigen.hpp>
 #endif
@@ -236,12 +240,15 @@ struct ContainerTraits<std::array<T, N>>: public STLLikeContainerTraits<std::arr
     }
 };
 
-
-#ifdef HIGHFIVE_TEST_SPAN
-template <class T, std::size_t Extent>
-struct ContainerTraits<std::span<T, Extent>>: public STLLikeContainerTraits<std::span<T, Extent>> {
+// Anything with the same API as `std::span` can implemented by inheriting from
+// this class.
+//
+// The template parameter `DynamicExtent` is the equivalent of the magic number
+// `std::dynamic_extent`.
+template <class Span, size_t DynamicExtent>
+struct STLSpanLikeContainerTraits: public STLLikeContainerTraits<Span> {
   private:
-    using super = STLLikeContainerTraits<std::span<T, Extent>>;
+    using super = STLLikeContainerTraits<Span>;
 
   public:
     using container_type = typename super::container_type;
@@ -274,11 +281,25 @@ struct ContainerTraits<std::span<T, Extent>>: public STLLikeContainerTraits<std:
     }
 
     static void sanitize_dims(std::vector<size_t>& dims, size_t axis) {
-        if (Extent != std::dynamic_extent) {
-            dims[axis] = Extent;
+        if (Span::extent != DynamicExtent) {
+            dims[axis] = Span::extent;
             ContainerTraits<value_type>::sanitize_dims(dims, axis + 1);
         }
     }
+};
+
+
+#ifdef HIGHFIVE_TEST_SPAN
+template <class T, std::size_t Extent>
+struct ContainerTraits<std::span<T, Extent>>
+    : public STLSpanLikeContainerTraits<std::span<T, Extent>, std::dynamic_extent> {
+  private:
+    using super = STLSpanLikeContainerTraits<std::span<T, Extent>, std::dynamic_extent>;
+
+  public:
+    using container_type = typename super::container_type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
 };
 #endif
 
@@ -426,6 +447,20 @@ struct ContainerTraits<boost::numeric::ublas::matrix<T>> {
     }
 };
 
+#endif
+
+#if HIGHFIVE_TEST_BOOST_SPAN
+template <class T, std::size_t Extent>
+struct ContainerTraits<boost::span<T, Extent>>
+    : public STLSpanLikeContainerTraits<boost::span<T, Extent>, boost::dynamic_extent> {
+  private:
+    using super = STLSpanLikeContainerTraits<boost::span<T, Extent>, boost::dynamic_extent>;
+
+  public:
+    using container_type = typename super::container_type;
+    using value_type = typename super::value_type;
+    using base_type = typename super::base_type;
+};
 #endif
 
 // -- Eigen  -------------------------------------------------------------------
