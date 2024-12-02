@@ -37,5 +37,8 @@ if [ -n "$modified_files" ]; then
     echo ""
     echo "The diff is:"
     git --no-pager diff
+    echo ""
+    echo "To correct the formatting run:"
+    echo "  $0"
     exit 1
 fi
