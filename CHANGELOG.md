@@ -1,5 +1,8 @@
 # Changes
 ## Version 3.0.0-beta2 - 2024-11-28
+### New Features
+    - Support `boost::span`. (#1025)
+
 ### Bug Fix
     - Fix for not-quite null-terminated, fixed-length strings. (#1056)
     - Guard target creation in `*Config.cmake`. (#1053)
