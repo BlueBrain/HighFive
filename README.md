@@ -13,31 +13,23 @@
 ## Examples
 
 ```c++
-#include <highfive/highfive.hpp>
-
 using namespace HighFive;
 
-std::string filename = "/tmp/new_file.h5";
+File file("foo.h5", File::Truncate);
 
 {
-    // We create an empty HDF55 file, by truncating an existing
-    // file if required:
-    File file(filename, File::Truncate);
-
     std::vector<int> data(50, 1);
     file.createDataSet("grp/data", data);
 }
 
 {
-    // We open the file as read-only:
-    File file(filename, File::ReadOnly);
     auto dataset = file.getDataSet("grp/data");
 
-    // Read back, with allocating:
+    // Read back, automatically allocating:
     auto data = dataset.read<std::vector<int>>();
 
-    // Because `data` has the correct size, this will
-    // not cause `data` to be reallocated:
+    // Alternatively, if `data` has the correct
+    // size, without reallocation:
     dataset.read(data);
 }
 ```
