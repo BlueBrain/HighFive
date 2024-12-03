@@ -1,0 +1,9 @@
+<map id="HighFive::VariableLengthStringType" name="HighFive::VariableLengthStringType">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,232,189,277"/>
+<area shape="rect" id="Node000002" href="$class_high_five_1_1_string_type.html" title=" " alt="" coords="20,157,174,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,200,100,232,94,232,94,200"/>
+<area shape="rect" id="Node000003" href="$class_high_five_1_1_data_type.html" title="HDF5 Data Type." alt="" coords="23,81,171,109"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,124,100,156,94,156,94,124"/>
+<area shape="rect" id="Node000004" href="$class_high_five_1_1_object.html" title=" " alt="" coords="33,5,161,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="100,49,100,81,94,81,94,49"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="HighFive::AttributePhaseChange" name="HighFive::AttributePhaseChange">
+<area shape="rect" id="Node000001" title="Set threshold for attribute storage." alt="" coords="5,81,188,126"/>
+<area shape="rect" id="Node000002" href="$interface_property_interface.html" title="HDF5 file property object." alt="" coords="29,5,164,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,49,99,80,94,80,94,49"/>
+</map>
