@@ -4,6 +4,11 @@ cmake_policy(VERSION 3.13)
 project(HighFive VERSION 3.0.0)
 set(HIGHFIVE_VERSION_PRERELEASE 2)
 
+message(WARNING "=================================================================\n"
+                "HighFive development moved to:\n"
+                "  github.com/highfive-devs/highfive\n"
+                "=================================================================")
+
 # Configure HighFive
 # ------------------
 option(HIGHFIVE_VERBOSE "Set logging level to verbose." OFF)
