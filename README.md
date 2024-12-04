@@ -8,9 +8,14 @@
 
 # HighFive - HDF5 header-only C++ Library
 
-[![Zenodo](https://zenodo.org/badge/47755262.svg)](https://zenodo.org/doi/10.5281/zenodo.10679422)
+The releases for versions 2.x.y and two prereleases of v3 can be found at:
+* https://github.com/BlueBrain/HighFive/releases
+* https://zenodo.org/doi/10.5281/zenodo.10679422
 
-## Examples
+All future development and full releases can be found at:
+* https://github.com/highfive-devs/highfive
+
+## Example
 
 ```c++
 using namespace HighFive;
@@ -35,14 +40,14 @@ File file("foo.h5", File::Truncate);
 ```
 
 # Funding & Acknowledgment
- 
+
 The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government's ETH Board of the Swiss Federal Institutes of Technology.
 
 HighFive releases are uploaded to Zenodo. If you wish to cite HighFive in a
 scientific publication you can use the DOIs for the
 [Zenodo records](https://zenodo.org/doi/10.5281/zenodo.10679422).
- 
-Copyright © 2015-2022 Blue Brain Project/EPFL
+
+Copyright © 2015-2024 Blue Brain Project/EPFL
 
 
 ### License
