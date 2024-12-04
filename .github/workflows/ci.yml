@@ -303,9 +303,6 @@ jobs:
         cxxstd: ["14", "17", "20"]
 
         include:
-          - os: "macOS-12"
-            cxxstd: "14"
-
           - os: "macOS-13"
             cxxstd: "20"
 
