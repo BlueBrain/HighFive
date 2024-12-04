@@ -1,5 +1,5 @@
 # Changes
-## Version 3.0.0-beta2 - 2024-11-28
+## Version 3.0.0-beta2 - 2024-12-04
 ### New Features
     - Support `boost::span`. (#1025)
 
