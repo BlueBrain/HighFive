@@ -1,5 +1,13 @@
 # Changes
-## Version 3.0.0-beta - 2024-07-16
+## Version 3.0.0-beta2 - 2024-12-04
+### New Features
+    - Support `boost::span`. (#1025)
+
+### Bug Fix
+    - Fix for not-quite null-terminated, fixed-length strings. (#1056)
+    - Guard target creation in `*Config.cmake`. (#1053)
+
+## Version 3.0.0-beta1 - 2024-07-16
 This version is a major one and is breaking some usage compare to v2.
 Read the migration guide from the documentation: https://bluebrain.github.io/HighFive/md__2home_2runner_2work_2_high_five_2_high_five_2doc_2migration__guide.html
 
