@@ -12,7 +12,7 @@ The releases for versions 2.x.y and two prereleases of v3 can be found at:
 * https://github.com/BlueBrain/HighFive/releases
 * https://zenodo.org/doi/10.5281/zenodo.10679422
 
-All future development and full releases can be found at:
+All future development and new releases can be found at:
 * https://github.com/highfive-devs/highfive
 
 ## Example
