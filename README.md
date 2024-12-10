@@ -1,6 +1,5 @@
 > [!WARNING]
-> The BlueBrainProject closed at the end of 2024. This unfortunately required
-> archiving all repositories under `BlueBrain` including HighFive.
+> The Blue Brain Project concluded in December 2024, so the HighFive development is ceased under the BlueBrain GitHub organization.
 >
 > The development of HighFive will continue at:
 >   https://github.com/highfive-devs/highfive
