@@ -4,8 +4,44 @@
 > The development of HighFive will continue at:
 >   https://github.com/highfive-devs/highfive
 
-
 # HighFive - HDF5 header-only C++ Library
+
+Documentation: https://bluebrain.github.io/HighFive/
+
+## Brief
+
+HighFive is a modern header-only C++14 friendly interface for libhdf5.
+
+HighFive supports STL vector/string, Boost::UBLAS, Boost::Multi-array and Xtensor. It handles C++ from/to HDF5 with automatic type mapping.
+HighFive does not require additional libraries (see dependencies).
+
+It integrates nicely with other CMake projects by defining (and exporting) a HighFive target.
+
+### Design
+- Simple C++-ish minimalist interface
+- Only hard dependency is libhdf5
+- Zero/low overhead, when possible
+- RAII for opening/closing files, groups, datasets, etc.
+- Written in C++14
+
+### Feature support
+- create/read/write files, datasets, attributes, groups, dataspaces.
+- automatic memory management / ref counting
+- automatic conversion of `std::vector` and nested `std::vector` from/to any dataset with basic types
+- automatic conversion of `std::string` to/from variable- or fixed-length string dataset
+- selection() / slice support
+- parallel Read/Write operations from several nodes with Parallel HDF5
+- Advanced types: Compound, Enum, Arrays of Fixed-length strings, References
+- half-precision (16-bit) floating-point datasets
+- `std::byte` in C++17 mode (with `-DCMAKE_CXX_STANDARD=17` or higher)
+- etc... (see [ChangeLog](./CHANGELOG.md))
+
+### Dependencies
+- HDF5 or pHDF5, including headers
+- boost (optional)
+- eigen3 (optional)
+- xtensor (optional)
+- half (optional)
 
 The releases for versions 2.x.y and two prereleases of v3 can be found at:
 * https://github.com/BlueBrain/HighFive/releases
